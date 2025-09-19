@@ -1,0 +1,52 @@
+2025-09-20 | Minimize the Heights II
+
+QUESTION:
+Given an array arr[] denoting heights of n towers and a positive integer k.
+
+For each tower, you must perform exactly one of the following operations exactly once:
+	•	Increase the height of the tower by k
+	•	Decrease the height of the tower by k
+
+Find out the minimum possible difference between the height of the shortest and tallest towers after you have modified each tower.
+
+⸻
+
+APPROACH:
+To minimize the height difference:
+	1.	Sort the towers first, so we can work with heights in order.
+	2.	The initial difference is the gap between the tallest and shortest towers.
+	3.	After adding and subtracting k, the new minimum will be either the smallest tower plus k or the next tower minus k. Similarly, the new maximum will be either the tallest tower minus k or a middle tower plus k.
+	4.	Iterate through each tower, treating it as the “partition” point where some towers are decreased and the rest are increased.
+	•	Calculate the new min and max for each partition.
+	•	Update the minimum difference accordingly.
+	5.	Skip negative heights if they occur during subtraction.
+
+This greedy approach ensures the result in O(n log n) due to sorting, followed by a linear scan.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int getMinDiff(vector<int>& arr, int k) {
+        int n = arr.size();
+        if (n == 1) return 0;
+
+        sort(arr.begin(), arr.end());
+
+        int diff = arr[n - 1] - arr[0];  
+        int minTower = arr[0] + k;
+        int maxTower = arr[n - 1] - k;
+
+        for (int i = 0; i < n - 1; i++) {
+            int currMin = min(minTower, arr[i + 1] - k);
+            int currMax = max(maxTower, arr[i] + k);
+
+            if (currMin < 0) continue; 
+            diff = min(diff, currMax - currMin);
+        }
+
+        return diff;
+    }
+};
