@@ -1,0 +1,42 @@
+2025-09-19 | Assign Mice to Holes
+
+QUESTION:
+You are given two arrays mices[] and holes[] of the same size. 
+The array mices[] represents the positions of the mice on a straight line, 
+while the array holes[] represents the positions of the holes on the same line. Each hole can accommodate exactly one mouse. 
+A mouse can either stay in its current position, move one step to the right, or move one step to the left, and each move takes one minute. 
+The task is to assign each mouse to a distinct hole in such a way that the time taken by the last mouse to reach its hole is minimized.
+
+
+APPROACH:
+To minimize the maximum time, the trick is to avoid random pairings and instead use sorting:
+	1.	Sort both arrays – positions of mice and positions of holes.
+	•	This way, the leftmost mouse goes to the leftmost hole, the second leftmost mouse goes to the second hole, and so on.
+	•	This prevents unnecessary crossovers that would increase travel time.
+	2.	Pair them directly after sorting.
+	•	For each mouse–hole pair, calculate the absolute difference in their positions (this gives the time taken for that mouse to reach its hole).
+	3.	Track the maximum of all these differences, since the last mouse to finish defines the total time.
+
+This works in O(n log n) time due to sorting, with only a linear scan afterward.
+
+
+class Solution {
+  public:
+    int assignHole(vector<int>& mices, vector<int>& holes) {
+        sort(mices.begin(), mices.end());
+        sort(holes.begin(), holes.end());
+        int diff = INT_MIN;
+        int size = mices.size();
+        int assign;
+        for(int i = 0; i< size;i++)
+        {
+            assign = mices[i] - holes[i];
+            if(assign < 0)
+            {
+                assign *= (-1);
+            }
+            diff = max(assign, diff);
+        }
+        return diff;
+    }
+};
