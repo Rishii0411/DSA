@@ -1,0 +1,74 @@
+# 2025-09-19 | Sort a Linked List of 0s, 1s, and 2s
+
+QUESTION:
+Given the head of a linked list where nodes can contain values 0s, 1s, and 2s only. 
+Your task is to rearrange the list so that all 0s appear at the beginning, followed by all 1s, and all 2s are placed at the end.
+
+
+APPROACH:
+Here’s the idea I followed:
+	1.	Create three dummy nodes to act as the starting points of three lists:
+	•	one list for all 0s
+	•	one list for all 1s
+	•	one list for all 2s
+	2.	Traverse the original list once:
+	•	If the current node has 0, attach it to the 0s list.
+	•	If it has 1, attach it to the 1s list.
+	•	If it has 2, attach it to the 2s list.
+This way, we don’t lose any nodes, just rearrange their links.
+	3.	After the traversal, link the three lists together:
+	•	Connect the 0s list to the 1s list (or directly to 2s if there are no 1s).
+	•	Connect the 1s list to the 2s list.
+	4.	The new head of the linked list will be the first node after the dummy of 0s.
+
+
+
+
+SOLUTION:
+class Solution {
+public:
+    Node* segregate(Node* head) {
+        if (!head || !head->next) return head;
+
+        // Dummy nodes for 0s, 1s, and 2s
+        Node* zeroDummy = new Node(0);
+        Node* oneDummy  = new Node(0);
+        Node* twoDummy  = new Node(0);
+
+        // Tails for the three lists
+        Node* zero = zeroDummy;
+        Node* one  = oneDummy;
+        Node* two  = twoDummy;
+
+        // Traverse and distribute nodes
+        for (Node* curr = head; curr; curr = curr->next) {
+            if (curr->data == 0) {
+                zero->next = curr;
+                zero = zero->next;
+            } 
+            else if (curr->data == 1) {
+                one->next = curr;
+                one = one->next;
+            } 
+            else {
+                two->next = curr;
+                two = two->next;
+            }
+        }
+
+        // Connect the three lists
+        zero->next = oneDummy->next ? oneDummy->next : twoDummy->next;
+        one->next  = twoDummy->next;
+        two->next  = nullptr;
+
+        // Update head
+        Node* newHead = zeroDummy->next;
+
+        // Free dummy nodes
+        delete zeroDummy;
+        delete oneDummy;
+        delete twoDummy;
+
+        return newHead;
+    }
+};
