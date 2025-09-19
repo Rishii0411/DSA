@@ -1,0 +1,60 @@
+2025-09-20 | Minimum Jumps to Reach End
+
+QUESTION:
+You are given an array arr[] of non-negative numbers. Each number tells you the maximum number of steps you can jump forward from that position.
+
+For example:
+If arr[i] = 3, you can jump to index i + 1, i + 2, or i + 3 from position i.
+If arr[i] = 0, you cannot jump forward from that position.
+
+Your task is to find the minimum number of jumps needed to move from the first position in the array to the last position.
+
+Note: Return -1 if you can’t reach the end of the array.
+
+⸻
+
+APPROACH:
+The problem can be solved greedily by keeping track of the farthest index we can currently reach and the number of steps available before we are forced to jump again.
+	1.	Start from the first index and set the maximum reachable position to arr[0].
+	2.	Keep a counter for how many steps we can still take (steps = arr[0]) and initialize the number of jumps to 1 (since we start with at least one jump).
+	3.	Traverse the array:
+	•	At each step, update the farthest position we can reach so far.
+	•	Decrease the available steps.
+	•	If steps run out, it means we must jump. Increase the jump count and reset steps based on how far we could reach.
+	4.	If at any point our current index is beyond the farthest reachable position, it means we are stuck, so return -1.
+	5.	If we reach the last index, return the number of jumps made.
+
+This ensures that we always make the minimum number of jumps possible. The time complexity is O(n), since we scan the array once.
+
+SOLUTION:
+class Solution {
+public:
+    int minJumps(vector<int>& arr) {
+        int n = arr.size();
+        if (n <= 1) return 0;       // Already at the end
+        if (arr[0] == 0) return -1; // Can't move anywhere
+
+        int maxReach = arr[0];   // Farthest index reachable
+        int steps = arr[0];      // Steps we can still take
+        int jumps = 1;           // At least one jump needed
+
+        for (int i = 1; i < n; i++) {
+            // Reached the end
+            if (i == n - 1) return jumps;
+
+            maxReach = max(maxReach, i + arr[i]);
+            steps--;
+
+            // If no steps left, we must jump
+            if (steps == 0) {
+                jumps++;
+
+                // If current index >= maxReach, stuck
+                if (i >= maxReach) return -1;
+
+                steps = maxReach - i; // Reset steps
+            }
+        }
+        return -1;
+    }
+};
