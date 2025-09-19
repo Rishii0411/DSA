@@ -1,0 +1,60 @@
+# 2025-09-19 | Length of Loop in Linked List
+
+
+QUESTION:
+Given the head of a linked list, determine whether the list contains a loop. If a loop is present, return the number of nodes in the loop, otherwise return 0.
+
+Note: Internally, pos(1 based index) is used to denote the position of the node that tail's next pointer is connected to. If pos = 0, it means the last node points to null, indicating there is no loop. Note that pos is not passed as a parameter.
+
+
+APPROACH:
+The problem is to find the length of a loop in a linked list, if one exists.
+A simple way to detect loops is by using Floyd’s Cycle Detection Algorithm (also called the slow and fast pointer method).
+	1.	Take two pointers:
+	•	slow → moves one step at a time
+	•	fast → moves two steps at a time
+	2.	Traverse the list:
+	•	If at any point slow == fast, it means there is a loop.
+	•	If fast or fast->next becomes NULL, it means the list has no loop.
+	3.	Once a loop is detected, we need its length.
+	•	Start from the meeting point and move around the loop until you come back to the same node, counting the number of steps.
+	•	That count is the loop length.
+
+This method only requires O(n) time (since each pointer visits nodes at most a few times) and O(1) extra space.
+
+
+
+SOLUTION:
+class Solution {
+public:
+    // Helper: counts number of nodes in a loop
+    int countNodes(Node* loopNode) {
+        int count = 1;
+        Node* curr = loopNode;
+        while (curr->next != loopNode) {
+            count++;
+            curr = curr->next;
+        }
+        return count;
+    }
+
+    // Main function: returns length of loop if present, else 0
+    int lengthOfLoop(Node* head) {
+        if (!head) return 0;
+
+        Node* slow = head;
+        Node* fast = head;
+
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+
+            // Loop detected
+            if (slow == fast) {
+                return countNodes(slow);
+            }
+        }
+        // No loop found
+        return 0;
+    }
+};
