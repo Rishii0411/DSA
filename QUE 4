@@ -1,0 +1,57 @@
+2025-09-19 | Sort Linked List using Merge Sort
+
+QUESTION:
+You are given the head of a linked list. You have to sort the given linked list using Merge Sort.
+
+⸻
+
+APPROACH:
+The idea is to apply the divide-and-conquer strategy of Merge Sort on a linked list. First, the list is divided into two halves using the fast and slow pointer method. 
+The slow pointer stops at the midpoint, and we cut the list into two parts from there. Each half is then sorted recursively using Merge Sort. Finally, 
+the two sorted halves are merged together. During merging, we repeatedly pick the smaller node from the two lists and attach it to the result.
+This approach ensures the linked list is sorted in O(n log n) time while only using O(log n) space for recursion.
+
+
+SOLUTION:
+class Solution {
+public:
+    // Split the linked list into two halves and return the head of the second half
+    Node* split(Node* head) {
+        Node* slow = head;
+        Node* fast = head;
+
+        while (fast && fast->next) {
+            fast = fast->next->next;
+            if (fast) slow = slow->next;
+        }
+
+        Node* secondHalf = slow->next;
+        slow->next = nullptr; // break the list
+        return secondHalf;
+    }
+
+    // Merge two sorted linked lists and return the head of merged list
+    Node* merge(Node* first, Node* second) {
+        if (!first) return second;
+        if (!second) return first;
+
+        if (first->data < second->data) {
+            first->next = merge(first->next, second);
+            return first;
+        } else {
+            second->next = merge(first, second->next);
+            return second;
+        }
+    }
+
+    // Merge Sort function for linked list
+    Node* mergeSort(Node* head) {
+        if (!head || !head->next) return head; // base case: 0 or 1 node
+
+        Node* secondHalf = split(head);       // divide the list
+        head = mergeSort(head);               // sort first half
+        secondHalf = mergeSort(secondHalf);  // sort second half
+
+        return merge(head, secondHalf);       // merge sorted halves
+    }
+};
