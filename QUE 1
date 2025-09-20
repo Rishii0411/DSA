@@ -1,0 +1,65 @@
+2025-09-20 | Evaluate Postfix Expression
+
+QUESTION:
+You are given an array of strings arr[] that represents a valid arithmetic expression written in Reverse Polish Notation (Postfix Notation).
+Your task is to evaluate the expression and return an integer representing its value.
+	•	A postfix expression is of the form: operand1 operand2 operator (e.g., "2 3 +" → 5).
+	•	Division between two integers always computes the floor value (e.g., floor(5/3) = 1, floor(-5/3) = -2).
+	•	It is guaranteed that the result and all intermediate calculations will fit in a 32-bit signed integer.
+
+
+
+APPROACH:
+	1.	Use a stack to evaluate the postfix expression.
+	2.	Traverse the array one element at a time:
+	•	If the element is an operand, convert it to integer and push it onto the stack.
+	•	If the element is an operator, pop the top two elements, apply the operator, and push the result back.
+	3.	Handle division carefully to ensure flooring behavior when negative numbers are involved.
+	4.	At the end, the stack will contain only one element → the final answer.
+
+
+
+SOLUTION:
+class Solution {
+  public:
+    int evaluatePostfix(vector<string>& arr) {
+        stack<int> st;
+        int num1, num2, val;
+
+        for (int i = 0; i < arr.size(); i++) {
+            string temp = arr[i];
+
+            if (temp == "+" || temp == "-" || temp == "*" || temp == "/" || temp == "^") {
+                num2 = st.top(); st.pop();
+                num1 = st.top(); st.pop();
+
+                if (temp == "+") {
+                    st.push(num1 + num2);
+                }
+                else if (temp == "-") {
+                    st.push(num1 - num2);
+                }
+                else if (temp == "*") {
+                    st.push(num1 * num2);
+                }
+                else if (temp == "/") {
+                    // floor division handling
+                    if ((num1 ^ num2) < 0 && num1 % num2 != 0) {
+                        st.push(num1 / num2 - 1);
+                    } else {
+                        st.push(num1 / num2);
+                    }
+                }
+                else if (temp == "^") {
+                    st.push((int)pow(num1, num2));
+                }
+            }
+            else {
+                val = stoi(temp);
+                st.push(val);
+            }
+        }
+
+        return st.top();
+    }
+};
