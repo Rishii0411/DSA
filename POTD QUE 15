@@ -1,0 +1,45 @@
+2025-09-21 | Minimum Add to Make Parentheses Valid
+
+ Question:
+
+You are given a string s consisting only of the characters '(' and ')'.
+Your task is to determine the minimum number of parentheses (either '(' or ')') that must be inserted at any positions to make the string s a valid parentheses string.
+
+A parentheses string is considered valid if:
+	1.	Every opening parenthesis '(' has a corresponding closing parenthesis ')'.
+	2.	Every closing parenthesis ')' has a corresponding opening parenthesis '('.
+	3.	Parentheses are properly nested.
+
+ Approach:
+	1.	Initialize two counters:
+	openNeeded → counts missing '('.
+	closeNeeded → counts missing ')'.
+	2.	Traverse the string:
+	If the current char is '(', increment closeNeeded (because we now need a closing bracket for it).
+	If it’s ')':
+	If closeNeeded > 0, decrement closeNeeded (closing one is matched).
+	Otherwise, increment openNeeded (means we have an unmatched ')').
+The result is openNeeded + closeNeeded because both represent missing insertions.
+
+SOLUTION:
+class Solution {
+  public:
+    int minParentheses(string& s) {
+        int openNeeded = 0, closeNeeded = 0;
+
+        for (char ch : s) {
+            if (ch == '(') {
+                closeNeeded++;  // expect a ')'
+            } 
+            else { // ch == ')'
+                if (closeNeeded > 0) {
+                    closeNeeded--; // match found
+                } else {
+                    openNeeded++;  // need an extra '('
+                }
+            }
+        }
+
+        return openNeeded + closeNeeded;
+    }
+};
