@@ -1,0 +1,50 @@
+2025-09-21 | Next Greater Element in a Circular Array
+
+Question:
+
+Given a circular integer array arr[], determine the next greater element (NGE) for each element.
+	•	The next greater element of arr[i] is the first element greater than arr[i] when traversing circularly.
+	•	If no such element exists, return -1 for that position.
+	•	Since the array is circular, after reaching the last element, the search continues from the beginning until we’ve checked all elements.
+
+Approach:
+	1.	Simulate circular traversal:
+	Push all elements once into the stack before starting the main iteration.
+	This allows us to simulate wraparound without iterating twice explicitly.
+	2.	Monotonic stack:
+	Traverse the array backwards.
+	Maintain a stack that keeps track of potential next greater elements.
+	For each element arr[i]:
+	Pop from the stack while the top ≤ arr[i] (since it cannot be NGE).
+	If stack is not empty, its top is the NGE for arr[i].
+	Push arr[i] into the stack for future elements.
+	3.	Result:
+
+	Store the results in a vector initialized with -1.
+
+SOLUTION:
+class Solution {
+  public:
+    vector<int> nextGreater(vector<int> &arr) {
+        stack<int> st;
+        vector<int> v(arr.size(), -1);
+
+        // First pass to simulate circularity
+        for (int i = arr.size() - 1; i >= 0; i--) {
+            st.push(arr[i]);
+        }
+
+        // Second pass for actual NGE calculation
+        for (int i = arr.size() - 1; i >= 0; i--) {
+            while (!st.empty() && st.top() <= arr[i]) {
+                st.pop();
+            }
+            if (!st.empty()) {
+                v[i] = st.top();
+            }
+            st.push(arr[i]);
+        }
+
+        return v;
+    }
+};
