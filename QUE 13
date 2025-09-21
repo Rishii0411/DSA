@@ -1,0 +1,67 @@
+2025-09-21 | Decode a String
+
+Question:
+Given an encoded string s, decode it by expanding the pattern k[substring], where the substring inside brackets is written k times.
+	•	k is guaranteed to be a positive integer.
+	•	The encoded string contains only lowercase English alphabets.
+	•	Return the final decoded string.
+
+Note: The test cases are generated so that the length of the output string will never exceed 10^5.
+
+Approach:
+	1.	Use recursion to handle nested brackets:
+	•	Keep a pointer i that moves through the string.
+	•	If you see a digit → build the full number (num).
+	•	If you see [ → recursively decode the substring inside until ].
+	•	If you see ] → return the built substring to the upper level.
+	•	If you see a normal character → directly add it to the current string.
+	2.	Repeat substrings:
+	•	When closing a bracket ] is encountered, repeat the substring using the previously built num.
+	3.	Helper function:
+	•	decode(s, i) recursively expands substrings.
+	•	repeatString(str, n) handles string repetition efficiently.
+
+
+SOLUTION:
+class Solution {
+public:
+    string repeatString(const string &s, int n) {
+        string ans;
+        ans.reserve(s.size() * n);
+        for (int i = 0; i < n; i++) ans += s;
+        return ans;
+    }
+
+    string decode(string &s, int &i) {
+        string curr = "";
+        int num = 0;
+
+        while (i < s.size()) {
+            if (isdigit(s[i])) {
+                num = num * 10 + (s[i] - '0');
+                i++;
+            }
+            else if (s[i] == '[') {
+                i++; // skip '['
+                string inside = decode(s, i); // decode inside brackets
+                curr += repeatString(inside, num);
+                num = 0;
+            }
+            else if (s[i] == ']') {
+                i++; // skip ']'
+                return curr;
+            }
+            else { // normal character
+                curr += s[i];
+                i++;
+            }
+        }
+
+        return curr;
+    }
+
+    string decodedString(string &s) {
+        int i = 0;
+        return decode(s, i);
+    }
+};
