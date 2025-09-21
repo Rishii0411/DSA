@@ -1,0 +1,64 @@
+2025-09-21 | Longest Subarray with Elements ≤ Length of Subarray
+
+Question:
+
+You are given an array of integers arr[].
+Your task is to find the length of the longest subarray such that all elements of the subarray are smaller than or equal to the length of the subarray.
+
+Approach:
+
+This problem can be solved using a monotonic stack technique similar to the largest rectangle in a histogram problem:
+	1.	Next Greater Element to the Right:
+	For each element, find the index of the first greater element on the right.
+	If none exists, assume n (array boundary).
+	2.	Next Greater Element to the Left:
+	For each element, find the index of the first greater element on the left.
+	If none exists, assume -1 (array boundary).
+	3.	Valid Subarray Length:
+	For each index i, the maximum length of subarray where arr[i] is the smallest “limiting” element is:
+ text{len} = nextGreater[i] - prevGreater[i] - 1
+	4.	Check condition:
+	If len >= arr[i], then it’s a valid subarray.
+	Keep track of the maximum length found.
+
+SOLUTION:
+class Solution {
+  public:
+    int longestSubarray(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> nextGreater(n, n), prevGreater(n, -1);
+        stack<int> st;
+
+        // --- Next Greater to the Right ---
+        for (int i = 0; i < n; i++) {
+            while (!st.empty() && arr[st.top()] < arr[i]) {
+                nextGreater[st.top()] = i;
+                st.pop();
+            }
+            st.push(i);
+        }
+
+        // Clear stack
+        while (!st.empty()) st.pop();
+
+        // --- Next Greater to the Left ---
+        for (int i = n - 1; i >= 0; i--) {
+            while (!st.empty() && arr[st.top()] < arr[i]) {
+                prevGreater[st.top()] = i;
+                st.pop();
+            }
+            st.push(i);
+        }
+
+        // --- Find longest valid subarray ---
+        int maxLength = 0;
+        for (int i = 0; i < n; i++) {
+            int len = nextGreater[i] - prevGreater[i] - 1;
+            if (len >= arr[i]) {
+                maxLength = max(maxLength, len);
+            }
+        }
+
+        return maxLength;
+    }
+};
