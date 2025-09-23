@@ -1,0 +1,34 @@
+2025-09-23 | Reverse a Queue
+
+Question
+
+Given a queue q containing integer elements, your task is to reverse the queue.
+
+Approach
+	1.	Use a Stack
+	•	Dequeue all elements from the queue and push them onto a stack.
+	•	Since a stack reverses the order of insertion, the top will contain the last dequeued element.
+	2.	Reinsert into Queue
+	•	Pop all elements from the stack and enqueue them back into the queue.
+	•	This restores the queue in reversed order.
+
+
+SOLUTION:
+class Solution {
+  public:
+    void reverseQueue(queue<int> &q) {
+        stack<int> st;
+
+        // Step 1: Move all elements from queue to stack
+        while(!q.empty()) {
+            st.push(q.front());
+            q.pop();
+        }
+
+        // Step 2: Push all elements back from stack to queue
+        while(!st.empty()) {
+            q.push(st.top());
+            st.pop();
+        }
+    }
+};
