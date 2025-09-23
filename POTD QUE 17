@@ -1,0 +1,70 @@
+2025-09-23 | Maximum Rectangle of 1’s in a Binary Matrix
+
+Question
+
+You are given a 2D binary matrix mat[ ][ ], where each cell contains either 0 or 1.
+Your task is to find the maximum area of a rectangle that can be formed using only 1’s within the matrix.
+
+Approach
+
+This problem can be reduced to the largest rectangle in a histogram problem.
+	1.	Transform Rows into Histograms
+	•	Treat each row as the “base” of a histogram.
+	•	For each column, count consecutive 1’s up to the current row.
+	•	If you see a 0, reset the height to 0.
+	2.	Apply Largest Rectangle in Histogram
+	•	For each row’s histogram, compute the largest rectangle using a stack-based approach.
+	•	This is done by finding the width of the rectangle for each bar where it is the “smallest bar”.
+	3.	Take Maximum Across All Rows
+	•	Update the maximum rectangle area after processing each row.
+
+  SOLUTION:
+  class Solution {
+public:
+    // Function to compute largest rectangle in a histogram
+    int largestHistogramArea(const vector<int>& heights) {
+        int n = heights.size();
+        stack<int> st;
+        int maxArea = 0;
+
+        for (int i = 0; i < n; i++) {
+            while (!st.empty() && heights[st.top()] >= heights[i]) {
+                int height = heights[st.top()];
+                st.pop();
+
+                int width = st.empty() ? i : (i - st.top() - 1);
+                maxArea = max(maxArea, height * width);
+            }
+            st.push(i);
+        }
+
+        // Handle remaining bars in stack
+        while (!st.empty()) {
+            int height = heights[st.top()];
+            st.pop();
+
+            int width = st.empty() ? n : (n - st.top() - 1);
+            maxArea = max(maxArea, height * width);
+        }
+
+        return maxArea;
+    }
+
+    // Function to compute largest rectangle of 1s in a binary matrix
+    int maxArea(vector<vector<int>>& matrix) {
+        int rows = matrix.size();
+        int cols = matrix[0].size();
+
+        vector<int> heights(cols, 0);
+        int result = 0;
+
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                heights[c] = (matrix[r][c] == 0) ? 0 : heights[c] + 1;
+            }
+            result = max(result, largestHistogramArea(heights));
+        }
+
+        return result;
+    }
+};
