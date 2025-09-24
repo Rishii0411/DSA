@@ -1,0 +1,88 @@
+2025-09-24 | SpecialQueue with Min and Max Retrieval
+
+Question
+
+Design a SpecialQueue data structure that supports the following operations:
+	1.	enqueue(x): Insert an element x at the rear of the queue.
+	2.	dequeue(): Remove the element from the front of the queue.
+	3.	getFront(): Return the front element without removing it.
+	4.	getMin(): Return the minimum element currently in the queue.
+	5.	getMax(): Return the maximum element currently in the queue.
+
+You are given a sequence of queries in the form:
+	•	1 x → Call enqueue(x)
+	•	2 → Call dequeue()
+	•	3 → Call getFront()
+	•	4 → Call getMin()
+	•	5 → Call getMax()
+
+All queries are guaranteed to be valid. You need to implement only the five functions above.
+
+⸻
+
+Approach
+
+To achieve O(1) retrieval of minimum and maximum, we can use two auxiliary deques along with the main queue:
+	1.	Main Queue (q1)
+	•	Stores all elements in the normal FIFO order.
+	2.	Min Deque (q2)
+	•	Maintains elements in non-decreasing order.
+	•	The front of the deque always has the minimum element.
+	•	On enqueue, remove all elements from the back that are greater than the new element, then push the new element.
+	•	On dequeue, if the element leaving the queue is the front of q2, remove it from q2.
+	3.	Max Deque (q3)
+	•	Maintains elements in non-increasing order.
+	•	The front of the deque always has the maximum element.
+	•	On enqueue, remove all elements from the back that are smaller than the new element, then push the new element.
+	•	On dequeue, if the element leaving the queue is the front of q3, remove it from q3.
+
+This ensures that getMin() and getMax() operations always return the front of their respective deques in O(1) time, while maintaining normal queue behavior.
+
+SOLUTION:
+class SpecialQueue {
+    queue<int> q1;      // Main queue
+    deque<int> q2;      // For minimum
+    deque<int> q3;      // For maximum
+
+  public:
+    void enqueue(int x) {
+        q1.push(x);
+
+        // Maintain min deque
+        while (!q2.empty() && q2.back() > x) q2.pop_back();
+        q2.push_back(x);
+
+        // Maintain max deque
+        while (!q3.empty() && q3.back() < x) q3.pop_back();
+        q3.push_back(x);
+    }
+
+    void dequeue() {
+        if (q1.empty()) return;
+
+        int frontVal = q1.front();
+
+        // Update min deque
+        if (!q2.empty() && frontVal == q2.front()) q2.pop_front();
+
+        // Update max deque
+        if (!q3.empty() && frontVal == q3.front()) q3.pop_front();
+
+        q1.pop();
+    }
+
+    int getFront() {
+        if (q1.empty()) return -1;
+        return q1.front();
+    }
+
+    int getMin() {
+        if (q1.empty()) return -1;
+        return q2.front();
+    }
+
+    int getMax() {
+        if (q1.empty()) return -1;
+        return q3.front();
+    }
+};
