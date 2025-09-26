@@ -1,0 +1,68 @@
+2025-09-26 | Bottom View of a Binary Tree
+
+QUESTION:
+
+Given a binary tree, the task is to return an array representing the bottom view of the tree from left to right.
+	•	The bottom view consists of nodes that are visible when the tree is viewed from the bottom.
+	•	If multiple nodes occupy the same horizontal distance from the root, the later node in level order traversal is considered.
+
+APPROACH:
+	1.	Use a queue to perform a level order traversal.
+	2.	Maintain a map of horizontal distance to node value.
+	•	For each node visited, update the map with its value (this ensures the later node at the same horizontal distance overwrites the previous one).
+	3.	Track the horizontal distance of each node using another map.
+	4.	For each node:
+	•	If it has a left child, assign hd - 1 and enqueue it.
+	•	If it has a right child, assign hd + 1 and enqueue it.
+	5.	After traversal, sort the map by horizontal distance and collect the node values for the bottom view.
+
+This ensures we capture the lowest nodes for each horizontal distance.
+
+SOLUTION:
+class Solution {
+  public:
+    vector<int> bottomView(Node *root) {
+        vector<int> res;
+        if (root == NULL)
+            return res;
+
+        int hd = 0;
+
+        // Map to store horizontal distance -> node value
+        map<int, int> m;
+        // Map to store node -> horizontal distance
+        map<Node *, int> mh;
+
+        // Queue for level order traversal
+        queue<Node *> q;
+
+        mh[root] = hd;
+        q.push(root);
+
+        while (!q.empty()) {
+            Node *temp = q.front();
+            q.pop();
+
+            hd = mh[temp];
+
+            // Update the map for current horizontal distance
+            m[hd] = temp->data;
+
+            if (temp->left != NULL) {
+                mh[temp->left] = hd - 1;
+                q.push(temp->left);
+            }
+
+            if (temp->right != NULL) {
+                mh[temp->right] = hd + 1;
+                q.push(temp->right);
+            }
+        }
+
+        // Collect bottom view nodes in order of horizontal distance
+        for (auto i = m.begin(); i != m.end(); ++i)
+            res.push_back(i->second);
+
+        return res;
+    }
+};
