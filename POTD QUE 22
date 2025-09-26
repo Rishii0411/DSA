@@ -1,0 +1,41 @@
+2025-09-26 | Rotate a Deque
+
+QUESTION:
+
+You are given a deque (double-ended queue) dq containing non-negative integers, along with two positive integers type and k. The task is to rotate the deque circularly by k positions.
+	•	If type = 1, perform a right rotation (clockwise), which means moving the last element to the front k times.
+	•	If type = 2, perform a left rotation (anti-clockwise), which means moving the first element to the back k times.
+
+Your goal is to update the deque accordingly after performing the rotations.
+
+
+APPROACH:
+
+Since the deque allows push and pop operations from both ends in constant time, we can directly simulate the rotations:
+	•	For right rotation (type = 1): Repeat k times → remove the last element (pop_back), and insert it at the front (push_front).
+	•	For left rotation (type = 2): Repeat k times → remove the first element (pop_front), and insert it at the back (push_back).
+
+This is straightforward and works efficiently because each operation takes O(1) time, and we perform it k times, leading to O(k) complexity.
+
+SOLUTION:
+class Solution {
+  public:
+    void rotateDeque(deque<int>& dq, int type, int k) {
+        int temp;
+        if (type == 1) {
+            // Right rotation
+            for (int i = 0; i < k; i++) {
+                temp = dq.back();
+                dq.pop_back();
+                dq.push_front(temp);
+            }
+        } else {
+            // Left rotation
+            for (int i = 0; i < k; i++) {
+                temp = dq.front();
+                dq.pop_front();
+                dq.push_back(temp);
+            }
+        }
+    }
+};
