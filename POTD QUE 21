@@ -1,0 +1,55 @@
+2025-09-26 | Generate Binary Numbers
+
+QUESTION:
+
+You are given a number n. The task is to generate all binary numbers corresponding to decimal values from 1 to n.
+
+Example:
+	•	Input: n = 5
+	•	Output: 1, 10, 11, 100, 101
+
+
+
+APPROACH:
+
+We can think of this problem like performing a Breadth-First Search (BFS) on a binary tree of strings:
+	1.	Start with "1" as the root node.
+	2.	For every number, generate its two children:
+	•	Append "0" → left child.
+	•	Append "1" → right child.
+	3.	Use a queue to maintain the order of generation.
+	4.	Pop the front element from the queue, record it in the result, then push its children back.
+	5.	Repeat this process until you generate n binary numbers.
+
+This ensures binary numbers are generated in sequential order, just like counting in binary.
+
+SOLUTION:
+class Solution {
+  public:
+    vector<string> generateBinary(int n) {
+        vector<string> res;        // Store the result
+        queue<string> q;           // Queue for BFS
+
+        // Start with "1"
+        q.push("1");
+
+        // Generate binary numbers using BFS
+        while (n--) {
+            string s1 = q.front();
+            q.pop();
+
+            // Add the current binary number to result
+            res.push_back(s1);
+
+            // Generate next numbers
+            string s2 = s1;
+
+            // Append "0" to s1 and push
+            q.push(s1.append("0"));
+
+            // Append "1" to s2 and push
+            q.push(s2.append("1"));
+        }
+        return res;
+    }
+};
