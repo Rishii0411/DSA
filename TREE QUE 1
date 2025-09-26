@@ -1,0 +1,91 @@
+2025-09-26 | Boundary Traversal of a Binary Tree
+
+QUESTION:
+
+You are given a binary tree. The task is to return its boundary traversal in the following order:
+	1.	Left Boundary: Nodes on the path from the root to the leftmost leaf (excluding leaves). Prefer the left child over the right child.
+	2.	Leaf Nodes: All leaf nodes from left to right (excluding those already counted in the left or right boundary).
+	3.	Reverse Right Boundary: Nodes on the path from the rightmost leaf to the root (excluding leaves and root). Prefer the right child over the left child.
+
+Note:
+	•	If the root does not have a left or right subtree, then the root itself is considered part of that boundary.
+
+
+APPROACH:
+	1.	Start by always including the root node in the result.
+	2.	Collect the left boundary using recursion:
+	•	At each step, prefer the left child; if not available, take the right child.
+	•	Stop at leaf nodes to avoid duplication.
+	3.	Collect all leaf nodes via in-order traversal, ensuring we pick left-to-right leaves.
+	4.	Collect the right boundary recursively in bottom-up order:
+	•	At each step, prefer the right child; if not available, take the left child.
+	•	Stop at leaves to avoid duplication.
+	•	Add nodes after recursion to ensure reverse order.
+	5.	Combine them to form the final traversal.
+
+
+SOLUTION:
+class Solution {
+private:
+    // Collects all leaf nodes
+    void collectLeaves(Node* root, vector<int>& result) {
+        if (!root) return;
+
+        collectLeaves(root->left, result);
+
+        if (!root->left && !root->right) {
+            result.push_back(root->data);
+        }
+
+        collectLeaves(root->right, result);
+    }
+
+    // Collects left boundary nodes (excluding leaf nodes)
+    void collectLeftBoundary(Node* root, vector<int>& result) {
+        if (!root) return;
+
+        if (root->left) {
+            result.push_back(root->data);
+            collectLeftBoundary(root->left, result);
+        } else if (root->right) {
+            result.push_back(root->data);
+            collectLeftBoundary(root->right, result);
+        }
+        // Skip leaf nodes
+    }
+
+    // Collects right boundary nodes (excluding leaf nodes) in bottom-up order
+    void collectRightBoundary(Node* root, vector<int>& result) {
+        if (!root) return;
+
+        if (root->right) {
+            collectRightBoundary(root->right, result);
+            result.push_back(root->data);
+        } else if (root->left) {
+            collectRightBoundary(root->left, result);
+            result.push_back(root->data);
+        }
+        // Skip leaf nodes
+    }
+
+public:
+    vector<int> boundaryTraversal(Node* root) {
+        vector<int> result;
+        if (!root) return result;
+
+        // Root is always part of boundary
+        result.push_back(root->data);
+
+        // Left boundary (top-down, excluding leaves)
+        collectLeftBoundary(root->left, result);
+
+        // All leaves (left → right)
+        collectLeaves(root->left, result);
+        collectLeaves(root->right, result);
+
+        // Right boundary (bottom-up, excluding leaves)
+        collectRightBoundary(root->right, result);
+
+        return result;
+    }
+};
