@@ -1,0 +1,85 @@
+2025-09-27 | Majority Element in an Array
+
+Question
+
+You are given an array arr[]. A majority element in the array is defined as an element that appears strictly more than n/2 times, 
+where n is the size of the array.
+Your task is to find and return the majority element if it exists.
+If no majority element exists, return -1.
+
+
+Approach
+	1.	Frequency Counting with Hash Table
+	•	Create a hash table where each element is stored as a key and its frequency as the value.
+	•	Traverse the array and insert elements into the hash table, incrementing their counts.
+	2.	Check Majority Condition
+	•	After building frequencies, iterate again and check if any element’s frequency is greater than n/2.
+	•	If found, return that element.
+	3.	No Majority Case
+	•	If no element satisfies the majority condition, return -1.
+
+This approach leverages hashing to efficiently count occurrences and then checks the majority condition.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class hashTable {
+    int size;
+    vector<list<pair<int, int>>> table;
+
+public:
+    hashTable(int k) {
+        size = k;
+        table.resize(size);
+    }
+
+    int hashFunction(int k) {
+        return k % size;
+    }
+
+    void insert(int k, int v) {
+        int idx = hashFunction(k);
+        for (auto &p : table[idx]) {
+            if (p.first == k) {
+                p.second += v;  // accumulate frequency
+                return;
+            }
+        }
+        table[idx].push_back({k, v});
+    }
+
+    bool hasMajority(int k, int threshold, int &majority) {
+        int idx = hashFunction(k);
+        for (auto &p : table[idx]) {
+            if (p.first == k && p.second > threshold) {
+                majority = p.first;
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+class Solution {
+public:
+    int majorityElement(vector<int> &arr) {
+        int n = arr.size();
+        int threshold = n / 2;
+
+        if (n == 1) return arr[0];
+
+        hashTable ht(n);
+        for (int x : arr) {
+            ht.insert(x, 1);
+        }
+
+        int majority = -1;
+        for (int x : arr) {
+            if (ht.hasMajority(x, threshold, majority)) {
+                return majority;
+            }
+        }
+        return -1;
+    }
+};
