@@ -1,0 +1,45 @@
+2025-09-27 | Minimum K-Bit Flips
+
+QUESTION:
+You are given a binary array arr[] and an integer k. In one operation, you can select a contiguous subarray of length k and flip all its bits. 
+Find the minimum number of operations required to make the array consist only of 1’s. If it is not possible, return -1.
+
+APPROACH:
+A brute force solution checks every index, and whenever a 0 is found, it flips the next k elements. 
+This ensures the leftmost zero is always corrected as soon as possible. However, this requires flipping elements one by one, leading to O(n·k) complexity.
+
+To optimize, we avoid physically flipping every element. Instead, we maintain a counter to track how many flips affect the current position. 
+At each index, the effective bit is calculated as the original bit XOR the parity of active flips. If the effective bit is 0, we must start a new flip at this position. We mark the start of the flip and later reduce its effect when its window of size k passes. 
+This gives a linear O(n) solution with extra space to track flips.
+
+
+SOLUTION:
+class Solution {
+public:
+int kBitFlips(vector<int>& arr, int k) {
+    int count = 0;
+    for(int i = 0;i<arr.size()-k+1;i++)
+    {
+        // cout<<i<<" ";
+        if(arr[i] == 0)
+        {
+            // cout<<"heree "<<i;
+            for(int j = i;j<i+k;j++)
+            {
+                arr[j] = !arr[j];
+                // i = j;
+            }
+            count++;
+        }
+    // cout<<"ccount1 iz "<<count1<<endl;
+    }
+    for(int i = 0 ;i<arr.size();i++)
+    {
+        if(arr[i] == 0)
+        {
+            return -1;
+        }
+    }
+    return count;
+}
+};
