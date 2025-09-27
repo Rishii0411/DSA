@@ -1,0 +1,60 @@
+2025-09-27 | Check for Sum Tree
+
+QUESTION:
+Given a binary tree, check whether it is a Sum Tree. A Sum Tree is defined as a binary tree where every non-leaf node’s value is equal to the sum of all values in its left subtree and right subtree. An empty tree and leaf nodes are considered Sum Trees. Return true if the given tree satisfies the Sum Tree property, otherwise return false.
+
+APPROACH:
+To solve this problem, we use recursion:
+	1.	If the node is NULL, it is considered a valid Sum Tree.
+	2.	If the node is a leaf, it is also considered valid.
+	3.	For non-leaf nodes, we recursively check the left and right subtrees.
+	•	We calculate the sum of the left and right children.
+	•	If the current node’s value matches the sum of its children and both subtrees are Sum Trees, then this node is also valid.
+	4.	To avoid recomputation, we can update the node’s value to represent the total sum of the subtree rooted at that node (node value + sum of left subtree + sum of right subtree).
+	5.	If any check fails, we return false.
+
+This ensures we check all nodes and confirm the Sum Tree property in O(n) time.
+
+
+SOLUTION:
+/*  Tree node
+struct Node {
+    int data;
+    Node* left, * right;
+}; */
+
+bool check_sum(Node* root) {
+    if (root == NULL) {
+        return true; // empty tree is a Sum Tree
+    }
+
+    // Leaf node is also considered Sum Tree
+    if (root->left == NULL && root->right == NULL) {
+        return true;
+    }
+
+    // Recursively check left and right subtrees
+    bool leftCheck = check_sum(root->left);
+    bool rightCheck = check_sum(root->right);
+
+    // Calculate sum of left and right child nodes
+    int leftVal = (root->left ? root->left->data : 0);
+    int rightVal = (root->right ? root->right->data : 0);
+
+    // If current node follows Sum Tree property
+    if (root->data == leftVal + rightVal && leftCheck && rightCheck) {
+        // Update current node's data to represent total sum of this subtree
+        root->data = root->data + leftVal + rightVal;
+        return true;
+    }
+
+    return false;
+}
+
+// Should return true if tree is Sum Tree, else false
+class Solution {
+  public:
+    bool isSumTree(Node* root) {
+        return check_sum(root);
+    }
+};
