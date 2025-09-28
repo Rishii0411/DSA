@@ -1,0 +1,67 @@
+2025-09-28 | Longest Subarray with Limited Difference
+
+Approach:
+
+We use a sliding window combined with monotonic deques to efficiently track the minimum and maximum of the current window:
+	1.	Sliding Window:
+	•	Keep two pointers, left and right, to represent the current subarray.
+	•	Expand right to include more elements until the condition (max - min ≤ x) is violated.
+	2.	Monotonic Deques:
+	•	minDeque stores indices of elements in increasing order (front is minimum).
+	•	maxDeque stores indices in decreasing order (front is maximum).
+	•	These deques let us know the current min and max of the window in O(1) time.
+	3.	Shrink Window:
+	•	If the difference between max and min exceeds x, move left forward until the condition is satisfied.
+	•	Pop outdated indices from deques when they leave the window.
+	4.	Track Best Window:
+	•	Keep bestLeft and bestRight to remember the longest valid subarray.
+	5.	Return Result:
+	•	Slice the array from bestLeft to bestRight (inclusive) as the result.
+
+Why it works:
+This approach ensures each element is processed once in the deques and the sliding window only moves forward, giving O(n) time complexity. Monotonic deques allow us to quickly know the min and max in the current window without scanning the whole subarray.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> longestSubarray(vector<int>& nums, int limit) {
+        deque<int> minDeque, maxDeque;  // Monotonic deques
+        int n = nums.size();
+
+        int left = 0, right = 0;        // Sliding window boundaries
+        int bestLeft = 0, bestRight = 0; // Result boundaries
+
+        while (right < n) {
+            // Maintain minDeque (increasing order)
+            while (!minDeque.empty() && nums[minDeque.back()] > nums[right])
+                minDeque.pop_back();
+            minDeque.push_back(right);
+
+            // Maintain maxDeque (decreasing order)
+            while (!maxDeque.empty() && nums[maxDeque.back()] < nums[right])
+                maxDeque.pop_back();
+            maxDeque.push_back(right);
+
+            // Shrink window if difference exceeds limit
+            while (nums[maxDeque.front()] - nums[minDeque.front()] > limit) {
+                if (left == minDeque.front()) minDeque.pop_front();
+                if (left == maxDeque.front()) maxDeque.pop_front();
+                left++;
+            }
+
+            // Update best window if longer
+            if (right - left > bestRight - bestLeft) {
+                bestLeft = left;
+                bestRight = right;
+            }
+
+            right++;
+        }
+
+        // Collect result
+        return vector<int>(nums.begin() + bestLeft, nums.begin() + bestRight + 1);
+    }
+};
