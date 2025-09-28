@@ -1,0 +1,32 @@
+2025-09-28 | Identical Binary Trees
+
+Approach:
+We solve this problem using recursion, which naturally fits tree structures. The idea is:
+	1.	Base Cases:
+	•	If both nodes are nullptr (empty), they are identical at this point.
+	•	If one node is nullptr and the other isn’t, the trees differ.
+	2.	Check Current Node:
+	•	Compare the data of the current nodes. If it’s the same, continue; otherwise, trees aren’t identical.
+	3.	Recursive Step:
+	•	Recursively check the left subtrees of both trees.
+	•	Recursively check the right subtrees of both trees.
+	4.	If all checks pass, the trees are identical.
+
+SOLUTION:
+class Solution {
+  public:
+    bool isIdentical(Node* r1, Node* r2) {
+        // If both trees are empty, they are identical
+        if (r1 == nullptr && r2 == nullptr)
+            return true;
+
+        // If only one tree is empty, they are not identical
+        if (r1 == nullptr || r2 == nullptr)
+            return false;
+
+        // Check current node data and recursively check left and right subtrees
+        return (r1->data == r2->data) && 
+               isIdentical(r1->left, r2->left) &&
+               isIdentical(r1->right, r2->right);
+    }
+};
