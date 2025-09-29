@@ -1,0 +1,77 @@
+2025-09-29 | Generate Binary Strings of n Bits
+
+Question:
+Given an integer n, generate all binary strings of n bits.
+
+Note: The strings should be returned in ascending order (from "000…0" up to "111…1").
+
+A binary string of n bits is simply a string of length n where each character is either '0' or '1'.
+For example:
+	•	For n = 2, the output should be: ["00", "01", "10", "11"].
+	•	For n = 3, the output should be: ["000", "001", "010", "011", "100", "101", "110", "111"].
+
+This is essentially the same as generating all numbers from 0 to (2^n - 1) in binary format, padded to length n.
+
+Approach:
+
+There are two common ways to solve this:
+	1.	Iterative Approach using Binary Representation (Simplest):
+	•	Loop from 0 to (2^n - 1).
+	•	Convert each number to binary string.
+	•	Pad with leading zeros to make the string length = n.
+	•	Collect all in ascending order (which happens naturally).
+	2.	Recursive / Backtracking Approach:
+	•	At each step, append '0' or '1' to the current string.
+	•	Continue until length = n.
+	•	Add the string to the answer list.
+	•	This ensures lexicographical (ascending) order.
+
+Complexity:
+	•	Time: O(2^n * n) → we generate 2^n strings of length n.
+	•	Space: O(2^n * n) for storing results.
+
+
+SOLUTION:
+class Solution {
+  public:
+    vector<string> binstr(int n) {
+        vector<string> ans;
+        queue<string> q;
+        if(n == 0)
+        {
+            return ans;
+        }
+        // q.push("0");
+        string temp = "0";
+        for(int i = 1;i<n;i++)
+        {
+            temp += "0";
+        }
+        ans.push_back(temp);
+        q.push("1");
+        for(int i = 1;i < pow(2,n);i++)
+        {
+            temp = q.front();
+            q.push(temp + "0");
+            q.push(temp + "1");
+            if(temp.size() < n)
+            {
+                for(int i = temp.size();i< n;i++)
+                {
+                    temp = "0" + temp;
+                }
+            }
+            ans.push_back(temp);
+            q.pop();
+            // temp = q.front() + "0";
+            // // cout<<temp<<endl;
+            // q.push(temp);
+            // ans.push_back(temp);
+            // temp = q.front() + "1";
+            // q.push(temp);
+            // ans.push_back(temp);
+            // q.pop();
+        }
+        return ans;
+    }
+};
