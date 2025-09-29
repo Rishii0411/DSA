@@ -1,0 +1,55 @@
+2025-09-29 | Maximum Subarray Sum with Length Constraint
+
+
+Approach:
+We solve the problem using prefix sums and a monotonic queue to keep track of potential starting points efficiently.
+	1.	First, we build the prefix sum array in-place so that we can quickly calculate the sum of any subarray.
+	2.	To maintain the valid subarray lengths, we use a deque (monotonic queue) that stores prefix sums in increasing order.
+	•	As the window slides, we remove prefix sums that fall out of the valid [a, b] range.
+	•	We also ensure the deque remains monotonic, keeping only the smallest prefix sums at the front, since they yield the largest possible subarray sum when subtracted.
+	3.	At each step, we compute the maximum possible sum ending at the current index by subtracting the smallest valid prefix from the current prefix sum.
+	4.	The maximum value obtained over all iterations is our answer.
+
+This method ensures efficiency by avoiding recomputation and leverages the monotonic queue for optimal prefix sum tracking.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxSubarrSum(vector<int>& nums, int minLen, int maxLen) {
+        int n = nums.size();
+
+        // Build prefix sums in-place
+        for (int i = 1; i < n; ++i) {
+            nums[i] += nums[i - 1];
+        }
+
+        int best = nums[minLen - 1];       // initial maximum
+        deque<int> windowMins;             // monotonic queue of prefix sums
+
+        windowMins.push_back(0);           // prefix before any element
+
+        for (int end = minLen; end < n; ++end) {
+            // Remove prefix that slides out of the allowed window
+            int outIdx = end - maxLen - 1;
+            if (outIdx >= 0 && !windowMins.empty() && windowMins.front() == nums[outIdx]) {
+                windowMins.pop_front();
+            } else if (outIdx == -1 && !windowMins.empty() && windowMins.front() == 0) {
+                windowMins.pop_front();
+            }
+
+            // Maintain monotonicity (increasing order)
+            while (!windowMins.empty() && windowMins.back() > nums[end - minLen]) {
+                windowMins.pop_back();
+            }
+            windowMins.push_back(nums[end - minLen]);
+
+            // Update maximum subarray sum
+            best = max(best, nums[end] - windowMins.front());
+        }
+
+        return best;
+    }
+};
