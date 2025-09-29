@@ -1,0 +1,53 @@
+2025-09-29 | Check Children Sum Property in Binary Tree
+
+Question:
+Given the root of a binary tree, determine whether the tree satisfies the Children Sum Property.
+In this property, each non-leaf node must have a value equal to the sum of its left and right children’s values.
+	•	A NULL child is considered to have a value of 0.
+	•	All leaf nodes are considered valid by default.
+
+Return true if every node in the tree satisfies this condition, otherwise return false.
+
+
+Approach:
+We solve this problem using recursion:
+	1.	If the node is NULL, it’s valid.
+	2.	If the node is a leaf (no children), it’s valid by definition.
+	3.	For a non-leaf node:
+	•	Get the value of the left child (or 0 if NULL).
+	•	Get the value of the right child (or 0 if NULL).
+	•	Check whether node->data == leftVal + rightVal.
+	4.	Recursively check the left and right subtrees.
+	5.	Return true only if both the current node and its subtrees satisfy the property.
+
+This ensures every node is checked once, so the solution works in O(n) time.
+
+
+SOLUTION:
+/*
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+};
+*/
+
+class Solution {
+  public:
+    bool check(Node* root) {
+        if (!root) return true;   // empty node valid
+        if (!root->left && !root->right) return true; // leaf valid
+
+        int leftVal = root->left ? root->left->data : 0;
+        int rightVal = root->right ? root->right->data : 0;
+
+        // Check current node and recurse
+        return (root->data == leftVal + rightVal) &&
+               check(root->left) &&
+               check(root->right);
+    }
+
+    int isSumProperty(Node *root) {
+        return check(root) ? 1 : 0;
+    }
+};
