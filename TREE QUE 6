@@ -1,0 +1,69 @@
+2025-09-29 | Lowest Common Ancestor in Binary Tree
+
+Question:
+Given a root binary tree with all unique values and two node values, n1 and n2. The task is to find the lowest common ancestor (LCA) of the given two nodes.
+
+We may assume that either both n1 and n2 are present in the tree or none of them are present.
+
+Note:
+LCA is defined as the first common ancestor of both the nodes from the bottom of the tree.
+
+
+Approach:
+
+We solve this problem using the Path Comparison Method:
+	1.	Find path of n1:
+	•	Traverse from root to n1.
+	•	Store the visited nodes in a path vector p1.
+	2.	Find path of n2:
+	•	Traverse from root to n2.
+	•	Store the visited nodes in another path vector p2.
+	3.	Compare both paths:
+	•	Move along both paths until they diverge.
+	•	The last common node before divergence is the LCA.
+
+Helper Function (f):
+	•	Recursively explores the tree, storing nodes in a path.
+	•	Uses backtracking: if the target is not found in a branch, removes that node from the path.
+
+SOLUTION:
+bool f(Node* u, int val, vector<Node*>& path) {
+    if (!u) return false;
+
+    // Add current node to path
+    path.push_back(u);
+
+    // If found the node
+    if (u->data == val) return true;
+
+    // Search in left or right subtree
+    if (f(u->left, val, path) || f(u->right, val, path))
+        return true;
+
+    // Backtrack if not found
+    path.pop_back();
+    return false;
+}
+
+class Solution {
+  public:
+    Node* lca(Node* root, int n1, int n2) {
+        vector<Node*> p1, p2;
+
+        // Get paths for both nodes
+        f(root, n1, p1);
+        f(root, n2, p2);
+
+        Node* lca = nullptr;
+
+        // Compare paths
+        for (int i = 0; i < min(p1.size(), p2.size()); i++) {
+            if (p1[i] == p2[i])
+                lca = p1[i];
+            else
+                break;
+        }
+
+        return lca;
+    }
+};
