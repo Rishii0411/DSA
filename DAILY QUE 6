@@ -1,0 +1,29 @@
+2025-09-29 | Maximum Subarray Sum (Kadane’s Algorithm)
+
+Approach:
+This classic problem can be solved using Kadane’s Algorithm, which works in linear time.
+	1.	Initialize two variables:
+	•	curr → the maximum subarray sum ending at the current index.
+	•	best → the overall maximum sum found so far.
+	2.	Traverse the array:
+	•	For each element, either extend the previous subarray (curr + nums[i]) or start a new subarray from the current element (nums[i]).
+	•	Update curr with the maximum of these two choices.
+	•	Update best if curr is greater than the previous best.
+	3.	At the end, best holds the answer.
+
+This works because at every index we decide whether the current element is better off alone or as part of the ongoing subarray.
+
+SOLUTION:
+class Solution {
+public:
+    int maxSubarraySum(vector<int>& nums) {
+        int best = nums[0];     // Overall maximum
+        int curr = nums[0];     // Current subarray maximum
+
+        for (int i = 1; i < nums.size(); i++) {
+            curr = max(nums[i], curr + nums[i]); // continue or restart
+            best = max(best, curr);              // update best if needed
+        }
+        return best;
+    }
+};
