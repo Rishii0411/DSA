@@ -1,0 +1,54 @@
+2025-09-30 | Find Inorder Predecessor and Successor in a BST
+
+Question
+
+Given the root of a Binary Search Tree (BST) and an integer key, find the inorder predecessor and successor of the key.
+	•	Inorder predecessor: the largest value in the BST smaller than the key.
+	•	Inorder successor: the smallest value in the BST greater than the key.
+	•	If either predecessor or successor does not exist, return NULL.
+
+
+Approach / Solution Explanation
+	1.	Recursive Inorder Traversal:
+	•	Traverse the BST in inorder (left → root → right).
+	•	Keep track of the latest node smaller than the key as the predecessor.
+	•	The first node greater than the key after visiting smaller nodes is the successor.
+	2.	Logic:
+	•	If node->data < key, update predecessor.
+	•	If node->data > key and successor has not yet been found, update successor.
+	•	Continue traversal until all nodes are visited.
+	3.	Return:
+	•	Store predecessor and successor in a vector and return.
+	•	If no valid predecessor or successor exists, return NULL.
+
+SOLUTION:
+class Solution {
+  public:
+    void pre_suc(Node* root, Node* &pre, Node* &succ, int key, bool &found_succ) {
+        if(root == NULL) return;
+
+        pre_suc(root->left, pre, succ, key, found_succ);
+
+        if(root->data < key) {
+            pre->data = root->data;
+        } else if(!found_succ && root->data > key) {
+            succ->data = root->data;
+            found_succ = true;
+        }
+
+        pre_suc(root->right, pre, succ, key, found_succ);
+    }
+
+    vector<Node*> findPreSuc(Node* root, int key) {
+        vector<Node*> ans;
+        Node* pre = new Node(-1);  // If predecessor doesn't exist, -1 indicates NULL
+        Node* succ = new Node(-1); // If successor doesn't exist, -1 indicates NULL
+        bool found = false;
+
+        pre_suc(root, pre, succ, key, found);
+
+        ans.push_back(pre);
+        ans.push_back(succ);
+        return ans;
+    }
+};
