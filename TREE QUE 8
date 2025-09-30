@@ -1,0 +1,57 @@
+2025-09-30 | Zig-Zag Level Order Traversal of a Binary Tree
+
+Question
+
+Given a binary tree with n nodes, perform a zig-zag level order traversal.
+	•	In zig-zag traversal, the first level is traversed from left to right, the second level from right to left, and the direction alternates for each subsequent level.
+	•	Return a vector containing the node values in the order they are visited.
+	Zig-zag traversal output: [1, 3, 2, 4, 5, 6, 7]
+
+Approach / Solution Explanation
+	1.	Use Two Stacks:
+	•	st1 → stores nodes for the current level.
+	•	st2 → stores nodes for the next level.
+	•	rtl → a boolean flag to indicate the current traversal direction (true → left to right, false → right to left).
+	2.	Iterate Level by Level:
+	•	While st1 is not empty:
+	•	Pop a node from st1 and add its value to the answer vector.
+	•	Depending on the traversal direction, push its children to st2:
+	•	Left to Right → push left child first, then right child.
+	•	Right to Left → push right child first, then left child.
+	•	Once st1 is empty, swap st1 and st2 and flip the traversal direction.
+	3.	Result:
+	•	Continue until all levels are traversed. The answer vector contains the zig-zag traversal of the tree.
+
+SOLUTION:
+class Solution {
+  public:
+    vector<int> zigZagTraversal(Node* root) {
+        vector<int> ans;
+        if(!root) return ans;
+
+        stack<Node*> st1;
+        stack<Node*> st2;
+        bool rtl = true;
+        st1.push(root);
+
+        while(!st1.empty()) {
+            Node* temp = st1.top();
+            st1.pop();
+            ans.push_back(temp->data);
+
+            if(rtl) {
+                if(temp->left) st2.push(temp->left);
+                if(temp->right) st2.push(temp->right);
+            } else {
+                if(temp->right) st2.push(temp->right);
+                if(temp->left) st2.push(temp->left);
+            }
+
+            if(st1.empty()) {
+                swap(st1, st2);
+                rtl = !rtl;
+            }
+        }
+        return ans;
+    }
+};
