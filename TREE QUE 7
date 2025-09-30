@@ -1,0 +1,79 @@
+2025-09-30 | Size of Largest BST in a Binary Tree
+
+Question
+Given a binary tree, find the size of the largest subtree that is also a Binary Search Tree (BST).
+	•	A subtree is considered a BST if, for every node in that subtree:
+	•	The left child is smaller than the node.
+	•	The right child is greater than the node.
+	•	No duplicate values exist in the subtree.
+	•	The size of a subtree is the number of nodes it contains.
+
+
+Approach / Solution Explanation
+	1.	Use Postorder Traversal
+	•	For each node, recursively check its left and right subtrees first.
+	•	Gather information about whether the left/right subtree is a BST, its size, and its min/max values.
+	2.	Define a Helper Structure
+	•	isbst → whether the current subtree is a BST.
+	•	size → number of nodes in the subtree.
+	•	mx → maximum value in the subtree.
+	•	mn → minimum value in the subtree.
+	3.	Recursive Logic
+	•	If both left and right subtrees are BSTs and the current node value is greater than left.mx and less than right.mn:
+	•	Mark the current subtree as BST.
+	•	Size = 1 + left.size + right.size.
+	•	Update mn and mx for this subtree.
+	•	Otherwise:
+	•	Mark the subtree as not a BST.
+	•	Size = maximum of left or right subtree sizes.
+	4.	Return Result
+	•	After processing the root, the size of the largest BST in the tree is stored in size.
+
+SOLUTION:
+struct node1
+{
+    int isbst;
+    int size;
+    int mx;
+    int mn;
+};
+
+struct node1 largebst(Node* root)
+{
+    struct node1 x;
+    if(root == NULL)
+    {
+        x.isbst = 1;
+        x.size = 0;
+        x.mx = INT_MIN;
+        x.mn = INT_MAX;
+        return x;
+    }
+
+    struct node1 left = largebst(root->left);
+    struct node1 right = largebst(root->right);
+
+    if(left.isbst && right.isbst && left.mx < root->data && right.mn > root->data)
+    {
+        x.isbst = 1;
+        x.size = 1 + left.size + right.size;
+        x.mx = max(root->data, right.mx);
+        x.mn = min(root->data, left.mn);
+    }
+    else
+    {
+        x.isbst = 0;
+        x.size = max(left.size, right.size);
+        x.mx = INT_MAX;
+        x.mn = INT_MIN;
+    }
+    return x;
+}
+
+class Solution {
+  public:
+    // Return the size of the largest sub-tree which is also a BST
+    int largestBst(Node *root) {
+        return largebst(root).size;
+    }
+};
