@@ -1,0 +1,55 @@
+2025-09-30 | Generate All Binary Strings of n Bits
+
+Question
+
+Given an integer n, generate all possible binary strings of length n.
+	•	Each string consists of only 0s and 1s.
+	•	Return all strings in ascending order.
+
+Approach
+	1.	Handle Base Case
+	•	If n == 0, return an empty vector since no strings exist.
+	2.	Initialize Queue and First String
+	•	Create a string temp containing n zeros ("000…0") and add it to the answer vector.
+	•	Initialize a queue and push "1" into it to start generating the other strings.
+	3.	Iterative Generation Using Queue
+	•	For each number from 1 to 2^n - 1:
+	•	Take the string at the front of the queue.
+	•	Append "0" and "1" to this string and push both back into the queue.
+	•	If the string’s length is less than n, prepend zeros to make its length exactly n.
+	•	Add the processed string to the answer vector and pop the front of the queue.
+	4.	Result
+	•	After iterating, the answer vector contains all binary strings of length n in ascending order.
+
+This approach systematically generates all binary strings in order using a queue.
+
+SOLUTION:
+class Solution {
+  public:
+    vector<string> binstr(int n) {
+        vector<string> ans;
+        queue<string> q;
+        if(n == 0) {
+            return ans;
+        }
+        string temp = "0";
+        for(int i = 1; i < n; i++) {
+            temp += "0";
+        }
+        ans.push_back(temp);
+        q.push("1");
+        for(int i = 1; i < pow(2,n); i++) {
+            temp = q.front();
+            q.push(temp + "0");
+            q.push(temp + "1");
+            if(temp.size() < n) {
+                for(int j = temp.size(); j < n; j++) {
+                    temp = "0" + temp;
+                }
+            }
+            ans.push_back(temp);
+            q.pop();
+        }
+        return ans;
+    }
+};
