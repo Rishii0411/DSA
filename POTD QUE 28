@@ -1,0 +1,56 @@
+2025-10-02 | Distinct Permutations in Sorted Order
+
+Problem Statement
+
+Given an array arr[] that may contain duplicates, the task is to generate all possible distinct permutations of the array in sorted order.
+	•	If there are duplicates in the array, they should not produce repeated permutations.
+	•	The output must be lexicographically sorted.
+
+⸻
+
+Approach / Explanation
+	1.	Sorting the Input Array
+	•	First, sort arr[]. This ensures that when we backtrack, permutations are generated in sorted order.
+	2.	Backtracking with a visited Array
+	•	Maintain a component (current permutation) and a vis[] array to mark used elements.
+	•	At each step, try to include one unused element in the current permutation.
+	3.	Skipping Duplicates
+	•	If arr[i] == arr[i-1] and the previous identical element has not been used (vis[i-1] == false), skip this one.
+	•	This ensures we don’t generate duplicate permutations.
+	4.	Adding Valid Permutations
+	•	If the component.size() == arr.size(), push it into the result list.
+
+SOLUTION:
+class Solution {
+  public:
+    void uniqper(vector<int>& arr, vector<vector<int>> &ans, vector<int> &component, vector<bool> &vis) {
+        if(component.size() == arr.size()) {
+            ans.push_back(component);
+            return;
+        }
+        for(int i = 0; i < arr.size(); i++) {
+            if(vis[i]) continue;
+
+            // Skip duplicate values
+            if(i > 0 && arr[i] == arr[i-1] && !vis[i-1]) continue;
+
+            vis[i] = true;
+            component.push_back(arr[i]);
+
+            uniqper(arr, ans, component, vis);
+
+            component.pop_back();
+            vis[i] = false;
+        }
+    }
+  
+    vector<vector<int>> uniquePerms(vector<int>& arr) {
+        sort(arr.begin(), arr.end());  // Sort for lexicographic order
+        vector<vector<int>> ans;
+        vector<int> component;
+        vector<bool> vis(arr.size(), false);
+
+        uniqper(arr, ans, component, vis);
+        return ans;
+    }
+};
