@@ -1,0 +1,57 @@
+2025-10-02 | Unique Permutations of Array with Duplicates
+
+Problem Statement
+
+You are given an integer array arr[] that may contain duplicate elements.
+The task is to generate all the unique permutations of the array.
+	•	Permutations should not repeat.
+	•	The order of permutations in the answer does not matter, but duplicates must be avoided.
+
+⸻
+
+Approach / Explanation
+	1.	Sorting the Array
+	•	First, sort the array. This allows us to detect and skip duplicates while generating permutations.
+	2.	Backtracking
+	•	Use recursion with a component vector to build permutations step by step.
+	•	Maintain a vis[] boolean array to track which elements are already used in the current permutation.
+	3.	Handling Duplicates
+	•	While iterating, if arr[i] == arr[i-1] and the previous identical element is not used (vis[i-1] == false), skip this element to prevent duplicate permutations.
+	4.	Base Case
+	•	If component.size() == arr.size(), we found a valid permutation. Add it to the answer list.
+
+SOLUTION:
+class Solution {
+  public:
+    void uniqper(vector<int>& arr, vector<vector<int>> &ans, vector<int> &component, vector<bool> &vis) {
+        if(component.size() == arr.size()) {
+            ans.push_back(component);
+            return;
+        }
+
+        for(int i = 0; i < arr.size(); i++) {
+            if(vis[i]) continue;
+
+            // Skip duplicates
+            if(i > 0 && arr[i] == arr[i-1] && !vis[i-1]) continue;
+
+            vis[i] = true;
+            component.push_back(arr[i]);
+
+            uniqper(arr, ans, component, vis);
+
+            component.pop_back();
+            vis[i] = false;
+        }
+    }
+  
+    vector<vector<int>> uniquePerms(vector<int>& arr) {
+        sort(arr.begin(), arr.end()); // sort to handle duplicates
+        vector<vector<int>> ans;
+        vector<int> component;
+        vector<bool> vis(arr.size(), false);
+
+        uniqper(arr, ans, component, vis);
+        return ans;
+    }
+};
