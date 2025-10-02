@@ -1,0 +1,69 @@
+2025-10-02 | Subtree Check in a Binary Tree
+
+Problem Statement
+
+Given two binary trees with head references T and S, having at most N nodes, determine if S is present as a subtree within T.
+	•	A subtree of tree T1 is a tree T2 that consists of a node in T1 and all of its descendants.
+	•	You need to return true if S is a subtree of T, otherwise return false.
+
+Approach / Explanation
+	1.	Depth Matching Optimization
+	•	First, compute the depth of T.
+	•	Then, find all nodes in S that have the same depth. These are potential candidates where T could match.
+	2.	Identical Tree Check
+	•	For each candidate node in S, check if the subtree rooted at that node is identical to T.
+	•	Identical trees mean:
+	•	Both are empty OR
+	•	Current node values match, and their left and right subtrees are also identical.
+	3.	Final Decision
+	•	If any subtree rooted at candidate nodes in S is identical to T, return true.
+	•	Otherwise, return false.
+
+
+SOLUTION:
+// Class Solution that contains the implementation of the isSubTree function
+class Solution {
+    // A vector to store the nodes where the depth equals the required depth
+    vector<Node*> nodes;
+public:
+    // Function to check if T is a sub-tree of S
+    bool isSubTree(Node* S, Node* T) {
+        // If both trees are empty, they are identical
+        if (!S && !T) return true;
+        // If one of the trees is empty while the other is not, they are not identical
+        if (!S || !T) return false;
+        // Get the depth of T and use it to find nodes in S with the same depth
+        getDepth(S, getDepth(T, -1));
+        // Check if any of the nodes in S matches T
+        for (Node* n: nodes)
+            if (identical(n, T))
+                return true;
+        // If no match is found, return false
+        return false;
+    }
+    
+    // Function to get the depth of a tree and find nodes with the same depth in S
+    int getDepth(Node* r, int d) {
+        // If root is empty, return -1
+        if (!r)
+            return -1;
+        // Calculate the depth of the left and right subtrees
+        int depth = max(getDepth(r->left, d), getDepth(r->right, d)) + 1;
+        // Check if the calculated depth matches the required depth
+        // Required depth is -1 for tree T (only return the depth, no push)
+        if (depth == d)
+            nodes.push_back(r);
+        // Return the depth of the current subtree
+        return depth;
+    }
+    
+    // Function to check if two trees are identical
+    bool identical(Node* a, Node* b) {
+        // If both nodes are empty, they are identical
+        if (!a && !b) return true;
+        // If one of the nodes is empty while the other is not, they are not identical
+        if (!a || !b || a->data != b->data) return false;
+        // Recursively check if the left and right subtrees are identical
+        return identical(a->left, b->left) && identical(a->right, b->right);
+    }
+};
