@@ -1,0 +1,82 @@
+2025-10-02 | Check if a Binary Tree is a Max-Heap
+
+Problem Statement
+
+Given a binary tree, determine whether it satisfies the properties of a Max-Heap.
+	•	Completeness: Every level except the last is completely filled; nodes are left-aligned.
+	•	Heap Property: Every parent node is greater than or equal to its children.
+
+Approach / Explanation
+	1.	Count Nodes
+	•	Recursively count all nodes in the binary tree.
+	2.	Check Completeness
+	•	Using node indices, verify that each node appears in the correct position relative to the total node count.
+	3.	Check Max-Heap Property
+	•	Recursively ensure each node is greater than or equal to its left and right children.
+	4.	Final Decision
+	•	If both completeness and heap property conditions are satisfied, return true. Otherwise, return false.
+
+SOLUTION:
+class Solution {
+  public:
+    // This function counts the
+    // number of nodes in a binary tree
+    int countNodes(Node* root) {
+        if (root == nullptr)
+            return 0;
+        return 1 + countNodes(root->left) + countNodes(root->right);
+    }
+
+    // This function checks if the
+    // binary tree is complete or not
+    bool isCompleteUtil(Node* root, int index, int numberOfNodes) {
+        if (root == nullptr)
+            return true;
+
+        // If index assigned to current node is more than
+        // number of nodes in the tree,
+        // then the tree is not complete
+        if (index >= numberOfNodes)
+            return false;
+
+        // Recur for left and right subtrees
+        return isCompleteUtil(root->left, 2 * index + 1, numberOfNodes) &&
+               isCompleteUtil(root->right, 2 * index + 2, numberOfNodes);
+    }
+
+    // This function checks the heap property in the tree.
+    bool isHeapUtil(Node* root) {
+        if (root->left == nullptr && root->right == nullptr)
+            return true;
+
+        // Node will be in the second-last level
+        if (root->right == nullptr) {
+
+            // Check heap property at the node
+            // No recursive call because no need to
+            // check the last level
+            return root->data >= root->left->data;
+        } else {
+
+            // Check heap property at the node and recursively
+            // check the heap property
+            // at left and right subtrees
+            if (root->data >= root->left->data && root->data >= root->right->data)
+                return isHeapUtil(root->left) && isHeapUtil(root->right);
+            else
+                return false;
+        }
+    }
+
+    // Function to check if the binary tree is a valid heap
+    bool isHeap(Node* tree) {
+        if (tree == NULL)
+            return true;
+        int nodeCount = countNodes(tree);
+        int index = 0;
+
+        if (isCompleteUtil(tree, index, nodeCount) && isHeapUtil(tree))
+            return true;
+        return false;
+    }
+};
