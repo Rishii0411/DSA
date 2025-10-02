@@ -1,0 +1,52 @@
+2025-10-02 | All Root-to-Leaf Paths in a Binary Tree
+
+Problem Statement
+
+Given a Binary Tree, the task is to find all possible paths from the root node to all leaf nodes.
+	•	A path is defined as a sequence of node values starting from the root and ending at a leaf.
+	•	Paths from the left subtree of any node must appear before the paths from the right subtree.
+
+Approach / Explanation
+	1.	Recursive Traversal
+	•	Use DFS (depth-first search) recursion to explore each node.
+	2.	Path Tracking
+	•	Maintain an inner vector to store the current path.
+	•	At each step, add the current node’s value.
+	3.	Leaf Node Check
+	•	If a node has no left and right child, store the current path in the final result (outer).
+	4.	Backtracking
+	•	After recursive calls for left and right children, backtrack by removing the last element from inner to explore other paths.
+
+SOLUTION:
+void find_poss(Node* root , vector<vector<int>> &outer, vector<int> &inner) {
+    if(root == NULL) {
+        return;
+    }
+
+    inner.push_back(root->data);
+
+    if(root->left == NULL && root->right == NULL) {
+        // Reached a leaf node → store the path
+        outer.push_back(inner);
+    }
+    else {
+        if(root->left) {
+            find_poss(root->left, outer, inner);
+            inner.pop_back();
+        }
+        if(root->right) {
+            find_poss(root->right, outer, inner);
+            inner.pop_back();
+        }
+    }
+}
+
+class Solution {
+  public:
+    vector<vector<int>> Paths(Node* root) {
+        vector<vector<int>> outer;
+        vector<int> inner;
+        find_poss(root, outer, inner);
+        return outer;
+    } 
+};
