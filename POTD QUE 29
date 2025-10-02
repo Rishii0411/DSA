@@ -1,0 +1,73 @@
+2025-10-01 | Unique K-Number Sum
+
+Question
+Given two integers n and k, the task is to find all valid combinations of k numbers that adds up to n based on the following conditions:
+
+Only numbers from the range [1, 9] used.
+Each number can only be used at most once.
+Note: You can return the combinations in any order, the driver code will print them in sorted order.
+
+Approach
+	1.	Handle Base Case
+	•	If k > n, return an empty vector since no strings exist.
+	2.	Initialize first string and a helper string
+	•	Create a helper string to store sets of unique k-sums.
+	•	if sum + i is under the bounds push it in the data structure to verify if it is valid set or not.
+	3.	Iterative Generation 
+	•	For each number from 1 to 9:
+	•	store the numbers until the set contains k integers then verify if the sum is equal to n.
+	•	Add the set to final answer data structure if it validates the condition;
+	•	pop the last element to create a new set.
+	4.	Result
+	•	After iterating, the answer vector contains all unique K-Number Sum.
+
+This approach systematically generates all unique K-Number Sum
+
+SOLUTION:
+class Solution {
+  public:
+    void uniqsum(int n , int k,vector<vector<int>> &ans,vector<int> &component,int sum,int it)
+    {
+        if(component.size() == k )
+        {
+            if (sum == n)
+            ans.push_back(component);
+        return;
+        }
+        
+        for(int i = it;i <= 9;i++)
+        {
+            if(sum+i > n)
+            {
+                break;
+            }
+            // sum += i;
+            component.push_back(i);
+            // if(component.size() == k && sum > n)
+            // {
+            //     component.pop_back();
+            //     sum -= arr[i];
+            // }
+            uniqsum(n,k,ans,component,sum+i,i + 1);
+            component.pop_back();
+        }
+        
+    }
+  
+  
+    vector<vector<int>> combinationSum(int n, int k) {
+        vector<vector<int>> ans;
+        vector<int> component;
+        if( k > n)
+        {
+            return ans;
+        }
+        int sum = 0;
+        // int arr[9] = {1,2,3,4,5,6,7,8,9};
+        int it = 1;
+        uniqsum(n,k,ans,component,sum,it);
+        return ans;
+    }
+};
+    }
+};
