@@ -1,0 +1,75 @@
+2025-10-03 | Find k-th Ancestor of a Node in a Binary Tree
+
+Problem Statement
+
+Given a binary tree of size n, a node, and a positive integer k, the task is to return the k-th ancestor of the given node.
+	•	If there does not exist any such ancestor, return -1.
+	•	All nodes in the tree have distinct values.
+	•	It is guaranteed that the node exists in the tree.
+
+Approach / Explanation
+	1.	Calculate Tree Size
+	•	Perform an in-order traversal to count the number of nodes.
+	2.	Build Ancestor Mapping
+	•	Use a BFS traversal to fill an array ancestors[], where ancestors[x] stores the parent of node x.
+	•	The root node’s parent is marked as -1.
+	3.	Climb k Steps Up
+	•	Start from the target node.
+	•	Move upward through its ancestors one step at a time until k steps are taken or root is reached.
+	•	If we cannot take k steps (reached -1), return -1.
+
+SOLUTION:
+class Solution {
+    int treeSize = 0;
+
+    // Helper function to calculate size of the tree
+    void getLength(Node *root) {
+        if (!root)
+            return;
+        getLength(root->left);
+        treeSize++;
+        getLength(root->right);
+    }
+
+    // Helper function to generate ancestors array
+    void generateArray(Node *root, int ancestors[]) {
+        ancestors[root->data] = -1;
+        std::queue<Node *> q;
+        q.push(root);
+
+        while (!q.empty()) {
+            Node *temp = q.front();
+            q.pop();
+
+            if (temp->left) {
+                ancestors[temp->left->data] = temp->data;
+                q.push(temp->left);
+            }
+            if (temp->right) {
+                ancestors[temp->right->data] = temp->data;
+                q.push(temp->right);
+            }
+        }
+    }
+
+    // Utility to find kth ancestor
+    int kthAncestorUtil(Node *root, int n, int k, int node) {
+        int ancestors[n + 1] = {0};
+        generateArray(root, ancestors);
+        int count = 0;
+        while (node != -1) {
+            node = ancestors[node];
+            count++;
+            if (count == k)
+                break;
+        }
+        return node;
+    }
+
+  public:
+    int kthAncestor(Node *root, int k, int node) {
+        treeSize = 0;
+        getLength(root);
+        return kthAncestorUtil(root, treeSize, k, node);
+    }
+};
