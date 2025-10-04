@@ -1,0 +1,44 @@
+2025-10-04 | Count of BST Nodes in a Given Range
+
+Problem Statement
+
+Given a Binary Search Tree (BST) and two integers l and h, return the number of nodes in the tree whose values lie in the inclusive range [l, h].
+
+
+Approach / Explanation
+	1.	Base Case
+	•	If the current node is NULL, return 0.
+	2.	Check if Node Lies in Range
+	•	If root->data lies between l and h, count it and recursively check both left and right children.
+	3.	Pruning with BST Property
+	•	If root->data < l, skip the left subtree and explore only the right.
+	•	If root->data > h, skip the right subtree and explore only the left.
+	4.	Final Result
+	•	The recursion accumulates counts of all valid nodes and returns the total.
+
+SOLUTION:
+class Solution {
+  public:
+    // Returns count of nodes in BST in range [l, h]
+    int getCount(Node *root, int l, int h) {
+
+        // Base case
+        if (root == nullptr)
+            return 0;
+
+        // If current node is in range, then
+        // include it in count and recur for
+        // left and right children of it
+        if (root->data <= h && root->data >= l)
+            return 1 + getCount(root->left, l, h) + getCount(root->right, l, h);
+
+        // If current node is smaller than low,
+        // then recur for right child
+        else if (root->data < l)
+            return getCount(root->right, l, h);
+
+        // Else recur for left child
+        else
+            return getCount(root->left, l, h);
+    }
+};
