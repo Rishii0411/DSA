@@ -1,0 +1,59 @@
+2025-10-04 | Merge Two BSTs into Sorted Order
+
+Problem Statement
+
+Given two Binary Search Trees (BSTs), return a sorted list of all elements from both trees. The final result should contain all values in ascending order.
+
+Approach / Explanation
+	1.	Simultaneous Inorder Traversal
+	•	Use two stacks (st1, st2) to simulate inorder traversal of both trees.
+	2.	Traverse Left Subtrees
+	•	Push nodes from both trees into their respective stacks until reaching the leftmost node.
+	3.	Choose Smaller Node
+	•	Compare the top elements of both stacks.
+	•	Pop the smaller element, add it to the result, and move to its right child.
+	4.	Continue Until Exhausted
+	•	Repeat the process until both trees and stacks are empty.
+	5.	Result
+	•	The result vector will contain all nodes from both BSTs in sorted order.
+
+
+SOLUTION:
+class Solution {
+public:
+    vector<int> merge(Node* t1, Node* t2) {
+        vector<int> result;
+        stack<Node*> st1, st2;
+
+        // Keep going until both trees and stacks are exhausted
+        while (t1 || t2 || !st1.empty() || !st2.empty()) {
+
+            // Traverse left subtree of first tree
+            if (t1) {
+                st1.push(t1);
+                t1 = t1->left;
+                continue;
+            }
+
+            // Traverse left subtree of second tree
+            if (t2) {
+                st2.push(t2);
+                t2 = t2->left;
+                continue;
+            }
+
+            // Pick the smaller element from two stacks
+            Node* node = nullptr;
+            if (st2.empty() || (!st1.empty() && st1.top()->data <= st2.top()->data)) {
+                node = st1.top(); st1.pop();
+                result.push_back(node->data);
+                t1 = node->right;
+            } else {
+                node = st2.top(); st2.pop();
+                result.push_back(node->data);
+                t2 = node->right;
+            }
+        }
+        return result;
+    }
+};
