@@ -1,0 +1,82 @@
+2025-10-04 | Generate Expressions to Match Target
+
+Problem Statement
+
+Given a numeric string s containing only digits (0-9) and an integer target, generate all possible valid strings by inserting the binary operators +, -, and * between digits such that the resultant expression evaluates to the target.
+	•	Expressions must not contain operands with leading zeros.
+	•	It is allowed to keep digits concatenated without an operator.
+	•	The output should list all valid expressions in lexicographically smallest order.
+
+Approach / Explanation
+	1.	Backtracking
+	•	Use recursion to explore all possible ways of splitting the string into operands and inserting operators.
+	•	At each step, try extending the current number by one digit and decide whether to insert an operator before it.
+	2.	Avoid Leading Zeros
+	•	If a number starts with 0, it can only be used as "0", not "05".
+	3.	Handling Operators
+	•	Addition: add the new number to the current total.
+	•	Subtraction: subtract the new number.
+	•	Multiplication: adjust the last operand to ensure correct operator precedence
+→ currentValue - lastOperand + lastOperand * num.
+	4.	Base Case
+	•	When the entire string is consumed, check if the evaluated expression equals the target. If yes, store it.
+	5.	Result
+	•	Return all collected expressions.
+
+SOLUTION:
+class Solution {
+public:
+    // Recursive helper to generate expressions
+    void generateExpressions(vector<string>& result,
+                             const string& digits,
+                             int target,
+                             int index,
+                             long long currentValue,
+                             long long lastOperand,
+                             string currentExpr) 
+    {
+        // Base case: reached end of digits
+        if (index == digits.size()) {
+            if (currentValue == target) {
+                result.push_back(currentExpr);
+            }
+            return;
+        }
+
+        // Try all possible partitions
+        for (int i = index; i < digits.size(); i++) {
+            // Prevent numbers with leading zero
+            if (i > index && digits[index] == '0') break;
+
+            string part = digits.substr(index, i - index + 1);
+            long long num = stoll(part);
+
+            // First number in expression
+            if (index == 0) {
+                generateExpressions(result, digits, target, i + 1, num, num, part);
+            } else {
+                // Addition
+                generateExpressions(result, digits, target, i + 1,
+                                    currentValue + num, num,
+                                    currentExpr + "+" + part);
+
+                // Subtraction
+                generateExpressions(result, digits, target, i + 1,
+                                    currentValue - num, -num,
+                                    currentExpr + "-" + part);
+
+                // Multiplication
+                generateExpressions(result, digits, target, i + 1,
+                                    currentValue - lastOperand + lastOperand * num,
+                                    lastOperand * num,
+                                    currentExpr + "*" + part);
+            }
+        }
+    }
+
+    vector<string> findExpr(string& digits, int target) {
+        vector<string> result;
+        generateExpressions(result, digits, target, 0, 0, 0, "");
+        return result;
+    }
+};
