@@ -1,0 +1,45 @@
+2025-10-04 | Subset Sums of an Array
+
+Problem Statement
+
+Given an array arr of integers, return a list of integers representing the sums of all possible subsets. The sums can be returned in any order.
+
+Approach / Explanation
+	1.	Recursive Strategy
+	•	At each index, we have two choices:
+	•	Include the current element in the subset.
+	•	Exclude the current element.
+	2.	Base Case
+	•	When the index reaches the end of the array, store the accumulated sum into the result list.
+	3.	Exploration
+	•	Explore both choices recursively for each element, accumulating subset sums along the way.
+	4.	Result
+	•	Collect all sums in a result vector and return it.
+	•	The number of subset sums will be 2^n, where n is the array size.
+
+SOLUTION:
+class Solution {
+  public:
+    // Helper function to recursively calculate subset sums
+    void calculateSubsetSums(vector<int>& arr, int index, int currentSum,
+                             vector<int>& result) {
+        // Base case: if index exceeds array bounds, store the current sum
+        if (index == arr.size()) {
+            result.push_back(currentSum);
+            return;
+        }
+
+        // Include current element in subset and recurse
+        calculateSubsetSums(arr, index + 1, currentSum + arr[index], result);
+
+        // Exclude current element from subset and recurse
+        calculateSubsetSums(arr, index + 1, currentSum, result);
+    }
+
+    vector<int> subsetSums(vector<int>& arr) {
+        vector<int> subsetSumsResult;
+        calculateSubsetSums(arr, 0, 0,
+                            subsetSumsResult); // Start from index 0 with sum 0
+        return subsetSumsResult;
+    }
+};
