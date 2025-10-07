@@ -1,0 +1,58 @@
+2025-10-07 | Bottom View of Binary Tree
+
+Problem Statement
+
+Given the root of a binary tree, return the bottom view of the tree.
+If multiple nodes exist at the same horizontal distance, the one that appears later in level order (i.e., lower in the tree) is considered part of the bottom view.
+
+Return the values of these visible nodes from leftmost to rightmost.
+
+Approach / Explanation
+	1.	Concept of Horizontal Distance (HD)
+	•	Assign an HD to each node:
+	•	Root → 0
+	•	Left Child → HD - 1
+	•	Right Child → HD + 1
+	2.	Map to Store the Bottom-most Node for Each HD
+	•	Use a map<int, pair<int, int>> where:
+	•	key → horizontal distance (HD)
+	•	value → {node_value, level}
+	3.	Traversal Logic
+	•	Perform a recursive traversal of the tree.
+	•	For each node:
+	•	If the HD is not in the map, store {node->data, level}.
+	•	If it’s already there but the current node is deeper or at the same level, update it.
+	4.	Collect Results
+	•	After traversal, iterate over the map (sorted by HD).
+	•	Extract the node values for each HD in increasing order.
+
+SOLUTION:
+void traverse(Node* root, int hd, int level, map<int, pair<int, int>>& mp) {
+    if (!root) return;
+
+    // Update map if HD not present or node is deeper
+    if (mp.find(hd) == mp.end() || level >= mp[hd].second) {
+        mp[hd] = {root->data, level};
+    }
+
+    // Recur for left and right subtrees
+    traverse(root->left, hd - 1, level + 1, mp);
+    traverse(root->right, hd + 1, level + 1, mp);
+}
+
+class Solution {
+public:
+    vector<int> bottomView(Node *root) {
+        vector<int> ans;
+        if (!root) return ans;
+
+        map<int, pair<int, int>> mp; // hd -> {node->data, level}
+        traverse(root, 0, 0, mp);
+
+        // Extract bottom view in sorted order of HD
+        for (auto &p : mp)
+            ans.push_back(p.second.first);
+
+        return ans;
+    }
+};
