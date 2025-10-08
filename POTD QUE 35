@@ -1,0 +1,74 @@
+2025-10-07 | Construct Full Binary Tree from Preorder and Postorder
+
+Problem Statement
+
+Given two integer arrays pre[] and post[] representing the preorder and postorder traversal of a full binary tree (with unique values), construct and return the root node of the original tree.
+	•	Every value in pre[] also appears in post[].
+	•	The tree is full, meaning every internal node has exactly two children.
+	•	The preorder and postorder traversals uniquely define the tree structure under this condition.
+
+Approach / Explanation
+	1.	Observation
+	•	In preorder traversal, the first element is always the root.
+	•	In postorder traversal, the last element is always the root.
+	•	Using this property, we can recursively reconstruct the tree.
+	2.	Recursive Construction
+	•	Maintain a global index preIndex to track the current root in pre[].
+	•	For each recursive call:
+	•	Create a node using pre[preIndex++].
+	•	If this node has children, the next element in preorder (pre[preIndex]) will be the left child’s root.
+	•	Find the index of that value in post[] using a hash map for O(1) lookup.
+	•	Recursively build:
+	•	Left subtree → from post[left] to post[mid]
+	•	Right subtree → from post[mid+1] to post[right-1]
+	3.	Base Conditions
+	•	If left > right, return nullptr.
+	•	If only one node remains (left == right), just return that node.
+	4.	Optimization
+	•	Use an unordered map postIndexMap to quickly find the position of any node in the postorder array, improving efficiency.
+
+SOLUTION:
+class Solution {
+  public:
+    // Utility function to build the tree recursively
+    Node* buildTree(vector<int>& pre, vector<int>& post, int& preIndex,
+                    int left, int right, int size,
+                    unordered_map<int, int>& postIndexMap) {
+
+        // Base conditions
+        if (preIndex >= size || left > right)
+            return nullptr;
+
+        // Create root node from current preorder element
+        Node* root = new Node(pre[preIndex++]);
+
+        // If there’s only one node, return it
+        if (left == right || preIndex >= size)
+            return root;
+
+        // Find the position of the next preorder element in postorder
+        int mid = postIndexMap[pre[preIndex]];
+
+        // Recursively construct left and right subtrees
+        if (mid <= right) {
+            root->left = buildTree(pre, post, preIndex, left, mid, size, postIndexMap);
+            root->right = buildTree(pre, post, preIndex, mid + 1, right - 1, size, postIndexMap);
+        }
+
+        return root;
+    }
+
+    // Main function to construct tree from preorder and postorder traversals
+    Node* constructTree(vector<int>& pre, vector<int>& post) {
+        int preIndex = 0;
+        int size = pre.size();
+
+        // Store postorder indices for O(1) lookup
+        unordered_map<int, int> postIndexMap;
+        for (int i = 0; i < size; ++i)
+            postIndexMap[post[i]] = i;
+
+        // Build and return the tree
+        return buildTree(pre, post, preIndex, 0, size - 1, size, postIndexMap);
+    }
+};
