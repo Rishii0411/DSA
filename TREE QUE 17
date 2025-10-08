@@ -1,0 +1,72 @@
+2025-10-07 | Top View of Binary Tree
+
+Problem Statement
+
+Given the root of a binary tree, return a list of node values representing the top view of the tree.
+	•	Only the topmost node is visible for each horizontal distance.
+	•	Nodes are listed from the leftmost to rightmost position.
+	•	If multiple nodes overlap vertically, the higher node (smaller level/depth) is considered visible.
+
+
+Approach / Explanation
+	1.	Horizontal Distance (HD) Tracking
+	•	Assign a horizontal distance (hd) to each node relative to the root:
+	•	Root has hd = 0
+	•	Left child has hd - 1
+	•	Right child has hd + 1
+	2.	Recursive Traversal
+	•	Traverse the tree using DFS.
+	•	Keep track of each node’s (hd, level) pair.
+	•	Use a map mp[hd] = {node->data, level} to store the topmost node at each horizontal distance.
+	•	Only update the map if:
+	•	This hd hasn’t been visited before, or
+	•	The current node is closer to the root (level < stored_level).
+	3.	Result Extraction
+	•	Once traversal completes, extract values from the map in sorted order of hd (left to right).
+
+This ensures we get the top view correctly, capturing only the uppermost nodes.
+
+SOLUTION:
+/*
+class Node {
+  public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int val) {
+        data = val;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+*/
+
+void traverse(Node* root, int hd, int level, map<int, pair<int, int>> &mp) {
+    if (!root)
+        return;
+
+    // If this horizontal distance is not present
+    // OR current node is at a higher level (closer to root)
+    if (mp.find(hd) == mp.end() || level < mp[hd].second) {
+        mp[hd] = {root->data, level};
+    }
+
+    // Recur for left and right subtrees
+    traverse(root->left, hd - 1, level + 1, mp);
+    traverse(root->right, hd + 1, level + 1, mp);
+}
+
+class Solution {
+  public:
+    vector<int> topView(Node *root) {
+        map<int, pair<int, int>> mp;  // hd -> {node->data, level}
+        traverse(root, 0, 0, mp);
+
+        vector<int> ans;
+        for (auto &p : mp)
+            ans.push_back(p.second.first);
+
+        return ans;
+    }
+};
