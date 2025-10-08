@@ -1,0 +1,51 @@
+2025-10-09 | Vertical Sum of a Binary Tree
+
+Problem Statement
+
+Given a binary tree with n nodes, calculate the vertical sum of nodes that are aligned vertically.
+	•	Each vertical line contains nodes whose horizontal distance from the root is the same.
+	•	Horizontal distance (HD) rules:
+	•	Root has HD = 0
+	•	Left child of a node: HD = parent HD - 1
+	•	Right child of a node: HD = parent HD + 1
+	•	Return the sums of nodes along each vertical line starting from the leftmost vertical line to the rightmost.
+
+Approach / Explanation
+	1.	Track Horizontal Distances
+	•	Assign a horizontal distance (HD) to each node relative to the root (root HD = 0).
+	•	Left child decreases HD by 1, right child increases HD by 1.
+	2.	Recursive Traversal
+	•	Use a recursive helper function to traverse the tree.
+	•	Pass the current node, a map (HD → sum), and the current HD.
+	3.	Compute Sums
+	•	For each node, add its value to the sum corresponding to its HD in the map.
+	•	Recursively process left and right children with updated HD.
+	4.	Collect Results
+	•	Since map keys are sorted, iterating over the map from left to right gives vertical sums from the leftmost to the rightmost vertical line.
+
+SOLUTION:
+void store_idx(Node* root, map<int,int> &mp, int idx) {
+    if (!root) return;
+
+    if (mp.find(idx) == mp.end()) {
+        mp[idx] = root->data;
+    } else {
+        mp[idx] += root->data;
+    }
+
+    store_idx(root->left, mp, idx - 1);
+    store_idx(root->right, mp, idx + 1);
+}
+
+class Solution {
+public:
+    vector<int> verticalSum(Node *root) {
+        map<int,int> mp;
+        vector<int> result;
+        store_idx(root, mp, 0);
+        for (auto &p : mp) {
+            result.push_back(p.second);
+        }
+        return result;
+    }
+};
