@@ -1,0 +1,40 @@
+2025-10-09 | Postorder Traversal of a Binary Tree
+
+Problem Statement
+
+Given the root of a binary tree, return a list of integers representing the postorder traversal of the tree.
+	•	Postorder traversal order: Left Subtree → Right Subtree → Node
+	•	You need to visit all nodes following this order and collect their values in a list.
+	•	The tree can contain any number of nodes, including zero.
+
+
+Approach / Explanation
+	1.	Recursive Traversal
+	•	Use a helper function to recursively traverse the tree.
+	•	Pass the current node and a reference to a result vector.
+	2.	Base Case
+	•	If the current node is nullptr, return immediately.
+	3.	Recursive Steps
+	•	First, recursively traverse the left child.
+	•	Next, recursively traverse the right child.
+	•	Finally, add the current node’s value to the result vector.
+	4.	Result
+	•	After traversing the entire tree, the result vector contains the node values in postorder.
+
+SOLUTION:
+void traverse(Node* root, vector<int> &post) {
+    if (!root) return;
+
+    traverse(root->left, post);
+    traverse(root->right, post);
+    post.push_back(root->data);
+}
+
+class Solution {
+public:
+    vector<int> postOrder(Node* root) {
+        vector<int> post;
+        traverse(root, post);
+        return post;
+    }
+};
