@@ -1,0 +1,47 @@
+2025-10-09 | Merge Two Sorted Arrays Without Extra Space
+
+Problem Statement
+
+Given two sorted arrays a[] and b[] of sizes n and m respectively, merge them in sorted order without using any extra space.
+
+After merging:
+	•	a[] should contain the first n smallest elements.
+	•	b[] should contain the last m largest elements.
+
+Approach / Explanation
+	1.	Observation
+	•	Since both arrays are already sorted, we only need to ensure that elements of a[] are always smaller than or equal to elements of b[].
+	•	If any element in a[] is greater than an element in b[], they need to be swapped.
+	2.	Idea
+	•	Use a two-pointer approach starting from the end of a[] and the beginning of b[].
+	•	Compare the largest element of a[] with the smallest element of b[].
+	•	If a[i] > b[j], swap them.
+	•	Continue this process until all misplaced elements are corrected.
+	3.	Final Step
+	•	After swapping, both arrays might become unsorted locally.
+	•	Sort both a[] and b[] individually to restore full order.
+	4.	Why This Works
+	•	The swap ensures that smaller elements move toward a[] and larger ones toward b[].
+	•	Sorting afterward finalizes the proper order without extra space.
+
+
+SOLUTION:
+class Solution {
+public:
+    void mergeArrays(vector<int>& a, vector<int>& b) {
+        int n = a.size();
+        int m = b.size();
+        int i = n - 1, j = 0;
+
+        // Step 1: Swap misplaced elements
+        while (i >= 0 && j < m && a[i] > b[j]) {
+            swap(a[i], b[j]);
+            i--;
+            j++;
+        }
+
+        // Step 2: Sort both arrays again
+        sort(a.begin(), a.end());
+        sort(b.begin(), b.end());
+    }
+};
