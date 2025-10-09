@@ -1,0 +1,72 @@
+2025-10-09 | Zig-Zag Level Order Traversal of Binary Tree
+
+Problem Statement
+
+Given the root of a binary tree, your task is to return its zig-zag level order traversal.
+
+Rules:
+	•	Traverse left to right on odd-numbered levels.
+	•	Traverse right to left on even-numbered levels.
+	•	Return all node values in a single vector representing the traversal order.
+
+Approach / Explanation
+	1.	Observation
+	•	In a normal level order traversal, we use a queue.
+	•	For zig-zag traversal, we can use two stacks to manage alternating directions efficiently.
+	2.	Idea
+	•	Use two stacks:
+	•	st1: holds nodes of the current level to be traversed left to right.
+	•	st2: holds nodes of the next level to be traversed right to left.
+	•	Process nodes in st1, pushing their left then right children to st2.
+	•	Then process nodes in st2, pushing their right then left children back to st1.
+	•	Repeat until both stacks are empty.
+	3.	Why Two Stacks Work
+	•	One stack handles the forward direction, and the other handles the reverse direction.
+	•	This ensures the next level is always traversed in the opposite order automatically.
+	4.	Termination
+	•	The traversal stops when both stacks are empty, meaning all nodes have been visited.
+
+SOLUTION:
+void zigzag(Node* root, stack<Node*> st1, stack<Node*> st2, vector<int> &ans) {
+    if (!root) return;
+
+    st1.push(root);
+    Node* curr;
+
+    while (!st1.empty() || !st2.empty()) {
+        // Traverse current level left to right
+        while (!st1.empty()) {
+            curr = st1.top();
+            st1.pop();
+            ans.push_back(curr->data);
+
+            if (curr->left)
+                st2.push(curr->left);
+            if (curr->right)
+                st2.push(curr->right);
+        }
+
+        // Traverse next level right to left
+        while (!st2.empty()) {
+            curr = st2.top();
+            st2.pop();
+            ans.push_back(curr->data);
+
+            if (curr->right)
+                st1.push(curr->right);
+            if (curr->left)
+                st1.push(curr->left);
+        }
+    }
+}
+
+class Solution {
+  public:
+    vector<int> zigZagTraversal(Node* root) {
+        stack<Node*> st1;
+        stack<Node*> st2;
+        vector<int> ans;
+        zigzag(root, st1, st2, ans);
+        return ans;
+    }
+};
