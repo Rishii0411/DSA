@@ -1,0 +1,58 @@
+2025-10-09 | Minimum Absolute Difference in BST
+
+
+Problem Statement
+
+Given the root of a Binary Search Tree (BST) and an integer K, find the least absolute difference between K and the value of any node in the BST.
+
+Constraints:
+	•	The tree may contain positive or negative integers.
+	•	The BST property holds:
+	•	Left child < Root < Right child.
+
+Return:
+	•	The minimum absolute difference between K and any node’s value.
+
+
+Approach / Explanation
+	1.	Observation
+	•	In a BST, if the current node’s value is greater than K, the closest value could be in the left subtree.
+	•	If the current node’s value is less than K, the closest value could be in the right subtree.
+	•	If we find a node with value equal to K, the difference is 0 — the minimum possible.
+	2.	Recursive Approach
+	•	Start from the root node.
+	•	Compute the absolute difference between the node’s value and K.
+	•	Keep track of the minimum difference found so far (ans).
+	•	Move left or right depending on whether the current node’s value is greater or smaller than K.
+	3.	Why It’s Efficient
+	•	Unlike a simple traversal that visits all nodes (O(n)), this approach exploits BST ordering and only explores one path at a time — giving an average time complexity of O(log n) for balanced trees.
+	4.	Base Conditions
+	•	If the current node is NULL, return since no further search is needed.
+	•	If K equals the current node’s value, the difference is 0 — terminate immediately.
+
+SOLUTION:
+void count(Node* root, int k, int &ans) {
+    if (root == NULL)
+        return;
+
+    int diff = abs(k - root->data);
+    ans = min(ans, diff);
+
+    if (root->data > k) {
+        count(root->left, k, ans);
+    } else if (root->data < k) {
+        count(root->right, k, ans);
+    } else {
+        ans = 0; // exact match found
+        return;
+    }
+}
+
+class Solution {
+  public:
+    int minDiff(Node *root, int K) {
+        int ans = INT_MAX;
+        count(root, K, ans);
+        return ans;
+    }
+};
