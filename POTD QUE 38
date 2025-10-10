@@ -1,0 +1,41 @@
+October 9, 2025|Maximum path sum
+
+Approach (Humanized Explanation):
+	1.	We define a helper function findMaxSumRec that explores every node recursively.
+	2.	For each node:
+	•	We find the maximum path sum in its left and right subtrees.
+	•	If a subtree gives a negative sum, we ignore it by taking max(0, subtree_sum).
+	3.	The current node can serve as a bridge between left and right paths, so we check if the total left + right + node->data gives a new maximum.
+	4.	We keep updating the global result (res) whenever we find a higher sum.
+	5.	Finally, we return the highest sum path possible.
+
+SOLUTION:
+class Solution {
+  public:
+    // Helper function to find the maximum path sum recursively.
+    int findMaxSumRec(Node *root, int &res) {
+        // Base case: if the node is null, return 0
+        if (root == NULL)
+            return 0;
+
+        // Recursively find maximum path sum from left and right subtrees
+        int l = max(0, findMaxSumRec(root->left, res));
+        int r = max(0, findMaxSumRec(root->right, res));
+
+        // Update the result considering the current node as a connecting point
+        res = max(res, l + r + root->data);
+
+        // Return the best path sum continuing from this node
+        return root->data + max(l, r);
+    }
+
+    // Main function to find the maximum path sum
+    int findMaxSum(Node *root) {
+        int res = root->data; // Initialize result with root's data
+
+        // Compute the maximum path sum and update 'res'
+        findMaxSumRec(root, res);
+
+        return res; // Final answer
+    }
+};
