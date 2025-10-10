@@ -1,0 +1,67 @@
+2025-10-09 | Count Nodes at Distance K from Leaf
+
+
+Problem Statement
+
+Given the root of a binary tree with n nodes and a non-negative integer k, find the number of special nodes.
+A node is special if there exists at least one leaf in its subtree such that the distance between that node and the leaf is exactly k.
+
+Example:
+If k = 2, a node is counted as special if there exists a leaf in its subtree that is 2 edges below it.
+
+
+Approach / Explanation
+	1.	Understanding the Problem
+	•	The task requires checking every node to see if there’s a leaf exactly k edges away beneath it.
+	•	However, rather than checking upward from every leaf repeatedly (which would be inefficient), we use a recursive traversal that tracks the path from the root to each leaf.
+	2.	Path Tracking
+	•	Maintain a path vector v to store all ancestor nodes from the root to the current node during traversal.
+	•	When a leaf node is reached:
+	•	Compute the position of the ancestor that is k nodes above the leaf.
+	•	If such an ancestor exists (idx >= 0), mark it as a special node.
+	3.	Avoid Counting Duplicates
+	•	Use a map<Node, int> m* to store nodes that have already been counted as special.
+	•	Since map keys are unique, each special node contributes only once to the final count.
+	4.	Base Cases
+	•	If the tree is empty (root == NULL), return 0.
+	•	If k is greater than the height of the tree, no node qualifies.
+	5.	Algorithm Steps
+	1.	Start DFS traversal from the root.
+	2.	Keep pushing nodes into the path vector as you go deeper.
+	3.	When a leaf node is found, identify its kth ancestor (if it exists).
+	4.	Add that ancestor to the map of special nodes.
+	5.	After recursion, remove the node from the path vector to backtrack.
+	6.	Finally, return the count of unique keys in the map.
+
+SOLUTION:
+map<Node*, int> m;
+
+void store_node(Node* root, int k, vector<Node*> &v) {
+    if (root == NULL)
+        return;
+
+    v.push_back(root);
+
+    store_node(root->left, k, v);
+    store_node(root->right, k, v);
+
+    // Check for leaf node
+    if (root->left == NULL && root->right == NULL) {
+        int idx = v.size() - k - 1;
+        if (idx >= 0) {
+            m[v[idx]]++; // Mark the k-th ancestor as special
+        }
+    }
+
+    v.pop_back(); // Backtrack
+}
+
+class Solution {
+  public:
+    int kthFromLeaf(Node* root, int k) {
+        m.clear();
+        vector<Node*> v;
+        store_node(root, k, v);
+        return m.size(); // Return count of unique special nodes
+    }
+};
