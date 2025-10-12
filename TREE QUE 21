@@ -1,0 +1,60 @@
+October 9, 2025| Find Common Nodes in Two Binary Search Trees
+
+Approach:
+	1.	Inorder Traversal:
+	•	Perform an inorder traversal on both BSTs and store their elements in two separate vectors.
+	•	Since BSTs produce sorted sequences via inorder traversal, both vectors will be sorted.
+	2.	Merge and Find Duplicates:
+	•	Concatenate the two vectors into one.
+	•	Sort the merged vector.
+	•	Traverse the sorted list and record elements that appear consecutively more than once — these are the common elements.
+	3.	Return Result:
+	•	The resulting vector will contain all common nodes in ascending order.
+
+SOLUTION:
+class Solution {
+  public:
+    // Function to perform inorder traversal and store node values
+    void store_node(Node* root, vector<int> &tree)
+    {
+        if(root == NULL)
+        {
+            return;
+        }
+        
+        store_node(root->left, tree);
+        tree.push_back(root->data);
+        store_node(root->right, tree);
+    }
+    
+    // Function to find the nodes that are common in both BSTs
+    vector<int> findCommon(Node *r1, Node *r2) {
+        vector<int> tree1;
+        vector<int> tree2;
+        
+        // Store inorder traversal of both trees
+        store_node(r1, tree1);
+        store_node(r2, tree2);
+        
+        // Merge both trees' elements
+        tree1.insert(tree1.end(), tree2.begin(), tree2.end());
+        
+        // Sort combined elements
+        sort(tree1.begin(), tree1.end());
+        
+        // Clear the second vector to reuse for storing results
+        tree2.clear();
+        
+        // Find duplicates (common nodes)
+        for (int i = 0; i < tree1.size() - 1; i++)
+        {
+            if (tree1[i] == tree1[i + 1])
+            {
+                tree2.push_back(tree1[i]);
+                i++;
+            }
+        }
+        
+        return tree2;
+    }
+};
