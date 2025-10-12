@@ -1,0 +1,73 @@
+Title: Validate an IPv4 Address
+Date: October 13, 2025
+
+Concept:
+An IPv4 address must satisfy the following conditions:
+	1.	It must contain exactly three dots (.).
+	2.	Each segment (between two dots) must be a valid integer in the range [0, 255].
+	3.	No segment should contain leading zeros unless it is "0".
+	4.	Dots must not be consecutive or appear at the beginning or end.
+
+By traversing the string character by character, we can extract and validate each segment.
+If any rule is violated, we immediately return false.
+
+Approach:
+	1.	Traverse the string and process each character.
+	2.	Maintain counters for:
+	•	count1: number of dots.
+	•	count: length of the current segment.
+	•	sum: numeric value of the current segment.
+	3.	When a dot . is encountered:
+	•	Check for invalid placements (consecutive dots or more than three dots).
+	•	Reset counters for the next segment.
+	4.	Check for:
+	•	Leading zeros in multi-digit segments.
+	•	Any number greater than 255.
+	5.	At the end, ensure the string has exactly 3 dots and does not end with a dot.
+
+
+SOLUTION:
+class Solution {
+  public:
+    int isValid(string &s) {
+        int sum = 0;
+        int temp = 0;
+        int count = 0;
+        int count1 = 0;
+
+        for(int i = 0; i < s.size(); i++) {
+            // Handle dot separators
+            if(s[i] == '.') {
+                // Invalid if too many digits or consecutive dots
+                if(count > 3 || (i < s.size() && s[i + 1] == '.'))
+                    return false;
+
+                count = 0;
+                sum = 0;
+                count1++;
+                continue;
+            }
+
+            // Handle leading zeros
+            if(i < s.size() && s[i] == '0' && count == 0 && s[i + 1] != '.' && isdigit(s[i + 1]))
+                return false;
+
+            // Process numeric characters
+            if(isdigit(s[i])) {
+                count++;
+                temp = s[i] - '0';
+                sum = sum * 10 + temp;
+            }
+
+            // Range check for each segment
+            if(sum > 255)
+                return false;
+        }
+
+        // Must have exactly 3 dots and not end with one
+        if(count1 != 3 || s[s.size() - 1] == '.')
+            return false;
+
+        return true;
+    }
+};
