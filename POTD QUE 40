@@ -1,0 +1,55 @@
+October 13, 2025 | Maximum Sum of Non-Adjacent Nodes in a Binary Tree
+
+Concept / Intuition:
+At each node, we have two choices:
+	1.	Include the node:
+	•	We can’t include its children.
+	•	So, total sum = node’s value + sum of excluded values from both subtrees.
+	2.	Exclude the node:
+	•	We are free to include or exclude its children.
+	•	So, total sum = maximum possible sum from both left and right subtrees (taking max of including or excluding each child).
+
+Using this recursive idea, we calculate for every node:
+	•	includeNode: maximum sum if we include the current node.
+	•	excludeNode: maximum sum if we exclude the current node.
+
+At the end, the maximum of these two values for the root gives the answer.
+
+
+Approach:
+	1.	Perform a DFS traversal to calculate two sums for each node:
+	•	includeNode: sum when the node is included.
+	•	excludeNode: sum when the node is excluded.
+	2.	Return the maximum of these two sums for the root.
+
+This ensures we never pick two directly connected nodes and still get the maximum sum.
+
+
+SOLUTION:
+class Solution {
+public:
+    // Helper function that returns two values:
+    // 1. Maximum sum when current node is included
+    // 2. Maximum sum when current node is excluded
+    vector<int> dfs(Node* root) {
+        if (!root)
+            return {0, 0};
+
+        vector<int> left = dfs(root->left);
+        vector<int> right = dfs(root->right);
+
+        // Case 1: Include current node → cannot include its children
+        int includeNode = root->data + left[1] + right[1];
+
+        // Case 2: Exclude current node → can include or exclude children
+        int excludeNode = max(left[0], left[1]) + max(right[0], right[1]);
+
+        return {includeNode, excludeNode};
+    }
+
+    // Main function to get the maximum sum of non-adjacent nodes
+    int getMaxSum(Node* root) {
+        vector<int> result = dfs(root);
+        return max(result[0], result[1]);
+    }
+};
