@@ -1,0 +1,89 @@
+October 12, 2025|Construct BST from Preorder Traversal
+
+Approach / Explanation:
+	1.	Check Validity:
+	•	First, ensure that the given preorder array can represent a BST.
+	•	This can be done using a stack while keeping track of the last popped element as the “root” limit.
+	2.	Construct the BST:
+	•	Initialize the root with the first element of the preorder array.
+	•	Use a stack to maintain the path from root to current node.
+	•	For each element in the preorder array:
+	•	If it is smaller than the top of the stack → it becomes the left child.
+	•	Otherwise, pop elements from the stack until the current element is smaller than the stack’s top → the last popped element becomes the parent and the current element is its right child.
+	•	Push the newly created node onto the stack.
+	3.	Return the Root:
+	•	After processing all elements, the root will represent the reconstructed BST.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node {
+    int data;
+    Node *left, *right;
+    Node(int val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+class Solution {
+public:
+    // Function that constructs BST from its preorder traversal.
+    Node* buildBSTFromPreorder(int pre[], int size) {
+        // Check if preorder can represent a BST
+        if (!canRepresentBST(pre, size)) {
+            cout << "NO";
+            return nullptr;
+        }
+
+        // Create root from first element
+        Node* root = new Node(pre[0]);
+        stack<Node*> st;
+        st.push(root);
+
+        // Iterate over remaining elements
+        for (int i = 1; i < size; ++i) {
+            Node* temp = nullptr;
+
+            // Keep popping until current value is less than stack's top
+            while (!st.empty() && pre[i] > st.top()->data) {
+                temp = st.top();
+                st.pop();
+            }
+
+            // If we popped something, current value is the right child
+            if (temp != nullptr) {
+                temp->right = new Node(pre[i]);
+                st.push(temp->right);
+            }
+            // Otherwise, it's the left child of stack's top
+            else {
+                st.top()->left = new Node(pre[i]);
+                st.push(st.top()->left);
+            }
+        }
+
+        return root;
+    }
+
+private:
+    // Utility function to check if the given preorder can represent a BST
+    bool canRepresentBST(int pre[], int size) {
+        stack<int> s;
+        int root = INT_MIN;
+
+        for (int i = 0; i < size; i++) {
+            // If we find a node which is on right side and smaller than root → invalid
+            if (pre[i] < root)
+                return false;
+
+            // Nodes greater than stack top → go right
+            while (!s.empty() && pre[i] > s.top()) {
+                root = s.top();
+                s.pop();
+            }
+
+            // Push current node
+            s.push(pre[i]);
+        }
+        return true;
+    }
+};
