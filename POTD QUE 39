@@ -1,0 +1,38 @@
+October 9, 2025|Minimum Moves to Distribute Candies in a Binary Tree
+
+Approach:
+	1.	Traverse the tree using postorder traversal (left → right → root).
+	2.	For each node, calculate the net balance of candies as:
+    balance = node->data + leftBalance + rightBalance - 1
+  •	If the balance is positive, it means the node has extra candies to give.
+	•	If negative, it means the node needs candies.
+
+	3.	Add the absolute values of leftBalance and rightBalance to a global move counter to represent the transfers required.
+	4.	Return the final count of moves as the minimum number of candy transfers required to balance the tree.
+
+SOLUTION:
+class Solution {
+public:
+    // Helper function to compute candy distribution and moves
+    int distribute(Node* root, int& moves) {
+        if (!root) return 0;
+
+        // Recursively balance left and right subtrees
+        int leftBalance = distribute(root->left, moves);
+        int rightBalance = distribute(root->right, moves);
+
+        // Total moves needed for current node
+        moves += abs(leftBalance) + abs(rightBalance);
+
+        // Return net balance of candies for this subtree
+        // (positive -> excess candies, negative -> deficit)
+        return root->data + leftBalance + rightBalance - 1;
+    }
+
+    // Main function to find total moves to distribute candies
+    int distCandy(Node* root) {
+        int moves = 0;
+        distribute(root, moves);
+        return moves;
+    }
+};
