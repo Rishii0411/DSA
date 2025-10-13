@@ -1,0 +1,50 @@
+2025-09-25 | Paint Fence Problem
+
+Approach
+	1.	Understanding the problem
+	•	If there’s only 1 post, it can be painted in k ways.
+	•	If there are 2 posts, both can be painted either:
+	•	With the same color → k ways
+	•	Or with different colors → k * (k - 1) ways
+	•	Hence total for 2 posts = k * k.
+	2.	Dynamic Programming relation
+For every post from the 3rd onward:
+	•	You can paint it with a different color than the previous post → (k - 1) * dp[i - 1].
+	•	Or, if the last two posts are of different colors, you can paint the current post with the same color as the previous post → (k - 1) * dp[i - 2].
+	•	Combine both: dp[i] = (k - 1) * (dp[i - 1] + dp[i - 2])
+3.	Space optimization
+	•	Use only three variables:
+	•	dpPrev2 → dp[i - 2]
+	•	dpPrev1 → dp[i - 1]
+	•	dpCurr → Current value
+	4.	Iterative computation
+	•	Start from post 3 to n and compute using the above relation.
+	•	Return dpPrev1 as the final answer.
+
+SOLUTION:
+class Solution {
+public:
+    // Function to count the number of ways to paint the fence
+    int countWays(int n, int k) {
+        // Base cases
+        if (n == 1) return k;
+        if (n == 2) return k * k;
+
+        // dpPrev2 -> dp[i - 2]
+        // dpPrev1 -> dp[i - 1]
+        int dpPrev2 = k;
+        int dpPrev1 = k * k;
+        int dpCurr = 0;
+
+        // Fill the DP for posts 3 to n
+        for (int i = 3; i <= n; ++i) {
+            dpCurr = (k - 1) * (dpPrev1 + dpPrev2);
+
+            // Shift for next iteration
+            dpPrev2 = dpPrev1;
+            dpPrev1 = dpCurr;
+        }
+
+        return dpPrev1;
+    }
+};
