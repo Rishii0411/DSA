@@ -1,0 +1,66 @@
+2025-09-27 | Sum of Nodes Within a Given Range in BST
+
+For example, if the BST is:
+        10
+       /  \
+      5   15
+     / \    \
+    3   7    18
+
+and l = 7, r = 15,
+then the nodes within the range [7, 15] are 7, 10, 15, and their sum is 32.
+
+
+Approach
+	1.	Use Inorder Traversal (Left → Root → Right)
+	•	Since inorder traversal of a BST gives elements in sorted order,
+it helps us easily find and sum the values that fall within the given range.
+	2.	Recursive Traversal
+	•	For each node:
+	•	Recur for the left subtree.
+	•	If the node’s value is between l and r, add it to the sum.
+	•	Recur for the right subtree.
+	3.	Pruning Optimization (Optional Improvement)
+	•	If root->data < l, skip the left subtree (as all left values are smaller).
+	•	If root->data > r, skip the right subtree (as all right values are greater).
+(Though not shown in this version, it can further optimize large BSTs.)
+	4.	Final Sum
+	•	The helper function maintains a reference variable sum that accumulates values.
+
+SOLUTION:/*
+class Node {
+  public:
+    int data;
+    Node* left;
+    Node* right;
+
+    // Constructor to initialize a new node
+    Node(int val) {
+        data = val;
+        left = NULL;
+        right = NULL;
+    }
+};
+*/
+
+void inorder_sum(Node* root, int l, int r, int &sum)
+{
+    if (!root)
+        return;
+    
+    inorder_sum(root->left, l, r, sum);
+    
+    if (root->data >= l && root->data <= r)
+        sum += root->data;
+    
+    inorder_sum(root->right, l, r, sum);
+}
+
+class Solution {
+  public:
+    int nodeSum(Node* root, int l, int r) {
+        int sum = 0;
+        inorder_sum(root, l, r, sum);
+        return sum;
+    }
+};
