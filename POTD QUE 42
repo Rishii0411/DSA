@@ -1,0 +1,54 @@
+2025-09-28 | Kth Smallest Element in a BST
+
+Approach
+	1.	Property of BST:
+Inorder traversal of a BST (Left → Root → Right) gives the elements in sorted order.
+	2.	Inorder Traversal with Counter:
+	•	Perform an inorder traversal.
+	•	Maintain a counter count to track the number of nodes visited.
+	•	When count == k, the current node is the kth smallest element.
+	3.	Early Stopping Optimization:
+	•	Once the kth element is found, stop further recursion to save time.
+	4.	Edge Case:
+	•	If the BST has fewer than k nodes, return -1.
+
+SOLUTION:
+/*
+class Node {
+  public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int val) {
+        data = val;
+        left = right = NULL;
+    }
+};
+*/
+
+void inorder(Node* root, int &count, int k, int &ans)
+{
+    if (!root || ans != -1)
+        return;
+    
+    inorder(root->left, count, k, ans);
+    
+    count++;
+    if (count == k) {
+        ans = root->data;
+        return;
+    }
+    
+    inorder(root->right, count, k, ans);
+}
+
+class Solution {
+  public:
+    int kthSmallest(Node *root, int k) {
+        int count = 0;
+        int ans = -1;
+        inorder(root, count, k, ans);
+        return ans;
+    }
+};
