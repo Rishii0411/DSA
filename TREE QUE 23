@@ -1,0 +1,35 @@
+2025-10-15 | Check if a Binary Tree is a BST
+
+
+Approach
+	1.	Inorder Traversal Property:
+	•	Perform an inorder traversal of the tree.
+	•	For a valid BST, the inorder traversal produces a strictly increasing sequence of values.
+	2.	Compare with Sorted Sequence:
+	•	Store the inorder traversal in a vector ans.
+	•	Copy ans to a temporary vector and sort it.
+	•	If the original ans equals the sorted vector, the tree is a BST. Otherwise, it is not.
+	3.	Return the Result:
+	•	Return true if the inorder traversal is sorted, otherwise false.
+
+
+SOLUTION:
+class Solution {
+  public:
+    void inorder(Node* root, vector<int> &ans) {
+        if (!root) return;
+        inorder(root->left, ans);
+        ans.push_back(root->data);
+        inorder(root->right, ans);
+    }
+
+    bool isBST(Node* root) {
+        vector<int> ans;
+        inorder(root, ans);
+        
+        vector<int> temp = ans;
+        sort(ans.begin(), ans.end());
+        
+        return ans == temp;
+    }
+};
