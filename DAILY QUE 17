@@ -1,0 +1,46 @@
+2025-10-16 | Maximum MEX After Adding or Subtracting a Value
+2598. Smallest Missing Non-negative Integer After Operations
+
+Approach
+	1.	Observation — Modular Classes:
+Since you can add or subtract value repeatedly, each number can be converted to any integer with the same remainder modulo value.
+So, each remainder r (0 ≤ r < value) represents a group of reachable numbers.
+	2.	Count Frequency by Remainder:
+Compute how many numbers belong to each remainder group using:
+This formula ensures the remainder is always non-negative (handles negative numbers correctly).
+
+	3.	Greedy MEX Calculation:
+	•	Start with mex = 0.
+	•	For each number, check if there’s a number available in the corresponding remainder group.
+	•	If available, consume one and increment mex.
+	•	If not, the current mex cannot be formed — return it as the final result.
+	4.	Why It Works:
+Each remainder can produce numbers spaced value apart.
+By consuming available remainders in increasing order, we maximize how far the sequence of consecutive integers (starting from 0) can go.
+
+SOLUTION:
+class Solution {
+public:
+    int findSmallestInteger(vector<int>& nums, int value) {
+        unordered_map<int, int> count;
+
+        // Count frequency of each remainder
+        for (int x : nums) {
+            int r = ((x % value) + value) % value; // handle negatives safely
+            count[r]++;
+        }
+
+        int mex = 0;
+
+        // Find the maximum possible MEX
+        while (true) {
+            int r = mex % value;
+            if (count[r] > 0) {
+                count[r]--;  // Use one number with this remainder
+                mex++;       // Move to the next integer
+            } else {
+                return mex;  // No number available to form this value
+            }
+        }
+    }
+};
