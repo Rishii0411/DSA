@@ -1,0 +1,41 @@
+2025-10-16 | Floor in a Binary Search Tree
+
+Approach
+	1.	BST Property:
+	•	All values in the left subtree are smaller than the current node.
+	•	All values in the right subtree are greater than the current node.
+	2.	Iterative Traversal:
+	•	Initialize fl = -1 (default when no floor exists).
+	•	Traverse the BST:
+	•	If root->data == x, return x directly — it’s the exact floor.
+	•	If root->data < x, this could be a potential floor; store it in fl and move right to find a closer value.
+	•	If root->data > x, move left to look for smaller values.
+	3.	Time Complexity:
+	•	O(h), where h is the height of the BST (O(log n) for balanced trees).
+	4.	Space Complexity:
+	•	O(1) since the traversal is iterative and uses no recursion stack.
+
+SOLUTION:
+// Function to search a node in BST.
+class Solution {
+public:
+    // Function to find and return the floor value of x in the BST.
+    int floor(Node* root, int x) {
+        int fl = -1; // Variable to store the floor value, initialized as -1.
+    
+        // Traverse the BST until we reach a leaf node or find the target node.
+        while (root) {
+            if (root->data == x) {
+                return root->data; // Exact match found.
+            }
+    
+            if (root->data < x) {
+                fl = root->data;      // Update floor value
+                root = root->right;   // Move to right subtree for a closer value
+            } else {
+                root = root->left;    // Move to left subtree to find smaller values
+            }
+        }
+        return fl; // Return the floor value after traversal
+    }
+};
