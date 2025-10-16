@@ -1,0 +1,38 @@
+2025-10-16 | Remove Nodes Outside Given Range in a BST
+
+Approach
+	1.	Recursive Postorder Traversal:
+	•	Traverse the left and right subtrees first (postorder) before processing the current node.
+	2.	Check Each Node’s Value:
+	•	Case 1: If the node’s value is within [l, r], keep it.
+	•	Case 2: If the node’s value is less than l, discard it and return its right child (since all left nodes are smaller).
+	•	Case 3: If the node’s value is greater than r, discard it and return its left child (since all right nodes are larger).
+	3.	Return the Updated Tree:
+	•	Each recursive call returns the valid subtree after removing out-of-range nodes.
+
+This ensures all remaining nodes fall within the given range while maintaining the BST structure.
+
+SOLUTION:
+class Solution {
+public:
+    Node* removekeys(Node* root, int l, int r) {
+        // Base case: empty tree
+        if (!root)
+            return nullptr;
+
+        // Recursively process left and right subtrees
+        root->left = removekeys(root->left, l, r);
+        root->right = removekeys(root->right, l, r);
+
+        // Case 1: Node lies within [l, r]
+        if (root->data >= l && root->data <= r)
+            return root;
+
+        // Case 2: Node smaller than l → discard and use right subtree
+        if (root->data < l)
+            return root->right;
+
+        // Case 3: Node greater than r → discard and use left subtree
+        return root->left;
+    }
+};
