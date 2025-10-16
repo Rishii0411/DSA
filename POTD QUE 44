@@ -1,0 +1,58 @@
+2025-10-16 | Transform BST to Greater Sum Tree
+
+
+Approach
+	1.	Observation:
+	•	In a BST, the inorder traversal gives values in sorted (ascending) order.
+	•	To process greater elements first, we perform a reverse inorder traversal (Right → Root → Left).
+	2.	Use a Cumulative Sum:
+	•	Maintain a variable sum initialized to 0.
+	•	Traverse the tree in reverse inorder:
+	•	Visit the right subtree first.
+	•	Replace the current node’s value with sum.
+	•	Add the node’s original value to sum.
+	•	Then visit the left subtree.
+	3.	Why Reverse Inorder Works:
+	•	When traversing right to left, the sum variable accumulates all greater node values before visiting smaller nodes.
+	4.	Edge Case:
+	•	If the tree is empty (root == NULL), simply return.
+
+SOLUTION:
+/*
+class Node {
+  public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int value) {
+        data = value;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+*/
+
+void inorder(Node* root, int &sum) {
+    if (!root)
+        return;
+
+    // Traverse right subtree first (greater values)
+    inorder(root->right, sum);
+
+    // Update current node’s data
+    int temp = root->data;
+    root->data = sum;
+    sum += temp;
+
+    // Traverse left subtree
+    inorder(root->left, sum);
+}
+
+class Solution {
+  public:
+    void transformTree(Node *root) {
+        int sum = 0;
+        inorder(root, sum);
+    }
+};
