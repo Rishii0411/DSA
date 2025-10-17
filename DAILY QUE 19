@@ -1,0 +1,78 @@
+2025-10-17 | Maximum Partitions After One Character Change
+3003. Maximize the Number of Partitions After Operations
+
+Approach
+	1.	Dynamic Programming over Character Masks:
+	•	Use a bitmask to represent the set of distinct characters in the current partition.
+	•	For example, if the mask is 0101, it means the current substring includes characters corresponding to bits 1 and 3.
+	2.	Two DP States:
+	•	dp1: When you still have one modification available (no character changed yet).
+	•	dp0: When the modification has already been used.
+	3.	Transition Logic:
+For each character ch in s:
+	•	If the number of distinct characters (popcount(mask)) in the current prefix after adding ch is ≤ k, continue the current partition.
+	•	If it exceeds k, start a new partition with just the current character, incrementing the partition count.
+	•	For each state, also simulate changing ch into every other possible letter ('a'–'z') once.
+	4.	Result:
+	•	After processing all characters, the answer is the maximum partition count among both DP states (dp0 and dp1), plus 1 (for the first partition).
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxPartitionsAfterOperations(string s, int k) {
+        int n = s.size();
+        
+        // dp0: already used the change
+        // dp1: still can use one change
+        unordered_map<int, int> dp0, dp1;
+        dp1[0] = 0;  // Start with no characters, one change available
+
+        for (char ch : s) {
+            int c = ch - 'a';
+            unordered_map<int, int> new0, new1;
+
+            // Case 1: haven't used change yet
+            for (auto &[mask, val] : dp1) {
+                // Keep current char as is
+                int newMask = mask | (1 << c);
+                if (__builtin_popcount(newMask) <= k)
+                    new1[newMask] = max(new1[newMask], val);
+                else
+                    new1[1 << c] = max(new1[1 << c], val + 1);
+
+                // Try changing this char to another
+                for (int c2 = 0; c2 < 26; ++c2) {
+                    if (c2 == c) continue;
+                    int bit2 = 1 << c2;
+                    int newMask2 = mask | bit2;
+                    if (__builtin_popcount(newMask2) <= k)
+                        new0[newMask2] = max(new0[newMask2], val);
+                    else
+                        new0[bit2] = max(new0[bit2], val + 1);
+                }
+            }
+
+            // Case 2: already used change
+            for (auto &[mask, val] : dp0) {
+                int newMask = mask | (1 << c);
+                if (__builtin_popcount(newMask) <= k)
+                    new0[newMask] = max(new0[newMask], val);
+                else
+                    new0[1 << c] = max(new0[1 << c], val + 1);
+            }
+
+            dp0.swap(new0);
+            dp1.swap(new1);
+        }
+
+        int ans = 0;
+        for (auto &[_, v] : dp0) ans = max(ans, v);
+        for (auto &[_, v] : dp1) ans = max(ans, v);
+
+        return ans + 1;  // +1 for the first partition
+    }
+};
