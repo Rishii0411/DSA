@@ -1,0 +1,73 @@
+2025-10-17 | Median of a Binary Search Tree
+
+Approach
+	1.	Inorder Traversal for Sorted Order
+	•	A BST’s inorder traversal yields elements in increasing order.
+	•	Hence, performing an inorder traversal allows direct access to sorted node values.
+	2.	Count Total Nodes
+	•	First, traverse the entire BST to count the total number of nodes n.
+	3.	Find Median Position
+	•	If n is odd → median index = (n + 1) / 2
+	•	If n is even → median index = n / 2
+	•	(As per the problem’s definition)
+	4.	Second Inorder Traversal to Retrieve Median Value
+	•	Perform a second inorder traversal.
+	•	Maintain a counter during traversal.
+	•	When the counter matches the median index, store that node’s value as the result.
+	5.	Return the Median Value
+
+This approach ensures O(n) time complexity with O(h) auxiliary space,
+where h is the height of the tree.
+
+SOLUTION:
+/*
+class Node {
+  public:
+    int data;
+    Node* left;
+    Node* right;
+    Node(int val) {
+        data = val;
+        left = right = nullptr;
+    }
+};
+*/
+
+// Helper function to count total nodes
+void inorder(Node* root, int &count) {
+    if (!root) return;
+    inorder(root->left, count);
+    count++;
+    inorder(root->right, count);
+}
+
+// Helper function to find median node
+void inorder1(Node* root, int &count, int &n1, int &ans) {
+    if (!root) return;
+
+    inorder1(root->left, count, n1, ans);
+    count++;
+    if (count == n1) ans = root->data;
+    inorder1(root->right, count, n1, ans);
+}
+
+class Solution {
+  public:
+    int findMedian(Node* root) {
+        if (!root) return -1;
+
+        // Step 1: Count total nodes
+        int count = 0;
+        inorder(root, count);
+
+        // Step 2: Determine median index
+        int n1 = (count % 2 != 0) ? (count + 1) / 2 : count / 2;
+
+        // Step 3: Find median node value
+        count = 0;
+        int ans = -1;
+        inorder1(root, count, n1, ans);
+
+        return ans;
+    }
+};
