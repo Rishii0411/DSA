@@ -1,0 +1,54 @@
+2025-10-17 | Vertical Order Traversal of a Binary Tree
+
+Approach
+	1.	Use Level Order Traversal (BFS)
+	•	Perform a breadth-first traversal to ensure nodes on the same level are processed in correct order.
+	•	Each node is paired with a horizontal distance (HD) value from the root.
+	•	The root node starts at HD = 0.
+	2.	Map Nodes by Horizontal Distance
+	•	Maintain a map<int, vector<int>> where:
+	•	Key → Horizontal distance (HD)
+	•	Value → List of nodes at that HD (in level order)
+	•	For each node:
+	•	Left child → HD - 1
+	•	Right child → HD + 1
+	3.	Store Results in Left-to-Right Order
+	•	Since the map is sorted by HD, iterating through it automatically gives left-to-right order.
+	4.	Return the Result
+	•	Collect all node lists from the map and store them in a 2D vector representing vertical levels.
+
+Time Complexity: O(n)
+Auxiliary Space: O(n), due to map and queue storage
+
+
+SOLUTION:
+class Solution {
+  public:
+    vector<vector<int>> verticalOrder(Node *root) {
+        if (!root) return {};
+
+        // Map to store nodes according to their horizontal distance (HD)
+        map<int, vector<int>> mp;
+
+        // Queue for level order traversal (node, horizontal distance)
+        queue<pair<Node*, int>> q;
+        q.push({root, 0});
+
+        while (!q.empty()) {
+            auto [node, hd] = q.front();
+            q.pop();
+
+            mp[hd].push_back(node->data);
+
+            if (node->left) q.push({node->left, hd - 1});
+            if (node->right) q.push({node->right, hd + 1});
+        }
+
+        // Prepare result
+        vector<vector<int>> ans;
+        for (auto &p : mp)
+            ans.push_back(p.second);
+
+        return ans;
+    }
+};
