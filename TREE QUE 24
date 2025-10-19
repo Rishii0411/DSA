@@ -1,0 +1,74 @@
+19 October 2025 | Minimum Depth of Binary Tree
+111. Minimum Depth of Binary Tree
+
+Question:
+Given a binary tree, find its minimum depth.
+The minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf node.
+Note:
+A leaf is a node with no children.
+
+Approach:
+	1.	Observation:
+The minimum depth is reached at the first leaf node when traversing from the root.
+	2.	Recursive DFS logic:
+	•	If the node is NULL, the depth is 0.
+	•	If the node has no children (it’s a leaf), return 1.
+	•	Otherwise, recursively find the minimum depth of the left and right subtrees.
+	•	Handle cases where one subtree is missing by ensuring we only consider non-zero depths.
+	3.	Why not count level manually:
+Using recursion simplifies tracking, avoiding explicit counting or global variables.
+	4.	Complexity:
+	•	Time Complexity: O(N) — each node is visited once.
+	•	Space Complexity: O(H) — due to recursive stack, where H is tree height.
+
+
+SOLUTION:
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+
+    void inorder(TreeNode* root,int &count,int &height,int temp)
+    {
+        if(!root)
+        {
+            return;
+        }
+        if(!root-> right && !root -> left)
+        {
+            height = min(height,count);
+        }
+            count++;
+            inorder(root->left,count ,height,temp);
+            count--;
+            count++;
+            inorder(root->right,count ,height,temp);
+            count--;
+        
+
+    }
+
+
+
+    int minDepth(TreeNode* root) {
+        if(!root)
+        {
+            return NULL;
+        }
+        int height = INT_MAX;
+        int temp = root -> val;
+        int count = 1;
+        inorder(root,count,height,temp);
+        return height;
+    }
+};
+
