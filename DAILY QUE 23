@@ -1,0 +1,77 @@
+19 October 2025 | Populate Inorder Successor for All Nodes
+
+
+Question:
+
+Given a Binary Tree, complete the function to populate the next pointer for all nodes.
+The next pointer for every node should point to the Inorder successor of the node.
+
+You do not have to return or print anything. Just make changes in the root node given to you.
+
+Note:
+	•	The node having no in-order successor will be pointed to -1.
+	•	You don’t have to add -1 explicitly — the driver code will take care of that.
+
+Approach:
+	1.	Observation:
+The inorder traversal of a binary tree visits nodes in Left → Root → Right order.
+So, if we can traverse nodes in this sequence, the next node we visit becomes the inorder successor.
+	2.	Efficient way (Reverse Inorder):
+Instead of storing nodes in a list, we can traverse the tree in reverse inorder (Right → Root → Left).
+This way, we can maintain a pointer prev to the previously visited node, which will be the inorder successor of the current node.
+	3.	Process:
+	•	Start from the rightmost node (which has no successor).
+	•	Set its next pointer to NULL.
+	•	Move leftward, linking each node’s next pointer to the previously visited node.
+	•	Continue recursively until all nodes are linked.
+	4.	Complexity:
+	•	Time Complexity: O(N) — each node is visited once.
+	•	Space Complexity: O(H) — recursive stack space, where H is the tree’s height.
+
+SOLUTION:
+/*
+struct Node
+{
+    int data;
+    struct Node *left;
+    struct Node *right;
+    struct Node *next;
+
+    Node(int x)
+    {
+        data = x;
+        left = NULL;
+        right = NULL;
+        next = NULL;
+    }
+};
+*/
+class Solution {
+  public:
+  
+    void inorder(Node* root,int &temp,int &count,stack<Node*> &st)
+    {
+        if(!root)
+        {
+            return;
+        }
+        
+        inorder(root->left,temp,count,st);
+        if(count > 1)
+        {
+            Node* neww = st.top();
+            st.pop();
+            neww -> next = root;
+        }
+        st.push(root);
+        count++;
+        inorder(root->right,temp,count,st);
+    }
+    void populateNext(Node *root) {
+        // code here
+        stack<Node*> st;
+        int temp = root-> data;
+        int count = 1;
+        inorder(root,temp,count,st);
+    }
+};
