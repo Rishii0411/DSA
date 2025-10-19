@@ -1,0 +1,62 @@
+2025-10-19 | K Closest Values in a Binary Search Tree
+
+Approach
+	1.	Traverse the BST
+	•	Use a recursive traversal (inorder or any order) to visit each node.
+	•	For each node, compute the absolute difference between its value and the target.
+	2.	Store Node Values by Their Differences
+	•	Use an unordered_map where the key is the absolute difference, and the value is a list of all nodes having that difference.
+	•	This allows grouping nodes by how close they are to the target.
+	3.	Flatten the Map into a Vector
+	•	Move all (difference, node_value) pairs into a single vector for easy sorting.
+	4.	Sort the Pairs
+	•	Sort the vector primarily by difference, and secondarily by node value (to prioritize smaller values when differences are equal).
+	5.	Select k Closest Values
+	•	After sorting, take the first k elements from the sorted vector.
+
+Time Complexity:
+O(n log n), where n is the number of nodes (due to sorting).
+
+Space Complexity:
+O(n) for storing all node values and differences.
+
+SOLUTION:
+class Solution {
+  public:
+    // Helper function to traverse the BST and record differences
+    void storeDiff(Node* root, int target, unordered_map<int, vector<int>>& mp) {
+        if (!root) return;
+        
+        int diff = abs(root->data - target);
+        mp[diff].push_back(root->data);
+        
+        storeDiff(root->left, target, mp);
+        storeDiff(root->right, target, mp);
+    }
+
+    vector<int> getKClosest(Node* root, int target, int k) {
+        unordered_map<int, vector<int>> mp;  // diff -> list of node values
+        storeDiff(root, target, mp);
+        
+        // Move map data into a vector
+        vector<pair<int, int>> diffVals;
+        for (auto &p : mp) {
+            for (auto val : p.second)
+                diffVals.push_back({p.first, val});
+        }
+        
+        // Sort by difference, then by value
+        sort(diffVals.begin(), diffVals.end(), [](auto &a, auto &b) {
+            if (a.first == b.first)
+                return a.second < b.second;
+            return a.first < b.first;
+        });
+        
+        // Collect k closest values
+        vector<int> ans;
+        for (int i = 0; i < k && i < diffVals.size(); i++)
+            ans.push_back(diffVals[i].second);
+        
+        return ans;
+    }
+};
