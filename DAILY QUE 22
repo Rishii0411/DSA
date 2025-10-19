@@ -1,0 +1,83 @@
+2025-10-19 | Lexicographically Smallest String After Operations
+1625. Lexicographically Smallest String After Applying Operations
+
+QUESTION:
+You are given a string s of even length consisting of digits from 0 to 9, and two integers a and b.
+
+You can apply either of the following two operations any number of times and in any order on s:
+
+Add a to all odd indices of s (0-indexed). Digits post 9 are cycled back to 0. For example, if s = "3456" and a = 5, s becomes "3951".
+Rotate s to the right by b positions. For example, if s = "3456" and b = 1, s becomes "6345".
+Return the lexicographically smallest string you can obtain by applying the above operations any number of times on s.
+
+A string a is lexicographically smaller than a string b (of the same length) if in the first position where a and b differ, string a has a letter that appears earlier in the alphabet than the corresponding letter in b. For example, "0158" is lexicographically smaller than "0190" because the first position they differ is at the third letter, and '5' comes before '9'.
+
+
+Approach
+	1.	Breadth-First Search (BFS) Exploration
+	•	Treat each unique string as a node in a graph.
+	•	Two strings are connected if one can be obtained from the other by applying one operation (either add or rotate).
+	2.	Avoid Repetition with a Visited Set
+	•	Maintain a visited set to ensure each string is processed only once, preventing infinite loops due to cyclic transformations.
+	3.	Apply Both Operations at Each Step
+	•	From the current string, generate:
+	•	added → after adding a to all odd indices.
+	•	rotated → after rotating right by b positions.
+	•	Push both into the queue if unseen.
+	4.	Track the Lexicographically Smallest String
+	•	Keep updating the smallest string encountered during BFS.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    // Operation 1: Add 'a' to all odd indices
+    string addOperation(string s, int a) {
+        for (int i = 1; i < s.size(); i += 2) {
+            int digit = (s[i] - '0' + a) % 10;
+            s[i] = digit + '0';
+        }
+        return s;
+    }
+
+    // Operation 2: Rotate the string right by 'b' positions
+    string rotateOperation(string s, int b) {
+        int n = s.size();
+        b = b % n;
+        return s.substr(n - b) + s.substr(0, n - b);
+    }
+
+    // Main function to find the lexicographically smallest string
+    string findLexSmallestString(string s, int a, int b) {
+        queue<string> q;
+        unordered_set<string> visited;
+        string ans = s;
+
+        q.push(s);
+        visited.insert(s);
+
+        while (!q.empty()) {
+            string curr = q.front();
+            q.pop();
+
+            ans = min(ans, curr);
+
+            // Apply add operation
+            string added = addOperation(curr, a);
+            if (!visited.count(added)) {
+                visited.insert(added);
+                q.push(added);
+            }
+
+            // Apply rotate operation
+            string rotated = rotateOperation(curr, b);
+            if (!visited.count(rotated)) {
+                visited.insert(rotated);
+                q.push(rotated);
+            }
+        }
+        return ans;
+    }
+};
