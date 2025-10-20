@@ -1,0 +1,61 @@
+19 October 2025 | Count of Unique BSTs with Each Node as Root
+
+Question:
+
+You are given an integer array arr[] containing distinct elements.
+
+Your task is to return an array where the i-th element denotes the number of unique BSTs that can be formed when arr[i] is chosen as the root.
+Approach:
+	1.	Sort the input array:
+Sorting helps visualize the inorder traversal of the BST since BST nodes appear in sorted order.
+	2.	Use Catalan numbers for BST counting:
+The number of unique BSTs that can be formed using n nodes is the n-th Catalan number.
+Formula:
+dp[n] = \sum_{i=0}^{n-1} dp[i] \times dp[n-i-1]
+where dp[i] denotes the count for i nodes.
+	3.	Determine left and right subtree sizes:
+For each element sorted[i] in the sorted array:
+	•	Left subtree has i nodes.
+	•	Right subtree has n - i - 1 nodes.
+	•	Total BSTs with this node as root = dp[left] * dp[right].
+	4.	Map results back to original array order:
+Since the array may not be sorted, we store the computed counts in a map and then build the final answer corresponding to the original order.
+
+Time and Space Complexity:
+	•	Time Complexity: O(n²) → Because of the DP-based Catalan computation.
+	•	Space Complexity: O(n) → For the DP and result arrays.
+
+
+SOLUTION:
+class Solution {
+  public:
+    vector<int> countBSTs(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> sorted = arr;
+        sort(sorted.begin(), sorted.end()); 
+        
+        // Step 1: Compute Catalan numbers using DP
+        vector<long long> dp(n + 1, 0);
+        dp[0] = dp[1] = 1;
+        for (int i = 2; i <= n; i++) {
+            for (int j = 0; j < i; j++) {
+                dp[i] += dp[j] * dp[i - j - 1];
+            }
+        }
+
+        // Step 2: Compute number of BSTs for each element as root
+        unordered_map<int, long long> bstCount;
+        for (int i = 0; i < n; i++) {
+            int left = i;             
+            int right = n - i - 1;     
+            bstCount[sorted[i]] = dp[left] * dp[right];
+        }
+
+        // Step 3: Build result in original order
+        vector<int> result;
+        for (int val : arr)
+            result.push_back(bstCount[val]);
+
+        return result;
+    }
+};
