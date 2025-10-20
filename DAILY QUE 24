@@ -1,0 +1,43 @@
+19 October 2025 | Final Value of Variable After Performing Operations
+2011. Final Value of Variable After Performing Operations
+
+Question:
+
+There is a programming language with only four operations and one variable X:
+	•	++X and X++ increment the value of the variable X by 1.
+	•	--X and X-- decrement the value of the variable X by 1.
+
+Initially, the value of X is 0.
+
+Given an array of strings operations containing a list of these operations, return the final value of X after performing all the operations.
+Approach:
+	1.	Initialize the variable:
+Start with X = 0.
+	2.	Iterate through all operations:
+For each string in the list:
+	•	If the string contains '+', increase X by 1.
+	•	Otherwise, decrease X by 1.
+	3.	Return the final value:
+After processing all operations, return the final result.
+
+Why this works:
+Each operation contains either a '+' or '-', and since ++ means +1 and -- means -1, we just check for '+' to decide whether to increment or decrement.
+
+Time and Space Complexity:
+	•	Time Complexity: O(n), where n is the number of operations.
+	•	Space Complexity: O(1), as we use only a single integer variable.
+
+SOLUTION:
+class Solution {
+public:
+    int finalValueAfterOperations(vector<string>& operations) {
+        int X = 0;
+        for (string op : operations) {
+            if (op.find('+') != string::npos)
+                X++;
+            else
+                X--;
+        }
+        return X;
+    }
+};
