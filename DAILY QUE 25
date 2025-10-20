@@ -1,0 +1,59 @@
+19 October 2025 | Vertical Width of a Binary Tree
+
+Question:
+Given the root of a binary tree, find and return its vertical width.
+The vertical width is defined as the number of distinct vertical lines drawn through the tree’s nodes when viewed from the top.
+
+Approach:
+	1.	Assign Horizontal Distances (HD):
+	•	Start with the root node having an HD = 0.
+	•	For every left child, HD = parent HD - 1.
+	•	For every right child, HD = parent HD + 1.
+	2.	Track Minimum and Maximum HD:
+	•	Use recursion to explore all nodes.
+	•	Keep updating the smallest and largest HD values encountered.
+	3.	Compute the Vertical Width:
+	•	The total vertical width is (maxHD - minHD + 1).
+	4.	Edge Case:
+	•	If the tree is empty (root is NULL), return 0.
+
+
+Time and Space Complexity:
+	•	Time Complexity: O(n) — each node is visited once.
+	•	Space Complexity: O(h) — recursion stack space (h = height of the tree).
+
+SOLUTION:
+/*
+class Node {
+public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int x) {
+        data = x;
+        left = right = NULL;
+    }
+};
+*/
+
+class Solution {
+  public:
+    void findWidth(Node* root, int hd, int &minHD, int &maxHD) {
+        if (!root) return;
+
+        minHD = min(minHD, hd);
+        maxHD = max(maxHD, hd);
+
+        findWidth(root->left, hd - 1, minHD, maxHD);
+        findWidth(root->right, hd + 1, minHD, maxHD);
+    }
+
+    int verticalWidth(Node* root) {
+        if (!root) return 0;
+
+        int minHD = 0, maxHD = 0;
+        findWidth(root, 0, minHD, maxHD);
+        return (maxHD - minHD + 1);
+    }
+};
