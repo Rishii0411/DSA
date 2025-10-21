@@ -1,0 +1,58 @@
+19 October 2025 | Top K Frequent Elements
+
+Question:
+
+Given a non-empty integer array arr[], return the top k elements with the highest frequency.
+
+Note:
+If two elements have the same frequency, the larger number should be prioritized.
+
+Approach:
+	1.	Count Frequency of Each Element:
+	•	Use a map<int, int> to store each number with its count of occurrences.
+	2.	Store Frequencies in a Vector:
+	•	Push pairs {frequency, number} into a vector for sorting purposes.
+	3.	Sort Based on Frequency and Value:
+	•	Sort in descending order of frequency.
+	•	If frequencies are equal, sort by descending order of number (since higher number has priority).
+	4.	Select Top K Elements:
+	•	After sorting, take the first k elements from the list.
+
+
+Time and Space Complexity:
+	•	Time Complexity: O(n log n) → for sorting and map operations.
+	•	Space Complexity: O(n) → for storing frequencies and pairs.
+
+SOLUTION:
+class Solution {
+  public:
+    vector<int> topKFreq(vector<int> &arr, int k) {
+        map<int, int> mp;
+
+        // Step 1: Count frequency of each number
+        for (int i = 0; i < arr.size(); i++) {
+            if (mp.find(arr[i]) == mp.end()) {
+                mp.insert({arr[i], 1});
+            } else {
+                mp[arr[i]]++;
+            }
+        }
+
+        // Step 2: Store pairs of (frequency, number)
+        vector<pair<int, int>> freqq;
+        for (auto it = mp.rbegin(); it != mp.rend(); ++it) {
+            freqq.push_back({it->second, it->first});
+        }
+
+        // Step 3: Sort by frequency (and by number if tie)
+        sort(freqq.rbegin(), freqq.rend());
+
+        // Step 4: Collect top K elements
+        vector<int> ans;
+        for (int j = 0; j < k; j++) {
+            ans.push_back(freqq[j].second);
+        }
+
+        return ans;
+    }
+};
