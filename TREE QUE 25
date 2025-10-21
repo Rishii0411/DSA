@@ -1,0 +1,70 @@
+October 21, 2025 | Same Tree
+100. Same Tree
+
+
+Question:
+Given the roots of two binary trees p and q, write a function to check if they are the same or not.
+Two binary trees are considered the same if they are structurally identical, and the nodes have the same value.
+
+Approach:
+	1.	To verify the structural and value equality of the two trees, both trees are traversed level by level using a queue (BFS approach).
+	2.	During traversal, if a node is missing on one side but present on the other, we push a placeholder value (INT_MIN) to represent the null node.
+	3.	For each tree, we record its traversal pattern in a vector.
+	4.	Finally, we compare the two vectors — if they’re identical, it means both trees have the same structure and values.
+
+This approach effectively transforms the tree comparison problem into a sequence comparison, making it easy to check equality.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+
+void level(TreeNode* root, vector<int> &ans) {
+    if (!root) {
+        return;
+    }
+    queue<TreeNode*> q;
+    q.push(root);
+    ans.push_back(root->val);
+
+    while (!q.empty()) {
+        TreeNode* curr = q.front();
+        q.pop();
+
+        if (curr->left) {
+            q.push(curr->left);
+            ans.push_back(curr->left->val);
+        } else {
+            ans.push_back(INT_MIN);
+        }
+
+        if (curr->right) {
+            q.push(curr->right);
+            ans.push_back(curr->right->val);
+        } else {
+            ans.push_back(INT_MIN);
+        }
+    }
+}
+
+class Solution {
+public:
+    bool isSameTree(TreeNode* p, TreeNode* q) {
+        vector<int> p1;
+        vector<int> q1;
+        level(p, p1);
+        level(q, q1);
+        return p1 == q1;
+    }
+};
