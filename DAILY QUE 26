@@ -1,0 +1,92 @@
+October 21, 2025 | Maximum Frequency After Performing Operations
+
+Question:
+You are given an integer array nums and two integers k and numOperations.
+
+You must perform an operation numOperations times on nums, where in each operation you:
+	•	Select an index i that was not selected in any previous operations.
+	•	Add an integer in the range [-k, k] to nums[i].
+
+Return the maximum possible frequency of any element in nums after performing the operations.
+
+
+Approach:
+	1.	Sort the array to simplify frequency range calculations.
+	2.	Count initial frequencies of each unique element using a map.
+	3.	Define two helper functions (lambdas):
+	•	leftBound(value): Finds the smallest index where element ≥ value.
+	•	rightBound(value): Finds the largest index where element ≤ value.
+	4.	Iterate through all possible target values between the smallest and largest numbers in the array.
+	5.	For each target:
+	•	Find the number of elements that could potentially become this target after at most k adjustment.
+	•	Add the allowed operations (numOperations) to maximize this frequency.
+	6.	Keep track of the maximum frequency obtained.
+
+This approach ensures that we test all potential values efficiently while considering modification limits.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxFrequency(vector<int>& nums, int k, int numOperations) {
+        sort(nums.begin(), nums.end());
+
+        unordered_map<int, int> freq;
+        int ans = 0;
+
+        // Count frequency of each distinct number
+        int start = 0;
+        for (int i = 0; i < nums.size(); ++i) {
+            if (nums[i] != nums[start]) {
+                freq[nums[start]] = i - start;
+                ans = max(ans, i - start);
+                start = i;
+            }
+        }
+        freq[nums[start]] = nums.size() - start;
+        ans = max(ans, (int)nums.size() - start);
+
+        // Lambda for finding left boundary (first index >= value)
+        auto leftBound = [&](int value) {
+            int left = 0, right = nums.size() - 1;
+            while (left < right) {
+                int mid = (left + right) / 2;
+                if (nums[mid] < value)
+                    left = mid + 1;
+                else
+                    right = mid;
+            }
+            return left;
+        };
+
+        // Lambda for finding right boundary (last index <= value)
+        auto rightBound = [&](int value) {
+            int left = 0, right = nums.size() - 1;
+            while (left < right) {
+                int mid = (left + right + 1) / 2;
+                if (nums[mid] > value)
+                    right = mid - 1;
+                else
+                    left = mid;
+            }
+            return left;
+        };
+
+        // Try each possible target value
+        for (int target = nums.front(); target <= nums.back(); ++target) {
+            int leftIdx = leftBound(target - k);
+            int rightIdx = rightBound(target + k);
+
+            int rangeSize = rightIdx - leftIdx + 1;
+            int currFreq = freq.count(target) ? freq[target] : 0;
+
+            int possibleFreq = min(rangeSize, currFreq + numOperations);
+            ans = max(ans, possibleFreq);
+        }
+
+        return ans;
+    }
+};
