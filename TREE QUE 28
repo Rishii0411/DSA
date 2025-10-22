@@ -1,0 +1,78 @@
+October 22, 2025 | Height (Maximum Depth) of a Binary Tree
+
+Question:
+Given the root of a binary tree, your task is to find the maximum depth (height) of the tree.
+
+Note: The maximum depth or height of the tree is the number of edges in the tree from the root to the deepest node.
+Approach:
+	1.	Use Level Order Traversal (BFS):
+	•	Traverse the tree level by level using a queue.
+	•	Each iteration of the while-loop represents one level in the tree.
+	2.	Count Levels:
+	•	Initialize height = 0.
+	•	For each level, process all nodes at that level, then increase height by 1.
+	3.	Count Edges, Not Nodes:
+	•	Since the height is defined as the number of edges, the final result should be height - 1.
+	4.	Return Result:
+	•	The height() function returns the maximum depth (in terms of edges) of the binary tree.
+
+Complexity Analysis:
+	•	Time Complexity: O(n) — Every node is visited once during the BFS traversal.
+	•	Space Complexity: O(w) — Where w is the maximum width of the tree (the largest number of nodes at any level).
+
+SOLUTION:
+/*
+class Node {
+public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int val) {
+        data = val;
+        left = right = NULL;
+    }
+};
+*/
+
+void level(Node* root, int &height)
+{
+    if(!root)
+    {
+        return;
+    }
+    
+    queue<Node*> q;
+    q.push(root);
+    height = 0;
+    
+    while(!q.empty())
+    {
+        int size = q.size();
+        height++;
+        
+        for(int i = 0; i < size; i++)
+        {
+            Node* curr = q.front();
+            q.pop();
+            
+            if(curr->left)
+            {
+                q.push(curr->left);
+            }
+            if(curr->right)
+            {
+                q.push(curr->right);
+            }
+        }
+    }
+}
+
+class Solution {
+  public:
+    int height(Node* root) {
+        int height;
+        level(root, height);
+        return height - 1;
+    }
+};
