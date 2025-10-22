@@ -1,0 +1,55 @@
+October 22, 2025 | Nearly Sorted Array
+
+Question:
+Given an array arr[], where each element is at most k positions away from its correct position in the sorted order.
+Your task is to restore the sorted order of arr[] by rearranging the elements in place.
+
+Note: Don’t use any sort() method.
+
+Approach:
+	1.	Observation:
+Each element is at most k positions away from its sorted position — meaning the smallest element among any k+1 elements will always be within that window.
+	2.	Use a Min-Heap:
+	•	Insert the first k+1 elements into a min-heap.
+	•	The heap’s top element will be the smallest among them — the correct next element for the sorted array.
+	•	Extract the minimum (heap top) and push the next array element into the heap.
+	•	Repeat this until all elements are processed.
+	3.	Extract Remaining Elements:
+	•	Once all array elements have been pushed, pop all remaining elements from the heap and place them in the array sequentially.
+	4.	Complexity:
+	•	Each insertion and deletion in the heap takes O(log k) time.
+	•	Total time complexity: O(n log k), which is much better than O(n log n) for nearly sorted arrays.
+	•	Space complexity: O(k) due to the heap.
+
+This approach efficiently restores the sorted order by exploiting the “nearly sorted” property instead of performing a full sort.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    void nearlySorted(vector<int>& arr, int k) {
+        priority_queue<int, vector<int>, greater<int>> pq;
+        int n = arr.size();
+        int index = 0;
+
+        // Step 1: Push first k+1 elements into the heap
+        for (int i = 0; i <= k && i < n; i++) {
+            pq.push(arr[i]);
+        }
+
+        // Step 2: Extract min and push next elements
+        for (int i = k + 1; i < n; i++) {
+            arr[index++] = pq.top();
+            pq.pop();
+            pq.push(arr[i]);
+        }
+
+        // Step 3: Pop remaining elements
+        while (!pq.empty()) {
+            arr[index++] = pq.top();
+            pq.pop();
+        }
+    }
+};
