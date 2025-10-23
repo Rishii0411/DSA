@@ -1,0 +1,42 @@
+23 October 2025 | Same Final Two Digits After Repeated Mod Sum
+
+Question:
+You are given a string s consisting of digits. Perform the following operation repeatedly until the string has exactly two digits:
+
+For each pair of consecutive digits in s, starting from the first digit, calculate a new digit as the sum of the two digits modulo 10.
+Replace s with the sequence of newly calculated digits, maintaining the order in which they are computed.
+Return true if the final two digits in s are the same; otherwise, return false.
+
+Approach:
+	1.	Convert the string into a vector of integers for easy arithmetic operations.
+	2.	Repeat the following until only two digits remain:
+	•	Create a new vector where each element is (current_digit + next_digit) % 10.
+	•	Replace the old vector with the new one.
+	3.	Compare the last two digits and return whether they are equal.
+
+This approach simulates the process directly, ensuring clarity and correctness.
+
+⸻
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool hasSameDigits(string s) {
+        vector<int> digits;
+        for (char c : s)
+            digits.push_back(c - '0');
+
+        while (digits.size() > 2) {
+            vector<int> next;
+            for (int i = 0; i + 1 < digits.size(); i++) {
+                next.push_back((digits[i] + digits[i + 1]) % 10);
+            }
+            digits = next;
+        }
+
+        return digits[0] == digits[1];
+    }
+};
