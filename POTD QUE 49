@@ -1,0 +1,47 @@
+23 October 2025 | K Closest Points to Origin
+
+Question:
+Given an integer k and an array of points points[][], where each point is represented as points[i] = [xi, yi] on the X-Y plane, return the k closest points to the origin (0, 0).
+
+The distance between two points on the X-Y plane is the Euclidean distance:
+Note: You can return the k closest points in any order. Test cases guarantee a unique answer.
+
+Approach:
+We can use a max-heap (priority queue) of size k to efficiently track the k closest points:
+	1.	Calculate Distance: For each point (x, y), compute the squared distance to the origin (x^2 + y^2). Squared distance is sufficient as it preserves order and avoids computing square roots.
+	2.	Use Max-Heap: Maintain a max-heap of size k based on distance.
+	•	If the heap has less than k points, push the current point.
+	•	If the heap has k points and the current point is closer than the farthest point in the heap, pop the farthest and push the current.
+	3.	Return Points: After processing all points, the heap contains the k closest points.
+
+This ensures O(n log k) time complexity, where n is the number of points.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {
+        // Max-heap: pair of (distance, point)
+        auto cmp = [](pair<int, vector<int>> &a, pair<int, vector<int>> &b) {
+            return a.first < b.first; // max-heap
+        };
+        priority_queue<pair<int, vector<int>>, vector<pair<int, vector<int>>>, decltype(cmp)> pq(cmp);
+        
+        for (auto &point : points) {
+            int dist = point[0] * point[0] + point[1] * point[1];
+            pq.push({dist, point});
+            if (pq.size() > k) {
+                pq.pop();
+            }
+        }
+        
+        vector<vector<int>> ans;
+        while (!pq.empty()) {
+            ans.push_back(pq.top().second);
+            pq.pop();
+        }
+        return ans;
+    }
+};
