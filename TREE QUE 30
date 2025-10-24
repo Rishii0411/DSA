@@ -1,0 +1,52 @@
+24 October 2025 | Inorder Traversal of a Binary Tree
+
+Approach:
+
+We use a recursive approach to perform inorder traversal.
+	1.	Base Case:
+If the current node is NULL, return immediately — this indicates the end of a branch.
+	2.	Recursive Steps:
+	•	First, recursively traverse the left subtree.
+	•	Then, record the current node’s data.
+	•	Finally, recursively traverse the right subtree.
+	3.	The recursion ensures that the nodes are processed in the correct inorder sequence: Left → Root → Right.
+
+
+SOLUTION:
+/*
+class Node {
+  public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int val) {
+        data = val;
+        left = NULL;
+        right = NULL;
+    }
+};
+*/
+
+void inorder(Node* root, vector<int> &ans) {
+    if (!root)
+        return;
+    
+    // Traverse left subtree
+    inorder(root->left, ans);
+    
+    // Visit root
+    ans.push_back(root->data);
+    
+    // Traverse right subtree
+    inorder(root->right, ans);
+}
+
+class Solution {
+  public:
+    vector<int> inOrder(Node* root) {
+        vector<int> ans;
+        inorder(root, ans);
+        return ans;
+    }
+};
