@@ -1,0 +1,66 @@
+24 October 2025 | Split Array into Consecutive Subsequences of Length ≥ k
+
+Approach:
+We can use Greedy + Hash Maps:
+	1.	count map: Keeps track of how many times each number appears.
+	2.	end map: Tracks how many subsequences end at a particular number.
+
+For each number num in the array:
+	•	If count[num] is 0 → skip it (already used).
+	•	Otherwise:
+	1.	Decrease count[num] (use the number).
+	2.	If there is a subsequence ending at num-1, extend it:
+	•	Decrease end[num-1], increase end[num].
+	3.	Else, start a new subsequence of length k:
+	•	Check if all next k-1 numbers exist in count.
+	•	If not enough numbers, return false.
+	•	Decrease their counts and mark the sequence ending at num + k - 1.
+
+If all numbers are successfully assigned, return true.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isPossible(vector<int>& arr, int k) {
+        unordered_map<int, int> count, end;
+        
+        // Step 1: Count occurrences
+        for (int num : arr)
+            count[num]++;
+        
+        // Step 2: Try to place each number
+        for (int num : arr) {
+            if (count[num] == 0) continue; // already used
+            
+            count[num]--; // use one occurrence
+            
+            // Case 1: extend an existing subsequence
+            if (end[num - 1] > 0) {
+                end[num - 1]--;
+                end[num]++;
+            }
+            // Case 2: start a new subsequence
+            else {
+                bool canForm = true;
+                for (int i = 1; i < k; i++) {
+                    if (count[num + i] == 0) {
+                        canForm = false;
+                        break;
+                    }
+                }
+                if (!canForm) return false;
+                
+                // use next k-1 numbers
+                for (int i = 1; i < k; i++)
+                    count[num + i]--;
+                
+                // mark the end of this new subsequence
+                end[num + k - 1]++;
+            }
+        }
+        return true;
+    }
+};
