@@ -1,0 +1,43 @@
+24 October 2025 | Next Numerically Balanced Number
+
+Approach:
+The logic relies on brute force with digit frequency checking because the range of balanced numbers is small and sparse.
+	1.	Start from n + 1 (the next number after n).
+	2.	For each number, check whether it is numerically balanced using a helper function isBalanced().
+	3.	If the number satisfies the property, return it.
+
+How the check works:
+	•	Create a count array cnt[10] to store how many times each digit appears.
+	•	Traverse through all digits of the number and increment the count.
+	•	Then, verify that for every digit d:
+	•	If it appears at all (cnt[d] != 0), then it must appear exactly d times (cnt[d] == d).
+	•	If any digit violates this rule, the number is not balanced.
+
+This method is efficient enough since valid numerically balanced numbers are limited in count and occur sparsely.
+
+SOLUTION:
+class Solution {
+public:
+    bool isBalanced(int x) {
+        int cnt[10] = {0};
+        while (x > 0) {
+            cnt[x % 10]++;
+            x /= 10;
+        }
+
+        // Check if each digit occurs exactly 'd' times
+        for (int d = 0; d <= 9; ++d) {
+            if (cnt[d] != 0 && cnt[d] != d)
+                return false;
+        }
+        return true;
+    }
+
+    int nextBeautifulNumber(int n) {
+        int x = n + 1;
+        // Keep checking the next number until we find a balanced one
+        while (!isBalanced(x))
+            ++x;
+        return x;
+    }
+};
