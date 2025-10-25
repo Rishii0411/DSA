@@ -1,0 +1,35 @@
+2025-10-25 | Total Money in Leetcode Bank
+
+Question
+Given an integer n, return the total amount of money in the Leetcode bank after n days, following Hercy’s saving pattern.
+
+Approach
+	1.	Simulate the days of the week
+	•	Use an array arr[] = {1,2,3,4,5,6,7} representing the initial deposits for Monday through Sunday.
+	2.	Iterate through each day
+	•	Add the current day’s deposit to the total sum.
+	•	Increment that day’s deposit by $1 for the next week.
+	3.	Cycle through the week
+	•	Reset the day index to 0 after Sunday.
+	4.	Return the total sum
+	•	Continue this simulation until reaching day n.
+
+This approach directly simulates Hercy’s saving schedule and handles weekly increases automatically.
+
+SOLUTION:
+class Solution {
+public:
+    int totalMoney(int n) {
+        int arr[] = {1,2,3,4,5,6,7};
+        int sum = 0;
+        int i = 0;
+        int j = 0;
+        while(j < n) {
+            sum += arr[i];
+            arr[i++]++;
+            j++;
+            if(i >= 7) i = 0;
+        }
+        return sum;
+    }
+};
