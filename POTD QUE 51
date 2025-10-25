@@ -1,0 +1,63 @@
+2025-09-25 | Minimum Operations to Halve Array Sum
+
+⸻
+
+Question
+
+You are given an array arr[], and your task is to determine the minimum number of operations required to make the sum of its elements less than or equal to half of its original sum.
+
+In one operation, you may replace any element with half of its value (with floating-point precision).
+
+You must find the minimum number of such halving operations needed to reduce the array’s total sum to at most half of its initial value.
+
+⸻
+
+Approach
+	1.	Compute the total sum of all elements in the array.
+	•	Store it as sum.
+	•	The target value to achieve is sum / 2.
+	2.	Use a max-heap (priority queue)
+	•	Push all elements into a max-heap so that the largest element can be halved first (since reducing larger numbers gives the maximum effect).
+	3.	Iterative reduction process
+	•	Pop the largest element from the heap.
+	•	Halve its value and add that reduction to a running total reduced.
+	•	Push the halved value back into the heap for possible further halving.
+	•	Increment the operation counter.
+	4.	Stop when the reduced amount ≥ target (half the original sum)
+	•	Return the total number of operations performed.
+
+This greedy approach ensures that at each step, the maximum possible reduction in sum is achieved, minimizing the number of operations.
+
+⸻
+
+SOLUTION:
+class Solution {
+public:
+    int minOperations(vector<int>& arr) {
+        priority_queue<double> pq;
+        double sum = 0;
+
+        // Step 1: Calculate total sum and build max-heap
+        for (int x : arr) {
+            pq.push(x);
+            sum += x;
+        }
+
+        double target = sum / 2.0; // Step 2: Target is half of original sum
+        double reduced = 0;
+        int count = 0;
+
+        // Step 3: Keep halving the largest elements until target reached
+        while (reduced < target) {
+            double largest = pq.top();
+            pq.pop();
+
+            double half = largest / 2.0;
+            reduced += half;
+            pq.push(half);
+            count++;
+        }
+
+        return count; // Step 4: Minimum operations
+    }
+};
