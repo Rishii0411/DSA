@@ -1,0 +1,38 @@
+2025-10-26 | Minimum Cost to Connect Ropes
+
+Approach
+	1.	Use a Min-Heap (Priority Queue)
+	•	Store all rope lengths in a min-heap so that you can efficiently get the smallest two ropes.
+	2.	Combine Two Smallest Ropes Repeatedly
+	•	Extract the two smallest ropes from the heap.
+	•	Combine them — the cost is their sum.
+	•	Add this cost to the running total.
+	•	Push the new combined rope back into the heap.
+	3.	Repeat Until One Rope Remains
+	•	Continue this process until only one rope is left.
+	•	The accumulated total cost will be the minimum possible.
+
+This approach ensures that smaller ropes are always combined first, minimizing the cumulative cost.
+
+SOLUTION:
+class Solution {
+public:
+    int minCost(vector<int>& arr) {
+        // Create a min-heap
+        priority_queue<long long, vector<long long>, greater<long long>> pq(arr.begin(), arr.end());
+        long long totalCost = 0;
+
+        // Combine ropes until only one remains
+        while (pq.size() > 1) {
+            long long first = pq.top(); pq.pop();
+            long long second = pq.top(); pq.pop();
+
+            long long newRope = first + second;
+            totalCost += newRope;
+
+            pq.push(newRope);
+        }
+
+        return totalCost;
+    }
+};
