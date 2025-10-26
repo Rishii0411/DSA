@@ -1,0 +1,76 @@
+2025-10-26 | Bank Transaction Automation System
+2043. Simple Bank System
+
+Question
+You are given n accounts in a bank, each with an initial balance stored in a vector balance, where balance[i] represents the balance of the (i+1)th account.
+
+Implement the following methods for a Bank class:
+	1.	transfer(account1, account2, money) — Transfers money from account1 to account2.
+	2.	deposit(account, money) — Deposits money into the specified account.
+	3.	withdraw(account, money) — Withdraws money from the specified account.
+
+A transaction is valid if:
+	•	The account numbers are within the range [1, n].
+	•	The account has sufficient balance for the withdrawal or transfer.
+
+Return true if the transaction is successful, else return false.
+
+Approach
+	1.	Initialization
+	•	Store all account balances in a vector.
+	•	Keep track of the total number of accounts.
+	2.	Validation Check
+	•	Before performing any transaction, confirm that the account number(s) are valid (between 1 and n).
+	3.	Transaction Handling
+	•	Transfer:
+	•	Check if both accounts are valid and account1 has enough money.
+	•	Deduct from account1 and add to account2.
+	•	Deposit:
+	•	Validate account and add the specified money to its balance.
+	•	Withdraw:
+	•	Validate account and ensure enough funds before deducting.
+	4.	Return Value
+	•	Each operation returns a boolean indicating success (true) or failure (false).
+
+SOLUTION:
+class Bank {
+private:
+    std::vector<long long> balance;
+    int n;
+
+    // Check if account number is valid
+    bool isValid(int account) const {
+        return account >= 1 && account <= n;
+    }
+
+public:
+    // Constructor to initialize balances
+    Bank(std::vector<long long>& balance_) {
+        balance = balance_;
+        n = (int)balance.size();
+    }
+
+    // Transfer money between accounts
+    bool transfer(int account1, int account2, long long money) {
+        if (!isValid(account1) || !isValid(account2)) return false;
+        if (balance[account1 - 1] < money) return false;
+        balance[account1 - 1] -= money;
+        balance[account2 - 1] += money;
+        return true;
+    }
+
+    // Deposit money into account
+    bool deposit(int account, long long money) {
+        if (!isValid(account)) return false;
+        balance[account - 1] += money;
+        return true;
+    }
+
+    // Withdraw money from account
+    bool withdraw(int account, long long money) {
+        if (!isValid(account)) return false;
+        if (balance[account - 1] < money) return false;
+        balance[account - 1] -= money;
+        return true;
+    }
+};
