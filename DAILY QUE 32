@@ -1,0 +1,49 @@
+2025-10-26 | Number of Laser Beams in a Bank
+2125. Number of Laser Beams in a Bank
+
+Question
+
+You are given a binary string array bank[] representing the bank’s floor layout:
+	•	'0' = empty cell
+	•	'1' = security device
+
+A laser beam is formed between two rows if:
+	1.	Both rows have devices ('1' present).
+	2.	There are no devices in the rows between them.
+
+Return the total number of laser beams in the entire bank.
+
+Approach
+	1.	Count devices per row:
+For each row, count how many '1's it has.
+	2.	Ignore empty rows:
+Only keep rows where at least one device exists.
+	3.	Calculate beams:
+For every adjacent pair of non-empty rows, multiply the number of devices:
+beams += devices[i-1] * devices[i]
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int numberOfBeams(vector<string>& bank) {
+        vector<int> devices;
+        
+        // Count devices in each row
+        for (auto &row : bank) {
+            int count = count_if(row.begin(), row.end(), [](char c){ return c == '1'; });
+            if (count > 0) devices.push_back(count);
+        }
+        
+        // Calculate total beams
+        int totalBeams = 0;
+        for (int i = 1; i < devices.size(); i++) {
+            totalBeams += devices[i - 1] * devices[i];
+        }
+        
+        return totalBeams;
+    }
+};
