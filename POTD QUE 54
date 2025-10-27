@@ -1,0 +1,75 @@
+2025-10-27 | Nearest 1 in a Binary Grid
+
+Question
+
+You are given a binary grid grid[][] (only 0s and 1s).
+Your task is to return a matrix of the same size, where each cell (i, j) contains the distance to the nearest cell with value 1.
+
+The distance between two cells (i₁, j₁) and (i₂, j₂) is calculated as:
+|i₁ - i₂| + |j₁ - j₂|
+
+It’s guaranteed that there is at least one 1 in the grid.
+
+Approach
+	1.	Use BFS (Breadth-First Search) because it’s ideal for finding the shortest distance in unweighted grids.
+	2.	Start from all 1s simultaneously — push all cells with value 1 into a queue and mark their distance as 0.
+	3.	Perform BFS:
+	•	From each cell, move in 4 directions (up, right, down, left).
+	•	For each unvisited neighbor (distance = -1), assign it a distance = current distance + 1.
+	4.	Continue until all cells are visited.
+	5.	Return the final distance matrix.
+
+Why BFS works perfectly:
+All 1s act as multiple sources, and BFS ensures that every 0 is assigned the shortest distance to the nearest 1.
+
+Time Complexity: O(n × m)
+Space Complexity: O(n × m)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+  public:
+    vector<vector<int>> nearest(vector<vector<int>>& grid) {
+        int n = grid.size();
+        int m = grid[0].size();
+
+        vector<vector<int>> dist(n, vector<int>(m, -1));
+        queue<pair<int, int>> q;
+
+        // Step 1: Push all cells having 1 into the queue
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 1) {
+                    dist[i][j] = 0;
+                    q.push({i, j});
+                }
+            }
+        }
+
+        // 4 possible directions (up, right, down, left)
+        int delRow[] = {-1, 0, 1, 0};
+        int delCol[] = {0, 1, 0, -1};
+
+        // Step 2: BFS traversal
+        while (!q.empty()) {
+            int row = q.front().first;
+            int col = q.front().second;
+            q.pop();
+
+            for (int k = 0; k < 4; k++) {
+                int nrow = row + delRow[k];
+                int ncol = col + delCol[k];
+
+                // Check boundaries and unvisited cells
+                if (nrow >= 0 && nrow < n && ncol >= 0 && ncol < m && dist[nrow][ncol] == -1) {
+                    dist[nrow][ncol] = dist[row][col] + 1;
+                    q.push({nrow, ncol});
+                }
+            }
+        }
+
+        return dist;
+    }
+};
