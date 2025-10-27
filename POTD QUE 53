@@ -1,0 +1,60 @@
+2025-10-26 | K Smallest Pairs with Smallest Sums
+
+Question
+Given two sorted integer arrays arr1[] and arr2[], and an integer k, find k pairs with the smallest sums, where each pair is [arr1[i], arr2[j]].
+If multiple answers exist, return any valid one.
+
+
+Approach
+	1.	Use a min-heap (priority queue) to always extract the next smallest sum efficiently.
+	2.	Initially, pair the first element of arr2 with the first k elements of arr1.
+→ Each heap node stores (sum, (i, j)), where sum = arr1[i] + arr2[j].
+	3.	Pop the smallest pair from the heap and store it in the result.
+	4.	Each time you pop (i, j), push the next pair (i, j+1) — moving right in arr2.
+	5.	Continue until we have extracted k pairs or the heap is empty.
+
+Time Complexity:
+O(k log k) — heap operations for up to k pairs.
+Space Complexity:
+O(k) — for the heap and output list.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+  public:
+    vector<vector<int>> kSmallestPair(vector<int> &arr1, vector<int> &arr2, int k) {
+        vector<vector<int>> ans;
+        if (arr1.empty() || arr2.empty()) return ans;
+
+        // Min-heap → (sum, (i, j))
+        priority_queue<pair<int, pair<int, int>>,
+                       vector<pair<int, pair<int, int>>>,
+                       greater<pair<int, pair<int, int>>>>
+            minHeap;
+
+        // Step 1: Push first element of each arr1 with arr2[0]
+        for (int i = 0; i < arr1.size() && i < k; i++) {
+            minHeap.push({arr1[i] + arr2[0], {i, 0}});
+        }
+
+        // Step 2: Extract k smallest pairs
+        while (k-- > 0 && !minHeap.empty()) {
+            auto top = minHeap.top();
+            minHeap.pop();
+
+            int i = top.second.first;
+            int j = top.second.second;
+            ans.push_back({arr1[i], arr2[j]});
+
+            // Push next element in the same row
+            if (j + 1 < arr2.size()) {
+                minHeap.push({arr1[i] + arr2[j + 1], {i, j + 1}});
+            }
+        }
+
+        return ans;
+    }
+};
