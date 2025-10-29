@@ -1,0 +1,23 @@
+2025-10-29 | Smallest Number with All Set Bits ≥ n
+
+Question
+
+Return the smallest integer x ≥ n such that all bits of x are 1.
+
+Approach
+	1.	Observe that numbers with all set bits are of the form
+So we need to find the smallest k such that:
+2^k - 1 
+	3.	Start with x = 1 and keep doubling (x = (x << 1) | 1) until x >= n.
+
+SOLUTION:
+class Solution {
+public:
+    long long smallestAllBitsSet(long long n) {
+        long long x = 1;
+        while (x < n) {
+            x = (x << 1) | 1;  // shift left and set all bits
+        }
+        return x;
+    }
+};
