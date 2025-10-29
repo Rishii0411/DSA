@@ -1,0 +1,64 @@
+2025-10-29 | Diameter of a Tree
+
+Question
+ diameter of the tree.
+
+Approach
+	1.	Build an adjacency list for the tree.
+	2.	Run BFS from any node (say node 0) → find the farthest node A.
+	3.	Run BFS again from node A → find the farthest node B and distance d.
+	4.	The diameter is d.
+
+
+SOLUTION;
+class Solution {
+  public:
+    // Helper function to find the farthest node and its distance using BFS
+    pair<int, int> bfs(int start, vector<vector<int>>& adj) {
+        vector<int> dist(adj.size(), -1);
+        queue<int> q;
+        q.push(start);
+        dist[start] = 0;
+
+        int farthestNode = start;
+        int maxDist = 0;
+
+        while (!q.empty()) {
+            int node = q.front();
+            q.pop();
+
+            for (int nei : adj[node]) {
+                if (dist[nei] == -1) {  // Not visited
+                    dist[nei] = dist[node] + 1;
+                    q.push(nei);
+                    if (dist[nei] > maxDist) {
+                        maxDist = dist[nei];
+                        farthestNode = nei;
+                    }
+                }
+            }
+        }
+
+        return {farthestNode, maxDist};
+    }
+
+    int diameter(int V, vector<vector<int>>& edges) {
+        // Step 1: Build adjacency list
+        vector<vector<int>> adj(V);
+        for (auto& e : edges) {
+            int u = e[0], v = e[1];
+            adj[u].push_back(v);
+            adj[v].push_back(u);
+        }
+
+        // Step 2: First BFS to find farthest node from 0
+        auto first = bfs(0, adj);
+        int nodeA = first.first;
+
+        // Step 3: Second BFS from nodeA to get diameter
+        auto second = bfs(nodeA, adj);
+        int diameter = second.second;
+
+        return diameter;
+    }
+};
