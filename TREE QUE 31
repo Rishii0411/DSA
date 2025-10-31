@@ -1,0 +1,51 @@
+2025-10-31 | Diameter of Binary Tree
+
+Problem Statement
+Given the root of a binary tree, your task is to find the diameter of the binary tree.
+
+Constraints:
+•	The tree may contain positive or negative integers.
+•	The number of nodes in the tree is in the range [1, 10⁴].
+•	Each node contains an integer value.
+
+Approach / Explanation
+1.	Observation
+•	The diameter of a binary tree can pass through or bypass the root.
+•	For each node, the longest path through it equals the sum of the heights of its left and right subtrees.
+•	The maximum of these values across all nodes is the diameter.
+
+SOLUTION:
+/*
+class Node {
+public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int val) {
+        data = val;
+        left = NULL;
+        right = NULL;
+    }
+};
+*/
+
+int trav(Node* root, int &ans) {
+    if (root == NULL)
+        return 0;
+    
+    int a = trav(root->left, ans);
+    int b = trav(root->right, ans);
+    
+    ans = max(ans, a + b + 1);
+    return max(a + 1, b + 1);
+}
+
+class Solution {
+  public:
+    int diameter(Node* root) {
+        int ans = 0;
+        trav(root, ans);
+        return ans - 1; // edges = nodes - 1
+    }
+};
