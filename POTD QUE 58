@@ -1,0 +1,69 @@
+2025-10-31 | Course Schedule Ordering
+
+Problem Statement
+You are given n courses labeled from 0 to n - 1 and a 2D array prerequisites[][] where prerequisites[i] = [x, y] indicates that you must take course y before course x.
+
+Your task is to find a valid ordering of courses you can take to complete all of them.
+	•	There may be multiple valid orders — you only need to return one.
+	•	If it is impossible to complete all courses (due to cyclic dependencies), return an empty array.
+	•	The driver code will print true if your returned order is valid, else false.
+
+Approach / Explanation
+	1.	Observation
+•	This problem can be modeled as a Directed Acyclic Graph (DAG) where each course is a vertex, and each prerequisite is a directed edge.
+•	We need to find a Topological Ordering of this graph.
+	2.	Kahn’s Algorithm (BFS-based Topological Sort)
+•	Build an adjacency list from the prerequisites.
+•	Compute the in-degree (number of incoming edges) for each course.
+•	All nodes with in-degree = 0 (no prerequisites) can be taken first — push them into a queue.
+•	Pop from the queue, add the course to the order, and decrease the in-degree of its neighbors.
+•	If a neighbor’s in-degree becomes 0, push it into the queue.
+	3.	Cycle Detection
+•	If we can process all n courses, a valid ordering exists.
+•	If not (some nodes still have nonzero in-degree), a cycle exists — return an empty array.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findOrder(int n, vector<vector<int>>& prerequisites) {
+        vector<vector<int>> adj(n);
+        vector<int> indegree(n, 0);
+
+        // Build graph
+        for (auto& pre : prerequisites) {
+            int course = pre[0];
+            int prereq = pre[1];
+            adj[prereq].push_back(course);
+            indegree[course]++;
+        }
+
+        queue<int> q;
+        // Add courses with no prerequisites
+        for (int i = 0; i < n; i++) {
+            if (indegree[i] == 0)
+                q.push(i);
+        }
+
+        vector<int> order;
+        while (!q.empty()) {
+            int curr = q.front();
+            q.pop();
+            order.push_back(curr);
+
+            // Decrease indegree of neighbors
+            for (int next : adj[curr]) {
+                indegree[next]--;
+                if (indegree[next] == 0)
+                    q.push(next);
+            }
+        }
+
+        // If all courses are taken
+        if (order.size() == n)
+            return order;
+        return {};  // Cycle detected, not possible
+    }
+};
