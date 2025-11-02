@@ -1,0 +1,78 @@
+2025-10-31 | Maximum Additional Edges in a DAG
+
+Problem Statement
+
+You are given a Directed Acyclic Graph (DAG) with V vertices numbered from 0 to V - 1 and E edges, represented as a 2D array edges[][], where each entry edges[i] = [u, v] denotes a directed edge from vertex u to vertex v.
+
+Find the maximum number of additional edges that can be added to the graph without forming any cycles.
+
+Note:
+The resulting graph must remain a DAG — meaning adding any more edges after that would definitely create a cycle.
+
+Approach / Explanation
+	1.	Observation
+•	In a DAG, edges can only go from earlier to later vertices in a topological order.
+•	If we know the topological ordering, we can determine which pairs of vertices can safely be connected.
+	2.	Steps
+•	Perform a topological sort of the graph using Kahn’s algorithm or DFS.
+•	Create an adjacency matrix (or a reachable matrix) to quickly check existing edges.
+•	For every pair (i, j) in the topological order where i < j:
+	•	If there is no existing edge from i to j, it is safe to add one.
+•	Count all such pairs — this gives the maximum number of additional edges.
+	3.	Time Complexity
+•	Topological Sort: O(V + E)
+•	Pair Checking: O(V²)
+•	Overall: O(V²) (suitable for moderate V).
+
+SOLUTION:
+class Solution {
+  public:
+    int maxEdgesToAdd(int V, vector<vector<int>>& edges) {
+        vector<vector<int>> adj(V);
+        vector<int> indegree(V, 0);
+
+        // Build adjacency list
+        for (auto &e : edges) {
+            adj[e[0]].push_back(e[1]);
+            indegree[e[1]]++;
+        }
+
+        // Topological sort (Kahn's algorithm)
+        queue<int> q;
+        for (int i = 0; i < V; i++) {
+            if (indegree[i] == 0)
+                q.push(i);
+        }
+
+        vector<int> topo;
+        while (!q.empty()) {
+            int node = q.front();
+            q.pop();
+            topo.push_back(node);
+
+            for (int nbr : adj[node]) {
+                indegree[nbr]--;
+                if (indegree[nbr] == 0)
+                    q.push(nbr);
+            }
+        }
+
+        // Mark existing edges
+        vector<vector<int>> hasEdge(V, vector<int>(V, 0));
+        for (auto &e : edges) {
+            hasEdge[e[0]][e[1]] = 1;
+        }
+
+        // Count potential new edges
+        int count = 0;
+        for (int i = 0; i < V; i++) {
+            for (int j = i + 1; j < V; j++) {
+                if (!hasEdge[topo[i]][topo[j]]) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+};
