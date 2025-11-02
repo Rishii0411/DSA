@@ -1,0 +1,73 @@
+2025-10-31 | Count Unguarded Cells in a Grid
+
+Problem Statement
+
+You are given two integers m and n representing a 0-indexed m x n grid.
+You are also given two 2D integer arrays:
+	•	guards[i] = [rowi, coli] — the position of the i-th guard
+	•	walls[j] = [rowj, colj] — the position of the j-th wall
+
+A guard can see in the four cardinal directions (north, south, east, west) from their position, until their line of sight is blocked by either a wall or another guard.
+
+A cell is considered guarded if it can be seen by at least one guard.
+
+Return the number of unoccupied cells that are not guarded.
+
+Approach / Explanation
+	1.	Observation
+•	We must mark cells that are either walls, guards, or guarded.
+•	Each guard’s vision extends in four directions until a wall or another guard is encountered.
+	2.	Simulation Approach
+•	Create a 2D matrix representing the grid, initializing all cells as empty (0).
+•	Mark wall cells as -1 and guard cells as 1.
+•	For each guard, extend visibility in the four directions (up, down, left, right):
+	•	Continue marking cells as guarded (2) until hitting a wall (-1) or another guard (1).
+•	Finally, count all cells that remain 0 — those are the unguarded cells.
+	3.	Time Complexity
+•	For each guard, we may traverse at most O(m + n) cells.
+•	Overall complexity: O(g × (m + n)), where g is the number of guards.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countUnguarded(int m, int n, vector<vector<int>>& guards, vector<vector<int>>& walls) {
+        vector<vector<int>> grid(m, vector<int>(n, 0));
+
+        // Mark walls and guards
+        for (auto &w : walls)
+            grid[w[0]][w[1]] = -1; // wall
+        for (auto &g : guards)
+            grid[g[0]][g[1]] = 1; // guard
+
+        // Directions: up, down, left, right
+        vector<pair<int,int>> dirs = {{-1,0}, {1,0}, {0,-1}, {0,1}};
+
+        // Simulate guard vision
+        for (auto &g : guards) {
+            int r = g[0], c = g[1];
+            for (auto [dr, dc] : dirs) {
+                int nr = r + dr, nc = c + dc;
+                while (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] != -1 && grid[nr][nc] != 1) {
+                    if (grid[nr][nc] == 0)
+                        grid[nr][nc] = 2; // guarded
+                    nr += dr;
+                    nc += dc;
+                }
+            }
+        }
+
+        // Count unguarded and unoccupied cells
+        int count = 0;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 0)
+                    count++;
+            }
+        }
+
+        return count;
+    }
+};
