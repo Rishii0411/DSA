@@ -1,0 +1,56 @@
+2025-10-31 | Minimum Time to Make Rope Colorful
+
+Problem Statement
+You are given:
+	•	A string colors, where colors[i] represents the color of the i-th balloon.
+	•	A vector neededTime, where neededTime[i] represents the time needed to remove the i-th balloon.
+Return the minimum total time Bob needs to remove balloons so that no two consecutive balloons have the same color.
+
+Constraints:
+•	1 <= colors.length == neededTime.length <= 10^5
+•	1 <= neededTime[i] <= 10^4
+•	colors consists only of lowercase English letters.
+
+Approach / Explanation
+	1.	Observation
+•	If two or more consecutive balloons share the same color, we must remove all but one of them.
+•	To minimize time, keep the one with the maximum removal time (the most expensive to remove) and remove the rest.
+	2.	Steps
+•	Iterate through colors using two pointers (i, j) to detect groups of consecutive same-colored balloons.
+•	For each group:
+	•	Compute the total removal time.
+	•	Find the maximum removal time in that group.
+	•	Add (total - max) to the final answer.
+•	Continue until all balloons are processed.
+	3.	Time Complexity
+•	O(n), since each balloon is visited once.
+
+SOLUTION:
+class Solution {
+public:
+    int minCost(string colors, vector<int>& neededTime) {
+        int ans = 0;
+        int i = 0;
+        int n = colors.length();
+
+        while (i < n) {
+            int total = neededTime[i];
+            int maxTime = neededTime[i];
+            int j = i + 1;
+
+            // Find consecutive balloons of the same color
+            while (j < n && colors[j] == colors[i]) {
+                total += neededTime[j];
+                maxTime = max(maxTime, neededTime[j]);
+                j++;
+            }
+
+            // If more than one balloon of same color, remove all but one
+            ans += (total - maxTime);
+
+            i = j; // Move to next group
+        }
+
+        return ans;
+    }
+};
