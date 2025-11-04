@@ -1,0 +1,94 @@
+2025-11-04 | X-Sum of Subarrays of Size K
+
+
+Problem Statement
+You are given:
+	•	An integer array nums of length n.
+	•	Two integers k and x.
+
+For each subarray of size k, define its X-Sum as:
+	1.	Count the occurrences of all elements in the subarray.
+	2.	Keep only the top x most frequent elements.
+	•	If two elements have the same frequency, the larger element is considered more frequent.
+	3.	Compute the sum of the subarray that only includes occurrences of these selected elements.
+
+Return an array answer of length n - k + 1, where answer[i] is the X-Sum of nums[i..i + k - 1].
+
+Approach / Explanation
+	1.	Observation
+•	We need to compute the X-Sum for every sliding window of size k.
+•	The main challenge is efficiently maintaining frequency counts as the window slides.
+	2.	Data Structures
+•	Use a hash map (unordered_map) to maintain frequencies of current window elements.
+•	Use a balanced multiset (or ordered map) to keep elements sorted by:
+	•	Frequency (descending).
+	•	Value (descending if frequencies tie).
+•	Sliding the window means:
+	•	Remove the leftmost element’s frequency.
+	•	Add the new rightmost element’s frequency.
+	3.	Steps
+•	Start by building frequency counts for the first k elements.
+•	Compute the X-Sum for this window using the top x elements.
+•	Slide the window forward:
+	•	Decrement frequency of outgoing element.
+	•	Increment frequency of incoming element.
+	•	Recalculate the X-Sum efficiently using the updated frequencies.
+	4.	Time Complexity
+•	Naive approach: O((n - k + 1) * k log k)
+•	Optimized (using priority queue or ordered map): O(n log k)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findXSum(vector<int>& nums, int k, int x) {
+        int n = nums.size();
+        vector<int> ans;
+
+        unordered_map<int, int> freq;
+
+        // Initialize the first window
+        for (int i = 0; i < k; i++) {
+            freq[nums[i]]++;
+        }
+
+        auto getXSum = [&](unordered_map<int, int>& freq) -> long long {
+            // Sort by (frequency desc, value desc)
+            vector<pair<int, int>> items(freq.begin(), freq.end());
+            sort(items.begin(), items.end(), [](auto &a, auto &b) {
+                if (a.second == b.second) return a.first > b.first;
+                return a.second > b.second;
+            });
+
+            long long sum = 0;
+            int count = 0;
+            for (auto &p : items) {
+                if (count == x) break;
+                sum += 1LL * p.first * p.second;
+                count++;
+            }
+            return sum;
+        };
+
+        ans.push_back(getXSum(freq));
+
+        // Slide the window
+        for (int i = k; i < n; i++) {
+            int remove = nums[i - k];
+            int add = nums[i];
+
+            // Remove outgoing element
+            freq[remove]--;
+            if (freq[remove] == 0) freq.erase(remove);
+
+            // Add incoming element
+            freq[add]++;
+
+            ans.push_back(getXSum(freq));
+        }
+
+        return ans;
+    }
+};
