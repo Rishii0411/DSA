@@ -1,0 +1,117 @@
+2025-11-06 | X-Sum of Subarrays of Size K
+
+Problem Statement
+You are given:
+	•	An integer array nums of size n.
+	•	Two integers k (window size) and x.
+
+Define the X-Sum of an array as:
+	1.	Count the frequency of each element.
+	2.	Keep only the x most frequent elements.
+	•	If two elements have equal frequency, the larger element is considered more frequent.
+	3.	The X-Sum is the sum of all occurrences of these selected elements.
+	4.	If there are fewer than x distinct elements, use the sum of the entire array.
+
+Return an integer array answer of size n - k + 1, where answer[i] is the X-Sum of the subarray nums[i..i + k - 1].
+
+Approach / Explanation
+	1.	Observation
+• We are dealing with sliding windows and dynamic frequency tracking.
+• Each new number entering or leaving the window can change the top x most frequent elements.
+	2.	Data Structure Choice
+• We use two ordered sets (balanced BSTs implemented as std::set):
+	•	selected: contains the current top x most frequent elements.
+	•	waitlist: contains the remaining elements.
+• Both sets store pairs (frequency, value), sorted ascending by frequency and value.
+	•	selected acts like a min-heap (the smallest candidate is easiest to remove).
+	•	waitlist acts like a max-heap (the most frequent and largest value is easiest to promote).
+• A map<int,int> (freq) tracks the current frequency of each number in the window.
+	3.	How It Works
+• For each number:
+	•	Update its frequency and reposition it between selected and waitlist.
+	•	Maintain at most x elements in selected.
+• For each window:
+	•	Add the sum of selected elements (skill_sum) to the answer.
+	•	When sliding forward:
+	•	Decrement the outgoing number’s frequency.
+	•	Increment the incoming number’s frequency.
+	•	Adjust the sets accordingly.
+	4.	Complexity
+• Each insertion/removal takes O(log n) due to ordered sets.
+• Overall time complexity: O(n log n).
+• Space complexity: O(n) for frequency and sets.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+  public:
+    vector<long long> findXSum(vector<int> &a, int k, int x) {
+        int n = a.size();
+        vector<long long> ans;
+        set<pair<int, int>> selected, waitlist;
+        // selected → top x elements (min-heap behavior)
+        // waitlist → remaining elements (max-heap behavior)
+        long long skill_sum = 0;
+
+        auto remove_candidate = [&](pair<int, int> cand) {
+            // Remove from waitlist if present
+            if (waitlist.find(cand) != waitlist.end()) {
+                waitlist.erase(cand);
+            }
+            // Remove from selected if present
+            if (selected.find(cand) != selected.end()) {
+                selected.erase(cand);
+                skill_sum -= 1LL * cand.first * cand.second;
+                if (!waitlist.empty()) {
+                    // Promote most eligible from waitlist
+                    auto new_selection = *waitlist.rbegin();
+                    waitlist.erase(new_selection);
+                    selected.insert(new_selection);
+                    skill_sum += 1LL * new_selection.first * new_selection.second;
+                }
+            }
+        };
+
+        auto add_candidate = [&](pair<int, int> cand) {
+            selected.insert(cand);
+            skill_sum += 1LL * cand.first * cand.second;
+            if (selected.size() > x) {
+                // Move least eligible to waitlist
+                auto rejection = *selected.begin();
+                selected.erase(rejection);
+                skill_sum -= 1LL * rejection.first * rejection.second;
+                waitlist.insert(rejection);
+            }
+        };
+
+        map<int, int> freq;
+
+        for (int i = 0; i < n; i++) {
+            pair<int, int> cand = {freq[a[i]], a[i]};
+            // Update frequency
+            if (freq[a[i]] > 0) remove_candidate(cand);
+
+            freq[a[i]]++;
+            cand = {freq[a[i]], a[i]};
+            add_candidate(cand);
+
+            if (i >= k) {
+                // Remove outgoing element
+                int out = i - k;
+                cand = {freq[a[out]], a[out]};
+                remove_candidate(cand);
+                freq[a[out]]--;
+                if (freq[a[out]] > 0) {
+                    cand = {freq[a[out]], a[out]};
+                    add_candidate(cand);
+                }
+            }
+
+            if (i >= k - 1) ans.push_back(skill_sum);
+        }
+
+        return ans;
+    }
+};
