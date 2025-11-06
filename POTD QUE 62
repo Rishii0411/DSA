@@ -1,0 +1,54 @@
+2025-11-06 | Tiling a 2 × N Floor
+
+Problem Statement
+Given a floor of dimensions 2 × n and tiles of size 2 × 1, find the number of ways to completely cover the floor using these tiles.
+
+Note:
+Since the number of ways can be large, you may take the answer modulo 10^9 + 7 (if needed).
+
+Approach / Explanation
+	1.	Observation
+• Let f(n) represent the number of ways to tile a 2×n floor.
+• For the last column(s), two possibilities exist:
+	1.	Place one vertical tile → the remaining space is 2×(n−1), contributing f(n−1) ways.
+	2.	Place two horizontal tiles (stacked) → the remaining space is 2×(n−2), contributing f(n−2) ways.
+• Therefore,
+f(n) = f(n-1) + f(n-2)
+This is identical to the Fibonacci sequence.
+	2.	Base Cases
+
+	•	f(1) = 1 → only one vertical tile fits.
+	•	f(2) = 2 → two ways: two vertical tiles or two horizontal tiles.
+
+	3.	Algorithm
+• Use either recursion with memoization or bottom-up dynamic programming.
+• For large n, iterative DP is preferred for efficiency.
+	4.	Time and Space Complexity
+• Time Complexity: O(n)
+• Space Complexity: O(1) (if we store only the last two results).
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countWays(int n) {
+        const int MOD = 1e9 + 7;
+
+        if (n == 1) return 1;
+        if (n == 2) return 2;
+
+        long long prev2 = 1; // f(n-2)
+        long long prev1 = 2; // f(n-1)
+        long long curr = 0;
+
+        for (int i = 3; i <= n; i++) {
+            curr = (prev1 + prev2) % MOD;
+            prev2 = prev1;
+            prev1 = curr;
+        }
+
+        return (int)curr;
+    }
+};
