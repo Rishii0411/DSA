@@ -1,0 +1,73 @@
+2025-11-06 | Implement atoi() — String to Integer Conversion
+
+Problem Statement
+Given a string s, convert it into an integer without using any built-in conversion functions.
+
+The conversion must follow the rules of the classic atoi() function:
+	1.	Ignore leading whitespaces.
+	2.	Check for a sign (+ or -) — default to positive if not present.
+	3.	Convert consecutive digits into an integer until a non-digit character is encountered.
+	4.	Ignore leading zeros during conversion.
+	5.	Clamp the result to the 32-bit integer range:
+	•	Minimum = -2³¹ = -2147483648
+	•	Maximum = 2³¹ - 1 = 2147483647
+	6.	If no digits are found, return 0.
+
+Approach / Explanation
+	1.	Skip Whitespaces:
+	•	Traverse until a non-space character is found.
+	2.	Check for Sign:
+	•	If you encounter '-', mark number as negative.
+	•	If '+', mark number as positive.
+	3.	Read Digits:
+	•	Continue parsing digits while they are valid ('0'–'9').
+	•	Stop when a non-digit is found.
+	4.	Handle Overflow:
+	•	Before multiplying by 10 or adding a digit, check if the result would overflow.
+	5.	Return Final Value:
+	•	Apply the sign and clamp the result if necessary.
+
+
+SOLUTION:
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int myAtoi(string &s) {
+        int i = 0, n = s.size();
+        long long ans = 0;
+        bool negative = false;
+
+        //Skip leading whitespaces
+        while (i < n && s[i] == ' ')
+            i++;
+
+        //Check for sign
+        if (i < n && (s[i] == '-' || s[i] == '+')) {
+            negative = (s[i] == '-');
+            i++;
+        }
+
+       // Parse digits
+        while (i < n && isdigit(s[i])) {
+            int digit = s[i] - '0';
+
+            //Check for overflow before adding digit
+            if (ans > (INT_MAX - digit) / 10) {
+                return negative ? INT_MIN : INT_MAX;
+            }
+
+            ans = ans * 10 + digit;
+            i++;
+        }
+
+        //Apply sign and return
+        if (negative) ans = -ans;
+        if (ans > INT_MAX) return INT_MAX;
+        if (ans < INT_MIN) return INT_MIN;
+
+        return (int)ans;
+    }
+};
