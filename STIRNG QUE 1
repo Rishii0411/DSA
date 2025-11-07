@@ -1,0 +1,45 @@
+2025-11-06 | Check if Two Strings are Rotations of Each Other
+
+Problem Statement
+Given two strings s1 and s2 of equal lengths, determine if s2 is a rotation of s1.
+
+Definition:
+A string s2 is a rotation of s1 if it can be obtained by moving one or more leading characters of s1 to the end (or vice versa), without altering the relative order of characters.
+
+Example:
+s1 = "abcd", s2 = "cdab" → Rotation
+s1 = "abcd", s2 = "acbd" → Not a rotation
+
+Constraints:
+•	1 ≤ |s1|, |s2| ≤ 10⁵
+•	Strings consist only of lowercase and uppercase English letters.
+
+Approach / Explanation
+	1.	Observation
+•	If s2 is a rotation of s1, then s1 will always appear as a substring of s2 + s2.
+Example:
+s1 = "abcd", s2 = "cdab"
+s2 + s2 = "cdabcdab" → contains "abcd"
+	2.	Algorithm
+•	Check if s1 and s2 are of equal length — if not, return false.
+•	Concatenate s2 with itself.
+•	Check whether s1 exists as a substring inside the concatenated string.
+	3.	Time Complexity
+•	Substring search → O(n) (average case, using built-in string find).
+•	Space Complexity → O(n) due to concatenation.
+
+SOLUTION:
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+  public:
+    bool areRotations(string &s1, string &s2) {
+        // If lengths differ, rotation is impossible
+        if (s1.size() != s2.size()) return false;
+
+        // Check if s1 exists in s2 concatenated with itself
+        return ((s2 + s2).find(s1) != string::npos);
+    }
+};
