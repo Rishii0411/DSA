@@ -1,0 +1,106 @@
+2025-11-06 | Maximum Possible Minimum Power of a City
+
+Problem Statement
+
+You are given:
+	•	A 0-indexed array stations[], where stations[i] is the number of power stations in the i-th city.
+	•	An integer r, representing the range of each station.
+	•	An integer k, the number of additional stations that can be built.
+
+Each station at city i powers all cities j such that:
+|i - j| \le r
+and 0 \le i, j < n.
+
+The power of a city is the total number of stations (existing or new) that can power it.
+
+Return the maximum possible minimum power among all cities after optimally building k new power stations.
+
+
+Approach / Explanation
+
+1. Observation
+We need to maximize the minimum power across all cities — a classic binary search on the answer problem.
+
+Let’s define:
+	•	A threshold minPower — the minimum power every city should have.
+	•	We check if it’s possible to achieve this minPower by distributing up to k new power stations optimally.
+
+If it’s possible, we can try for a higher value.
+If not, we lower the threshold.
+
+
+2. Checking Feasibility (check function)
+For each city, we maintain a sliding window sum representing how much power it currently receives.
+
+If any city’s power is below minPower, we greedily add new power stations as far to the right as possible (within range r) so they can also benefit future cities.
+
+We track:
+	•	power: current sum of stations affecting the city.
+	•	additionalStations: remaining stations we can still add.
+
+If we ever run out of additional stations (additionalStations < 0), it’s impossible to achieve this configuration.
+
+
+3. Binary Search Logic
+We search between:
+	•	left = min(stations) → the smallest existing power.
+	•	right = sum(stations) + k + 1 → the theoretical maximum possible power.
+
+Use binary search to find the highest achievable minimum power.
+
+
+4. Complexity Analysis
+	•	Time Complexity: O(n log S)
+	•	S = total sum of stations (search space).
+	•	Space Complexity: O(n) (copy of stations for simulation).
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long maxPower(vector<int>& stations, int r, int k) {
+        long left = ranges::min(stations);
+        long right = accumulate(stations.begin(), stations.end(), 0L) + k + 1;
+
+        while (left < right) {
+            const long mid = (left + right) / 2;
+            if (check(stations, r, k, mid))
+                left = mid + 1;
+            else
+                right = mid;
+        }
+
+        return left - 1;
+    }
+
+private:
+    // Helper function: Check if all cities can have at least `minPower`
+    bool check(vector<int> stations, int r, int additionalStations, long minPower) {
+        const int n = stations.size();
+        long power = accumulate(stations.begin(), stations.begin() + r, 0L);
+
+        for (int i = 0; i < n; ++i) {
+            if (i + r < n)
+                power += stations[i + r];  // power = sum(stations[i-r..i+r])
+            
+            if (power < minPower) {
+                const long required = minPower - power;
+                if (required > additionalStations)
+                    return false; // not enough new stations available
+                
+                // Greedily place required power stations as far right as possible
+                stations[min(n - 1, i + r)] += required;
+                additionalStations -= required;
+                power += required;
+            }
+
+            if (i - r >= 0)
+                power -= stations[i - r];
+        }
+
+        return true;
+    }
+};
