@@ -1,0 +1,85 @@
+2025-11-06 | Count Paths to Collect Exactly K Coins in a Matrix
+
+Problem Statement
+You are given an integer matrix mat[][] of size n × m, where mat[i][j] represents the number of coins in cell (i, j).
+You can only move:
+	•	Right → from (i, j) to (i, j + 1), or
+	•	Down ↓ from (i, j) to (i + 1, j).
+
+Find the number of unique paths from the top-left (0, 0) to the bottom-right (n - 1, m - 1) such that the total coins collected = K.
+
+It is guaranteed that the answer fits within a 32-bit integer.
+
+
+Approach / Explanation
+
+1. Observation
+Each path from (0, 0) to (n-1, m-1) corresponds to a sequence of right and down moves.
+We must explore all possible paths but efficiently prune paths that exceed K coins.
+
+2. Recursive + Memoization Approach
+We use Depth-First Search (DFS) with memoization (dp).
+
+State definition:
+dp[i][j][sum] = number of ways to reach (n-1, m-1) from (i, j) with sum coins already collected.
+	•	Base Case:
+	•	If (i, j) = bottom-right cell, return 1 if sum + mat[i][j] == K, else 0.
+	•	Recursive Case:
+	•	Move right and down recursively.
+	•	Skip any path where sum > K (pruning).
+
+We encode (i, j, sum) uniquely using a 64-bit key in an unordered_map for efficient memoization.
+
+
+3. Time & Space Complexity
+	•	Time Complexity: O(n × m × K) (each unique (i, j, sum) computed once).
+	•	Space Complexity: O(n × m × K) for recursion + memoization.
+
+SOLUTION:
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int n, m;
+    unordered_map<long long, int> dp; // key = (i*m + j)*1e5 + sum
+
+    // Helper to generate a unique key for each state (i, j, sum)
+    long long getKey(int i, int j, int sum) {
+        return ((long long)i * m + j) * 100000 + sum;
+    }
+
+    int solve(vector<vector<int>>& mat, int k, int i, int j, int sum) {
+        sum += mat[i][j];
+
+        // If coins exceed target, stop exploring
+        if (sum > k) return 0;
+
+        // Base case: reached bottom-right cell
+        if (i == n - 1 && j == m - 1)
+            return (sum == k);
+
+        long long key = getKey(i, j, sum);
+        if (dp.count(key)) return dp[key];
+
+        int right = 0, down = 0;
+
+        // Move down
+        if (i + 1 < n)
+            down = solve(mat, k, i + 1, j, sum);
+
+        // Move right
+        if (j + 1 < m)
+            right = solve(mat, k, i, j + 1, sum);
+
+        return dp[key] = right + down;
+    }
+
+    int numberOfPath(vector<vector<int>>& mat, int k) {
+        n = mat.size();
+        m = mat[0].size();
+        dp.clear();
+        return solve(mat, k, 0, 0, 0);
+    }
+};
