@@ -1,0 +1,65 @@
+2025-11-06 | Minimum One Bit Operations to Make Integer Zero
+
+Problem Statement
+Given an integer n, perform the following operations any number of times to transform it into 0:
+	1.	Change the 0th bit (rightmost bit).
+	2.	Change the i-th bit if:
+	•	Bit (i-1) = 1
+	•	All bits from (i-2) → 0 = 0
+
+Return the minimum number of operations required to reach zero.
+
+
+Approach / Explanation
+1. Key Observation
+This problem has a deep relationship with Gray code transformations — each allowed bit operation mirrors the transitions between consecutive Gray codes.
+
+When flipping bits according to these rules:
+	•	Transitioning from 2^k to 0 always takes 2^(k+1) - 1 operations.
+
+For example:
+
+2^0 (001) → needs 1 op
+2^1 (010) → needs 3 ops
+2^2 (100) → needs 7 ops
+
+Thus, the number of operations follows a recursive structure.
+
+2. Recursive Insight
+If x is the largest power of 2 less than or equal to n:
+	•	We first turn the most significant bit off (making use of XOR).
+	•	Then recursively solve for the remaining bits.
+
+This relationship leads to:
+f(n) = f(n \oplus (x | (x >> 1))) + (1 + x - 1)
+where:
+	•	x = highest power of 2 ≤ n.
+	•	(x | (x >> 1)) helps flip the correct bit pattern to reduce to a smaller equivalent problem.
+
+3. Base Case
+If n == 0, no operations are needed → return 0.
+
+4. Complexity
+	•	Time Complexity: O(log n) — each recursive step reduces bit length.
+	•	Space Complexity: O(log n) — recursion depth proportional to bit count.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+ public:
+  int minimumOneBitOperations(int n) {
+    if (n == 0)
+      return 0;
+
+    // Find largest power of 2 <= n
+    int x = 1;
+    while (x * 2 <= n)
+      x <<= 1;
+
+    // Recurrence relation:
+    // Transform n -> (x | (x >> 1)) with XOR, then recursively solve smaller subproblem
+    return minimumOneBitOperations(n ^ (x | (x >> 1))) + 1 + x - 1;
+  }
+};
