@@ -1,0 +1,104 @@
+2025-11-06 | Maximum Chocolates Collection on Round Trip in a Grid
+
+Approach / Explanation
+1. Key Observation
+Both trips (forward and backward) seem separate, but we can merge them into a single problem.
+Think of it as two robots moving simultaneously:
+	•	Both start from (0, 0) and take steps simultaneously.
+	•	Robot A represents the forward journey,
+	•	Robot B represents the return journey (in reverse).
+Both robots will always take the same number of steps, and their positions (r1, c1) and (r2, c2) will satisfy:
+r1 + c1 = r2 + c2
+so both are always on the same diagonal step.
+At the end, both must reach (n-1, n-1) together.
+
+2. Dynamic Programming State
+Define:
+dp[r1][c1][r2]
+→ Maximum chocolates collected when:
+	•	Robot A is at (r1, c1)
+	•	Robot B is at (r2, c2)
+and since both move simultaneously:
+c2 = r1 + c1 - r2
+
+At each step:
+	•	Both robots can move down or right (4 combinations total).
+	•	If both reach the same cell (r1 == r2 && c1 == c2), count chocolates only once.
+
+If any path goes into a blocked cell (-1), that path is invalid.
+
+3. Recurrence
+dp[r1][c1][r2] = \text{max of 4 moves:}
+	•	(r1+1, c1, r2+1)
+	•	(r1, c1+1, r2)
+	•	(r1+1, c1, r2)
+	•	(r1, c1+1, r2+1)
+
+At each step:
+
+chocolates = mat[r1][c1];
+if (r1 != r2 || c1 != c2)
+    chocolates += mat[r2][c2];
+
+Then:
+
+dp[r1][c1][r2] = chocolates + max(next moves)
+
+4. Base Conditions
+	•	If any robot moves out of bounds or into a blocked cell, return -inf (invalid).
+	•	If both robots reach the destination (n-1, n-1), return mat[n-1][n-1].
+
+5. Time Complexity
+	•	DP State: O(n³) (since r1, c1, and r2 are bounded by n)
+	•	Each state computes 4 transitions → O(4 × n³) ≈ O(n³)
+	•	Space: O(n³)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int n;
+    vector<vector<vector<int>>> dp;
+
+    int solve(vector<vector<int>>& mat, int r1, int c1, int r2) {
+        int c2 = r1 + c1 - r2;  // Since steps are equal
+
+        // Base conditions
+        if (r1 >= n || c1 >= n || r2 >= n || c2 >= n ||
+            mat[r1][c1] == -1 || mat[r2][c2] == -1)
+            return INT_MIN;
+
+        // If both reach destination
+        if (r1 == n - 1 && c1 == n - 1)
+            return mat[r1][c1];
+
+        if (dp[r1][c1][r2] != -1)
+            return dp[r1][c1][r2];
+
+        int chocolates = 0;
+        chocolates += mat[r1][c1];
+        if (r1 != r2 || c1 != c2)
+            chocolates += mat[r2][c2];
+
+        // Explore 4 move combinations
+        int temp = max({
+            solve(mat, r1 + 1, c1, r2 + 1), // down-down
+            solve(mat, r1, c1 + 1, r2),     // right-right
+            solve(mat, r1 + 1, c1, r2),     // down-right
+            solve(mat, r1, c1 + 1, r2 + 1)  // right-down
+        });
+
+        chocolates += temp;
+        return dp[r1][c1][r2] = chocolates;
+    }
+
+    int maximumChocolates(vector<vector<int>>& mat) {
+        n = mat.size();
+        dp.assign(n, vector<vector<int>>(n, vector<int>(n, -1)));
+
+        int ans = solve(mat, 0, 0, 0);
+        return max(0, ans); // if no valid path
+    }
+};
