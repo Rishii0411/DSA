@@ -1,0 +1,62 @@
+2025-11-06 | Count Operations to Make Numbers Zero
+
+Problem Statement
+You are given two non-negative integers, num1 and num2.
+
+In one operation:
+	•	If num1 >= num2, subtract num2 from num1.
+	•	Otherwise, subtract num1 from num2.
+
+Return the total number of operations required until either num1 or num2 becomes 0.
+
+
+Approach / Explanation
+
+1. Observation
+At each step, one number decreases by the other.
+This process mimics the Euclidean algorithm used to find the greatest common divisor (GCD), except here we count the number of subtractions instead of stopping early.
+
+2. Simplification
+Instead of performing one subtraction at a time, notice:
+If num1 >= num2, we can directly perform:
+\text{count} += \frac{num1}{num2}
+and then:
+num1 = num1 \% num2
+This avoids repeated subtractions and works in O(log(min(num1, num2))) time.
+
+However, the given iterative version simulates the operations literally — one subtraction at a time — which is perfectly valid for smaller inputs.
+
+⸻
+
+3. Base Conditions
+	•	If either number is 0, the process stops immediately.
+	•	If both are equal and nonzero, one subtraction will make one of them 0.
+
+4. Time Complexity
+	•	Worst-case: O(max(num1, num2)) for literal subtraction loop.
+	•	Optimized version (using division): O(log(min(num1, num2))).
+	•	Space Complexity: O(1).
+
+SOLUTION:
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countOperations(int num1, int num2) {
+        int count = 0;
+
+        while (num1 != 0 && num2 != 0) {
+            if (num1 >= num2) {
+                count += num1 / num2;  // optimization: count multiple subtractions
+                num1 %= num2;
+            } else {
+                count += num2 / num1;
+                num2 %= num1;
+            }
+        }
+
+        return count;
+    }
+};
