@@ -1,0 +1,76 @@
+2025-11-06 | Best Time to Buy and Sell Stock with Cooldown
+
+Problem Statement
+Given an array arr[] of length n, where arr[i] represents the stock price on the i-th day, determine the maximum profit achievable under the following conditions:
+	•	You may complete as many transactions as you like (buy → sell → buy → sell …).
+	•	After selling a stock, you must skip the next day (1-day cooldown) before buying again.
+	•	You cannot hold more than one stock at a time.
+
+Return the maximum possible profit.
+
+
+Approach / Explanation
+1. Observations
+At any given day i, there are three possible states for the trader:
+
+State	Meaning
+hold	You currently hold a stock (bought earlier).
+sold	You sold a stock today.
+rest	You are in cooldown or did nothing today.
+
+Each state depends on the previous day’s actions.
+
+
+2. State Transitions
+Let’s define dynamic programming relations:
+	•	hold[i] → max profit on day i when holding a stock.
+hold[i] = max(hold[i-1], rest[i-1] - arr[i])
+Either keep holding from yesterday or buy today (only possible from rest state).
+	•	sold[i] → max profit on day i after selling a stock.
+sold[i] = hold[i-1] + arr[i]
+You must have held the stock yesterday to sell today.
+	•	rest[i] → max profit on day i when not holding a stock (idle or in cooldown).
+rest[i] = max(rest[i-1], sold[i-1])
+Either continue resting or enter cooldown after selling.
+
+3. Base Cases
+hold[0] = -arr[0]   // buy on first day
+sold[0] = 0         // cannot sell without buying
+rest[0] = 0         // do nothing
+
+4. Final Answer
+At the end of all days, the maximum profit will be:
+max(sold[n-1], rest[n-1])
+(since holding at the end gives no realized profit).
+
+5. Time and Space Complexity
+	•	Time Complexity: O(n)
+	•	Space Complexity: O(1) (we only keep track of previous day’s values).
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        if (n <= 1) return 0;
+
+        int hold = -prices[0];  // profit when holding stock
+        int sold = 0;           // profit when selling today
+        int rest = 0;           // profit when resting today
+
+        for (int i = 1; i < n; i++) {
+            int prevHold = hold;
+            int prevSold = sold;
+            int prevRest = rest;
+
+            hold = max(prevHold, prevRest - prices[i]); // either keep holding or buy today
+            sold = prevHold + prices[i];                // sell today
+            rest = max(prevRest, prevSold);             // cooldown or idle
+        }
+
+        return max(sold, rest);
+    }
+};
