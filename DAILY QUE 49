@@ -1,0 +1,88 @@
+2025-11-06 | Minimum Operations to Make Array Zero
+
+Problem Statement
+You are given an array nums[] of length n containing non-negative integers.
+You can perform the following operation any number of times:
+	•	Select a subarray [i, j] (0 ≤ i ≤ j < n).
+	•	Find the smallest non-zero element in that subarray, say x.
+	•	Set all occurrences of x in that subarray to 0.
+Return the minimum number of operations needed to make all elements in the array equal to 0.
+
+Approach / Explanation
+1. Observation
+Zeros divide the array into independent segments — since zeros don’t affect other parts of the array, we can solve each non-zero segment separately.
+Thus, we can recursively or iteratively solve smaller subarrays separated by zeros.
+
+
+2. Insight
+For a non-zero segment:
+	•	We can flatten it in two ways:
+	1.	Option A: Flatten all elements one by one (worst case → length of segment operations).
+	2.	Option B: Subtract the minimum value from all non-zero elements, creating zeros, and recursively process remaining subsegments.
+
+The minimum of these two choices gives the optimal solution.
+
+3. Recursive Idea
+Let f(l, r) = minimum operations needed to flatten subarray nums[l..r].
+
+Then:
+	•	If all zeros → return 0.
+	•	Let minVal = smallest non-zero value in [l, r].
+	•	Subtract minVal from all non-zero elements.
+	•	Recurse on resulting non-zero subsegments (split by zeros).
+	•	Result = minVal + sum(f(newSegments))
+	•	Compare with direct approach (r - l + 1) and take the minimum:
+f(l, r) = \min((r - l + 1), minVal + \sum f(subsegments))
+
+
+4. Time Complexity
+	•	Each recursion reduces the segment size by eliminating zeros → O(n²) worst-case.
+	•	For practical input sizes, this is acceptable since segments shrink quickly.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int solve(vector<int>& nums, int l, int r) {
+        if (l > r) return 0;
+
+        // Skip zero-only segments
+        bool allZero = true;
+        for (int i = l; i <= r; i++)
+            if (nums[i] != 0) { allZero = false; break; }
+        if (allZero) return 0;
+
+        // Find minimum non-zero value
+        int minVal = INT_MAX;
+        for (int i = l; i <= r; i++)
+            if (nums[i] != 0)
+                minVal = min(minVal, nums[i]);
+
+        // Subtract minVal and split into new subsegments
+        for (int i = l; i <= r; i++)
+            if (nums[i] != 0)
+                nums[i] -= minVal;
+
+        int i = l;
+        int recursiveCost = 0;
+        while (i <= r) {
+            while (i <= r && nums[i] == 0) i++;
+            if (i > r) break;
+            int start = i;
+            while (i <= r && nums[i] != 0) i++;
+            recursiveCost += solve(nums, start, i - 1);
+        }
+
+        // Option 1: Flatten directly (one per element)
+        int directCost = r - l + 1;
+        // Option 2: Flatten recursively (subtract + inner)
+        return min(directCost, minVal + recursiveCost);
+    }
+
+    int minimumOperations(vector<int>& nums) {
+        return solve(nums, 0, nums.size() - 1);
+    }
+};
