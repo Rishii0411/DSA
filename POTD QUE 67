@@ -1,0 +1,62 @@
+2025-11-06 | Shortest Common Supersequence Length
+
+Problem Statement
+Given two strings s1 and s2, find the length of the shortest string that has both s1 and s2 as subsequences.
+A subsequence of a string is formed by deleting zero or more characters without changing the relative order of the remaining characters.
+Note:
+s1 and s2 may contain both uppercase and lowercase letters.
+
+Approach / Explanation
+1. Relationship Between LCS and SCS
+To form the Shortest Common Supersequence (SCS), we want to merge the two strings in a way that minimizes overlap.
+The overlap between s1 and s2 is represented by their Longest Common Subsequence (LCS).
+
+Formula:
+\text{Length of SCS} = |s1| + |s2| - \text{Length of LCS}
+
+2. Why This Works
+	•	Adding all characters from both strings gives |s1| + |s2|.
+	•	But common characters (the LCS) are double-counted, so we subtract their count once.
+
+3. LCS Dynamic Programming Approach
+Let dp[i][j] = length of LCS of first i characters of s1 and first j characters of s2.
+Recurrence:
+
+if s1[i-1] == s2[j-1]:
+    dp[i][j] = 1 + dp[i-1][j-1]
+else:
+    dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+Base Case:
+dp[0][j] = dp[i][0] = 0 (if any string is empty, LCS = 0).
+Finally:
+LCS = dp[n][m]
+SCS = n + m - LCS
+4. Time and Space Complexity
+	•	Time Complexity: O(n × m)
+	•	Space Complexity: O(n × m)
+(Can be optimized to O(min(n, m)) using rolling arrays if needed.)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int shortestCommonSupersequence(string s1, string s2) {
+        int n = s1.size(), m = s2.size();
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+
+        // Compute LCS
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                if (s1[i - 1] == s2[j - 1])
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                else
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+
+        int lcs = dp[n][m];
+        return n + m - lcs;  // Formula for shortest common supersequence length
+    }
+};
