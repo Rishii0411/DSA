@@ -1,0 +1,69 @@
+2025-11-06 | Ones and Zeros — Largest Subset with Constraints
+
+Problem Statement
+Given an array strs of binary strings and two integers m and n,
+return the maximum number of strings you can include in a subset
+that contains at most m zeros and at most n ones.
+
+Example
+Input:
+strs = ["10", "0001", "111001", "1", "0"]
+m = 5
+n = 3
+Output:
+4
+Explanation:
+You can choose the subset ["10", "0001", "1", "0"].
+Total zeros = 5, total ones = 3 — within limits.
+
+Approach:
+This is a 0/1 Knapsack problem in disguise 🧠
+Each string acts as an item:
+	•	“weight” in terms of zeros and ones.
+	•	“value” = 1 (since we count how many strings we can include).
+We must choose strings to maximize the count (value)
+subject to constraints on zeros (m) and ones (n).
+	1.	Count zeros and ones for each string.
+For each string s, calculate:
+zeros = count('0')
+ones  = count('1')
+	2.	Dynamic Programming (2D DP)
+Define dp[i][j] = maximum number of strings that can be formed
+with at most i zeros and j ones.
+	3.	Transition:
+For each string (zeros, ones):
+for i from m down to zeros:
+    for j from n down to ones:
+        dp[i][j] = max(dp[i][j], 1 + dp[i - zeros][j - ones])
+(Iterate backward to avoid reusing the same string multiple times).
+	4.	Result:
+The answer will be in dp[m][n].
+
+Complexity Analysis
+Parameter	Value
+Time Complexity	O(len(strs) × m × n)
+Space Complexity	O(m × n)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findMaxForm(vector<string>& strs, int m, int n) {
+        vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+
+        for (auto& s : strs) {
+            int zeros = count(s.begin(), s.end(), '0');
+            int ones = s.size() - zeros;
+
+            for (int i = m; i >= zeros; i--) {
+                for (int j = n; j >= ones; j--) {
+                    dp[i][j] = max(dp[i][j], 1 + dp[i - zeros][j - ones]);
+                }
+            }
+        }
+
+        return dp[m][n];
+    }
+};
