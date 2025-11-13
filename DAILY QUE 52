@@ -1,0 +1,49 @@
+2025-11-06 | Maximum Operations on Binary String
+
+
+Problem Statement
+You are given a binary string **s**.
+You may perform the following operation **any number of times**:
+- Choose an index `i` such that `i + 1 < s.length`,  
+  **s[i] == '1' and s[i + 1] == '0'.
+- Move the '1' at index `i` to the right, until it reaches:
+  - the **end** of the string, or  
+  - a position **immediately before another '1'**.
+
+Return the maximum number of operations you can perform.
+
+Approach
+- Scan from **right to left**.
+- Keep track of:  
+  `zerosRight` → how many `'0'`s appear to the right.
+- For each `'1'`, add `zerosRight` to the answer.
+- Return the total.
+
+Complexity
+- Time: O(n)  
+- Space: O(1)
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long maxOperations(string s) {
+        long long zerosRight = 0;
+        long long operations = 0;
+
+        // Traverse from right to left
+        for (int i = s.length() - 1; i >= 0; i--) {
+            if (s[i] == '0') {
+                zerosRight++;
+            } else {
+                // s[i] == '1'
+                operations += zerosRight;
+            }
+        }
+
+        return operations;
+    }
+};
