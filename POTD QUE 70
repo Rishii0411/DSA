@@ -1,0 +1,78 @@
+2025-11-06 | Minimum Cost to Merge Stones
+
+
+Problem Statement  
+You are given an array stones[], where each element stones[i] represents the number of stones in the ith pile.
+In one move, you may merge exactly k consecutive piles into one pile. The cost of this operation is the total number of stones in those k piles.
+Determine the minimum cost to merge all piles into one pile.  
+If it is not possible to merge the piles into exactly one pile following these rules, return -1.
+
+
+Approach / Explanation  
+1. Observation  
+Every merge reduces the number of piles by (k − 1).  
+Starting with n piles, we can end with one pile only if:
+(n − 1) % (k − 1) == 0  
+If this condition is false, merging into exactly one pile is impossible.
+
+2. Dynamic Programming State  
+Use dp[i][j] to represent the minimum cost to merge piles from index i to j into the smallest possible number of piles.  
+This number is (j − i + 1 − 1) % (k − 1) + 1.
+
+Additionally, when the subarray can be merged into exactly one pile, we add the total sum of that segment.
+
+3. Prefix Sum Optimization  
+Since each merge requires summing k piles, we compute prefix sums so that:
+sum(i, j) = prefix[j + 1] − prefix[i]
+
+4. Transition  
+For every segment [i, j], try splitting at all valid midpoints m such that merging the left and right sides independently follows the allowed pile count rule.  
+When a segment can be merged into 1 pile, add the segment’s total sum.
+
+5. Time Complexity  
+Time Complexity: O(n³)  
+Space Complexity: O(n²)  
+This is typical for interval DP problems with triple nested loops.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int mergeStones(vector<int>& stones, int k) {
+        int n = stones.size();
+
+        // Check if merging into one pile is possible
+        if ((n - 1) % (k - 1) != 0) 
+            return -1;
+
+        // Prefix sums for fast range sum queries
+        vector<int> prefix(n + 1, 0);
+        for (int i = 0; i < n; ++i)
+            prefix[i + 1] = prefix[i] + stones[i];
+
+        // dp[i][j] = min cost to merge stones[i..j] into the minimum piles possible
+        vector<vector<int>> dp(n, vector<int>(n, 0));
+
+        for (int length = k; length <= n; ++length) {
+            for (int i = 0; i + length - 1 < n; ++i) {
+                int j = i + length - 1;
+                dp[i][j] = INT_MAX;
+
+                // Try all midpoints spaced by k-1
+                for (int m = i; m < j; m += (k - 1)) {
+                    dp[i][j] = min(dp[i][j], dp[i][m] + dp[m + 1][j]);
+                }
+
+                // If this interval can form one pile, add the total stones cost
+                if ((length - 1) % (k - 1) == 0) {
+                    dp[i][j] += prefix[j + 1] - prefix[i];
+                }
+            }
+        }
+
+        return dp[0][n - 1];
+    }
+};
