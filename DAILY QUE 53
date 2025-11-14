@@ -1,0 +1,81 @@
+2025-11-06 | Add Queries to Submatrices
+
+Problem Statement  
+You are given a positive integer n representing the size of an initial n × n zero matrix mat.
+You are also given a 2D array query where each query[i] = [row1, col1, row2, col2] describes a submatrix.
+For each query, you must:
+• Add 1 to every cell mat[x][y] such that  
+  row1 ≤ x ≤ row2 and col1 ≤ y ≤ col2.
+
+Return the matrix after performing all queries.
+
+Approach / Explanation  
+
+1. Observation  
+Directly updating all cells inside each query’s rectangle results in O(q × n²) time in the worst case, which is too slow.  
+A more optimal method is required.
+
+2. Difference Matrix Technique  
+We use a 2D difference array diff such that applying increments can be done in constant time per query.
+
+For a rectangle update:
+Increase diff[row1][col1] by 1  
+Decrease diff[row1][col2 + 1] by 1  
+Decrease diff[row2 + 1][col1] by 1  
+Increase diff[row2 + 1][col2 + 1] by 1  
+
+These markings ensure that when we take the prefix sums over rows and columns, the diff matrix reconstructs the correct increments in mat.
+
+3. Build Final Matrix  
+After marking all updates in diff, compute the prefix sum row-wise and then column-wise to obtain the final matrix mat.
+
+4. Time Complexity  
+• Building difference matrix: O(q)  
+• Restoring final matrix using prefix sums: O(n²)  
+• Total Complexity: O(q + n²)  
+This is optimal for this problem size.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> rangeAddQueries(int n, vector<vector<int>>& query) {
+        vector<vector<int>> diff(n + 1, vector<int>(n + 1, 0));
+
+        // Apply difference matrix updates
+        for (auto& q : query) {
+            int r1 = q[0], c1 = q[1];
+            int r2 = q[2], c2 = q[3];
+
+            diff[r1][c1] += 1;
+            if (c2 + 1 < n) diff[r1][c2 + 1] -= 1;
+            if (r2 + 1 < n) diff[r2 + 1][c1] -= 1;
+            if (r2 + 1 < n && c2 + 1 < n) diff[r2 + 1][c2 + 1] += 1;
+        }
+
+        // Convert diff to final mat via prefix sums
+        vector<vector<int>> mat(n, vector<int>(n, 0));
+
+        // Row-wise prefix
+        for (int i = 0; i < n; i++) {
+            int running = 0;
+            for (int j = 0; j < n; j++) {
+                running += diff[i][j];
+                mat[i][j] = running;
+            }
+        }
+
+        // Column-wise prefix
+        for (int j = 0; j < n; j++) {
+            int running = 0;
+            for (int i = 0; i < n; i++) {
+                running += mat[i][j];
+                mat[i][j] = running;
+            }
+        }
+
+        return mat;
+    }
+};
