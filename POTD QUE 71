@@ -1,0 +1,68 @@
+2025-11-06 | Minimum Cost to Cut a Stick
+
+Problem Statement  
+You are given the length n of a stick and an integer array cuts[], where each element represents a position at which the stick must be cut.
+Each cut costs exactly the length of the stick segment being cut at that moment.
+After a cut, the stick is split into two smaller sticks, and future cuts apply to the appropriate segment.
+You may perform the cuts in any order.  
+Return the minimum total cost needed to perform all cuts.
+
+
+Approach / Explanation  
+1. Observation  
+Each cut cost depends on the current length of the segment containing that cut.  
+Cutting the largest segments later is expensive, so an optimal strategy must determine how to split the stick with minimum accumulated cost.  
+This becomes an interval dynamic programming problem, similar to matrix chain multiplication.
+
+2. Sorted Cuts and Boundaries  
+Add boundaries 0 and n to the cuts list and sort it.  
+The problem reduces to merging intervals: for each segment between cuts[i] and cuts[j], determine the cost of performing all cuts between them.
+
+3. Dynamic Programming Formulation  
+Let dp[i][j] be the minimum cost to cut the segment between cuts[i] and cuts[j].
+
+Transition:  
+Try every possible cut k between i and j.  
+Cost if we cut at k first:  
+(cuts[j] − cuts[i]) + dp[i][k] + dp[k][j]  
+
+Base Case:  
+If there is no cut between i and j, dp[i][j] = 0.
+
+4. Time Complexity  
+• Time Complexity: O(m³)  
+• Space Complexity: O(m²)  
+where m = number of cuts + 2 (for boundaries).  
+The cubic complexity arises due to two nested loops and one loop for choosing k.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minCost(int n, vector<int>& cuts) {
+        int m = cuts.size();
+        cuts.push_back(0);
+        cuts.push_back(n);
+        sort(cuts.begin(), cuts.end());
+
+        vector<vector<int>> dp(m + 2, vector<int>(m + 2, 0));
+
+        // len represents the length of the interval in terms of cut indices
+        for (int len = 2; len < m + 2; len++) {
+            for (int i = 0; i + len < m + 2; i++) {
+                int j = i + len;
+                dp[i][j] = INT_MAX;
+
+                for (int k = i + 1; k < j; k++) {
+                    int cost = (cuts[j] - cuts[i]) + dp[i][k] + dp[k][j];
+                    dp[i][j] = min(dp[i][j], cost);
+                }
+            }
+        }
+
+        return dp[0][m + 1];
+    }
+};
