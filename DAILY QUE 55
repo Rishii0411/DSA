@@ -1,0 +1,54 @@
+2025-11-06 | Count Substrings With All Ones
+
+Problem Statement  
+You are given a binary string s.
+Return the number of substrings consisting only of the character '1'.  
+Since the count may be very large, return the answer modulo 10⁹ + 7.
+
+Approach / Explanation  
+
+1. Observation  
+Consecutive ones naturally form blocks.  
+If a block has length L, the number of substrings consisting entirely of ones is:
+L × (L + 1) / 2  
+This follows from the number of ways to pick start and end points in a segment.
+
+2. Iteration Strategy  
+Scan the string from left to right.  
+Count the length of each consecutive sequence of '1's.  
+Whenever the sequence breaks (or at the end), compute the contribution using the formula.
+
+3. Use Modulo Arithmetic  
+Since results must stay within limits, apply modulo 10⁹ + 7 during summation and multiplication.
+
+4. Time Complexity  
+• Time Complexity: O(n)  
+• Space Complexity: O(1)  
+The solution requires only a single pass over the input.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countOneSubstrings(string s) {
+        const long long MOD = 1000000007;
+        long long count = 0;
+        long long current = 0;
+
+        for (char c : s) {
+            if (c == '1') {
+                current++;
+            } else {
+                count = (count + (current * (current + 1) / 2) % MOD) % MOD;
+                current = 0;
+            }
+        }
+
+        // Process final block if ended with '1'
+        count = (count + (current * (current + 1) / 2) % MOD) % MOD;
+
+        return count;
+    }
+};
