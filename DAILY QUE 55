@@ -1,0 +1,64 @@
+2025-11-06 | Longest Common Increasing Subsequence (LCIS)
+
+Problem Statement  
+
+You are given two integer arrays a[] and b[].
+
+Your task is to compute the length of the Longest Common Increasing Subsequence (LCIS).  
+A valid LCIS must:
+
+• Be a subsequence of both a[] and b[].  
+• Be strictly increasing.  
+• Maintain increasing relative order from both arrays.
+
+Return the length of the LCIS.
+
+
+Approach / Explanation  
+
+1. Observation  
+A brute-force approach checking all increasing subsequences in a[] and verifying them in b[] would be extremely slow.  
+A better approach uses dynamic programming but in a more optimized form than standard LCS or LIS.
+
+2. Key Idea  
+We iterate through array a[], and for each a[i], we try to match it with values in b[].  
+We keep a dynamic array dp[j], where dp[j] stores the length of the LCIS that ends exactly at b[j].
+
+For each element a[i], we track the maximum dp[j] among all b[j] < a[i].  
+When we find b[j] == a[i], we update dp[j] = best + 1, where best is the best previous LCIS length we have seen for increasing values.
+
+3. Why This Works  
+The dp array always ensures the subsequence is common (because updates happen only when values match),  
+and "best" ensures the subsequence remains strictly increasing.
+
+4. Time Complexity  
+• Time Complexity: O(n × m)  
+• Space Complexity: O(m)  
+where n = length of a, m = length of b.  
+This is optimal for LCIS problems.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int LCIS(vector<int>& a, vector<int>& b) {
+        int n = a.size(), m = b.size();
+        vector<int> dp(m, 0);
+
+        for (int i = 0; i < n; i++) {
+            int best = 0;
+            for (int j = 0; j < m; j++) {
+                if (a[i] == b[j]) {
+                    dp[j] = max(dp[j], best + 1);
+                } 
+                else if (b[j] < a[i]) {
+                    best = max(best, dp[j]);
+                }
+            }
+        }
+
+        return *max_element(dp.begin(), dp.end());
+    }
+};
