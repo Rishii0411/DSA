@@ -1,0 +1,78 @@
+2025-11-06 | Count Ways to Reach Destination in Shortest Time
+
+Problem Statement
+You are given an undirected weighted graph with `V` vertices numbered from `0` to `V-1` and `E` edges, represented as a 2D array `edges[][]`, where `edges[i] = [u_i, v_i, time_i]` means there is an undirected edge between nodes `u_i` and `v_i` taking `time_i` minutes to traverse.
+Return the number of distinct ways to travel from node `0` to node `V-1` such that the travel time equals the shortest possible time.
+
+Approach / Explanation
+
+1. Observation  
+To count the number of shortest paths in a weighted graph, run a shortest-path algorithm (Dijkstra) while maintaining, for each node, two pieces of information:
+- `dist[node]`: the shortest known travel time from source (0) to `node`.
+- `ways[node]`: the number of different shortest paths that achieve `dist[node]`.
+
+2. Dijkstra with path counting  
+Initialize:
+- `dist[0] = 0`, `ways[0] = 1`
+- For all other nodes: `dist = ∞`, `ways = 0`
+
+Use a min-priority queue keyed by current known distance. Each time you relax an edge `(u -> v)` with weight `w`:
+- If `dist[u] + w < dist[v]`: update `dist[v] = dist[u] + w` and set `ways[v] = ways[u]`.
+- Else if `dist[u] + w == dist[v]`: add `ways[u]` to `ways[v]` (another set of shortest paths reaching v).
+
+Because the graph is undirected, add both directions to the adjacency list.
+
+3. Correctness  
+When Dijkstra finalizes shortest distances in increasing order, every time we discover a shortest-distance route to a node we either set the ways equal to the ways of its predecessor (first time discovering that shortest distance) or we accumulate ways from different predecessors that lead to the same minimal distance. This yields the correct count of distinct shortest paths.
+
+4. Complexity  
+- Building adjacency: O(E)  
+- Dijkstra: O((V + E) log V) or commonly O(E log V)  
+- Space: O(V + E)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    // edges: vector of {u, v, time}
+    long long countWays(int V, vector<vector<int>>& edges) {
+        const long long INF = LLONG_MAX / 4;
+        vector<vector<pair<int,int>>> adj(V);
+        for (auto &e : edges) {
+            int u = e[0], v = e[1], t = e[2];
+            adj[u].push_back({v, t});
+            adj[v].push_back({u, t}); // undirected
+        }
+
+        vector<long long> dist(V, INF);
+        vector<long long> ways(V, 0);
+        using pli = pair<long long,int>;
+        priority_queue<pli, vector<pli>, greater<pli>> pq;
+
+        dist[0] = 0;
+        ways[0] = 1;
+        pq.push({0, 0});
+
+        while (!pq.empty()) {
+            auto [d, u] = pq.top(); pq.pop();
+            if (d > dist[u]) continue; // stale entry
+
+            for (auto &pr : adj[u]) {
+                int v = pr.first;
+                int w = pr.second;
+                long long nd = d + w;
+                if (nd < dist[v]) {
+                    dist[v] = nd;
+                    ways[v] = ways[u];
+                    pq.push({nd, v});
+                } else if (nd == dist[v]) {
+                    ways[v] += ways[u];
+                }
+            }
+        }
+
+        return ways[V-1];
+    }
+};
