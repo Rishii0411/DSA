@@ -1,0 +1,48 @@
+2025-11-06 | Check If All Ones Are K-Distance Apart
+
+Problem Statement  
+You are given a binary array nums and an integer k.
+Return true if every pair of 1’s in the array is separated by at least k zeros.  
+Otherwise, return false.
+
+Approach / Explanation  
+1. Observation  
+We only care about the distance between consecutive 1’s.  
+If the gap between any two 1’s is less than k, we return false.
+
+2. Linear Scan  
+Keep track of the index of the previous 1.  
+Whenever we find a new 1:
+• If it is the first one, record its position.  
+• Otherwise, check the distance from the previous 1.  
+Distance = currentIndex − previousIndex − 1  
+If distance < k → return false.
+
+3. If all checks pass  
+Return true.
+
+4. Time Complexity  
+• Time Complexity: O(n)  
+• Space Complexity: O(1)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool kLengthApart(vector<int>& nums, int k) {
+        int prev = -1;
+
+        for (int i = 0; i < nums.size(); i++) {
+            if (nums[i] == 1) {
+                if (prev != -1 && i - prev - 1 < k) {
+                    return false;
+                }
+                prev = i;
+            }
+        }
+
+        return true;
+    }
+};
