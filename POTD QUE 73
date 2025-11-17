@@ -1,0 +1,61 @@
+2025-11-06 | Maximum Sum of a Strictly Increasing Subsequence
+
+Problem Statement  
+You are given an array of positive integers arr[].
+Find the maximum possible sum of a subsequence such that the subsequence is strictly increasing.
+Among all strictly increasing subsequences of arr[], return the one with the maximum total sum.
+
+Approach / Explanation  
+1. Observation  
+This problem is a variant of the classic Longest Increasing Subsequence (LIS), but instead of maximizing length, we maximize the sum of elements.  
+Dynamic programming is ideal here because the decision for each element depends on previous elements.
+
+2. Dynamic Programming  
+Create a dp array where dp[i] stores the maximum sum of a strictly increasing subsequence ending at index i.
+
+Initialize each dp[i] with arr[i], because the smallest valid subsequence is the element itself.
+
+Transition:  
+For each i, examine all j < i:  
+If arr[j] < arr[i], then we can extend the subsequence ending at j by arr[i].  
+So:  
+dp[i] = max(dp[i], dp[j] + arr[i])
+
+The answer is the maximum value stored in dp[].
+
+3. Key Insight  
+Even if arr[] is large, dp ensures we examine each pair only once.  
+This transforms the O(2ⁿ) brute force into an O(n²) solution.
+
+4. Time Complexity  
+• Time Complexity: O(n²)  
+• Space Complexity: O(n)
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxSumIS(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> dp(n);
+
+        // Initialize dp with each element itself
+        for (int i = 0; i < n; i++) {
+            dp[i] = arr[i];
+        }
+
+        // Compute maximum increasing subsequence sum
+        for (int i = 1; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (arr[j] < arr[i]) {
+                    dp[i] = max(dp[i], dp[j] + arr[i]);
+                }
+            }
+        }
+
+        return *max_element(dp.begin(), dp.end());
+    }
+};
