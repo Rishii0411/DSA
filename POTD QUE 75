@@ -1,0 +1,84 @@
+2025-11-06 | Minimum Path Cost with Maximum Step Difference
+
+Problem Statement  
+You are given an n × m matrix mat[][].
+You must move from (0, 0) to (n−1, m−1).  
+Allowed moves: up, down, left, right.
+Path Cost = max over all steps of |mat[x1][y1] − mat[x2][y2]|.
+Return the minimum possible such cost among all valid paths.
+
+Approach / Explanation
+1. Observation  
+This problem is not about summing weights but minimizing the maximum edge weight along a path. This is known as a **minimax path** problem.
+
+2. Graph Interpretation  
+Each cell is a node.  
+Each move to an adjacent cell has an “edge cost” equal to:  
+|mat[curr] − mat[next]|  
+We want the path from start to end whose maximum edge cost is minimized.
+
+3. Modified Dijkstra  
+Instead of “distance sum”, we track the best possible minimax cost.
+Let dist[x][y] represent the minimum possible maximum-difference to reach (x, y).
+For each move:
+newCost = max(dist[x][y], |mat[x][y] − mat[nx][ny]|)
+If newCost < dist[nx][ny], update and push into priority queue.
+This ensures we always expand the cell currently reachable with the smallest maximum step difference.
+4. Why Dijkstra Works Here  
+Even though costs aren’t additive, the state transitions still obey Dijkstra properties because we always propagate the smallest possible worst-step cost.
+
+5. Time Complexity  
+• O(n*m log(n*m)) using a priority queue  
+• Space: O(n*m)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minimumCostPath(vector<vector<int>>& mat) {
+        int n = mat.size();
+        int m = mat[0].size();
+
+        vector<vector<int>> dist(n, vector<int>(m, INT_MAX));
+        priority_queue<
+            pair<int, pair<int,int>>,
+            vector<pair<int, pair<int,int>>>,
+            greater<pair<int, pair<int,int>>> > pq;
+
+        dist[0][0] = 0;
+        pq.push({0, {0, 0}});
+
+        int dx[4] = {1, -1, 0, 0};
+        int dy[4] = {0, 0, 1, -1};
+
+        while (!pq.empty()) {
+            auto [cost, pos] = pq.top();
+            pq.pop();
+            int x = pos.first, y = pos.second;
+
+            if (x == n - 1 && y == m - 1)
+                return cost;
+
+            if (cost > dist[x][y]) continue;
+
+            for (int k = 0; k < 4; k++) {
+                int nx = x + dx[k];
+                int ny = y + dy[k];
+
+                if (nx >= 0 && ny >= 0 && nx < n && ny < m) {
+                    int stepCost = abs(mat[x][y] - mat[nx][ny]);
+                    int newCost = max(cost, stepCost);
+
+                    if (newCost < dist[nx][ny]) {
+                        dist[nx][ny] = newCost;
+                        pq.push({newCost, {nx, ny}});
+                    }
+                }
+            }
+        }
+
+        return dist[n - 1][m - 1];
+    }
+};
