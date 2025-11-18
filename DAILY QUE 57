@@ -1,0 +1,52 @@
+2025-11-06 | Check If Last Character Is One-Bit
+
+Problem Statement  
+You are given a binary array bits.  
+Each character is encoded as:
+• One-bit character → `0`  
+• Two-bit character → `10` or `11`  
+
+The array always ends with a `0`.  
+Return true if the last character must be a one-bit character, otherwise return false.
+
+Approach / Explanation  
+1. Observation  
+We decode the bit stream from left to right:
+• If we see a `0`, it represents a one-bit character. Move by 1 step.  
+• If we see a `1`, it represents the start of a two-bit character. Move by 2 steps.
+
+2. Key Insight  
+We must check whether decoding reaches the last element alone or whether a two-bit character consumes it.
+
+If we end exactly at the final index due to a single-step move → last character is one-bit.  
+If we jump past it due to a two-step move → last character is not one-bit.
+
+3. Simple Linear Scan  
+Start from index 0 and simulate the decoding process.  
+At the end, check if we stopped exactly at the last index.
+
+4. Time Complexity  
+• Time: O(n)  
+• Space: O(1)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isOneBitCharacter(vector<int>& bits) {
+        int i = 0;
+        int n = bits.size();
+
+        while (i < n - 1) {
+            if (bits[i] == 1)
+                i += 2;   // two-bit character
+            else
+                i += 1;   // one-bit character
+        }
+
+        // If we stopped exactly at last index, it's a one-bit character
+        return i == n - 1;
+    }
+};
