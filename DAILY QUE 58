@@ -1,0 +1,48 @@
+2025-11-06 | Final Value After Repeated Doubling
+
+Problem Statement  
+You are given an integer array nums and an integer original.
+Repeat the following process:
+1. If nums contains original, set original = original × 2.
+2. Otherwise, stop.
+
+Return the final value of original.
+
+
+Approach / Explanation  
+1. Observation  
+Checking the presence of a number efficiently is crucial.  
+If we use a set (hash set), membership checking becomes O(1) average time.
+
+2. Strategy  
+Convert nums[] to an unordered_set.  
+While original exists in the set:
+• original *= 2  
+• continue the loop  
+Stop when original is not found.
+
+3. This Works Because  
+The values only grow by doubling, and every check is constant time.  
+This makes the method efficient even for large arrays.
+
+4. Time Complexity  
+• Building set: O(n)  
+• Loop operations: O(k), where k is the number of doublings (very small)  
+• Total: O(n)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findFinalValue(vector<int>& nums, int original) {
+        unordered_set<int> s(nums.begin(), nums.end());
+
+        while (s.count(original)) {
+            original *= 2;
+        }
+
+        return original;
+    }
+};
