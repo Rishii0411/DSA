@@ -1,0 +1,123 @@
+2025-11-06 | Shortest Path Using At Most One Curved Edge
+
+Problem Statement  
+You are given:
+• An undirected connected graph with V vertices and E “double-edges”.  
+• Each double edge edges[i] = (x, y, w1, w2)  
+  - w1 = weight of straight edge  
+  - w2 = weight of curved edge  
+
+You must travel from vertex a to vertex b.  
+You may use **at most one curved edge** in the entire path.
+
+Return the shortest valid path length.  
+If no such path exists, return -1.
+
+
+Approach / Explanation  
+1. Graph Structure  
+For each pair (x, y), we have:
+- A straight edge: x ↔ y with weight w1  
+- A curved edge: x ↔ y with weight w2  
+
+You can choose at most one curved edge across the whole route.
+
+2. Compute Shortest Paths Without Curved Edges  
+Run Dijkstra from:
+• a → get distA[] (distance from a to all nodes using straight edges only)  
+• b → get distB[] (distance from all nodes to b using straight edges only)
+
+These distances help evaluate paths that use exactly one curved edge somewhere in the middle.
+
+3. Candidate Paths  
+Option 1: Path uses **only straight edges**  
+→ answer = distA[b]
+
+Option 2: Path uses **one curved edge (x, y)**  
+Two possibilities:
+- a → x (straight) + curved(x,y) + y → b (straight)  
+- a → y (straight) + curved(y,x) + x → b (straight)
+
+Take minimum over all edges:
+candidate = distA[x] + w2 + distB[y]  
+and  
+candidate = distA[y] + w2 + distB[x]
+
+4. Final Answer  
+Return the minimum valid path among:
+- Straight-only shortest path  
+- All one-curved-edge paths  
+
+If all candidates are infinite, return -1.
+
+5. Time Complexity  
+• Building graph: O(E)  
+• Two Dijkstra runs: O((V + E) log V)  
+• Processing edges: O(E)  
+Total efficient for constraints.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<long long> dijkstra(int src, int V, vector<vector<pair<int,int>>>& adj) {
+        const long long INF = 1e18;
+        vector<long long> dist(V, INF);
+        priority_queue<pair<long long,int>, 
+                       vector<pair<long long,int>>, 
+                       greater<pair<long long,int>>> pq;
+
+        dist[src] = 0;
+        pq.push({0, src});
+
+        while (!pq.empty()) {
+            auto [d, u] = pq.top();
+            pq.pop();
+
+            if (d > dist[u]) continue;
+
+            for (auto &edge : adj[u]) {
+                int v = edge.first;
+                int w = edge.second;
+                if (dist[u] + w < dist[v]) {
+                    dist[v] = dist[u] + w;
+                    pq.push({dist[v], v});
+                }
+            }
+        }
+        return dist;
+    }
+
+    int shortestPath(int V, vector<vector<int>>& edges, int a, int b) {
+        // Build adjacency only for straight edges
+        vector<vector<pair<int,int>>> adj(V);
+        for (auto &e : edges) {
+            int x = e[0], y = e[1], w1 = e[2];
+            adj[x].push_back({y, w1});
+            adj[y].push_back({x, w1});
+        }
+
+        // Dijkstra from a and b
+        vector<long long> distA = dijkstra(a, V, adj);
+        vector<long long> distB = dijkstra(b, V, adj);
+
+        const long long INF = 1e18;
+        long long ans = distA[b]; // straight-only path
+
+        // Check all paths using exactly one curved edge
+        for (auto &e : edges) {
+            int x = e[0], y = e[1], w2 = e[3];
+
+            if (distA[x] < INF && distB[y] < INF)
+                ans = min(ans, distA[x] + w2 + distB[y]);
+
+            if (distA[y] < INF && distB[x] < INF)
+                ans = min(ans, distA[y] + w2 + distB[x]);
+        }
+
+        return (ans >= INF ? -1 : (int)ans);
+    }
+};
