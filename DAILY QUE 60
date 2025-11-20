@@ -1,0 +1,91 @@
+2025-11-06 | Minimum Size of a Containing Set for Intervals
+
+Problem Statement  
+You are given a 2D array `intervals`, where each element is `[startᵢ, endᵢ]`, representing all integers from `startᵢ` to `endᵢ` inclusive.
+A **containing set** is an array `nums` such that every interval contains **at least two integers** from `nums`.
+Return the **minimum possible size** of such a containing set.
+
+Approach / Explanation  
+1. Sort Intervals  
+Sort intervals by their ending points (end ascending, and if tied, start descending).  
+This greedy ordering ensures that we place required numbers as late as possible to maximize future reuse.
+
+2. Greedy Placement of Points  
+For each interval:
+- Track the two largest numbers already chosen that lie inside the interval.
+- If fewer than 2 such numbers exist, we add the missing ones:
+  - If 0 points are inside: add `end - 1` and `end`
+  - If only 1 point is inside: add `end`
+
+3. Why It Works  
+By adding numbers as close to the interval end as possible, we maximize the chance that these points also satisfy future intervals.  
+This is the classical greedy strategy for interval coverage when each interval needs multiple points.
+
+4. Time Complexity  
+- Sorting: O(n log n)  
+- Processing: O(n)  
+- Overall: O(n log n)
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minSizeContainingSet(vector<vector<int>>& intervals) {
+        // Sort by end ascending, and start descending if equal end
+        sort(intervals.begin(), intervals.end(),
+             [](auto &a, auto &b) {
+                 if (a[1] == b[1])
+                     return a[0] > b[0];
+                 return a[1] < b[1];
+             });
+
+        // This will store the chosen elements in sorted order
+        vector<int> chosen;
+
+        for (auto &interval : intervals) {
+            int start = interval[0];
+            int end = interval[1];
+
+            // Count how many already chosen are in this interval
+            int countIn = 0;
+            int last1 = -1, last2 = -1;
+
+            // Iterate chosen from the back to possibly get the largest ones inside
+            for (int i = chosen.size() - 1; i >= 0; i--) {
+                if (chosen[i] >= start && chosen[i] <= end) {
+                    if (countIn == 0) {
+                        last1 = chosen[i];
+                        countIn = 1;
+                    } else if (countIn == 1) {
+                        last2 = chosen[i];
+                        countIn = 2;
+                        break;
+                    }
+                }
+                if (chosen[i] < start) break;
+            }
+
+            // If we already have 2 points inside interval, nothing more is needed
+            if (countIn == 2) continue;
+
+            // If only one point is inside, we need to add one more (end itself)
+            if (countIn == 1) {
+                int x = end;
+                if (x == last1) x--;  // ensure new point is distinct
+                chosen.push_back(x);
+                sort(chosen.begin(), chosen.end());
+                continue;
+            }
+
+            // If zero points inside, add the last two points of interval
+            chosen.push_back(end - 1);
+            chosen.push_back(end);
+            sort(chosen.begin(), chosen.end());
+        }
+
+        return chosen.size();
+    }
+};
