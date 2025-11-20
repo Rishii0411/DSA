@@ -1,0 +1,114 @@
+2025-11-06 | Minimum Cost to Make Two Strings Identical with Transformations
+
+Problem Statement  
+You are given:
+• Two strings s and t (lowercase English letters).  
+• A 2D array transform[][], where each element [x, y] indicates you may transform character x → y.  
+• A cost[] array where cost[i] gives the cost of the transformation transform[i][0] → transform[i][1].  
+You may apply transformations any number of times on any characters.
+Return the minimum total cost to make s and t identical.  
+If it is impossible to make the strings equal using the available transformations, return -1.
+
+
+Approach / Explanation  
+1. Observation  
+Each character can undergo a sequence of transformations.  
+Thus, we need to determine the minimum cost to transform any character ‘a’–‘z’ into any other character.
+
+This forms a weighted directed graph with 26 nodes (letters).
+
+2. Use Floyd-Warshall  
+We build a 26×26 cost matrix dist where:
+• dist[i][i] = 0  
+• dist[x][y] = cost of transforming x → y (given)  
+• Other distances initially = INF  
+
+Then apply the Floyd-Warshall algorithm:
+For every intermediate k in 0..25  
+  For every i in 0..25  
+    For every j in 0..25  
+      dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+
+After this, dist[i][j] holds the minimum cost to convert character i into j.
+
+3. Comparing the Strings  
+For each index i in s and t:
+• If s[i] == t[i]: no cost needed  
+• Else try to convert both to some common character c  
+  cost = dist[s[i]][c] + dist[t[i]][c]  
+Keep the minimum cost among all 26 candidates.
+
+If for some position, no c yields finite cost, return -1.
+
+4. Total Complexity  
+Floyd-Warshall: O(26³) which is extremely fast  
+Computing matching cost: O(26 × n)
+
+5. Edge Case  
+If s and t have different lengths, it is immediately impossible.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minCost(string s, string t,
+                vector<vector<char>>& transform,
+                vector<int>& cost) {
+
+        if (s.size() != t.size())
+            return -1;
+
+        const int INF = 1e9;
+        vector<vector<int>> dist(26, vector<int>(26, INF));
+
+        // Identity transforms cost zero
+        for (int i = 0; i < 26; i++)
+            dist[i][i] = 0;
+
+        // Load given transformations
+        for (int i = 0; i < transform.size(); i++) {
+            int x = transform[i][0] - 'a';
+            int y = transform[i][1] - 'a';
+            dist[x][y] = min(dist[x][y], cost[i]);
+        }
+
+        // Floyd-Warshall to compute all-pairs minimum cost
+        for (int k = 0; k < 26; k++) {
+            for (int i = 0; i < 26; i++) {
+                for (int j = 0; j < 26; j++) {
+                    if (dist[i][k] < INF && dist[k][j] < INF)
+                        dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+                }
+            }
+        }
+
+        long long ans = 0;
+        int n = s.size();
+
+        for (int i = 0; i < n; i++) {
+            int a = s[i] - 'a';
+            int b = t[i] - 'a';
+
+            if (a == b) continue;
+
+            long long best = LLONG_MAX;
+
+            // Try converting both to every possible character
+            for (int c = 0; c < 26; c++) {
+                if (dist[a][c] < INF && dist[b][c] < INF) {
+                    best = min(best, (long long)dist[a][c] + dist[b][c]);
+                }
+            }
+
+            if (best == LLONG_MAX)
+                return -1;
+
+            ans += best;
+        }
+
+        return ans;
+    }
+};
