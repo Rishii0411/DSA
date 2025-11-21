@@ -1,0 +1,80 @@
+2025-11-06 | Count Unique Palindromic Subsequences of Length 3
+
+Problem Statement  
+Given a string `s`, return the **number of unique palindromes of length 3** that are subsequences of `s`.
+Notes:  
+• A palindrome of length 3 has the form: **a b a**  
+• It reads the same forward and backward  
+• Different ways of forming the same subsequence count only once  
+• A subsequence maintains order but allows skipping characters
+
+
+Approach / Explanation  
+1. Structure of a Length-3 Palindrome  
+Every length-3 palindrome is of the form:  
+c _ c  
+Meaning: the first and last characters match.
+
+So for each character `c`, we look for:  
+• first occurrence of `c`  
+• last occurrence of `c`
+
+If first index < last index, there is room for a middle character.
+
+2. Middle Characters  
+For a character `c`, all possible palindromes are:  
+c x c  
+where `x` is any character between first(c) and last(c).
+
+We just count how many **distinct** characters appear in that middle region.
+
+3. Strategy  
+For every character from `'a'` to `'z'`:
+• Find first index and last index  
+• If valid (first < last):  
+  - Collect all distinct characters between them  
+  - Add the number of distinct characters to the answer
+
+4. Time Complexity  
+• Scanning for all characters: O(26 × n)  
+• Overall: O(n)
+
+Efficient enough for large strings.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countPalindromicSubsequence(string s) {
+        int n = s.size();
+        int ans = 0;
+
+        // For each possible outer character 'a' to 'z'
+        for (char c = 'a'; c <= 'z'; c++) {
+            int left = -1, right = -1;
+
+            // Find first and last occurrence of c
+            for (int i = 0; i < n; i++) {
+                if (s[i] == c) {
+                    if (left == -1) left = i;
+                    right = i;
+                }
+            }
+
+            // Must have at least two occurrences
+            if (left != -1 && right != -1 && left < right) {
+                // Count distinct middle chars
+                vector<bool> seen(26, false);
+                for (int i = left + 1; i < right; i++) {
+                    seen[s[i] - 'a'] = true;
+                }
+
+                ans += count(seen.begin(), seen.end(), true);
+            }
+        }
+
+        return ans;
+    }
+};
