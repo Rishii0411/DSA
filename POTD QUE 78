@@ -1,0 +1,76 @@
+2025-11-06 | Minimum Operations to Connect All Hospitals
+
+Problem Statement  
+You are given an undirected graph with **V hospitals** and **E edges**, where each edge `[u, v]` represents a direct connection.
+In one operation, you may:
+• Remove any existing link  
+• Reconnect it between two hospitals that are **not already connected (directly or indirectly)**  
+
+Determine the **minimum number of operations** required to make the entire network connected.
+
+If it is not possible, return **-1**.
+
+
+Approach / Explanation  
+1. Key Insight  
+To connect **V** nodes, you need at least **V − 1** edges.
+
+If total edges < V − 1, it is **impossible** to make the whole network connected → return -1.
+
+2. Count Connected Components  
+Use DFS/Union-Find to count the number of connected components in the graph.
+
+Let the number of components be **C**.
+
+To connect C components into one, we need exactly **C − 1 operations**.
+
+3. Why This Works  
+We can rewire edges only if we have surplus edges.  
+But if the total number of edges ≥ V − 1, then we always have enough to connect all components by reconnecting redundant edges.
+
+4. Complexity  
+• DFS/Union-Find: O(V + E)  
+• Computation: O(1)
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    void dfs(int node, vector<vector<int>>& adj, vector<int>& vis) {
+        vis[node] = 1;
+        for (int nbr : adj[node]) {
+            if (!vis[nbr]) dfs(nbr, adj, vis);
+        }
+    }
+
+    int makeConnected(int V, vector<vector<int>>& edges) {
+        int E = edges.size();
+
+        // If not enough edges, impossible
+        if (E < V - 1) return -1;
+
+        // Build adjacency list
+        vector<vector<int>> adj(V);
+        for (auto& e : edges) {
+            adj[e[0]].push_back(e[1]);
+            adj[e[1]].push_back(e[0]);
+        }
+
+        // Count connected components
+        vector<int> vis(V, 0);
+        int components = 0;
+
+        for (int i = 0; i < V; i++) {
+            if (!vis[i]) {
+                components++;
+                dfs(i, adj, vis);
+            }
+        }
+
+        // To connect C components → need C-1 operations
+        return components - 1;
+    }
+};
