@@ -1,0 +1,51 @@
+2025-11-06 | Minimum Operations to Make All Elements Divisible by 3
+
+Problem Statement  
+You are given an integer array `nums`.
+In one operation, you may add **1** or subtract **1** from any element.
+Return the minimum number of operations needed to make **every** element in `nums` divisible by **3**.
+
+Approach / Explanation  
+1. Remainders mod 3  
+Every number has one of three remainders when divided by 3:
+- If `num % 3 == 0`: already good, cost = 0
+- If `num % 3 == 1`:
+  To make divisible by 3 → subtract 1  
+  cost = 1
+- If `num % 3 == 2`:
+  To make divisible by 3 → add 1  
+  cost = 1
+
+2. Why this works  
+To fix remainder:
+- Remainder 1 → nearest multiple is (num − 1)
+- Remainder 2 → nearest multiple is (num + 1)
+
+Thus, each bad element requires exactly **one** operation.
+
+3. Total operations  
+Sum the number of elements not divisible by 3.
+4. Time / Space Complexity  
+• Time: O(n)  
+• Space: O(1)
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minimumOperations(vector<int>& nums) {
+        int ops = 0;
+
+        for (int x : nums) {
+            int r = x % 3;
+            if (r == 1 || r == 2) {
+                ops += 1;
+            }
+        }
+
+        return ops;
+    }
+};
