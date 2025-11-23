@@ -1,0 +1,73 @@
+2025-11-06 | Maximum Sum Divisible by Three
+
+Problem Statement  
+Given an integer array `nums`, return the **maximum possible sum** of a subset of elements such that the total sum is divisible by 3.
+
+Approach / Explanation  
+1. Start with the total sum  
+Let `sum = total of all numbers`.
+
+If `sum % 3 == 0`, it is already the best possible answer.
+
+2. If sum % 3 == 1  
+Remove the **smallest-value adjustment** that makes the sum divisible by 3:
+- Option A: remove the smallest element with remainder 1  
+- Option B: remove two smallest elements each with remainder 2  
+Pick the cheaper option.
+
+3. If sum % 3 == 2  
+Remove the smallest-value adjustment:
+- Option A: remove the smallest element with remainder 2  
+- Option B: remove two smallest elements each with remainder 1  
+Pick the cheaper option.
+
+4. Key Insight  
+The minimum amount we remove ensures we keep the maximum divisible-by-3 sum.
+
+5. Time Complexity  
+• O(n) for scanning the array  
+• O(n log n) if sorting is used (not needed here)  
+We only track the smallest few values.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxSumDivThree(vector<int>& nums) {
+        int sum = 0;
+        vector<int> rem1, rem2;
+
+        for (int x : nums) {
+            sum += x;
+            if (x % 3 == 1) rem1.push_back(x);
+            else if (x % 3 == 2) rem2.push_back(x);
+        }
+
+        sort(rem1.begin(), rem1.end());
+        sort(rem2.begin(), rem2.end());
+
+        if (sum % 3 == 0) return sum;
+
+        int ans = 0;
+
+        if (sum % 3 == 1) {
+            int remove1 = rem1.size() > 0 ? rem1[0] : INT_MAX;
+            int remove2 = rem2.size() > 1 ? rem2[0] + rem2[1] : INT_MAX;
+            int removeMin = min(remove1, remove2);
+            if (removeMin == INT_MAX) return 0;
+            ans = sum - removeMin;
+        } 
+        else { // sum % 3 == 2
+            int remove1 = rem2.size() > 0 ? rem2[0] : INT_MAX;
+            int remove2 = rem1.size() > 1 ? rem1[0] + rem1[1] : INT_MAX;
+            int removeMin = min(remove1, remove2);
+            if (removeMin == INT_MAX) return 0;
+            ans = sum - removeMin;
+        }
+
+        return ans;
+    }
+};
