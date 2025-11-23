@@ -1,0 +1,88 @@
+2025-11-06 | Maximum Removable Stones
+
+Problem Statement  
+You are given a 2D array `stones[][]` where each entry `stones[i] = [xi, yi]` represents the coordinates of a stone on a 2D grid.
+A stone can be removed if:
+• It shares the same row with another stone, or  
+• It shares the same column with another stone,  
+as long as the other stone has not been removed.
+Return the maximum number of stones that can be removed.
+Note: No two stones share the same coordinate.
+
+
+Approach / Explanation  
+1. Graph Representation  
+Treat every stone as a node.  
+Two stones are connected if:
+- They share the same row (x-coordinate), or  
+- They share the same column (y-coordinate)
+
+This forms an undirected graph.
+
+2. Key Insight  
+All stones in a connected component can be removed except **one**.  
+Thus, if there are `C` connected components and `N` total stones:
+
+Maximum removable stones = N − C
+
+3. Finding Connected Components  
+Use Depth-First Search (DFS) or Union-Find (Disjoint Set Union, DSU) to build components:
+- For each pair of stones sharing row or column → union them.
+
+4. Complexity  
+DSU operations are almost constant time: O(α(N))  
+Processing each stone pair takes O(N²), acceptable because constraints are usually moderate.  
+Optimized solutions use hash maps to reduce row/column connections to O(N).
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    struct DSU {
+        vector<int> parent, rankv;
+        DSU(int n) : parent(n), rankv(n, 0) {
+            for (int i = 0; i < n; i++) parent[i] = i;
+        }
+        int find(int x) {
+            if (parent[x] != x)
+                parent[x] = find(parent[x]);
+            return parent[x];
+        }
+        void unite(int a, int b) {
+            a = find(a);
+            b = find(b);
+            if (a != b) {
+                if (rankv[a] < rankv[b]) swap(a, b);
+                parent[b] = a;
+                if (rankv[a] == rankv[b]) rankv[a]++;
+            }
+        }
+    };
+
+    int removeStones(vector<vector<int>>& stones) {
+        int n = stones.size();
+        DSU dsu(n);
+
+        // Connect stones sharing row or column
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (stones[i][0] == stones[j][0] || 
+                    stones[i][1] == stones[j][1]) {
+                    dsu.unite(i, j);
+                }
+            }
+        }
+
+        // Count distinct components
+        unordered_set<int> uniqueParents;
+        for (int i = 0; i < n; i++) {
+            uniqueParents.insert(dsu.find(i));
+        }
+
+        int components = uniqueParents.size();
+        return n - components; // maximum stones removable
+    }
+};
