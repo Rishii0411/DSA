@@ -1,0 +1,45 @@
+2025-11-06 | Check Prefix Binary Numbers Divisible by 5
+
+Problem Statement  
+You are given a binary array `nums`.
+Define:  
+`xi` = decimal value of the binary number represented by `nums[0..i]`  
+(i.e., prefix from index 0 to i)
+
+Return a boolean array where `answer[i]` is true if `xi` is divisible by **5**, otherwise false
+
+Approach / Explanation  
+1. Prefix Number Growth  
+If you have a number `x`, and you append a bit `b` (0 or 1), the new number becomes:  
+x_new = (x * 2 + b)
+
+2. Modulo Trick  
+We never need the entire number — only whether it is divisible by 5.  
+So instead of storing huge numbers, we keep:  
+x_mod = (x_mod * 2 + b) % 5
+
+3. Each prefix check  
+If `x_mod == 0`, then the current prefix integer is divisible by 5.
+
+4. Complexity  
+• Time: O(n)  
+• Space: O(1) extra, aside from output
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<bool> prefixesDivBy5(vector<int>& nums) {
+        vector<bool> ans;
+        int mod = 0;
+
+        for (int bit : nums) {
+            mod = (mod * 2 + bit) % 5;
+            ans.push_back(mod == 0);
+        }
+
+        return ans;
+    }
+};
