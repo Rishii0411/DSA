@@ -1,0 +1,220 @@
+2025-11-06 | Second Best Minimum Spanning Tree
+
+Problem Statement  
+You are given an undirected weighted graph with **V** vertices and **E** edges.  
+Each edge is `[u, v, w]` meaning an undirected connection between u and v of weight w.
+Your task:
+Compute the **minimum possible weight** of a spanning tree that has weight **strictly greater than** the MST.
+
+If no such spanning tree exists, return **-1**.
+
+
+Approach / Explanation  
+1. Build the MST using **Kruskal's algorithm**  
+This gives:
+- MST weight  
+- The edges used in the MST  
+- The graph structure of the MST
+
+2. Preprocess the MST to support **Maximum Edge Query**  
+To replace one MST edge with a non-MST edge, we need to know the **heaviest edge** on the path between two nodes in the MST.
+
+We use:
+- Binary Lifting (LCA preprocessing)  
+- maxEdge[u][k]: maximum-weight edge on the path from u upward by 2ᵏ steps
+
+3. Try replacing each non-MST edge  
+For each non-MST edge `(u, v, w)`:
+- Find the maximum-weight edge on the path between u and v inside the MST.
+- Replacement generates a new tree with weight:  
+  newWeight = MST_weight + w − maxEdgeOnPath
+
+If `newWeight > MST_weight`, it is a valid second-best option.
+
+Take the minimum among all valid options.
+
+4. Edge Cases  
+- If no alternative tree exists → return -1
+
+5. Time Complexity  
+- MST: O(E log E)  
+- LCA Preprocessing: O(V log V)  
+- Checking all non-MST edges: O(E log V)
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Edge {
+    int s, e, w, id;
+    bool operator<(const Edge& other) const { return w < other.w; }
+};
+
+struct DSU {
+    vector<int> p, sz;
+    DSU(int n=0) { init(n); }
+    void init(int n) { p.resize(n+1); sz.assign(n+1,1); for (int i=0;i<=n;i++) p[i]=i; }
+    int find(int x){ return p[x]==x?x:p[x]=find(p[x]); }
+    bool unite(int a,int b){
+        a=find(a); b=find(b);
+        if(a==b) return false;
+        if(sz[a]<sz[b]) swap(a,b);
+        p[b]=a; sz[a]+=sz[b];
+        return true;
+    }
+};
+
+class Solution {
+  public:
+    int secondMST(int V, vector<vector<int>> &edges_in) {
+        // Convert input to Edge vector; assume input nodes are 0..V-1 -> convert to 1..V
+        int n = V;
+        vector<Edge> edges;
+        for (int i = 0; i < (int)edges_in.size(); ++i) {
+            int u = edges_in[i][0] + 1;
+            int v = edges_in[i][1] + 1;
+            int w = edges_in[i][2];
+            edges.push_back({u, v, w, i});
+        }
+        sort(edges.begin(), edges.end());
+
+        // prepare containers sized to n (1-indexed)
+        int N = n + 5;
+        int L = 1;
+        while ((1<<L) <= n) ++L;
+        L += 1; // safe margin
+
+        vector<vector<pair<int,int>>> adj(N);
+        vector<int> present(edges.size(), 0);
+        long long mst_weight = 0;
+
+        DSU dsu(n+2);
+        dsu.init(n+1);
+        // Kruskal
+        for (auto &ed : edges) {
+            if (dsu.unite(ed.s, ed.e)) {
+                adj[ed.s].emplace_back(ed.e, ed.w);
+                adj[ed.e].emplace_back(ed.s, ed.w);
+                present[ed.id] = 1;
+                mst_weight += ed.w;
+            }
+        }
+
+        // If graph not connected, no spanning tree exists -> second MST doesn't exist
+        // Check connectivity: all nodes should have same root
+        int root0 = dsu.find(1);
+        for (int i = 2; i <= n; ++i) {
+            if (dsu.find(i) != root0) return -1;
+        }
+
+        // LCA prep
+        vector<int> depth(N, 0);
+        vector<vector<int>> up(N, vector<int>(L, -1));
+        // dp[u][k] stores pair<maxEdge, secondMaxEdge> on path from u up by 2^k
+        vector<vector<pair<int,int>>> dp(N, vector<pair<int,int>>(L, {-1, -1}));
+
+        function<pair<int,int>(pair<int,int>, pair<int,int>)> combine = [&](pair<int,int> a, pair<int,int> b)->pair<int,int>{
+            // returns top two distinct values from the four numbers (use -1 as invalid)
+            vector<int> vals;
+            if (a.first != -1) vals.push_back(a.first);
+            if (a.second != -1) vals.push_back(a.second);
+            if (b.first != -1) vals.push_back(b.first);
+            if (b.second != -1) vals.push_back(b.second);
+            // keep distinct values
+            sort(vals.begin(), vals.end(), greater<int>());
+            vals.erase(unique(vals.begin(), vals.end()), vals.end());
+            int first = -1, second = -1;
+            if (!vals.empty()) first = vals[0];
+            if (vals.size() >= 2) second = vals[1];
+            return {first, second};
+        };
+
+        // DFS to set up[.][0], depth and dp[][0]
+        function<void(int,int,int)> dfs = [&](int u, int p, int w){
+            up[u][0] = p;
+            depth[u] = (p== -1 ? 0 : depth[p] + 1);
+            if (p == -1) dp[u][0] = {-1, -1};
+            else dp[u][0] = {w, -1};
+            for (auto &pr : adj[u]) {
+                int v = pr.first, wt = pr.second;
+                if (v == p) continue;
+                dfs(v, u, wt);
+            }
+        };
+
+        // start dfs from node 1 (graph is connected as checked)
+        dfs(1, -1, -1);
+
+        // binary lifting preprocessing
+        for (int k = 1; k < L; ++k) {
+            for (int v = 1; v <= n; ++v) {
+                int mid = up[v][k-1];
+                if (mid != -1) {
+                    up[v][k] = up[mid][k-1];
+                    dp[v][k] = combine(dp[v][k-1], dp[mid][k-1]);
+                } else {
+                    up[v][k] = -1;
+                    dp[v][k] = dp[v][k-1];
+                }
+            }
+        }
+
+        auto lift_and_collect = [&](int &u, int steps)->pair<int,int>{
+            pair<int,int> res = {-1, -1};
+            for (int k = 0; steps > 0; ++k) {
+                if (steps & 1) {
+                    res = combine(res, dp[u][k]);
+                    u = up[u][k];
+                }
+                steps >>= 1;
+            }
+            return res;
+        };
+
+        auto lca_query = [&](int u, int v)->pair<int,int>{
+            pair<int,int> res = {-1, -1};
+            if (depth[u] < depth[v]) swap(u, v);
+            int diff = depth[u] - depth[v];
+            // lift u up by diff
+            for (int k = 0; k < L; ++k) {
+                if (diff & (1<<k)) {
+                    res = combine(res, dp[u][k]);
+                    u = up[u][k];
+                }
+            }
+            if (u == v) return res;
+            for (int k = L-1; k >= 0; --k) {
+                if (up[u][k] != -1 && up[u][k] != up[v][k]) {
+                    res = combine(res, combine(dp[u][k], dp[v][k]));
+                    u = up[u][k];
+                    v = up[v][k];
+                }
+            }
+            // finally include the edges to parent (u->up[u][0] and v->up[v][0])
+            res = combine(res, combine(dp[u][0], dp[v][0]));
+            return res;
+        };
+
+        const long long INFLL = (1LL<<60);
+        long long ans = INFLL;
+
+        // For every non-MST edge, try to replace largest edge on path
+        for (auto &ed : edges) {
+            if (present[ed.id]) continue; // in MST
+            int uu = ed.s, vv = ed.e;
+            auto rem = lca_query(uu, vv); // rem.first = max edge on path, rem.second = second max
+            if (rem.first == -1) continue; // shouldn't happen in connected MST
+            if (ed.w != rem.first) {
+                long long cand = mst_weight + ed.w - rem.first;
+                if (cand < ans) ans = cand;
+            } else if (rem.second != -1) {
+                long long cand = mst_weight + ed.w - rem.second;
+                if (cand < ans) ans = cand;
+            }
+        }
+
+        if (ans == INFLL) return -1;
+        return (int)ans;
+    }
+};
