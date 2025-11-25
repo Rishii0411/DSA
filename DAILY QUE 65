@@ -1,0 +1,71 @@
+2025-11-06 | Smallest All-Ones Number Divisible by K
+
+Your task is to find the **first** such number that is divisible by a given integer k.  
+The number itself may become extremely large — far beyond the range of any normal integer type — but we only need its **length**, not the number itself.
+
+Problem Statement  
+
+Given a positive integer k, find the **length** of the smallest positive integer n such that:
+
+• n contains only the digit **1** (like 1, 11, 111, …)  
+• n is divisible by k  
+
+Return the length of such n, or **-1** if no such n exists.
+
+Note:  
+n can be extremely long and cannot be stored in standard integer types.
+
+
+Approach / Explanation  
+1. Divisibility and Remainders  
+Instead of constructing numbers like 111111… directly, we track only their remainder mod k.
+
+Let rem be the remainder of the current number mod k.
+
+Building the next number:
+If current number is represented by rem,  
+then next number (appending a 1) has remainder:
+rem = (rem * 10 + 1) % k
+
+We repeat this process until rem == 0.
+
+2. When is it impossible?  
+If k is divisible by 2 or 5, then no number consisting only of 1's can be divisible by k.  
+This is because such numbers always end in 1 → not divisible by 2 or 5.
+
+Thus:
+If k % 2 == 0 or k % 5 == 0 → return -1
+
+3. Loop until divisible  
+Simulate the process:
+count = 1  
+rem = 1 % k  
+Repeatedly:
+rem = (rem * 10 + 1) % k  
+count++
+Stop when rem == 0 → count is the answer.
+4. Time Complexity  
+Since there are only k possible remainders, the process stops within k steps.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int smallestRepunitDivByK(int k) {
+        // No number made only of '1's is divisible by 2 or 5
+        if (k % 2 == 0 || k % 5 == 0) return -1;
+
+        int rem = 1 % k;
+        int len = 1;
+
+        while (rem != 0) {
+            rem = (rem * 10 + 1) % k;
+            len++;
+        }
+
+        return len;
+    }
+};
