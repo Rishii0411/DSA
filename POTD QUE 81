@@ -1,0 +1,57 @@
+2025-11-06 | XOR of XORs of All Subarrays
+
+Problem Statement  
+You are given an integer array `arr[]`.
+The value of a subarray is defined as the XOR of all its elements.
+Your task is to compute the XOR of the values of **all** possible subarrays of `arr[]`.
+Return the final XOR value.
+
+Approach / Explanation  
+1. Key Insight  
+An element `arr[i]` contributes to the final answer **only if it appears in an odd number of subarrays**.
+
+This works because:  
+Even count of XOR → cancels out  
+Odd count → contributes to final XOR
+
+2. How many subarrays include arr[i]?  
+If the array length is `n`, and the index is `i` (0-indexed):
+
+Number of choices for left boundary = i + 1  
+Number of choices for right boundary = n − i  
+
+Total subarrays including arr[i] = (i + 1) * (n − i)
+
+3. Contribution Rule  
+If `(i + 1) * (n − i)` is **odd**, then arr[i] contributes to the final XOR.  
+If it’s even → contributes nothing.
+
+4. Final Algorithm  
+Initialize answer = 0  
+For each index i:
+- If (i+1)*(n−i) is odd → answer ^= arr[i]
+
+5. Time Complexity  
+• O(n)  
+• Space: O(1)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int xorOfAllSubarrays(vector<int>& arr) {
+        int n = arr.size();
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            long long count = 1LL * (i + 1) * (n - i);
+            if (count % 2 == 1) {
+                ans ^= arr[i];
+            }
+        }
+
+        return ans;
+    }
+};
