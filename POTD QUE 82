@@ -1,0 +1,57 @@
+2025-11-06 | Bitwise AND of All Numbers in a Range
+
+Problem Statement  
+Given two integers **l** and **r**, compute:
+AND(l, r) = l & (l+1) & … & r
+Return this result.
+
+Approach / Explanation  
+1. Key Insight  
+When ANDing a range of numbers, the only bits that survive are the **common prefix bits** of `l` and `r`.
+
+Example:  
+l = 11010  
+r = 11111  
+Common prefix = 11*** → answer begins with 11 and trailing bits become zeros.
+
+2. Why?  
+Whenever l and r differ at some bit position, the range between them must include both a 0 and a 1 at that bit position → AND becomes 0.
+
+Thus, to compute the result:
+- Keep shifting l and r right until they become equal
+- Count how many shifts you applied
+- Shift the result back left the same number of times
+
+3. Algorithm Steps  
+Initialize count = 0  
+While l != r:
+- Right-shift both by 1  
+- count++  
+
+Final answer = l << count
+
+4. Time Complexity  
+• O(log(max(l, r)))  
+• Efficient for large numbers.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long rangeBitwiseAnd(long long l, long long r) {
+        int shift = 0;
+
+        // Find common prefix
+        while (l < r) {
+            l >>= 1;
+            r >>= 1;
+            shift++;
+        }
+
+        // Shift back to original place
+        return l << shift;
+    }
+};
