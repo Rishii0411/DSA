@@ -1,0 +1,55 @@
+2025-11-06 | Sum of XOR of All Subsets
+
+Problem Statement  
+Given an array `arr[]`, return:
+(sum over all subsets S) of (XOR of elements in S)
+Subset repetitions count separately (as usual in subsets mathematics).
+The answer fits in a 32-bit integer.
+
+
+Approach / Explanation  
+1. Key Insight  
+Each element contributes to the XOR result of a subset **only if it is included**.  
+Since every element has **2 choices** (included or not), and there are `n` elements:
+
+Total number of subsets = `2^n`
+
+Each element participates in **exactly half** of the subsets = `2^(n-1)` subsets.
+
+2. XOR Distribution  
+XOR distributes over subsets linearly:
+
+sum(XOR of every subset)  
+= (each element’s contribution summed over all subsets)
+
+Thus:
+answer = (arr[0] XOR arr[1] XOR … XOR arr[n−1]) × 2^(n−1)
+Why?
+Because each bit contributes independently, and each array element shows up in half the subsets.
+
+3. Steps  
+• Compute the XOR of all elements → call this fullXor  
+• Compute 2^(n−1)  
+• Multiply: fullXor * 2^(n−1)
+
+4. Complexity  
+• Time: O(n)  
+• Space: O(1)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int subsetXorSum(vector<int>& arr) {
+        int n = arr.size();
+        int fullXor = 0;
+
+        for (int x : arr)
+            fullXor ^= x;
+
+        // Each element contributes in 2^(n-1) subsets
+        return fullXor * (1 << (n - 1));
+    }
+};
