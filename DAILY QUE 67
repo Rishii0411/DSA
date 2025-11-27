@@ -1,0 +1,75 @@
+2025-11-06 | Maximum Subarray Sum with Length Divisible by K
+
+Problem Statement  
+You are given an integer array `nums` and an integer `k`.
+Return the **maximum subarray sum** among all subarrays whose length is divisible by **k**.
+
+
+Approach / Explanation  
+1. Prefix Sum + Remainder Buckets  
+Let `prefix[i]` = sum of first `i` elements.
+For any subarray `nums[l..r]`:
+sum = prefix[r + 1] - prefix[l]
+Length = (r - l + 1)
+We want:
+(r - l + 1) % k == 0  
+→ r % k == (l - 1) % k  
+→ prefix-index remainder matches
+
+2. Strategy  
+For each remainder class `mod = i % k`, we keep:
+- The **minimum prefix sum** seen so far for that remainder.
+- Then use it to compute the **maximum possible subarray sum ending at i**.
+
+Reason:  
+If prefix[j] and prefix[i] have the same remainder,  
+then subarray (j .. i-1) has length divisible by k.
+
+3. Algorithm  
+Maintain:
+- `prefix = 0`
+- `best[0..k-1]` = smallest prefix sum seen for each remainder
+- Initialize all best[] = +infinity  
+- best[0] = 0  (empty prefix sum)
+
+For each index i:
+- prefix += nums[i]
+- r = (i+1) % k
+- candidate = prefix - best[r]
+- Update answer with candidate
+- best[r] = min(best[r], prefix)
+
+4. Complexity  
+• Time: O(n)  
+• Space: O(k)
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long maxSubarraySumDivK(vector<int>& nums, int k) {
+        long long prefix = 0;
+        long long ans = LLONG_MIN;
+
+        vector<long long> best(k, LLONG_MAX);
+        best[0] = 0;  // base case
+
+        for (int i = 0; i < nums.size(); i++) {
+            prefix += nums[i];
+            int r = (i + 1) % k;
+
+            // Check if we can form a subarray ending here
+            if (best[r] != LLONG_MAX) {
+                ans = max(ans, prefix - best[r]);
+            }
+
+            // Update minimum prefix for this remainder
+            best[r] = min(best[r], prefix);
+        }
+
+        return ans;
+    }
+};
