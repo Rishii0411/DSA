@@ -1,0 +1,77 @@
+2025-11-06 | Largest Subset Whose XOR Equals n
+
+Problem Statement  
+Given a positive integer `n`, find a subset of numbers from `1` to `n` such that:
+• XOR of all subset elements = n  
+• Subset has maximum possible size  
+• Among maximum-size subsets, return the lexicographically smallest one.
+Return the subset in sorted order.
+
+
+Approach / Explanation  
+1. Key Observation  
+The XOR of a set becomes **smaller** when you XOR more numbers together.  
+To maximize the number of elements, we ideally want to include **as many numbers as possible**.
+The trick:
+- If we include every number from **1 to n**, their XOR is some value **X**.
+- If `X == n`, then the full set `{1, 2, ..., n}` is the answer.
+- Otherwise, we try to remove **one number** (the lexicographically smallest valid choice) to fix the XOR.
+
+2. Why removing exactly one number works  
+Let:
+fullXor = 1 XOR 2 XOR ... XOR n  
+We want XOR(subset) = n.
+If fullXor == n → done.
+Otherwise, let:
+missing = fullXor XOR n
+Removing the number `missing` from the full set changes:
+(new XOR) = fullXor XOR missing  
+          = n
+So the subset becomes exactly correct.
+3. Lexicographically smallest subset  
+Removing exactly the number `missing` guarantees:
+- Maximum size (n−1 elements)
+- Sorted order
+- Lexicographically smallest (because removing any other number produces a lexicographically larger subset)
+4. Corner Case  
+If missing > n OR missing == 0 → cannot remove it.  
+But this never happens because missing is guaranteed to be within 1..n.
+Complexity  
+• O(n) time  
+• O(n) space
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> largestXorSubset(int n) {
+        int fullXor = 0;
+
+        // Compute XOR of all numbers from 1 to n
+        for (int i = 1; i <= n; i++) {
+            fullXor ^= i;
+        }
+
+        // If already equal to n, use all numbers
+        if (fullXor == n) {
+            vector<int> ans(n);
+            iota(ans.begin(), ans.end(), 1);
+            return ans;
+        }
+
+        // Else remove the one number that fixes XOR
+        int missing = fullXor ^ n;
+
+        vector<int> ans;
+        ans.reserve(n - 1);
+
+        for (int i = 1; i <= n; i++) {
+            if (i != missing)
+                ans.push_back(i);
+        }
+
+        return ans;
+    }
+};
