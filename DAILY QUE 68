@@ -1,0 +1,81 @@
+2025-11-06 | Maximum Components After K-Divisible Tree Split
+
+Problem Statement  
+You are given:
+• An undirected tree with `n` nodes (0 to n−1)  
+• `edges[]` describing the tree  
+• `values[]`, where `values[i]` is the value at node i  
+• An integer `k`
+A valid split is obtained when removing some edges so that each resulting connected component has sum of values divisible by k.
+Return the **maximum possible number of components**.
+
+
+Approach / Explanation  
+1. Tree DP (Postorder DFS)  
+We compute the **sum of each subtree modulo k**.
+For a node `u`:
+- Let its subtree sum = sum of all node values in that subtree.
+- If `subtreeSum % k == 0`, then this subtree can form a valid component.
+When a subtree sum is divisible by k:
+• We cut at the edge connecting this subtree to its parent.  
+• This subtree becomes an independent valid component.  
+• We return `0` upward because its contribution is already separated.
+
+If not divisible:
+• We pass its remainder upward.
+
+2. Counting Components  
+Initialize `components = 0`.
+
+During DFS, whenever a subtree sum is divisible by k:
+- `components++`
+
+At the end:
+The entire tree is itself a component if total sum is divisible by k.
+
+3. Why it works  
+Since every valid component must have sum divisible by k, the optimal strategy is to cut exactly where a subtree meets this requirement.
+
+4. Complexity  
+• Time: O(n)  
+• Space: O(n)
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int components;
+
+    int dfs(int node, int parent, vector<vector<int>>& adj, vector<int>& values, int k) {
+        long long sum = values[node];
+
+        for (int nei : adj[node]) {
+            if (nei == parent) continue;
+            sum += dfs(nei, node, adj, values, k);
+        }
+
+        if (sum % k == 0) {
+            components++;
+            return 0;  // this subtree becomes a new component
+        }
+
+        return sum % k;
+    }
+
+    int maxKDivisibleComponents(int n, vector<vector<int>>& edges, vector<int>& values, int k) {
+        vector<vector<int>> adj(n);
+        for (auto& e : edges) {
+            adj[e[0]].push_back(e[1]);
+            adj[e[1]].push_back(e[0]);
+        }
+
+        components = 0;
+
+        dfs(0, -1, adj, values, k);
+
+        return components;
+    }
+};
