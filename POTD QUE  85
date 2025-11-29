@@ -1,0 +1,70 @@
+2025-11-06 | Count Total Set Bits from 1 to n
+
+Problem Statement  
+Given an integer `n`, return the **total number of set bits** (bits equal to 1) in binary for all integers from `1` to `n`.
+Approach / Explanation  
+We use a well-known recursive formula:
+1. Find the largest power of 2 ≤ n  
+Let:
+
+p = floor(log₂(n))
+
+So: 2ᵖ ≤ n < 2ᵖ⁺¹
+
+Example:  
+n = 13 → p = 3 (since 2³ = 8 ≤ 13)
+
+2. Bits contributed by numbers from 1 to 2ᵖ − 1  
+This segment contributes:
+
+p * 2^(p-1)
+
+Because:
+- Bit p appears in half the numbers  
+- Each lower bit pattern repeats perfectly
+
+3. Bits contributed by MSB (most significant bit) from 2ᵖ to n  
+These numbers all have MSB = 1 for the entire range:
+
+from 2ᵖ to n → contributes (n − 2ᵖ + 1) bits
+
+4. Recurse on remainder  
+Remaining part:
+
+n − 2ᵖ
+
+Call recursively countSetBits(n − 2ᵖ)
+
+5. Final recursive formula
+
+count(n) =  
+    p * 2^(p−1)  
+  + (n − 2ᵖ + 1)  
+  + count(n − 2ᵖ)
+
+6. Base case  
+count(0) = 0
+
+Time Complexity: O(log n)
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long countSetBits(long long n) {
+        if (n == 0) return 0;
+
+        // largest power of 2 <= n
+        long long p = log2(n);
+        long long pow2 = 1LL << p;
+
+        long long bitsTill2p = p * (pow2 >> 1);    // bits from 1 to 2^p - 1
+        long long msbBits = n - pow2 + 1;          // MSB bits from 2^p to n
+
+        long long remainder = n - pow2;
+
+        return bitsTill2p + msbBits + countSetBits(remainder);
+    }
+};
