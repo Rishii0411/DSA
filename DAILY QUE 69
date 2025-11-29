@@ -1,0 +1,56 @@
+2025-11-06 | Minimum Operations to Make Array Sum Divisible by K
+
+Problem Statement  
+Given an integer array `nums` and an integer `k`, you may perform operations:
+• Choose index i and replace: nums[i] = nums[i] - 1
+Return the **minimum number of operations** to make:
+
+sum(nums) % k == 0
+
+Approach / Explanation  
+1. Let S = sum(nums).  
+We want S − x ≡ 0 (mod k).  
+Meaning:
+
+x ≡ S % k  (mod k)
+
+But since x ≥ 0 and we can only decrease the sum:
+
+x = S % k
+
+2. Why?  
+To make the sum divisible by k:
+
+newSum = S − x  
+We want newSum % k = 0  
+⟹ (S − x) % k = 0  
+⟹ x % k = S % k  
+⟹ Smallest non-negative x = S % k
+
+3. Feasibility  
+Can we subtract x from the array?  
+Yes — because we can reduce multiple elements individually until their total reduction equals x.
+
+There is no restriction such as a lower bound on elements, so we can always subtract enough.
+
+Thus, the minimum operations required is exactly:
+
+answer = S % k
+
+4. Complexity  
+• Time: O(n)  
+• Space: O(1)
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minOperations(vector<int>& nums, int k) {
+        long long sum = 0;
+        for (int x : nums) sum += x;
+        return sum % k;
+    }
+};
