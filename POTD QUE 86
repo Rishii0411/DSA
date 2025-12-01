@@ -1,0 +1,107 @@
+2025-11-06 | Count Pairs With XOR Less Than K
+
+Problem Statement  
+Given an array `arr[]` and an integer `k`, return the number of pairs `(i, j)` where:
+arr[i] ^ arr[j] < k     and     i < j
+
+Approach / Explanation 
+1. XOR Comparison Is Bitwise  
+To check if `a ^ b < k`, you compare the XOR bit-by-bit from **most significant bit (MSB)** to **least significant bit (LSB)**.
+
+2. Use a Binary Trie  
+We build a trie that stores binary representations of previously processed numbers.  
+
+The trie allows us to count how many numbers produce an XOR with the current number that stays below k.
+
+3. Query Strategy  
+For each bit (from MSB → LSB):
+
+Let  
+- `xbit = bit of current number`  
+- `kbit = bit of k`  
+
+Cases:
+- If `kbit = 1`:
+  • XOR bit = 0 branch is always safe → add all counts from that branch  
+  • Continue with branch where XOR bit = 1  
+- If `kbit = 0`:
+  • XOR bit must be 0 → forced branch only
+
+4. Insert number into trie after querying  
+Ensures `(i < j)` naturally holds.
+
+5. Time Complexity  
+O(n log C), where C = max element.
+
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Trie {
+    Trie* child[2];
+    int cnt;
+    Trie() {
+        child[0] = child[1] = nullptr;
+        cnt = 0;
+    }
+};
+
+class Solution {
+public:
+    Trie* root;
+
+    Solution() {
+        root = new Trie();
+    }
+
+    void insert(int x) {
+        Trie* node = root;
+        for (int b = 31; b >= 0; b--) {
+            int bit = (x >> b) & 1;
+            if (!node->child[bit])
+                node->child[bit] = new Trie();
+            node = node->child[bit];
+            node->cnt++;
+        }
+    }
+
+    int countLessXor(int x, int k) {
+        Trie* node = root;
+        int res = 0;
+
+        for (int b = 31; b >= 0; b--) {
+            if (!node) break;
+            int xbit = (x >> b) & 1;
+            int kbit = (k >> b) & 1;
+
+            if (kbit == 1) {
+                // Case 1: XOR bit = 0 branch is always valid
+                int same = xbit;
+                if (node->child[same])
+                    res += node->child[same]->cnt;
+
+                // Case 2: follow XOR bit = 1 branch
+                int diff = xbit ^ 1;
+                node = node->child[diff];
+            } else {
+                // kbit = 0 → XOR must be 0 (forced branch)
+                int same = xbit;
+                node = node->child[same];
+            }
+        }
+
+        return res;
+    }
+
+    long long countPairs(vector<int>& arr, int k) {
+        long long ans = 0;
+
+        for (int x : arr) {
+            ans += countLessXor(x, k);
+            insert(x);
+        }
+
+        return ans;
+    }
+};
