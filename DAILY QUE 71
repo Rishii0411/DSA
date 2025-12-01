@@ -1,0 +1,65 @@
+2025-11-06 | Maximum Running Time of N Computers
+
+Problem Statement 
+Given an integer `n` and an array `batteries[]`, where `batteries[i]` represents the minutes of charge in the ith battery, return the **maximum number of minutes** that all n computers can run simultaneously, assuming batteries can be swapped instantly and used in any order.
+
+Approach / Explanation  
+
+1. Total Energy View  
+Let `S = sum(batteries)`.  
+If each computer must run `T` minutes, total required energy is:So T cannot exceed `S / n`.
+
+But there's another constraint.
+
+2. Individual Battery Constraint  
+A single battery of size `x` cannot contribute more than `x` minutes to any computer.  
+This does not prevent swapping, but affects how many computers one battery can support.
+
+3. Binary Search on Answer  
+We guess a time `T` and check if it's possible to run all computers for `T` minutes.
+
+4. Feasibility Check  
+To check if all computers can run for `T` minutes, we compute:
+
+
+total = sum(min(batteries[i], T))
+Because no battery can contribute more than `T` to any single computer.
+If:
+total >= n * T
+Then we have enough usable energy for all computers to run T minutes.
+
+5. Binary search range  
+Lower bound = 0  
+Upper bound = S / n
+
+6. Time Complexity  
+O(m log S), where m is number of batteries.
+
+SOLUTION:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long maxRunTime(int n, vector<int>& batteries) {
+        long long sum = 0;
+        for (int x : batteries) sum += x;
+
+        long long left = 0, right = sum / n;
+
+        while (left < right) {
+            long long mid = (left + right + 1) / 2;
+            long long usable = 0;
+
+            for (long long b : batteries)
+                usable += min(b, mid);
+
+            if (usable >= mid * n)
+                left = mid;
+            else
+                right = mid - 1;
+        }
+
+        return left;
+    }
+};
