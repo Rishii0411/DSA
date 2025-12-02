@@ -1,0 +1,53 @@
+2025-12-02 | Count Horizontal Trapezoids
+
+Question
+You are given a 2D integer array points, where points[i] = [xi, yi] represents the coordinates of the ith point on the Cartesian plane.
+A horizontal trapezoid is a convex quadrilateral with at least one pair of horizontal sides (i.e. parallel to the x-axis). Two lines are parallel if and only if they have the same slope.
+Return the number of unique horizontal trapezoids that can be formed by choosing any four distinct points from points.
+Since the answer may be very large, return it modulo 10^9 + 7.
+
+Approach
+1.  Group all points by their y-coordinate.
+    All points sharing the same y form potential horizontal segments.
+2.  Count how many segments can be formed on each y-level.
+    If a level has c points, then number of horizontal segments from that level is c*(c-1)/2.
+3.  Store all these values in a list H.
+4.  To form a trapezoid, choose one segment from level A and one segment from level B, where A ≠ B.
+    This is simply: sum over all unordered pairs (h[i] * h[j]).
+5.  We compute:
+    total = (sum^2 – sum of squares) / 2
+    all operations modulo 10^9 + 7.
+6.  Return the final count.
+
+Solution
+class Solution
+{
+public:
+    const long long MOD = 1000000007;
+
+    long long countTrapezoids(vector<vector<int>>& points) {
+        unordered_map<int, long long> freq;
+
+        for (auto &p : points)
+            freq[p[1]]++;
+
+        vector<long long> H;
+        for (auto &it : freq) {
+            long long c = it.second;
+            if (c >= 2) {
+                long long h = (c * (c - 1) / 2) % MOD;
+                H.push_back(h);
+            }
+        }
+
+        long long sum = 0, sumSq = 0;
+        for (long long h : H) {
+            sum = (sum + h) % MOD;
+            sumSq = (sumSq + (h * h) % MOD) % MOD;
+        }
+
+        long long total = ((sum * sum % MOD - sumSq + MOD) % MOD) * ((MOD + 1) / 2) % MOD;
+
+        return total;
+    }
+};
