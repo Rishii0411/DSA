@@ -1,0 +1,108 @@
+2025-12-02 | Maximum Score from Character Jumps
+
+Question
+You are given a string s, and a list of jumps[][] of size n, where each jumps[i] = [s1, s2] denotes that you are allowed to jump from character s1 to s2 in the forward direction.
+Additionally, you are allowed to jump forward from a character to any other occurrence of the same character within the string.
+You start at index 0 of the string. After every valid jump from index i to index j, where s[i] = s1 and s[j] = s2, you earn a score equal to:
+score(i, j) = sum(ascii(s[k]) for i ≤ k < j and s[k] != s[j]).
+
+Determine the maximum score achievable by performing any valid sequence of jumps from index 0.
+
+Approach
+1.  Precompute useful information.
+    Build prefix sums of ASCII values to quickly evaluate score(i, j).
+    Build prefix counts of each character to compute how many times a destination character appears between positions.
+2.  Build a jump adjacency list.
+    For each character c, create a list of all characters it can jump to.
+    Add same-character jumps by default.
+3.  Use dynamic programming over indices.
+    dp[j] = maximum score reaching index j.
+    We compute it by checking all source characters c that can jump to s[j].
+4.  Track best source contributions using a helper structure.
+    best[c][k] keeps DP-transformed values that allow fast transitions into later positions.
+5.  For each index j, compute all incoming transitions using best and update dp[j].
+6.  Update best for future transitions.
+7.  The maximum dp value is the final answer.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+const ll NEG = LLONG_MIN / 4;
+
+class Solution {
+public:
+ll maxScore(string s, vector<vector<char>>& jumps) {
+    int n = s.size();
+
+    vector<ll> pref(n+1, 0);
+    for (int i = 0; i < n; i++) pref[i+1] = pref[i] + (unsigned char)s[i];
+
+    vector<vector<int>> countChar(256, vector<int>(n+1, 0));
+    for (int c = 0; c < 256; c++) {
+        for (int i = 0; i < n; i++)
+            countChar[c][i+1] = countChar[c][i] + (s[i] == (char)c);
+    }
+
+    vector<vector<int>> allowed(256);
+    for (auto &v : jumps) {
+        unsigned char a = v[0];
+        unsigned char b = v[1];
+        allowed[a].push_back(b);
+    }
+
+    for (int c = 0; c < 256; c++)
+        allowed[c].push_back(c);
+
+    for (int c = 0; c < 256; c++) {
+        auto &v = allowed[c];
+        sort(v.begin(), v.end());
+        v.erase(unique(v.begin(), v.end()), v.end());
+    }
+
+    vector<vector<pair<int,int>>> inv(256);
+    for (int c = 0; c < 256; c++) {
+        for (int idx = 0; idx < (int)allowed[c].size(); idx++) {
+            int d = allowed[c][idx];
+            inv[d].push_back({c, idx});
+        }
+    }
+
+    vector<vector<ll>> best(256);
+    for (int c = 0; c < 256; c++) {
+        if (!allowed[c].empty()) {
+            best[c].assign(allowed[c].size(), NEG);
+        }
+    }
+
+    vector<ll> dp(n, NEG);
+    dp[0] = 0;
+
+    for (int j = 0; j < n; j++) {
+        unsigned char d = s[j];
+
+        ll constTerm = pref[j] - (ll)countChar[d][j] * (ll)d;
+
+        for (auto &p : inv[d]) {
+            int c = p.first;
+            int idx = p.second;
+            ll curBest = best[c][idx];
+            if (curBest == NEG) continue;
+            dp[j] = max(dp[j], curBest + constTerm);
+        }
+
+        unsigned char c = s[j];
+        for (int k = 0; k < (int)allowed[c].size(); k++) {
+            int d2 = allowed[c][k];
+            if (dp[j] == NEG) continue;
+
+            ll val = dp[j] - pref[j] + (ll)countChar[d2][j] * (ll)d2;
+            best[c][k] = max(best[c][k], val);
+        }
+    }
+
+    ll ans = 0;
+    for (ll x : dp) ans = max(ans, x);
+    return ans;
+}
+};
