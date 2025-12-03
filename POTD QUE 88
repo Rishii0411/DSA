@@ -1,0 +1,57 @@
+2025-12-03 | Travelling Salesman (Recursive + Bitmask DP)
+
+Question
+•   paste the question provided here
+Given a 2d matrix cost[][] of size n where cost[i][j] denotes the cost of moving from city i to city j. Your task is to complete a tour from city 0 (0-based index) to all other cities such that you visit each city exactly once and then at the end come back to city 0 at minimum cost.
+
+Approach
+1.  Use a bitmask to represent visited cities.
+    A mask has n bits; mask[i] = 1 means city i is visited.
+2.  Use a DP table dp[curr][mask].
+    dp[curr][mask] stores the minimum cost to complete the tour from the current state.
+3.  Recursively try all unvisited cities.
+    From city curr, try every city i not in mask, then recurse with mask | (1<<i).
+4.  Base case:
+    If all cities are visited, return the cost to go back to city 0.
+5.  Memoize results to avoid recomputation.
+6.  The final answer is obtained by calling the recursion starting from city 0 with mask = 1 << 0.
+
+Solution
+
+class Solution
+{
+public:
+    int totalCost(int mask, int curr, vector<vector<int>>& cost,
+                  vector<vector<int>>& dp) {
+
+        int n = cost.size();
+
+        if (mask == (1 << n) - 1) {
+            return cost[curr][0];
+        }
+
+        if (dp[curr][mask] != -1) {
+            return dp[curr][mask];
+        }
+
+        int ans = INT_MAX;
+
+        for (int i = 0; i < n; i++) {
+            if ((mask & (1 << i)) == 0) {
+                ans = min(ans, cost[curr][i]
+                               + totalCost(mask | (1 << i), i, cost, dp));
+            }
+        }
+
+        return dp[curr][mask] = ans;
+    }
+
+    int tsp(vector<vector<int>>& cost) {
+        int n = cost.size();
+        vector<vector<int>> dp(n, vector<int>(1 << n, -1));
+
+        int mask = 1, curr = 0;
+
+        return totalCost(mask, curr, cost, dp);
+    }
+};
