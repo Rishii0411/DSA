@@ -1,0 +1,61 @@
+2025-12-03 | Optimal Binary Search Tree (Minimum Search Cost)
+
+Question
+•   paste the question provided here
+You are given a set of distinct keys in sorted order, represented by keys[]. Each key ki has a corresponding frequency freq[i], indicating how often it is accessed.
+The cost of accessing a key in a BST = frequency * level (root is level 1).
+Compute the minimum total search cost among all possible BST structures.
+
+Approach
+1.  Use dynamic programming on intervals.
+    Let dp[i][j] = minimum search cost for keys[i..j].
+2.  A key r ∈ [i..j] can be chosen as root.
+    Left subtree uses keys[i..r−1]; right subtree uses keys[r+1..j].
+3.  Important: every key in the subtree increases its depth by +1 when inserted under a new root.
+    That adds sum(freq[i..j]) to the cost.
+4.  Recurrence:
+    dp[i][j] = min over all r in [i..j] of
+               dp[i][r−1] + dp[r+1][j] + sum(freq[i..j])
+5.  Precompute prefix sums of freq[] for fast range-sum queries.
+6.  Fill intervals in increasing length (bottom-up DP).
+7.  The answer is dp[0][n−1].
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int optimalBST(vector<int>& keys, vector<int>& freq) {
+        int n = keys.size();
+        vector<vector<int>> dp(n, vector<int>(n, 0));
+
+        vector<int> pref(n+1, 0);
+        for (int i = 0; i < n; i++)
+            pref[i+1] = pref[i] + freq[i];
+
+        auto sum = [&](int l, int r) {
+            return pref[r+1] - pref[l];
+        };
+
+        for (int i = 0; i < n; i++)
+            dp[i][i] = freq[i];
+
+        for (int len = 2; len <= n; len++) {
+            for (int i = 0; i+len-1 < n; i++) {
+                int j = i + len - 1;
+                dp[i][j] = INT_MAX;
+
+                for (int r = i; r <= j; r++) {
+                    int left = (r == i ? 0 : dp[i][r-1]);
+                    int right = (r == j ? 0 : dp[r+1][j]);
+
+                    int cost = left + right + sum(i, j);
+                    dp[i][j] = min(dp[i][j], cost);
+                }
+            }
+        }
+
+        return dp[0][n-1];
+    }
+};
