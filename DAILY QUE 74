@@ -1,0 +1,32 @@
+2025-12-05 | Count Partitions with Even Difference
+
+Question
+•   paste the question provided here
+You are given an integer array nums of length n.
+A partition is defined as an index i where 0 <= i < n - 1, splitting the array into two non-empty subarrays such that:
+Left subarray contains indices [0, i].
+Right subarray contains indices [i + 1, n - 1].
+Return the number of partitions where the difference between the sum of the left and right subarrays is even.
+
+Approach
+1.  Let S be the total sum of the array. For a partition at index i, left_sum − right_sum = 2*left_sum − S.
+2.  Since 2*left_sum is always even, the parity of the difference equals the parity of S (mod 2).
+3.  Therefore:
+    1) If S is even, every valid partition (there are n−1 of them when n ≥ 2) yields an even difference.
+    2) If S is odd, no partition can produce an even difference.
+4.  So compute the total sum, check its parity, and return either n−1 or 0 (handle n < 2 by returning 0).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long countEvenDiffPartitions(const vector<int>& nums) {
+        int n = nums.size();
+        if (n < 2) return 0;
+        long long total = 0;
+        for (int x : nums) total += x;
+        return (total % 2 == 0) ? (long long)(n - 1) : 0LL;
+    }
+};
