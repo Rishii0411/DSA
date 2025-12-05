@@ -1,0 +1,85 @@
+2025-12-05|Paint Walls with Minimum Cost
+
+	Question
+-	paste the question provided here
+Given n walls and k colors with cost matrix costs[i][j], paint every wall so that adjacent walls have different colors. Return the minimum total painting cost, or -1 if it's impossible.
+
+	Approach
+-	1) Edge cases:
+-	- If n == 0 return 0.
+-	- If k == 0 return -1.
+-	- If k == 1 and n > 1 it's impossible (adjacent must differ) -> return -1.
+-	2) Key optimization:
+-	- For each wall i, for each color j we want min cost to paint up to i with i painted j.
+-	- Let prev_min1 = smallest total cost after painting previous wall, prev_color = color giving prev_min1.
+-	- Let prev_min2 = second smallest total cost after previous wall.
+-	- If we choose color j at current wall and j != prev_color, use prev_min1 + costs[i][j].
+-	- If j == prev_color, use prev_min2 + costs[i][j].
+-	3) Iterate walls from 0..n-1:
+-	- For the first wall, compute min1/min2 directly from costs[0].
+-	- For each subsequent wall compute current min1/min2 from values derived above.
+-	4) Answer is the smallest cost after processing all walls. If that cost is effectively infinite, return -1.
+-	5) Complexity: O(n * k) time, O(1) extra space (besides input).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+const ll INF = (ll)9e18;
+
+class Solution {
+public:
+    // costs: n x k matrix. Return minimum cost or -1 if impossible.
+    long long minCostToPaint(vector<vector<long long>>& costs) {
+        int n = costs.size();
+        if (n == 0) return 0;
+        int k = costs[0].size();
+        if (k == 0) return -1;
+        if (k == 1) {
+            return (n == 1 ? costs[0][0] : -1);
+        }
+
+        // prev_min1 = smallest total cost up to previous row
+        // prev_color = color index achieving prev_min1
+        // prev_min2 = second smallest total cost up to previous row
+        ll prev_min1 = INF, prev_min2 = INF;
+        int prev_color = -1;
+
+        // initialize using first row
+        for (int j = 0; j < k; ++j) {
+            ll v = costs[0][j];
+            if (v < prev_min1) {
+                prev_min2 = prev_min1;
+                prev_min1 = v;
+                prev_color = j;
+            } else if (v < prev_min2) {
+                prev_min2 = v;
+            }
+        }
+
+        // process subsequent rows
+        for (int i = 1; i < n; ++i) {
+            ll cur_min1 = INF, cur_min2 = INF;
+            int cur_color = -1;
+            for (int j = 0; j < k; ++j) {
+                ll base = (j == prev_color ? prev_min2 : prev_min1);
+                if (base >= INF) continue; // unreachable
+                ll val = base + costs[i][j];
+
+                if (val < cur_min1) {
+                    cur_min2 = cur_min1;
+                    cur_min1 = val;
+                    cur_color = j;
+                } else if (val < cur_min2) {
+                    cur_min2 = val;
+                }
+            }
+            prev_min1 = cur_min1;
+            prev_min2 = cur_min2;
+            prev_color = cur_color;
+        }
+
+        if (prev_min1 >= INF/2) return -1;
+        return prev_min1;
+    }
+};
