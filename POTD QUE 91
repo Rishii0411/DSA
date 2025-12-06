@@ -1,0 +1,65 @@
+2025-12-06 | Optimal Strategy for Game of Coins
+
+Question
+-	paste the question provided here
+You are given an integer array arr[] of size n (even). The array elements represent n coins of values v1, v2, ....vn.
+You play against an opponent in an alternating way. In each turn, a player selects either the first or last coin from the row, removes it from the row permanently, and receives the coin's value.
+You need to determine the maximum possible amount of money you can win if you go first.
+Note: Both the players are playing optimally.
+
+Approach
+1.  Key idea (minimax with DP using optimal substructure)
+	1)	Let dp[i][j] be the maximum value the current player can obtain from the subarray arr[i..j], assuming both play optimally from that subarray.
+	2)	If the current player picks arr[i], the opponent will then face subarray:
+		- either arr[i+1..j] and will choose optimally; but from the current player's viewpoint, after the opponent moves once the remaining situation will be one of two subproblems. The opponent will leave the current player the worse of those two possibilities.
+	3)	Using standard optimal-play reasoning we get:
+		- pickLeft = arr[i] + min( dp[i+2][j], dp[i+1][j-1] )
+		- pickRight = arr[j] + min( dp[i+1][j-1], dp[i][j-2] )
+	4)	dp[i][j] = max(pickLeft, pickRight).
+2.  Base cases and bounds
+	1)	When i == j: dp[i][i] = arr[i].
+	2)	When indices go out of bounds (like dp[x][y] with x>y), treat as 0.
+3.  Fill order
+	1)	Compute dp for subarrays of increasing length (length = 1..n).
+	2)	Answer is dp[0][n-1].
+4.  Complexity
+	-	Time: O(n^2) (filling an n×n DP table).
+	-	Space: O(n^2) (can be reduced, but O(n^2) is simplest and fine for typical constraints).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+class Solution {
+public:
+    // Returns the maximum amount the first player can guarantee.
+    long long maxCoinValue(const vector<long long>& arr) {
+        int n = arr.size();
+        if (n == 0) return 0;
+        // dp[i][j] = max value current player can obtain from arr[i..j]
+        vector<vector<long long>> dp(n, vector<long long>(n, 0));
+
+        // length = 1
+        for (int i = 0; i < n; ++i) dp[i][i] = arr[i];
+
+        // consider all lengths from 2..n
+        for (int len = 2; len <= n; ++len) {
+            for (int i = 0; i + len - 1 < n; ++i) {
+                int j = i + len - 1;
+
+                // values for subproblems with safe bounds (use 0 if out of range)
+                long long x = (i + 2 <= j) ? dp[i+2][j] : 0;         // opponent leaves dp[i+2][j]
+                long long y = (i + 1 <= j - 1) ? dp[i+1][j-1] : 0; // opponent leaves dp[i+1][j-1]
+                long long z = (i <= j - 2) ? dp[i][j-2] : 0;       // opponent leaves dp[i][j-2]
+
+                long long pickLeft  = arr[i] + min(x, y);
+                long long pickRight = arr[j] + min(y, z);
+
+                dp[i][j] = max(pickLeft, pickRight);
+            }
+        }
+
+        return dp[0][n-1];
+    }
+};
