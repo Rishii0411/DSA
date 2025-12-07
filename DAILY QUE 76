@@ -1,0 +1,65 @@
+2025-12-06 | Count Valid Partitions with Max–Min ≤ k
+
+Question
+•   paste the question provided here
+You are given an integer array nums and an integer k. Your task is to partition nums into one or more non-empty contiguous segments such that in each segment, the difference between its maximum and minimum elements is at most k.
+Return the total number of ways to partition nums under this condition.
+Since the answer may be too large, return it modulo 10^9 + 7.
+
+Approach
+1.  Let n = nums.size().
+    Define dp[i] = number of valid ways to partition prefix nums[0..i–1] (i.e., first i elements).
+    dp[0] = 1 (empty prefix has exactly one way).
+2.  For each i from 1 to n, we want to extend backwards and consider all possible segment starts j (0 ≤ j < i):
+    A segment nums[j..i–1] is valid iff:
+        max(nums[j..i–1]) – min(nums[j..i–1]) ≤ k.
+    If valid, add dp[j] to dp[i].
+3.  Maintain sliding-window max and min using monotonic deques while expanding the segment backward.
+    When extending j → j–1, update deques and check validity. Stop early when max–min exceeds k because extending the window further only increases range.
+4.  Time complexity: O(n) amortized because each index enters/deletes from deques once.
+    For each right bound i, left bound j moves only forward globally.
+5.  Answer is dp[n].
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+const ll MOD = 1000000007;
+
+class Solution {
+public:
+    long long countPartitions(vector<int>& nums, int k) {
+        int n = nums.size();
+        vector<ll> dp(n + 1, 0);
+        dp[0] = 1;
+
+        deque<int> maxdq, mindq;
+        int left = 0;
+
+        for (int right = 0; right < n; right++) {
+
+            while (!maxdq.empty() && nums[maxdq.back()] <= nums[right])
+                maxdq.pop_back();
+            maxdq.push_back(right);
+
+            while (!mindq.empty() && nums[mindq.back()] >= nums[right])
+                mindq.pop_back();
+            mindq.push_back(right);
+
+            while (!maxdq.empty() && !mindq.empty() &&
+                   nums[maxdq.front()] - nums[mindq.front()] > k) {
+                if (maxdq.front() == left) maxdq.pop_front();
+                if (mindq.front() == left) mindq.pop_front();
+                left++;
+            }
+
+            ll ways = 0;
+            for (int j = left; j <= right; j++) {
+                ways = (ways + dp[j]) % MOD;
+            }
+            dp[right+1] = ways;
+        }
+
+        return dp[n];
+    }
+};
