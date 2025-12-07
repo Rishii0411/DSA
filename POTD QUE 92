@@ -1,0 +1,44 @@
+2025-12-06 | Count Distinct Subsequences of a String
+
+Question
+Given a string str consisting of lowercase English alphabets, find the number of distinct subsequences of the string (mod 1e9+7).
+
+Approach
+1.  Let dp[i] = number of distinct subsequences formed from prefix str[0..i-1].
+    dp[0] = 1 (empty subsequence).
+2.  For each character c at index i:
+    - At first, every subsequence can either include or exclude c.
+      So dp[i] = dp[i-1] * 2.
+3.  But if c has appeared before at position j:
+    - We double-count subsequences that existed before position j.
+    - Subtract dp[j-1] to remove duplicated contributions.
+4.  Maintain last occurrence array last[c] to know where each character was last used.
+5.  Final answer is dp[n] − 1 (exclude the empty subsequence).
+
+Solution
+class Solution {
+public:
+    static const long long MOD = 1000000007;
+
+    int distinctSubseq(string s) {
+        int n = s.size();
+        vector<long long> dp(n + 1, 0);
+        dp[0] = 1; // empty subsequence
+
+        vector<int> last(26, -1);
+
+        for (int i = 1; i <= n; i++) {
+            int c = s[i - 1] - 'a';
+
+            dp[i] = (dp[i - 1] * 2) % MOD;
+
+            if (last[c] != -1) {
+                dp[i] = (dp[i] - dp[last[c] - 1] + MOD) % MOD;
+            }
+
+            last[c] = i;
+        }
+
+        return (dp[n] - 1 + MOD) % MOD; // exclude empty subsequence
+    }
+};
