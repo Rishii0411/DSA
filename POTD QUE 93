@@ -1,0 +1,55 @@
+2025-12-08|Count Square Triples (Pythagorean Triples with 1 ≤ a,b,c ≤ n)
+
+Question
+-	paste the question provided here
+Given an integer n, return the number of square triples such that 1 <= a, b, c <= n.
+Example 1:
+Input: n = 5
+Output: 2
+Explanation: The square triples are (3,4,5) and (4,3,5).
+Example 2:
+Input: n = 10
+Output: 4
+Explanation: The square triples are (3,4,5), (4,3,5), (6,8,10), and (8,6,10).
+
+Approach
+1.	Use Euclid's formula to generate primitive Pythagorean triples:
+	- For integers m > r ≥ 1 with gcd(m, r) = 1 and (m - r) odd:
+	  a0 = m^2 − r^2, b0 = 2*m*r, c0 = m^2 + r^2 is a primitive triple (a0, b0, c0).
+2.	Scale primitives: every triple is k*(a0, b0, c0) for integer k ≥ 1.
+	- For a given primitive with c0, all valid scaled triples satisfy k*c0 ≤ n.
+	- Since a0, b0 < c0, k*c0 ≤ n implies k*a0 ≤ n and k*b0 ≤ n automatically.
+3.	Each scaled triple yields two ordered triples (k*a0, k*b0, k*c0) and (k*b0, k*a0, k*c0) because a and b can swap (they are distinct).
+4.	Therefore for each primitive triple with c0 ≤ n, add 2 * floor(n / c0) to the answer.
+5.	Enumerate m from 2 up to floor(sqrt(n)), and for each m iterate r = 1..m-1:
+	- If gcd(m,r) != 1 or (m - r) is even, skip.
+	- Compute c0 = m*m + r*r; if c0 > n break the inner loop (c0 grows with r).
+	- Otherwise add 2 * (n / c0) to the total.
+6.	Complexity: roughly O(M^2) where M = O(sqrt(n)), which is fast for typical constraints (e.g., n up to 10^5 or 10^6).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+class Solution {
+public:
+    long long countSquareTriples(int n) {
+        long long ans = 0;
+        int mLimit = (int)floor(sqrt(n)); // safe upper bound for m
+
+        for (int m = 2; m <= mLimit; ++m) {
+            for (int r = 1; r < m; ++r) {
+                if (((m - r) & 1) == 0) continue;            // need opposite parity
+                if (std::gcd(m, r) != 1) continue;          // must be coprime
+
+                long long c0 = 1LL * m * m + 1LL * r * r;
+                if (c0 > n) break;                          // further r only increases c0
+
+                ans += 2LL * (n / c0);                      // two orderings for each k
+            }
+        }
+        return ans;
+    }
+};
+}
