@@ -1,0 +1,97 @@
+2025-12-08|Valid Computer-Unlock Permutations
+
+Question
+//paste the provided question here
+You are given an array complexity of length n.  
+Computer 0 is already unlocked.  
+To unlock computer i, you must first unlock some j < i with complexity[j] < complexity[i].  
+Return the number of permutations of [0..n-1] that correspond to valid unlock sequences.  
+Return result modulo 1e9+7.
+
+Approach
+1.	Interpretation:  
+Unlocking i requires existence of at least one “parent candidate” j < i with complexity[j] < complexity[i] **that appears earlier in the permutation**.
+
+2.	Graph perspective:  
+Each computer i forms a node. For every j < i with complexity[j] < complexity[i], j can serve as a dependency.  
+Thus each node i has a set of possible parents P(i) = { j | j < i and complexity[j] < complexity[i] }.
+
+3.	Feasibility condition:  
+For any i > 0, P(i) must be non-empty. Otherwise, no valid permutation exists.
+
+4.	Key combinational insight:  
+We must count all permutations where before placing i, at least one member of P(i) has already appeared.  
+This is equivalent to counting linear extensions of a *rooted accessibility structure*, but with a special simplifying structure:  
+  — Candidate parent sets grow monotonically with i because j < i.  
+  — Complexity ordering partially orders nodes.
+
+5.	Sort computers by complexity while retaining indices.  
+Let’s process nodes in increasing complexity.  
+When we process a node i, all nodes with smaller complexity become “eligible parents”.  
+For a node i with complexity c, the number of dependencies available equals the number of earlier nodes whose complexity is < c **and** whose index < i.
+
+6.	DP formulation (standard for “each node must come after at least one parent”):  
+Let ways = 1.  
+Let count = 1 track how many nodes are already placeable.  
+When we reach the next node in complexity-sorted order:  
+  - Let parentCount = number of eligible parents for that node.  
+  - If parentCount == 0 → no permutation possible, return 0.  
+  - Otherwise, inserting this node among existing “slots” multiplies the number of valid permutations by count.  
+Why? Because once the dependency is satisfied, the new node can be inserted in any of the count positions in the growing order.  
+Then increment count.
+
+7.	Implementation steps:  
+1)	Create an array idx sorted by complexity ascending.  
+2)	Use a Fenwick tree / BIT (or segment tree) to track how many earlier indices exist with smaller complexity.  
+3)	For each node in complexity order:  
+  parentCount = number of earlier nodes whose index < current index.  
+  If parentCount == 0 → return 0.  
+  ways = (ways * processedCount) mod M.  
+  processedCount++.  
+  Update BIT at the node’s index.  
+4)	Return ways.
+
+8.	Time complexity: O(n log n).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+class Solution {
+public:
+  static const int MOD = 1000000007;
+
+  struct Fenwick {
+      int n;
+      vector<int> bit;
+      Fenwick(int n): n(n), bit(n+1,0) {}
+      void update(int i, int v){ for(++i;i<=n;i+=i&-i) bit[i]+=v; }
+      int query(int i){ int s=0; for(++i;i>0;i-=i&-i) s+=bit[i]; return s; }
+  };
+
+  int countPermutations(vector<int>& a) {
+      int n = a.size();
+      vector<int> ord(n);
+      iota(ord.begin(), ord.end(), 0);
+
+      sort(ord.begin(), ord.end(),
+           [&](int x, int y){ return a[x] < a[y]; });
+
+      Fenwick fw(n);
+      long long ways = 1;
+      long long processed = 0;
+
+      for(int idx : ord){
+          long long parentCount = fw.query(idx - 1);
+          if(idx == 0){
+              // index 0 has no parent requirement
+          } else {
+              if(parentCount == 0) return 0;
+              ways = (ways * processed) % MOD;
+          }
+          fw.update(idx, 1);
+          processed++;
+      }
+      return (int)ways;
+  }
+};
