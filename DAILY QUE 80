@@ -1,0 +1,68 @@
+2025-12-08|Count Covered Buildings
+
+Question
+You are given a positive integer n representing an n×n city.  
+You are also given a list buildings where buildings[i] = [x, y] are unique coordinates.  
+A building is considered covered if at least one building exists to its left, right, above, and below.  
+Return the number of covered buildings.
+
+Approach
+1.	Read all coordinates and store them in:
+	•	rowMap[y] → all x-values in that row  
+	•	colMap[x] → all y-values in that column  
+2.	Sort each row’s x-list and each column’s y-list so binary search can be used.  
+3.	For each building (x, y):  
+	•	Check in rowMap[y]:  
+		- Is there an x' < x ?  
+		- Is there an x' > x ?  
+	•	Check in colMap[x]:  
+		- Is there a y' < y ?  
+		- Is there a y' > y ?  
+4.	If all four checks succeed, this building is *covered*.  
+5.	Count and return the total.  
+6.	Complexity: O(m log m) where m = number of buildings.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countCoveredBuildings(vector<vector<int>>& buildings) {
+        unordered_map<int, vector<int>> row, col;
+
+        // Collect rows and columns
+        for (auto &b : buildings) {
+            int x = b[0], y = b[1];
+            row[y].push_back(x);
+            col[x].push_back(y);
+        }
+
+        // Sort each row and column for binary search
+        for (auto &p : row) sort(p.second.begin(), p.second.end());
+        for (auto &p : col) sort(p.second.begin(), p.second.end());
+
+        int ans = 0;
+
+        for (auto &b : buildings) {
+            int x = b[0], y = b[1];
+
+            auto &rx = row[y];
+            auto &cy = col[x];
+
+            // Search in row
+            auto it = lower_bound(rx.begin(), rx.end(), x);
+            bool left  = (it != rx.begin());
+            bool right = (it != rx.end() - 1);
+
+            // Search in column
+            auto it2 = lower_bound(cy.begin(), cy.end(), y);
+            bool up   = (it2 != cy.begin());
+            bool down = (it2 != cy.end() - 1);
+
+            if (left && right && up && down) ans++;
+        }
+
+        return ans;
+    }
+};
