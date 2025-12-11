@@ -1,0 +1,66 @@
+2025-12-08|Reconstruct Original Array from Pair-Sum Array
+
+Question
+Given a pair-sum array arr[] construct the original array res[].  
+Pair-sum array arr[] contains all sums res[i] + res[j] in ordered form.  
+Size of arr[] = n*(n−1)/2 where n = size of original array.  
+Return the array res[].  
+If correct, driver prints true; otherwise false.
+
+Approach
+1.	The smallest sums in arr must be:  
+	- arr[0] = res[0] + res[1]  
+	- arr[1] = res[0] + res[2]  
+	- arr[2] = res[1] + res[2]  
+	Because arr is sorted, these are the three smallest pair sums.
+
+2.	From those three, compute res[0], res[1], res[2]:  
+	Let  
+		S1 = res[0] + res[1] = arr[0]  
+		S2 = res[0] + res[2] = arr[1]  
+		S3 = res[1] + res[2] = arr[2]  
+	Add S1 + S2 − S3 = 2 * res[0] → res[0] determined.  
+	Then res[1] = S1 − res[0], res[2] = S2 − res[0].
+
+3.	Once res[0] is known, we can fill all other values:  
+	The sums involving res[0] appear in order:  
+	    arr[0] = res[0] + res[1]  
+	    arr[1] = res[0] + res[2]  
+	    arr[2] = res[0] + res[3]  
+	    ...  
+	So res[i] = arr[i−1] − res[0].  
+	This reconstructs all res[i].
+
+4.	Time complexity: O(n).  
+   Works because arr is guaranteed to be a valid sorted pair-sum array.
+
+Solution
+class Solution {
+public:
+    vector<int> constructOriginalArray(vector<int>& arr) {
+
+        int m = arr.size();
+        // Solve n(n-1)/2 = m → find n
+        int n = (1 + sqrt(1 + 8*m)) / 2;
+
+        if (n < 3) return {}; // trivial or invalid
+
+        long long S1 = arr[0];   // res[0] + res[1]
+        long long S2 = arr[1];   // res[0] + res[2]
+        long long S3 = arr[2];   // res[1] + res[2]
+
+        long long r0 = (S1 + S2 - S3) / 2;  // res[0]
+        vector<int> res(n);
+        res[0] = (int)r0;
+        res[1] = (int)(S1 - r0);
+        res[2] = (int)(S2 - r0);
+
+        // Fill in remaining elements
+        // arr is sorted pair sums; sums involving res[0] come next
+        for (int i = 3; i < n; i++) {
+            res[i] = arr[i - 1] - res[0];
+        }
+
+        return res;
+    }
+};
