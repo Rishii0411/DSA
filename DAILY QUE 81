@@ -1,0 +1,116 @@
+2025-12-08 | Count Mentions in Chat System with OFFLINE Windows
+
+Question
+Given numberOfUsers and an array of events (MESSAGE or OFFLINE), count how many times each user is mentioned, following the rules for ALL, HERE, idX tokens, and 60-unit offline windows.
+
+Approach
+1.  Sort or process events **in given order** but with the guarantee:  
+    If multiple events have same timestamp, OFFLINE comes before MESSAGE.  
+    If input is not sorted this way, we must sort by (timestamp, type_priority).  
+    Priority: OFFLINE first, then MESSAGE.
+2.  Maintain an array onlineUntil[u] = time when user u becomes online again.  
+    If onlineUntil[u] ≤ currentTime → user is online.  
+    If onlineUntil[u] > currentTime → offline.
+3.  For each OFFLINE event at time t for user u:  
+    - Set onlineUntil[u] = t + 60.
+4.  For each MESSAGE event at time t:  
+    - Initialize empty mention lists.  
+    - If mentions_string contains idX tokens: count explicit mentions individually.  
+    - If ALL: add 1 mention for every user.  
+    - If HERE: add 1 mention for each user currently online (onlineUntil[u] ≤ t).  
+    Explicit idX mentions always count, regardless of online/offline status.
+5.  Complexity:  
+    - Parsing tokens is O(L) per message (L = length of mentions_string).  
+    - HERE and ALL operations: O(numberOfUsers).  
+    - Overall feasible unless numberOfUsers is extremely large.
+
+Solution
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<long long> countMentions(int numberOfUsers, vector<vector<string>>& events) {
+        // Parse events: each event = [type, timestamp_str, content]
+        // We convert timestamp to integer, keep type priority: OFFLINE before MESSAGE.
+        struct E {
+            long long t;
+            int type; // 0 = OFFLINE, 1 = MESSAGE
+            string s1, s2;
+        };
+
+        vector<E> ev;
+        for (auto &e : events) {
+            E x;
+            x.s1 = e[0];
+            x.t = stoll(e[1]);
+            if (x.s1 == "OFFLINE") {
+                x.type = 0;
+                x.s2 = e[2]; // user id
+            } else {
+                x.type = 1;
+                x.s2 = e[2]; // mentions string
+            }
+            ev.push_back(x);
+        }
+
+        // Sort by timestamp, offline before message
+        sort(ev.begin(), ev.end(), [](const E& a, const E& b){
+            if (a.t != b.t) return a.t < b.t;
+            return a.type < b.type;
+        });
+
+        vector<long long> onlineUntil(numberOfUsers, 0);
+        vector<long long> mentions(numberOfUsers, 0);
+
+        for (auto &e : ev) {
+            long long t = e.t;
+            if (e.type == 0) {
+                // OFFLINE event
+                int uid = stoi(e.s2);
+                onlineUntil[uid] = t + 60;
+            } else {
+                // MESSAGE event
+                string msg = e.s2;
+                stringstream ss(msg);
+                string token;
+
+                bool hasALL = false, hasHERE = false;
+                vector<int> explicitIDs;
+
+                while (ss >> token) {
+                    if (token == "ALL") hasALL = true;
+                    else if (token == "HERE") hasHERE = true;
+                    else if (token.rfind("id", 0) == 0) {
+                        int id = stoi(token.substr(2));
+                        explicitIDs.push_back(id);
+                    }
+                }
+
+                // Handle ALL
+                if (hasALL) {
+                    for (int u = 0; u < numberOfUsers; u++) {
+                        mentions[u]++;
+                    }
+                }
+
+                // Handle HERE (online users only)
+                if (hasHERE) {
+                    for (int u = 0; u < numberOfUsers; u++) {
+                        if (onlineUntil[u] <= t) {
+                            mentions[u]++;
+                        }
+                    }
+                }
+
+                // Explicit id mentions (count duplicates)
+                for (int id : explicitIDs) {
+                    mentions[id]++;
+                }
+            }
+        }
+
+        return mentions;
+    }
+};
