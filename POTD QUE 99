@@ -1,0 +1,32 @@
+2025-12-08 | Transpose of a Matrix
+
+Question
+//paste the provided question here
+You are given a square matrix of size n × n.  
+Your task is to find the transpose of the given matrix.  
+The transpose of a matrix is obtained by converting all rows into columns and all columns into rows.
+
+Approach
+1.  Since the matrix is square, transposing can be done in-place.
+2.  Loop over all i from 0 to n−1.
+3.  For each i, loop over j from i+1 to n−1.
+4.  Swap matrix[i][j] with matrix[j][i].
+5.  This ensures each pair is swapped exactly once.
+6.  Time complexity: O(n²).  
+    Space complexity: O(1) extra.
+
+Solution 
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    void transpose(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                swap(matrix[i][j], matrix[j][i]);
+            }
+        }
+    }
+};
