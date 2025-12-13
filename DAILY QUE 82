@@ -1,0 +1,85 @@
+2025-12-09|Filter and Sort Valid Coupons by Business Line
+
+Question
+You are given three arrays of length n that describe the properties of n coupons: code, businessLine, and isActive.
+A coupon is valid if:
+-	code is non-empty and alphanumeric with underscores only,
+-	businessLine is one of "electronics", "grocery", "pharmacy", "restaurant",
+-	isActive is true.
+Return the valid coupon codes sorted by businessLine order and then lexicographically.
+
+Approach
+1.	Define a fixed priority order for businessLine:
+	-	electronics → 0
+	-	grocery → 1
+	-	pharmacy → 2
+	-	restaurant → 3
+2.	Iterate over all coupons and validate each one:
+	-	Check isActive is true.
+	-	Check code is non-empty and every character is alphanumeric or '_'.
+	-	Check businessLine exists in the allowed category list.
+3.	For every valid coupon, store:
+	-	The priority index of its businessLine.
+	-	The coupon code.
+4.	Sort all valid coupons:
+	-	Primary key: businessLine priority.
+	-	Secondary key: coupon code (ascending).
+5.	Extract and return only the coupon codes.
+6.	Time complexity: O(n log n).
+   Space complexity: O(n).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<string> validCoupons(vector<string>& code,
+                                vector<string>& businessLine,
+                                vector<bool>& isActive) {
+
+        unordered_map<string, int> priority = {
+            {"electronics", 0},
+            {"grocery", 1},
+            {"pharmacy", 2},
+            {"restaurant", 3}
+        };
+
+        vector<pair<int, string>> valid;
+
+        int n = code.size();
+        for (int i = 0; i < n; i++) {
+            if (!isActive[i]) continue;
+
+            // check business line
+            if (priority.find(businessLine[i]) == priority.end())
+                continue;
+
+            // check code validity
+            if (code[i].empty()) continue;
+            bool ok = true;
+            for (char c : code[i]) {
+                if (!isalnum(c) && c != '_') {
+                    ok = false;
+                    break;
+                }
+            }
+            if (!ok) continue;
+
+            valid.push_back({priority[businessLine[i]], code[i]});
+        }
+
+        sort(valid.begin(), valid.end(),
+             [](const pair<int,string>& a, const pair<int,string>& b) {
+                 if (a.first != b.first)
+                     return a.first < b.first;
+                 return a.second < b.second;
+             });
+
+        vector<string> result;
+        for (auto &p : valid)
+            result.push_back(p.second);
+
+        return result;
+    }
+};
