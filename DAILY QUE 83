@@ -1,0 +1,60 @@
+2025-12-10|Number of Ways to Divide a Corridor with Seats and Plants
+
+Question
+Along a long library corridor, there is a line of seats and decorative plants.  
+You are given a 0-indexed string corridor consisting of 'S' and 'P'.  
+Each section must contain exactly two seats.  
+Return the number of valid ways to divide the corridor modulo 10^9 + 7.
+
+Approach
+1.	First, count the total number of seats.
+	-	If the total number of seats is odd or less than 2, it is impossible → return 0.
+2.	We process the corridor from left to right.
+3.	Every valid section must contain exactly two seats.
+4.	Between the second seat of one section and the first seat of the next section:
+	-	There may be some plants.
+	-	Any divider placed between these plants creates a valid separation.
+	-	If there are k plants between sections, there are (k + 1) choices.
+5.	Multiply the number of choices for all such gaps.
+6.	Use modulo 10^9 + 7 to avoid overflow.
+7.	Time complexity is O(n), single pass through the string.
+
+	Solution
+
+class Solution {
+public:
+    int numberOfWays(string corridor) {
+        const int MOD = 1000000007;
+        long long ways = 1;
+
+        int seatCount = 0;
+        for (char c : corridor) {
+            if (c == 'S') seatCount++;
+        }
+
+        // If total seats are not divisible by 2, no valid division
+        if (seatCount == 0 || seatCount % 2 != 0) return 0;
+
+        int currentSeats = 0;
+        int plantsBetween = 0;
+        bool firstSectionDone = false;
+
+        for (char c : corridor) {
+            if (c == 'S') {
+                currentSeats++;
+                if (currentSeats == 2) {
+                    firstSectionDone = true;
+                } else if (currentSeats == 3) {
+                    // Start of a new section
+                    ways = (ways * (plantsBetween + 1)) % MOD;
+                    currentSeats = 1;
+                    plantsBetween = 0;
+                }
+            } else if (firstSectionDone) {
+                plantsBetween++;
+            }
+        }
+
+        return (int)ways;
+    }
+};
