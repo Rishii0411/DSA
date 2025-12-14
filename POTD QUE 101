@@ -1,0 +1,66 @@
+2025-12-09|Submatrix Sum Queries Using Prefix Sum
+
+Question
+Given a 2D integer matrix mat[][] and a list of queries queries[][], each query defined by [r1, c1, r2, c2], 
+return the sum of elements in the submatrix from (r1, c1) to (r2, c2), inclusive.
+
+Approach
+1.	Build a prefix sum matrix pref where:
+	pref[i][j] = sum of all elements in the rectangle from (0,0) to (i-1,j-1).
+2.	Formula to build prefix sum:
+	pref[i][j] = mat[i-1][j-1]
+	             + pref[i-1][j]
+	             + pref[i][j-1]
+	             - pref[i-1][j-1]
+3.	Once pref is built, the sum of any submatrix
+	from (r1, c1) to (r2, c2) is:
+	sum = pref[r2+1][c2+1]
+	      - pref[r1][c2+1]
+	      - pref[r2+1][c1]
+	      + pref[r1][c1]
+4.	Repeat this computation for every query.
+5.	Time complexity:
+	- Preprocessing: O(n × m)
+	- Each query: O(1)
+6.	Space complexity: O(n × m) for prefix sum matrix.
+
+	Solution
+
+class Solution {
+public:
+    vector<long long> submatrixSumQueries(vector<vector<int>>& mat,
+                                          vector<vector<int>>& queries) {
+
+        int n = mat.size();
+        int m = mat[0].size();
+
+        // Build prefix sum matrix
+        vector<vector<long long>> pref(n + 1, vector<long long>(m + 1, 0));
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                pref[i][j] = mat[i-1][j-1]
+                             + pref[i-1][j]
+                             + pref[i][j-1]
+                             - pref[i-1][j-1];
+            }
+        }
+
+        vector<long long> ans;
+
+        // Answer each query
+        for (auto &q : queries) {
+            int r1 = q[0], c1 = q[1];
+            int r2 = q[2], c2 = q[3];
+
+            long long sum = pref[r2 + 1][c2 + 1]
+                            - pref[r1][c2 + 1]
+                            - pref[r2 + 1][c1]
+                            + pref[r1][c1];
+
+            ans.push_back(sum);
+        }
+
+        return ans;
+    }
+};
