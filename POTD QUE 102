@@ -1,0 +1,53 @@
+2025-12-10|Count Indices Making Array Fair After Deletion
+
+Question
+Given an array arr[], count the number of indices such that deleting the element at that index and shifting all elements after it one position left results in an array where the sum of elements at even indices equals the sum at odd indices.
+
+Approach
+1.	Compute prefix sums separately for even and odd indices:
+	-	prefEven[i] = sum of arr[0..i-1] at even indices.
+	-	prefOdd[i]  = sum of arr[0..i-1] at odd indices.
+2.	Also know the total sums:
+	-	totalEven, totalOdd.
+3.	For a deletion at index i:
+	-	Elements before i keep their parity.
+	-	Elements after i flip parity.
+4.	After deletion:
+	-	newEvenSum = prefEven[i] + (totalOdd - prefOdd[i+1])
+	-	newOddSum  = prefOdd[i]  + (totalEven - prefEven[i+1])
+5.	If newEvenSum == newOddSum, index i is valid.
+6.	Count all such indices.
+7.	Time complexity: O(n).  
+    Space complexity: O(n) (can be optimized to O(1), but clarity is preferred).
+
+Solution
+class Solution {
+public:
+    int countFairRemovals(vector<int>& arr) {
+        int n = arr.size();
+        vector<long long> prefEven(n + 1, 0), prefOdd(n + 1, 0);
+
+        // Build prefix sums
+        for (int i = 0; i < n; i++) {
+            prefEven[i + 1] = prefEven[i];
+            prefOdd[i + 1]  = prefOdd[i];
+            if (i % 2 == 0)
+                prefEven[i + 1] += arr[i];
+            else
+                prefOdd[i + 1] += arr[i];
+        }
+
+        long long totalEven = prefEven[n];
+        long long totalOdd  = prefOdd[n];
+
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            long long newEven = prefEven[i] + (totalOdd - prefOdd[i + 1]);
+            long long newOdd  = prefOdd[i]  + (totalEven - prefEven[i + 1]);
+            if (newEven == newOdd)
+                count++;
+        }
+
+        return count;
+    }
+};
