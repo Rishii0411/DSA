@@ -1,0 +1,25 @@
+2025-12-11|Check if One String Is a Rotation of Another
+
+Question
+You are given two strings s1 and s2, of equal lengths.  
+Check if s2 is a rotated version of s1.
+
+Approach
+1.	If the lengths of s1 and s2 are not equal, s2 cannot be a rotation of s1 → return false.
+2.	Concatenate s1 with itself to form a new string temp = s1 + s1.
+3.	If s2 is a rotation of s1, then s2 must appear as a substring of temp.
+4.	Use string search (find) to check whether s2 exists in temp.
+5.	Time complexity: O(n).  
+   Space complexity: O(n).
+
+Solution
+class Solution {
+public:
+    bool isRotation(string s1, string s2) {
+        if (s1.length() != s2.length())
+            return false;
+
+        string temp = s1 + s1;
+        return temp.find(s2) != string::npos;
+    }
+};
