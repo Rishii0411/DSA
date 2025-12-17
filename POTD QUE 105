@@ -1,0 +1,84 @@
+2025-12-11|Maximum Profit with At Most k Transactions (Buy/Sell and Short Sell)
+
+Question
+You are given an integer array prices and an integer k.  
+You may perform at most k transactions.  
+Each transaction can be a normal buy-sell or a short sell-buyback.  
+Return the maximum total profit.
+
+Approach
+1.	This is a Dynamic Programming problem similar to stock trading with k transactions, but with **two holding modes**:
+	-	Holding a stock (after a buy).
+	-	Holding a short position (after a sell).
+2.	Define DP states:
+	-	dp[t][0]: maximum profit after completing t transactions, holding nothing.
+	-	dp[t][1]: maximum profit after completing t transactions, currently holding a stock (long).
+	-	dp[t][2]: maximum profit after completing t transactions, currently holding a short position.
+3.	Initialization:
+	-	dp[0][0] = 0
+	-	dp[0][1] = -prices[0] (buy)
+	-	dp[0][2] = +prices[0] (short sell)
+4.	Transitions for each day price p:
+	-	Stay in same state or transition:
+		-	Buy → enter holding stock
+		-	Sell → exit holding stock and complete a transaction
+		-	Short sell → enter short position
+		-	Buy back → exit short position and complete a transaction
+5.	Only when you close a position does the transaction count increase.
+6.	Answer is the maximum dp[t][0] for t ≤ k.
+7.	Time complexity: O(n × k).  
+    Space complexity: O(k).
+
+Solution
+class Solution {
+public:
+    long long maxProfit(int k, vector<int>& prices) {
+        int n = prices.size();
+        if (n == 0 || k == 0) return 0;
+
+        const long long NEG = -1e18;
+
+        vector<long long> no(k+1, NEG), longPos(k+1, NEG), shortPos(k+1, NEG);
+        no[0] = 0;
+
+        // Day 0 initialization
+        longPos[0] = -prices[0];   // buy
+        shortPos[0] = prices[0];   // short sell
+
+        for (int i = 1; i < n; i++) {
+            vector<long long> newNo = no;
+            vector<long long> newLong = longPos;
+            vector<long long> newShort = shortPos;
+
+            for (int t = 0; t <= k; t++) {
+                // Buy (enter long)
+                if (no[t] != NEG)
+                    newLong[t] = max(newLong[t], no[t] - prices[i]);
+
+                // Short sell (enter short)
+                if (no[t] != NEG)
+                    newShort[t] = max(newShort[t], no[t] + prices[i]);
+
+                if (t + 1 <= k) {
+                    // Sell (exit long)
+                    if (longPos[t] != NEG)
+                        newNo[t+1] = max(newNo[t+1], longPos[t] + prices[i]);
+
+                    // Buy back (exit short)
+                    if (shortPos[t] != NEG)
+                        newNo[t+1] = max(newNo[t+1], shortPos[t] - prices[i]);
+                }
+            }
+
+            no = newNo;
+            longPos = newLong;
+            shortPos = newShort;
+        }
+
+        long long ans = 0;
+        for (int t = 0; t <= k; t++)
+            ans = max(ans, no[t]);
+
+        return ans;
+    }
+};
