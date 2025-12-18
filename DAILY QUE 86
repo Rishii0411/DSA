@@ -1,0 +1,88 @@
+2025-12-11|Maximum Profit After One Strategy Modification
+
+Question
+Given prices[], strategy[], and an even integer k, you may modify exactly one subarray of length k as described.  
+Return the maximum profit achievable.
+
+Approach
+1.	First compute the **base profit** without any modification:
+	baseProfit = Σ strategy[i] × prices[i].
+2.	Applying a modification on a window [l … r] of length k changes the contribution of those k days.
+3.	For a chosen window:
+	-	For the first k/2 days:
+		old contribution = strategy[i] × prices[i]  
+		new contribution = 0  
+		change = − strategy[i] × prices[i]
+	-	For the last k/2 days:
+		old contribution = strategy[i] × prices[i]  
+		new contribution = +1 × prices[i]  
+		change = prices[i] − strategy[i] × prices[i]
+4.	So each window has a **delta profit** = sum of individual changes inside it.
+5.	We want the window of length k with the **maximum delta profit**.
+6.	Use a sliding window technique:
+	-	Precompute an array delta[i] representing the per-day change if day i is inside the modified window (depending on whether it falls in the first or second half).
+	-	Slide a window of size k and maintain its total delta efficiently.
+7.	The final answer is:
+	maxProfit = baseProfit + max(0, bestDelta)
+8.	Time complexity: O(n).  
+   Space complexity: O(n).
+
+Solution
+class Solution {
+public:
+    long long maxProfit(vector<int>& prices,
+                        vector<int>& strategy,
+                        int k) {
+        int n = prices.size();
+        int half = k / 2;
+
+        long long baseProfit = 0;
+        for (int i = 0; i < n; i++) {
+            baseProfit += 1LL * strategy[i] * prices[i];
+        }
+
+        // Precompute deltas for two roles:
+        // firstHalfDelta[i]  -> if i is in first k/2 (becomes 0)
+        // secondHalfDelta[i] -> if i is in last  k/2 (becomes 1)
+        vector<long long> firstHalfDelta(n), secondHalfDelta(n);
+
+        for (int i = 0; i < n; i++) {
+            firstHalfDelta[i] = -1LL * strategy[i] * prices[i];
+            secondHalfDelta[i] = 1LL * prices[i]
+                                 - 1LL * strategy[i] * prices[i];
+        }
+
+        long long bestDelta = 0;
+        long long windowDelta = 0;
+
+        // initialize first window
+        for (int i = 0; i < k; i++) {
+            if (i < half)
+                windowDelta += firstHalfDelta[i];
+            else
+                windowDelta += secondHalfDelta[i];
+        }
+        bestDelta = windowDelta;
+
+        // slide the window
+        for (int l = 1; l + k - 1 < n; l++) {
+            int r = l + k - 1;
+
+            // remove outgoing element
+            if (l - 1 < l - 1 + half)
+                windowDelta -= firstHalfDelta[l - 1];
+            else
+                windowDelta -= secondHalfDelta[l - 1];
+
+            // add incoming element
+            if (r < l + half)
+                windowDelta += firstHalfDelta[r];
+            else
+                windowDelta += secondHalfDelta[r];
+
+            bestDelta = max(bestDelta, windowDelta);
+        }
+
+        return baseProfit + max(0LL, bestDelta);
+    }
+};
