@@ -1,0 +1,83 @@
+2025-12-11 | People Who Know the Secret After Meetings
+
+Question
+Given n people, meetings with timestamps, and firstPerson, determine all people who know the secret after all meetings.
+
+Approach
+1.	Sort meetings by time.
+2.	Process meetings **grouped by the same time** because sharing within the same time is instantaneous.
+3.	For each time group:
+	-	Build connections (graph) only among people who meet at this time.
+	-	Start BFS/DFS from those in this group who already know the secret.
+	-	Mark all reachable people in this time group as knowing the secret.
+4.	Persist the knowledge across time groups.
+5.	This avoids incorrect propagation across different times.
+6.	Time complexity: O((n + m) log m) due to sorting.  
+   Space complexity: O(n + m).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findAllPeople(int n,
+                              vector<vector<int>>& meetings,
+                              int firstPerson) {
+        vector<int> knows(n, 0);
+        knows[0] = knows[firstPerson] = 1;
+
+        sort(meetings.begin(), meetings.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[2] < b[2];
+             });
+
+        int m = meetings.size();
+        for (int i = 0; i < m; ) {
+            int t = meetings[i][2];
+
+            // Collect meetings at the same time
+            unordered_map<int, vector<int>> g;
+            int j = i;
+            while (j < m && meetings[j][2] == t) {
+                int x = meetings[j][0], y = meetings[j][1];
+                g[x].push_back(y);
+                g[y].push_back(x);
+                j++;
+            }
+
+            // BFS starting from people who already know the secret
+            queue<int> q;
+            unordered_set<int> visited;
+            for (auto& p : g) {
+                if (knows[p.first]) {
+                    q.push(p.first);
+                    visited.insert(p.first);
+                }
+            }
+
+            while (!q.empty()) {
+                int u = q.front(); q.pop();
+                for (int v : g[u]) {
+                    if (!visited.count(v)) {
+                        visited.insert(v);
+                        q.push(v);
+                    }
+                }
+            }
+
+            // Mark all reached as knowing the secret
+            for (int p : visited) {
+                knows[p] = 1;
+            }
+
+            i = j;
+        }
+
+        vector<int> ans;
+        for (int i = 0; i < n; i++) {
+            if (knows[i]) ans.push_back(i);
+        }
+        return ans;
+    }
+};
