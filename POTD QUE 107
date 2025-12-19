@@ -1,0 +1,41 @@
+2025-12-11|Minimum Moves to Seat All Passengers
+
+Question
+You are given two arrays chairs[] and passengers[] of equal length.  
+You may move a passenger left or right by 1 unit per move.  
+Return the minimum total number of moves required so that each passenger is assigned a unique chair.
+
+Approach
+1.	Key observation:
+	-	This is an **assignment problem on a number line**.
+	-	To minimize total movement, we should match passengers to chairs in a way that avoids crossings.
+2.	Greedy strategy:
+	-	Sort the chairs array.
+	-	Sort the passengers array.
+	-	Assign the ith passenger to the ith chair after sorting.
+3.	Why this works:
+	-	Sorting ensures the closest possible matching in order.
+	-	Any other pairing would increase total absolute distance.
+4.	For each i:
+	-	Moves needed = |passengers[i] − chairs[i]|.
+	-	Add this to the total.
+5.	Time complexity:
+	-	Sorting: O(n log n)
+	-	Assignment: O(n)
+6.	Space complexity:
+	-	O(1) extra (ignoring sorting overhead).
+
+Solution
+class Solution {
+public:
+    long long minMovesToSeat(vector<int>& chairs, vector<int>& passengers) {
+        sort(chairs.begin(), chairs.end());
+        sort(passengers.begin(), passengers.end());
+
+        long long moves = 0;
+        for (int i = 0; i < chairs.size(); i++) {
+            moves += llabs((long long)chairs[i] - passengers[i]);
+        }
+        return moves;
+    }
+};
