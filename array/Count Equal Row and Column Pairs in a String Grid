@@ -1,0 +1,48 @@
+2025-12-11 | Count Equal Row and Column Pairs in a String Grid
+
+
+Question
+You are given an array of n strings strs, all of the same length.  
+The strings can be arranged such that there is one on each line, making a grid.  
+Return the number of pairs (i, j) such that the ith row is equal to the jth column.
+
+Approach
+1.	Store all row strings in a hash map and count their frequencies.
+2.	For each column index j from 0 to n−1:
+	-	Construct the column string by taking strs[i][j] for all rows i.
+3.	Check if this column string exists as a row in the hash map.
+4.	If it exists, add its frequency to the answer.
+5.	This works efficiently because:
+	-	String comparison is direct.
+	-	Hash map lookup is O(1) on average.
+6.	Time complexity: O(n²) (building columns of length n, n times).  
+   Space complexity: O(n²) for storing row strings.
+
+Solution
+class Solution {
+public:
+    int equalPairs(vector<string>& strs) {
+        int n = strs.size();
+        unordered_map<string, int> rowCount;
+
+        // Count all rows
+        for (auto &row : strs) {
+            rowCount[row]++;
+        }
+
+        int ans = 0;
+
+        // Build each column and compare
+        for (int j = 0; j < n; j++) {
+            string col = "";
+            for (int i = 0; i < n; i++) {
+                col.push_back(strs[i][j]);
+            }
+            if (rowCount.count(col)) {
+                ans += rowCount[col];
+            }
+        }
+
+        return ans;
+    }
+};
