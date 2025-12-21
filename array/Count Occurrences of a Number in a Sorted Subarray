@@ -1,0 +1,53 @@
+2025-12-11|Count Occurrences of a Number in a Sorted Subarray
+
+Question
+Given a sorted array arr[] and queries[][] where each query is [l, r, x], count how many times x appears in arr[l…r] (inclusive).
+
+Approach
+1.	Key observation:
+	-	In a sorted array, all occurrences of x are contiguous.
+2.	For each query [l, r, x]:
+	-	Use binary search to find:
+		-	the **first index ≥ l** where arr[i] == x.
+		-	the **last index ≤ r** where arr[i] == x.
+3.	We can use:
+	-	lower_bound to find the first position of x.
+	-	upper_bound to find the position just after the last x.
+4.	The number of occurrences is:
+		max(0, lastIndex − firstIndex + 1)
+5.	Time complexity:
+	-	Each query: O(log n)
+	-	Total: O(q log n)
+6.	Space complexity: O(1) extra.
+
+Solution
+class Solution {
+public:
+    vector<int> countOccurrences(vector<int>& arr,
+                                 vector<vector<int>>& queries) {
+
+        vector<int> result;
+
+        for (auto &q : queries) {
+            int l = q[0];
+            int r = q[1];
+            int x = q[2];
+
+            // Find first occurrence of x >= l
+            auto it1 = lower_bound(arr.begin() + l, arr.begin() + r + 1, x);
+
+            // If x not present
+            if (it1 == arr.begin() + r + 1 || *it1 != x) {
+                result.push_back(0);
+                continue;
+            }
+
+            // Find last occurrence of x <= r
+            auto it2 = upper_bound(arr.begin() + l, arr.begin() + r + 1, x);
+
+            result.push_back(it2 - it1);
+        }
+
+        return result;
+    }
+};
