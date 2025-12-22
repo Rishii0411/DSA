@@ -1,0 +1,42 @@
+2025-12-11|Minimum Column Deletions to Make Each String Sorted
+
+Question
+You are given an array of n strings strs, all of the same length.  
+You may choose deletion indices, and delete those characters from every string.  
+Return the minimum number of deletions such that every resulting string is lexicographically sorted.
+
+Approach
+1.	Iterate column by column from left to right.
+2.	For each column j:
+	-	Check all rows i.
+	-	If for any row:
+			strs[i][j] < strs[i][j − 1]
+	  then column j **must be deleted** because it breaks the sorted order of that row.
+3.	Count such columns.
+4.	This greedy approach works because:
+	-	Each column is independent.
+	-	If a column violates sorted order in any row, keeping it is invalid.
+5.	Time complexity: O(n × m), where:
+	-	n = number of strings,
+	-	m = length of each string.
+   Space complexity: O(1).
+
+Solution
+class Solution {
+public:
+    int minDeletionSize(vector<string>& strs) {
+        int n = strs.size();
+        int m = strs[0].size();
+        int deletions = 0;
+
+        for (int col = 1; col < m; col++) {
+            for (int row = 0; row < n; row++) {
+                if (strs[row][col] < strs[row][col - 1]) {
+                    deletions++;
+                    break;
+                }
+            }
+        }
+        return deletions;
+    }
+};
