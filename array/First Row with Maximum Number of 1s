@@ -1,0 +1,61 @@
+2025-12-11|First Row with Maximum Number of 1s
+
+Question
+You are given a 2D binary array arr[][] of size n × m.  
+Each row is sorted in non-decreasing order.  
+Return the index of the first row that contains the maximum number of 1s.  
+If no row contains a 1, return -1.
+
+Approach
+1.	Key observation:
+	-	Since each row is sorted, all the 1s appear **after the last 0**.
+2.	For each row:
+	-	Use binary search to find the index of the **first 1**.
+	-	Number of 1s in that row = m − firstOneIndex.
+3.	Track:
+	-	maxOnes → maximum number of 1s seen so far.
+	-	ansRow → index of the row with maxOnes.
+4.	If a row has more 1s than maxOnes:
+	-	Update maxOnes and ansRow.
+5.	Because we iterate rows in increasing index order, the first row with maximum 1s is automatically selected.
+6.	Time complexity:
+	-	Binary search per row → O(log m)
+	-	Total → O(n log m)
+   Space complexity:
+	-	O(1) extra space.
+
+Solution
+class Solution {
+public:
+    int rowWithMax1s(vector<vector<int>>& arr) {
+        int n = arr.size();
+        int m = arr[0].size();
+
+        int maxOnes = 0;
+        int ansRow = -1;
+
+        for (int i = 0; i < n; i++) {
+            // Find first 1 using binary search
+            int low = 0, high = m - 1;
+            int firstOne = m;
+
+            while (low <= high) {
+                int mid = low + (high - low) / 2;
+                if (arr[i][mid] == 1) {
+                    firstOne = mid;
+                    high = mid - 1;
+                } else {
+                    low = mid + 1;
+                }
+            }
+
+            int onesCount = m - firstOne;
+            if (onesCount > maxOnes) {
+                maxOnes = onesCount;
+                ansRow = i;
+            }
+        }
+
+        return ansRow;
+    }
+};
