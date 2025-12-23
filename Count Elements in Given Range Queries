@@ -1,0 +1,39 @@
+2025-12-11|Count Elements in Given Range Queries
+
+Question
+You are given an unsorted array arr[] and a 2D array queries[][], where each query is [a, b].  
+For each query, return the count of elements x in arr[] such that a ≤ x ≤ b.
+
+Approach
+1.	Sort the array arr[].
+2.	For each query [a, b]:
+	-	Use binary search to find:
+		-	The first index where element ≥ a (lower_bound).
+		-	The first index where element > b (upper_bound).
+3.	The number of elements in the range [a, b] is:
+		upper_bound(b) − lower_bound(a)
+4.	Repeat for all queries.
+5.	Time complexity:
+	-	Sorting: O(n log n)
+	-	Each query: O(log n)
+	-	Total: O((n + q) log n)
+6.	Space complexity: O(1) extra (excluding output).
+
+Solution
+class Solution {
+public:
+    vector<int> countInRange(vector<int>& arr,
+                             vector<vector<int>>& queries) {
+        sort(arr.begin(), arr.end());
+        vector<int> result;
+
+        for (auto &q : queries) {
+            int a = q[0], b = q[1];
+            int left = lower_bound(arr.begin(), arr.end(), a) - arr.begin();
+            int right = upper_bound(arr.begin(), arr.end(), b) - arr.begin();
+            result.push_back(right - left);
+        }
+
+        return result;
+    }
+};
