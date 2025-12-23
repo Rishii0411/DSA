@@ -1,0 +1,74 @@
+2025-12-12|Maximum Sum of Two Non-Overlapping Events
+
+Question
+You are given events[i] = [startTimei, endTimei, valuei].  
+Choose at most two non-overlapping events such that their total value is maximized.  
+Return the maximum possible sum.
+
+Approach
+1.	Sort all events by their **start time**.
+2.	Create an auxiliary array `suffixMax[i]`:
+	-	suffixMax[i] stores the maximum value of any event from index i to the end.
+3.	For each event i:
+	-	Consider attending event i as the first event.
+	-	Use **binary search** to find the earliest event j such that:
+			events[j].startTime ≥ events[i].endTime + 1
+	-	If such j exists, combine:
+			events[i].value + suffixMax[j]
+4.	Also consider attending only one event (take the maximum single value).
+5.	The answer is the maximum of all these possibilities.
+6.	Time complexity:
+	-	Sorting: O(n log n)
+	-	Binary search per event: O(log n)
+	-	Overall: O(n log n)
+   Space complexity:
+	-	O(n) for suffix array.
+
+Solution
+class Solution {
+public:
+    int maxTwoEvents(vector<vector<int>>& events) {
+        int n = events.size();
+
+        // Sort events by start time
+        sort(events.begin(), events.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[0] < b[0];
+             });
+
+        // suffixMax[i] = max value from events[i..n-1]
+        vector<int> suffixMax(n);
+        suffixMax[n - 1] = events[n - 1][2];
+        for (int i = n - 2; i >= 0; i--) {
+            suffixMax[i] = max(suffixMax[i + 1], events[i][2]);
+        }
+
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            // Option 1: take only this event
+            ans = max(ans, events[i][2]);
+
+            // Option 2: take this event + another non-overlapping event
+            int nextStart = events[i][1] + 1;
+
+            int low = i + 1, high = n - 1;
+            int idx = -1;
+            while (low <= high) {
+                int mid = low + (high - low) / 2;
+                if (events[mid][0] >= nextStart) {
+                    idx = mid;
+                    high = mid - 1;
+                } else {
+                    low = mid + 1;
+                }
+            }
+
+            if (idx != -1) {
+                ans = max(ans, events[i][2] + suffixMax[idx]);
+            }
+        }
+
+        return ans;
+    }
+};
