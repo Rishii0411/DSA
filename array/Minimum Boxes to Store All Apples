@@ -1,0 +1,45 @@
+2025-12-12 | Minimum Boxes to Store All Apples
+
+Question
+Given arrays apple[] (size n) and capacity[] (size m), where apple[i] is the number of apples in pack i and capacity[j] is the capacity of box j, return the minimum number of boxes needed to store all apples.
+
+Approach
+1.	Compute the total number of apples:
+	-	totalApples = sum of all elements in apple[].
+2.	Sort the capacity[] array in **descending order**.
+	-	This ensures we always pick the largest available boxes first.
+3.	Iterate through the sorted capacities:
+	-	Keep adding box capacities until their sum is ≥ totalApples.
+	-	Count how many boxes are used.
+4.	As soon as the accumulated capacity is sufficient, stop.
+5.	Return the count.
+6.	This greedy approach is optimal because using larger boxes first minimizes the number of boxes needed.
+7.	Time complexity:
+	-	Sorting: O(m log m)
+	-	Iteration: O(m)
+   Space complexity:
+	-	O(1) extra (ignoring sorting overhead).
+
+Solution
+class Solution {
+public:
+    int minimumBoxes(vector<int>& apple, vector<int>& capacity) {
+        long long totalApples = 0;
+        for (int a : apple)
+            totalApples += a;
+
+        sort(capacity.begin(), capacity.end(), greater<int>());
+
+        long long usedCapacity = 0;
+        int boxes = 0;
+
+        for (int cap : capacity) {
+            usedCapacity += cap;
+            boxes++;
+            if (usedCapacity >= totalApples)
+                return boxes;
+        }
+
+        return boxes; // guaranteed enough capacity per problem statement
+    }
+};
