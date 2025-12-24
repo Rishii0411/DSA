@@ -1,0 +1,59 @@
+2025-12-12|Count Elements ≤ x in a Rotated Sorted Array
+
+Question
+Given a rotated sorted array arr[] of distinct positive integers and a value x, return the count of elements in arr[] that are less than or equal to x.
+
+Approach
+1.	Observation:
+	-	The rotated array consists of two sorted parts:
+		-	Left part: arr[0 .. pivot−1]
+		-	Right part: arr[pivot .. n−1]
+	-	The pivot is the index of the smallest element.
+2.	First, find the pivot using binary search:
+	-	If arr[mid] > arr[high], pivot lies to the right.
+	-	Else pivot lies to the left or at mid.
+3.	Once pivot is found, both halves are sorted.
+4.	Count elements ≤ x:
+	-	Binary search in left half.
+	-	Binary search in right half.
+	-	Add both counts.
+5.	Time complexity:
+	-	Finding pivot: O(log n)
+	-	Counting via binary search: O(log n)
+	-	Total: O(log n)
+   Space complexity:
+	-	O(1)
+
+Solution
+class Solution {
+public:
+    int countLessEqual(vector<int>& arr, int x) {
+        int n = arr.size();
+        if (n == 0) return 0;
+
+        // Step 1: Find pivot (index of minimum element)
+        int low = 0, high = n - 1;
+        while (low < high) {
+            int mid = low + (high - low) / 2;
+            if (arr[mid] > arr[high])
+                low = mid + 1;
+            else
+                high = mid;
+        }
+        int pivot = low;
+
+        // Helper to count <= x in sorted subarray [l, r]
+        auto countInRange = [&](int l, int r) {
+            if (l > r) return 0;
+            int idx = upper_bound(arr.begin() + l, arr.begin() + r + 1, x) - arr.begin();
+            return max(0, idx - l);
+        };
+
+        // Step 2: Count in both sorted parts
+        int count = 0;
+        count += countInRange(0, pivot - 1);
+        count += countInRange(pivot, n - 1);
+
+        return count;
+    }
+};
