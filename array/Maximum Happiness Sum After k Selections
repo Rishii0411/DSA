@@ -1,0 +1,40 @@
+2025-12-12 | Maximum Happiness Sum After k Selections
+
+Question
+Given an array happiness[] of length n and an integer k,  
+Return the maximum total happiness achievable by selecting k children under the described rules.
+
+Approach
+1.	Key observation:
+	-	Since unselected children lose happiness over time, we should pick children with **higher happiness earlier**.
+2.	Greedy strategy:
+	-	Sort the happiness array in **descending order**.
+3.	Selection logic:
+	-	On the i-th selection (0-based):
+		-	The effective happiness of the chosen child is:
+				max(happiness[i] − i, 0)
+		  because their happiness has been reduced by i from previous turns.
+4.	Sum up the effective happiness values for the first k children.
+5.	Time complexity:
+	-	Sorting: O(n log n)
+	-	Selection: O(k)
+   Space complexity:
+	-	O(1) extra (ignoring sorting overhead).
+
+Solution
+class Solution {
+public:
+    long long maximumHappinessSum(vector<int>& happiness, int k) {
+        sort(happiness.begin(), happiness.end(), greater<int>());
+
+        long long ans = 0;
+        for (int i = 0; i < k; i++) {
+            long long cur = happiness[i] - i;
+            if (cur > 0)
+                ans += cur;
+            else
+                break;
+        }
+        return ans;
+    }
+};
