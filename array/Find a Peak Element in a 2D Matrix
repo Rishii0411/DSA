@@ -1,0 +1,62 @@
+2025-12-12 | Find a Peak Element in a 2D Matrix
+
+Question
+Given a 2D matrix mat[][], identify and return the position (row, column) of any peak element.
+
+Approach
+1.	This problem can be solved efficiently using a **binary search on columns**.
+2.	At each step:
+	-	Pick a middle column `mid`.
+	-	Find the row `r` where the element in column `mid` is maximum.
+3.	Compare this element with its left and right neighbors:
+	-	If it is ≥ both neighbors, it is a peak → return its position.
+	-	If the left neighbor is greater, then a peak must exist in the left half.
+	-	If the right neighbor is greater, then a peak must exist in the right half.
+4.	This works due to the property that if a neighbor is larger, moving in that direction will eventually lead to a peak.
+5.	Time Complexity:
+	-	Finding max in a column: O(n)
+	-	Binary search over columns: O(log m)
+	-	Total: O(n log m)
+6.	Space Complexity:
+	-	O(1) extra space.
+
+Solution
+class Solution {
+public:
+    vector<int> findPeakGrid(vector<vector<int>>& mat) {
+        int n = mat.size();
+        int m = mat[0].size();
+
+        int left = 0, right = m - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            // Find row with maximum element in mid column
+            int maxRow = 0;
+            for (int i = 0; i < n; i++) {
+                if (mat[i][mid] > mat[maxRow][mid]) {
+                    maxRow = i;
+                }
+            }
+
+            int curr = mat[maxRow][mid];
+            int leftVal  = (mid > 0) ? mat[maxRow][mid - 1] : -1;
+            int rightVal = (mid < m - 1) ? mat[maxRow][mid + 1] : -1;
+
+            // Check if peak
+            if (curr >= leftVal && curr >= rightVal) {
+                return {maxRow, mid};
+            } 
+            // Move search space
+            else if (leftVal > curr) {
+                right = mid - 1;
+            } 
+            else {
+                left = mid + 1;
+            }
+        }
+
+        return {-1, -1}; // should never reach here
+    }
+};
