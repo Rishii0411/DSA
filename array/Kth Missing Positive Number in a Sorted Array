@@ -1,0 +1,47 @@
+2025-12-12 | Kth Missing Positive Number in a Sorted Array
+
+Question
+Given a sorted array of distinct positive integers arr[] and an integer k,  
+find the kth positive number that is missing from arr[].
+
+Approach
+1.	Key observation:
+	-	At index i (0-based), the count of missing numbers **before** arr[i] is:
+			missing(i) = arr[i] − (i + 1)
+	  because in a perfect array without missing numbers, the value at index i would be i + 1.
+2.	We want to find the **smallest index i** such that:
+			missing(i) ≥ k
+3.	Use **binary search** on indices:
+	-	If missing(mid) < k → move right.
+	-	Else → move left.
+4.	After binary search:
+	-	The answer is:
+			k + left
+	  where `left` is the index where missing(left) ≥ k.
+5.	Edge case:
+	-	If all missing numbers up to the last element are < k,
+	  then the answer lies **after the last array element**.
+6.	Time complexity: O(log n).  
+   Space complexity: O(1).
+
+Solution
+class Solution {
+public:
+    int findKthPositive(vector<int>& arr, int k) {
+        int n = arr.size();
+        int left = 0, right = n - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            int missing = arr[mid] - (mid + 1);
+
+            if (missing < k)
+                left = mid + 1;
+            else
+                right = mid - 1;
+        }
+
+        // kth missing number
+        return left + k;
+    }
+};
