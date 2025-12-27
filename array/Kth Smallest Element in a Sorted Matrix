@@ -1,0 +1,63 @@
+2025-12-12 | Kth Smallest Element in a Sorted Matrix
+
+Question
+Given a matrix mat[][] of size n × n, where each row and column is sorted in non-decreasing order,  
+find the kth smallest element in the matrix.
+
+Approach
+1.	Key observation:
+	-	The smallest element is at mat[0][0].
+	-	The largest element is at mat[n−1][n−1].
+2.	We can use **binary search on the value range** instead of indices.
+3.	Binary search steps:
+	-	low = mat[0][0]
+	-	high = mat[n−1][n−1]
+4.	For a guessed value mid:
+	-	Count how many elements in the matrix are ≤ mid.
+	-	This can be done efficiently in O(n) by starting from the bottom-left corner.
+5.	If count < k:
+	-	The kth smallest is larger → move low up.
+6.	Else:
+	-	The kth smallest could be mid or smaller → move high down.
+7.	When low == high, that value is the answer.
+8.	Time complexity:
+	-	Counting per step: O(n)
+	-	Binary search over value range: O(log(max−min))
+	-	Total: O(n log(max−min))
+   Space complexity:
+	-	O(1) extra space.
+
+Solution
+class Solution {
+public:
+    int kthSmallest(vector<vector<int>>& mat, int k) {
+        int n = mat.size();
+        int low = mat[0][0];
+        int high = mat[n - 1][n - 1];
+
+        // Binary search on value range
+        while (low < high) {
+            int mid = low + (high - low) / 2;
+
+            // Count elements <= mid
+            int count = 0;
+            int row = n - 1, col = 0;
+
+            while (row >= 0 && col < n) {
+                if (mat[row][col] <= mid) {
+                    count += row + 1;
+                    col++;
+                } else {
+                    row--;
+                }
+            }
+
+            if (count < k)
+                low = mid + 1;
+            else
+                high = mid;
+        }
+
+        return low;
+    }
+};
