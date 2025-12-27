@@ -1,0 +1,91 @@
+2025-12-12 | Room That Held the Most Meetings
+
+Question
+You are given n rooms and a list of meetings [starti, endi].  
+Meetings are assigned using the rules above.  
+Return the room number that held the most meetings.
+
+Approach
+1.	Sort all meetings by start time.
+2.	Use two priority queues:
+	-	freeRooms (min-heap): keeps available room numbers.
+	-	busyRooms (min-heap): keeps rooms currently in use, ordered by:
+		-	earliest endTime first,
+		-	if tied, smaller roomId first.
+3.	For each meeting:
+	-	Free all rooms whose meetings have ended before the current meeting’s start time.
+	-	If a room is available:
+		-	assign the smallest-numbered free room.
+	-	Otherwise:
+		-	delay the meeting until the room with the earliest endTime becomes free.
+4.	Update usageCount for the assigned room.
+5.	After processing all meetings:
+	-	find the room with the maximum usage count.
+	-	if multiple rooms tie, choose the smallest index.
+6.	Time Complexity:
+	-	Sorting meetings: O(m log m)
+	-	Heap operations: O(m log n)
+7.	Space Complexity:
+	-	O(n + m)
+
+Solution
+struct RoomUsage {
+  long long endTime;
+  int roomId;
+};
+
+class Solution {
+ public:
+  int mostBooked(int n, vector<vector<int>>& meetings) {
+    vector<int> usageCount(n, 0);
+
+    // Sort meetings by start time
+    sort(meetings.begin(), meetings.end());
+
+    // Min-heap for busy rooms (earliest end time, then room id)
+    auto cmp = [](const RoomUsage& a, const RoomUsage& b) {
+      if (a.endTime != b.endTime)
+        return a.endTime > b.endTime;
+      return a.roomId > b.roomId;
+    };
+    priority_queue<RoomUsage, vector<RoomUsage>, decltype(cmp)> busyRooms(cmp);
+
+    // Min-heap for free rooms
+    priority_queue<int, vector<int>, greater<int>> freeRooms;
+
+    for (int i = 0; i < n; i++)
+      freeRooms.push(i);
+
+    for (auto& meeting : meetings) {
+      long long start = meeting[0];
+      long long end   = meeting[1];
+      long long duration = end - start;
+
+      // Free rooms that have completed
+      while (!busyRooms.empty() && busyRooms.top().endTime <= start) {
+        freeRooms.push(busyRooms.top().roomId);
+        busyRooms.pop();
+      }
+
+      if (!freeRooms.empty()) {
+        int room = freeRooms.top();
+        freeRooms.pop();
+        usageCount[room]++;
+        busyRooms.push({end, room});
+      } else {
+        auto [freeTime, room] = busyRooms.top();
+        busyRooms.pop();
+        usageCount[room]++;
+        busyRooms.push({freeTime + duration, room});
+      }
+    }
+
+    // Find room with maximum usage
+    int ans = 0;
+    for (int i = 1; i < n; i++) {
+      if (usageCount[i] > usageCount[ans])
+        ans = i;
+    }
+    return ans;
+  }
+};
