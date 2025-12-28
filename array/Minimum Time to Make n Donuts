@@ -1,0 +1,71 @@
+2025-12-12 | Minimum Time to Make n Donuts
+
+Question
+Geek is organizing a party and needs n donuts.  
+Given m chefs with ranks r[], determine the minimum time required to prepare n donuts.  
+Return the minimum time as an integer.
+
+Approach
+1.	This is a classic **binary search on time** problem.
+2.	Observation:
+	-	Minimum time = 0
+	-	Maximum time = time taken if the fastest chef makes all donuts alone.
+3.	For a given time T:
+	-	For each chef with rank r, determine how many donuts they can make within time T.
+	-	A chef can make k donuts if:
+			r × k × (k + 1) / 2 ≤ T
+	-	We can find k using a simple loop or binary search (since k is small).
+4.	Sum donuts made by all chefs.
+	-	If total ≥ n → T is feasible.
+	-	Else → T is too small.
+5.	Binary search to find the minimum feasible T.
+6.	Time Complexity:
+	-	Binary search: O(log answer)
+	-	Per check: O(m × sqrt(T))
+7.	Space Complexity:
+	-	O(1)
+
+Solution
+class Solution {
+public:
+    bool canMake(int n, vector<int>& rank, long long time) {
+        long long donuts = 0;
+
+        for (int r : rank) {
+            long long t = 0;
+            long long k = 1;
+
+            while (true) {
+                t += r * k;
+                if (t > time) break;
+                donuts++;
+                if (donuts >= n) return true;
+                k++;
+            }
+        }
+        return donuts >= n;
+    }
+
+    int minTime(int n, vector<int>& rank) {
+        int m = rank.size();
+
+        long long low = 0;
+        long long high = (long long)*min_element(rank.begin(), rank.end()) 
+                         * n * (n + 1) / 2;
+
+        long long ans = high;
+
+        while (low <= high) {
+            long long mid = low + (high - low) / 2;
+
+            if (canMake(n, rank, mid)) {
+                ans = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return (int)ans;
+    }
+};
