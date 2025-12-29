@@ -1,0 +1,60 @@
+2025-12-12 | Kth Element in Two Sorted Arrays
+
+Question
+Given two sorted arrays a[] and b[] and an integer k,  
+find the element that would be at the kth position in the combined sorted array.
+
+Approach
+1.	This is a classic **binary search on partition** problem.
+2.	Assume we take `x` elements from array a[] and `k − x` elements from array b[].
+3.	We want:
+		max(left part) ≤ min(right part)
+4.	Binary search on the number of elements taken from the smaller array to ensure efficiency.
+5.	Definitions:
+	-	leftA  = element just before the cut in a[]
+	-	rightA = element just after the cut in a[]
+	-	leftB  = element just before the cut in b[]
+	-	rightB = element just after the cut in b[]
+6.	If leftA ≤ rightB and leftB ≤ rightA:
+	-	The kth element is max(leftA, leftB).
+7.	Else adjust the binary search range.
+8.	Time Complexity: O(log(min(n, m))).  
+   Space Complexity: O(1).
+
+Solution
+class Solution {
+public:
+    int kthElement(vector<int>& a, vector<int>& b, int k) {
+        int n = a.size();
+        int m = b.size();
+
+        // Ensure a is the smaller array
+        if (n > m)
+            return kthElement(b, a, k);
+
+        int low = max(0, k - m);
+        int high = min(k, n);
+
+        while (low <= high) {
+            int cutA = (low + high) / 2;
+            int cutB = k - cutA;
+
+            int leftA  = (cutA == 0) ? INT_MIN : a[cutA - 1];
+            int leftB  = (cutB == 0) ? INT_MIN : b[cutB - 1];
+            int rightA = (cutA == n) ? INT_MAX : a[cutA];
+            int rightB = (cutB == m) ? INT_MAX : b[cutB];
+
+            if (leftA <= rightB && leftB <= rightA) {
+                return max(leftA, leftB);
+            }
+            else if (leftA > rightB) {
+                high = cutA - 1;
+            }
+            else {
+                low = cutA + 1;
+            }
+        }
+
+        return -1; // should never reach here
+    }
+};
