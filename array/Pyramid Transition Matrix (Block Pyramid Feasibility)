@@ -1,0 +1,65 @@
+2025-12-12 | Pyramid Transition Matrix (Block Pyramid Feasibility)
+
+Question
+Given a string `bottom` and a list of strings `allowed`,  
+return true if a pyramid can be built to the top using only allowed patterns, otherwise return false.
+
+Approach
+1.	Preprocess the allowed patterns:
+	-	For each pair of bottom blocks `"XY"`, store all possible top blocks `Z`.
+	-	Use a hash map: pair → list of possible tops.
+2.	Use **backtracking (DFS)** to simulate building the pyramid:
+	-	Given the current row, try to construct the next row.
+	-	For every adjacent pair in the current row:
+		-	Generate all possible top characters using the map.
+3.	Generate all valid next rows recursively.
+4.	Base case:
+	-	If the current row length is 1, the pyramid is complete → return true.
+5.	If all possibilities fail, return false.
+6.	This works efficiently because:
+	-	The width reduces by 1 at each level.
+	-	The branching factor is limited by allowed patterns.
+7.	Time complexity:
+	-	Exponential in worst case, but very small in practice (row length ≤ 8).
+   Space complexity:
+	-	O(n) recursion depth.
+
+Solution
+class Solution {
+public:
+    unordered_map<string, vector<char>> mp;
+
+    bool dfs(string& curr, int idx, string& next) {
+        if (idx == curr.size() - 1) {
+            // Finished building next row, recurse upward
+            return pyramidTransition(next);
+        }
+
+        string key = curr.substr(idx, 2);
+        if (mp.find(key) == mp.end())
+            return false;
+
+        for (char c : mp[key]) {
+            next.push_back(c);
+            if (dfs(curr, idx + 1, next))
+                return true;
+            next.pop_back();
+        }
+        return false;
+    }
+
+    bool pyramidTransition(string bottom) {
+        if (bottom.size() == 1)
+            return true;
+
+        string next = "";
+        return dfs(bottom, 0, next);
+    }
+
+    bool pyramidTransition(string bottom, vector<string>& allowed) {
+        for (string& s : allowed) {
+            mp[s.substr(0, 2)].push_back(s[2]);
+        }
+        return pyramidTransition(bottom);
+    }
+};
