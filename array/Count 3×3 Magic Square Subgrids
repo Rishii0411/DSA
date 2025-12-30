@@ -1,0 +1,67 @@
+2025-12-12 | Count 3×3 Magic Square Subgrids
+
+Question
+Given a grid of integers, return the number of 3 × 3 subgrids that are magic squares.
+
+Approach
+1.	A known property of 3 × 3 magic squares:
+	-	The **center must be 5**.
+	-	The numbers must be **distinct and between 1 and 9**.
+	-	Each row, column, and diagonal must sum to **15**.
+2.	Iterate over all possible 3 × 3 subgrids.
+3.	For each subgrid:
+	-	Check center element is 5.
+	-	Check all numbers are between 1 and 9 and unique.
+	-	Check row sums, column sums, and diagonal sums are all 15.
+4.	Count subgrids that satisfy all conditions.
+5.	Time complexity:
+	-	O(R × C) since each 3 × 3 check is constant work.
+   Space complexity:
+	-	O(1)
+
+Solution
+class Solution {
+public:
+    bool isMagic(vector<vector<int>>& grid, int r, int c) {
+        vector<bool> seen(10, false);
+
+        // Check values 1..9 and uniqueness
+        for (int i = r; i < r + 3; i++) {
+            for (int j = c; j < c + 3; j++) {
+                int v = grid[i][j];
+                if (v < 1 || v > 9 || seen[v]) return false;
+                seen[v] = true;
+            }
+        }
+
+        // Check sums
+        for (int i = 0; i < 3; i++) {
+            if (grid[r+i][c] + grid[r+i][c+1] + grid[r+i][c+2] != 15)
+                return false;
+            if (grid[r][c+i] + grid[r+1][c+i] + grid[r+2][c+i] != 15)
+                return false;
+        }
+
+        if (grid[r][c] + grid[r+1][c+1] + grid[r+2][c+2] != 15)
+            return false;
+        if (grid[r][c+2] + grid[r+1][c+1] + grid[r+2][c] != 15)
+            return false;
+
+        return true;
+    }
+
+    int numMagicSquaresInside(vector<vector<int>>& grid) {
+        int R = grid.size();
+        int C = grid[0].size();
+        int count = 0;
+
+        for (int i = 0; i + 2 < R; i++) {
+            for (int j = 0; j + 2 < C; j++) {
+                // Center must be 5
+                if (grid[i+1][j+1] == 5 && isMagic(grid, i, j))
+                    count++;
+            }
+        }
+        return count;
+    }
+};
