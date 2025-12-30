@@ -1,0 +1,71 @@
+2025-12-12 | Check if a Singly Linked List Is Palindrome
+
+Question
+Given the head of a singly linked list, check whether the list is a palindrome or not.
+
+Approach
+1.	Use the **fast and slow pointer** technique to find the middle of the linked list.
+	-	Slow pointer moves one step.
+	-	Fast pointer moves two steps.
+2.	Once the middle is reached:
+	-	Reverse the second half of the linked list.
+3.	Compare the first half and the reversed second half node by node.
+4.	If all corresponding values match, the list is a palindrome.
+5.	(Optional) Restore the list by reversing the second half again.
+6.	Time Complexity: O(n).  
+   Space Complexity: O(1).
+
+Solution
+struct Node {
+    int data;
+    Node* next;
+    Node(int x) : data(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    Node* reverse(Node* head) {
+        Node* prev = NULL;
+        while (head) {
+            Node* nxt = head->next;
+            head->next = prev;
+            prev = head;
+            head = nxt;
+        }
+        return prev;
+    }
+
+    bool isPalindrome(Node* head) {
+        if (!head || !head->next) return true;
+
+        // Find middle
+        Node* slow = head;
+        Node* fast = head;
+        while (fast->next && fast->next->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+
+        // Reverse second half
+        Node* second = reverse(slow->next);
+        Node* first = head;
+
+        // Compare halves
+        Node* p1 = first;
+        Node* p2 = second;
+        bool ok = true;
+        while (p2) {
+            if (p1->data != p2->data) {
+                ok = false;
+                break;
+            }
+            p1 = p1->next;
+            p2 = p2->next;
+        }
+
+        // (Optional) Restore list
+        slow->next = reverse(second);
+
+        return ok;
+    }
+};
