@@ -1,0 +1,93 @@
+2025-12-12 | Last Day to Walk from Top to Bottom
+
+Question
+You are given integers row and col, and a list cells where cells[i] = [ri, ci] indicates flooding on day i.  
+Return the **last day** when it is possible to walk from the top row to the bottom row using only land cells.
+
+Approach
+1.	This is a classic **binary search on time (days)** problem.
+2.	Key observation:
+	-	If crossing is possible on day `d`,
+	  then it is also possible on all days `< d`.
+	-	If crossing is impossible on day `d`,
+	  then it is impossible on all days `> d`.
+3.	Binary search the answer between day `0` and `row * col`.
+4.	For a candidate day `mid`:
+	-	Build a grid where:
+		-	cells flooded on days `0..mid-1` are water,
+		-	others are land.
+	-	Run **BFS/DFS** from all land cells in the top row.
+	-	If you can reach the bottom row → crossing is possible.
+5.	Adjust binary search bounds accordingly.
+6.	Time Complexity:
+	-	Binary search: O(log(row × col))
+	-	Each check: O(row × col)
+	-	Total: O(row × col × log(row × col))
+7.	Space Complexity:
+	-	O(row × col) for the grid and BFS.
+
+Solution
+class Solution {
+public:
+    int row, col;
+    vector<vector<int>> dirs{{1,0},{-1,0},{0,1},{0,-1}};
+
+    bool canCross(int day, vector<vector<int>>& cells) {
+        vector<vector<int>> grid(row, vector<int>(col, 0));
+
+        // Flood cells up to this day
+        for (int i = 0; i < day; i++) {
+            int r = cells[i][0] - 1;
+            int c = cells[i][1] - 1;
+            grid[r][c] = 1;
+        }
+
+        queue<pair<int,int>> q;
+        vector<vector<bool>> vis(row, vector<bool>(col, false));
+
+        // Start BFS from top row land cells
+        for (int c = 0; c < col; c++) {
+            if (grid[0][c] == 0) {
+                q.push({0, c});
+                vis[0][c] = true;
+            }
+        }
+
+        while (!q.empty()) {
+            auto [r, c] = q.front();
+            q.pop();
+
+            if (r == row - 1) return true;
+
+            for (auto &d : dirs) {
+                int nr = r + d[0];
+                int nc = c + d[1];
+                if (nr >= 0 && nr < row && nc >= 0 && nc < col &&
+                    !vis[nr][nc] && grid[nr][nc] == 0) {
+                    vis[nr][nc] = true;
+                    q.push({nr, nc});
+                }
+            }
+        }
+        return false;
+    }
+
+    int latestDayToCross(int r, int c, vector<vector<int>>& cells) {
+        row = r;
+        col = c;
+
+        int low = 0, high = cells.size();
+        int ans = 0;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            if (canCross(mid, cells)) {
+                ans = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return ans;
+    }
+};
