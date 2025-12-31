@@ -2,10 +2,10 @@
 
 Question
 You are given integers row and col, and a list cells where cells[i] = [ri, ci] indicates flooding on day i.  
-Return the **last day** when it is possible to walk from the top row to the bottom row using only land cells.
+Return the last day when it is possible to walk from the top row to the bottom row using only land cells.
 
 Approach
-1.	This is a classic **binary search on time (days)** problem.
+1.	This is a classic binary search on time (days) problem.
 2.	Key observation:
 	-	If crossing is possible on day `d`,
 	  then it is also possible on all days `< d`.
