@@ -1,0 +1,43 @@
+2025-12-12 | Find the Intersection Point of Two Linked Lists
+
+Question
+You are given the heads of two non-empty singly linked lists that intersect at a certain node.  
+Return the node at which the two linked lists intersect.
+
+Approach
+1.	Use the **two-pointer technique**.
+2.	Initialize two pointers:
+	-	p1 starting at head1
+	-	p2 starting at head2
+3.	Traverse both lists:
+	-	Move p1 and p2 one step at a time.
+	-	When p1 reaches the end, redirect it to head2.
+	-	When p2 reaches the end, redirect it to head1.
+4.	Because the lists intersect, both pointers will eventually meet at the intersection node.
+5.	This works because:
+	-	Both pointers traverse exactly the same total length:
+			len(list1) + len(list2)
+6.	Time Complexity: O(n + m)  
+   Space Complexity: O(1)
+
+Solution
+struct Node {
+    int data;
+    Node* next;
+    Node(int x) : data(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    Node* intersectPoint(Node* head1, Node* head2) {
+        Node* p1 = head1;
+        Node* p2 = head2;
+
+        while (p1 != p2) {
+            p1 = (p1 == NULL) ? head2 : p1->next;
+            p2 = (p2 == NULL) ? head1 : p2->next;
+        }
+
+        return p1; // Intersection node
+    }
+};
