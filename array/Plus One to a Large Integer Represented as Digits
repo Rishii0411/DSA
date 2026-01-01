@@ -1,0 +1,37 @@
+2025-12-12 | Plus One to a Large Integer Represented as Digits
+
+Question
+Given an integer array digits representing a large number,  
+increment the number by one and return the resulting array of digits.
+
+Approach
+1.	Start from the **last digit** (least significant digit).
+2.	Add 1 to the current digit.
+3.	If the digit becomes 10:
+	-	Set it to 0.
+	-	Carry 1 to the next digit on the left.
+4.	Continue moving left while there is a carry.
+5.	If all digits were 9 and a carry remains at the end:
+	-	Insert 1 at the beginning of the array.
+6.	Time Complexity: O(n).  
+   Space Complexity: O(1) extra (output array excluded).
+
+Solution
+class Solution {
+public:
+    vector<int> plusOne(vector<int>& digits) {
+        int n = digits.size();
+
+        for (int i = n - 1; i >= 0; i--) {
+            if (digits[i] < 9) {
+                digits[i]++;
+                return digits;
+            }
+            digits[i] = 0;
+        }
+
+        // If all digits were 9
+        digits.insert(digits.begin(), 1);
+        return digits;
+    }
+};
