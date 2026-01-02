@@ -1,0 +1,35 @@
+2025-12-12 | Find the Element Repeated n Times
+
+	Question
+Given an integer array nums of length 2n containing n + 1 unique elements,  
+where exactly one element appears n times, return that element.
+
+	Approach
+1.	Key observation:
+	-	Since one element appears n times and others only once,
+	  the repeated element must appear **very frequently**.
+2.	We can solve this efficiently using a hash set:
+	-	Traverse the array.
+	-	If an element is already present in the set, it must be the repeated one.
+3.	Return the first element found twice.
+4.	Time Complexity: O(n).  
+   Space Complexity: O(n).
+
+	Alternative Insight (Constant Space):
+•	In many cases, checking adjacent elements or elements with small gaps also works,
+  but using a hash set is the most straightforward and reliable approach.
+
+	Solution
+
+class Solution {
+public:
+    int repeatedNTimes(vector<int>& nums) {
+        unordered_set<int> seen;
+        for (int x : nums) {
+            if (seen.count(x))
+                return x;
+            seen.insert(x);
+        }
+        return -1; // guaranteed not to reach here
+    }
+};
