@@ -1,0 +1,62 @@
+2025-12-12 | Number of Ways to Paint an n × 3 Grid
+
+	Question
+Given an integer n, representing the number of rows of a 3-column grid,  
+return the number of ways to paint the grid using 3 colors such that no two adjacent cells have the same color.
+
+	Approach
+1.	Key observation:
+	-	Each row has exactly **3 cells**.
+	-	A valid row coloring can be classified into two types:
+		1.	Type A (ABA pattern):
+			-	First and third cells have the same color.
+			-	Example: R G R
+		2.	Type B (ABC pattern):
+			-	All three cells have different colors.
+			-	Example: R G Y
+2.	Count possible patterns for the **first row**:
+	-	Type A:
+		-	Choose color for first cell: 3
+		-	Choose a different color for middle cell: 2
+		-	Third cell fixed = first
+		→ Total = 3 × 2 = 6
+	-	Type B:
+		-	Choose 3 distinct colors in order
+		→ Total = 3 × 2 × 1 = 6
+3.	Dynamic Programming:
+	-	Let:
+		-	dpA[i] = number of ways where row i is Type A
+		-	dpB[i] = number of ways where row i is Type B
+4.	Transitions:
+	-	From previous row:
+		dpA[i] = dpA[i−1] * 3 + dpB[i−1] * 2
+		dpB[i] = dpA[i−1] * 2 + dpB[i−1] * 2
+	These come from counting valid color transitions row-to-row.
+5.	Initialize:
+	-	dpA[1] = 6
+	-	dpB[1] = 6
+6.	The answer is:
+		dpA[n] + dpB[n]
+7.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    int numOfWays(int n) {
+        const long long MOD = 1000000007;
+
+        long long typeA = 6; // ABA patterns for row 1
+        long long typeB = 6; // ABC patterns for row 1
+
+        for (int i = 2; i <= n; i++) {
+            long long newA = (typeA * 3 + typeB * 2) % MOD;
+            long long newB = (typeA * 2 + typeB * 2) % MOD;
+            typeA = newA;
+            typeB = newB;
+        }
+
+        return (typeA + typeB) % MOD;
+    }
+};
