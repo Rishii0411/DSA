@@ -1,0 +1,71 @@
+2025-12-12 | Flatten a Linked List with Next and Bottom Pointers
+
+	Question
+Given a linked list where each node has a next and a bottom pointer,  
+and all lists are sorted, flatten the list into a single sorted list  
+using the bottom pointer.
+
+	Approach
+1.	This problem is similar to **merging multiple sorted linked lists**.
+2.	We flatten the list **recursively**:
+	-	First flatten the list to the right (next).
+	-	Then merge the current list with the already-flattened right list.
+3.	Define a helper function `merge(a, b)`:
+	-	Merges two sorted linked lists using bottom pointers.
+4.	Base case:
+	-	If the head is null or there is no next node, return the head.
+5.	Recursive case:
+	-	Flatten head->next.
+	-	Merge head with head->next.
+6.	Time Complexity:
+	-	O(total number of nodes)
+7.	Space Complexity:
+	-	O(n) recursion stack (where n is number of head nodes).
+
+	Solution
+
+struct Node {
+    int data;
+    Node* next;
+    Node* bottom;
+    Node(int x) {
+        data = x;
+        next = NULL;
+        bottom = NULL;
+    }
+};
+
+class Solution {
+public:
+    // Merge two sorted lists using bottom pointers
+    Node* merge(Node* a, Node* b) {
+        if (!a) return b;
+        if (!b) return a;
+
+        Node* result;
+        if (a->data < b->data) {
+            result = a;
+            result->bottom = merge(a->bottom, b);
+        } else {
+            result = b;
+            result->bottom = merge(a, b->bottom);
+        }
+
+        result->next = NULL; // next pointer not needed
+        return result;
+    }
+
+    // Flatten the linked list
+    Node* flatten(Node* head) {
+        if (!head || !head->next)
+            return head;
+
+        // Flatten the rest of the list
+        head->next = flatten(head->next);
+
+        // Merge current list with flattened next list
+        head = merge(head, head->next);
+
+        return head;
+    }
+};
