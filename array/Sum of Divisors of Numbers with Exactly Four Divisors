@@ -1,0 +1,60 @@
+2025-12-12 | Sum of Divisors of Numbers with Exactly Four Divisors
+
+	Question
+Given an integer array nums, return the sum of divisors of the integers that have exactly four divisors.  
+If there is no such integer, return 0.
+
+	Approach
+1.	Important mathematical insight:
+	-	A number has exactly **four divisors** if and only if it is of one of the following forms:
+		1.	p³, where p is a prime number  
+		   Divisors: 1, p, p², p³  
+		2.	p × q, where p and q are **distinct primes**  
+		   Divisors: 1, p, q, p×q
+2.	For each number x in nums:
+	-	Find its divisors by iterating i from 1 to √x.
+	-	Collect divisor pairs (i, x/i).
+	-	Stop early if divisors exceed 4.
+3.	If exactly 4 divisors are found:
+	-	Add their sum to the answer.
+4.	Time complexity:
+	-	For each number: O(√x)
+	-	Overall: acceptable for constraints.
+5.	Space complexity: O(1).
+
+	Solution
+
+class Solution {
+public:
+    int sumFourDivisors(vector<int>& nums) {
+        int ans = 0;
+
+        for (int x : nums) {
+            int sum = 0;
+            int cnt = 0;
+
+            for (int d = 1; d * d <= x; d++) {
+                if (x % d == 0) {
+                    int d1 = d;
+                    int d2 = x / d;
+
+                    cnt++;
+                    sum += d1;
+
+                    if (d1 != d2) {
+                        cnt++;
+                        sum += d2;
+                    }
+
+                    if (cnt > 4) break;
+                }
+            }
+
+            if (cnt == 4) {
+                ans += sum;
+            }
+        }
+
+        return ans;
+    }
+};
