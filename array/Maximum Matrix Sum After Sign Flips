@@ -1,0 +1,55 @@
+2025-12-12 | Maximum Matrix Sum After Sign Flips
+
+	Question
+Given an n × n integer matrix, return the **maximum possible sum** of its elements after applying the allowed operations any number of times.
+
+	Approach
+1.	Key insight:
+	-	Flipping two adjacent elements preserves the **parity of negative numbers**.
+	-	That means:
+		-	If the total count of negative numbers is even → all can be made positive.
+		-	If the total count of negative numbers is odd → exactly one negative must remain.
+2.	Strategy:
+	-	Convert all numbers to their absolute values.
+	-	Compute the total sum of absolute values.
+	-	Track:
+		-	number of negative elements,
+		-	the minimum absolute value in the matrix.
+3.	Final result:
+	-	If count of negatives is even:
+			answer = sum of absolute values
+	-	If count of negatives is odd:
+			answer = sum of absolute values − 2 × (minimum absolute value)
+	Reason:
+		-	One smallest element must remain negative, reducing the total sum minimally.
+4.	Time Complexity:
+	-	O(n²)
+5.	Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    long long maxMatrixSum(vector<vector<int>>& matrix) {
+        long long totalSum = 0;
+        int negativeCount = 0;
+        int minAbs = INT_MAX;
+
+        for (auto &row : matrix) {
+            for (int val : row) {
+                if (val < 0) negativeCount++;
+                int absVal = abs(val);
+                totalSum += absVal;
+                minAbs = min(minAbs, absVal);
+            }
+        }
+
+        // If odd number of negatives, one smallest value must remain negative
+        if (negativeCount % 2 == 1) {
+            totalSum -= 2LL * minAbs;
+        }
+
+        return totalSum;
+    }
+};
