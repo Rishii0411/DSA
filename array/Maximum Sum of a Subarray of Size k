@@ -1,0 +1,41 @@
+2025-12-12 | Maximum Sum of a Subarray of Size k
+
+	Question
+Given an integer array arr[] and an integer k,  
+return the maximum sum of a subarray of size k.
+
+	Approach
+1.	Use the **Sliding Window Technique**.
+2.	First, compute the sum of the **first k elements**.
+	-	This is the initial window sum.
+3.	Slide the window one element at a time:
+	-	Add the next element entering the window.
+	-	Subtract the element leaving the window.
+4.	Keep track of the **maximum sum** seen so far.
+5.	This avoids recalculating sums repeatedly.
+6.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    int maximumSumSubarray(int k, vector<int>& arr) {
+        int n = arr.size();
+        if (n < k) return 0;
+
+        int windowSum = 0;
+        for (int i = 0; i < k; i++) {
+            windowSum += arr[i];
+        }
+
+        int maxSum = windowSum;
+
+        for (int i = k; i < n; i++) {
+            windowSum += arr[i] - arr[i - k];
+            maxSum = max(maxSum, windowSum);
+        }
+
+        return maxSum;
+    }
+};
