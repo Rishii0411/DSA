@@ -1,0 +1,45 @@
+2025-12-12 | Maximum XOR of a Subarray of Size k
+
+	Question
+Given an integer array arr[] and an integer k,  
+return the maximum XOR of any subarray of size k.
+
+	Approach
+1.	Use the **Sliding Window Technique**.
+2.	XOR has a useful property:
+	-	A ^ A = 0
+	-	A ^ 0 = A
+3.	Compute XOR of the **first k elements** — this is the initial window XOR.
+4.	Slide the window one element at a time:
+	-	Remove the leftmost element using XOR.
+	-	Add the next element using XOR.
+5.	Keep track of the maximum XOR value seen.
+6.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+class Solution {
+public:
+    int maximumXorSubarray(int k, vector<int>& arr) {
+        int n = arr.size();
+        if (n < k) return 0;
+
+        int windowXor = 0;
+
+        // XOR of first k elements
+        for (int i = 0; i < k; i++) {
+            windowXor ^= arr[i];
+        }
+
+        int maxXor = windowXor;
+
+        // Slide the window
+        for (int i = k; i < n; i++) {
+            windowXor ^= arr[i - k]; // remove element going out
+            windowXor ^= arr[i];     // add new element
+            maxXor = max(maxXor, windowXor);
+        }
+
+        return maxXor;
+    }
+};
