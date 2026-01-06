@@ -1,0 +1,68 @@
+2025-12-12 | Maximum Level Sum in a Binary Tree
+
+	Question
+Given the root of a binary tree,  
+return the smallest level x such that the sum of all node values at level x is maximized.
+
+	Approach
+1.	Use **Breadth-First Search (BFS)** to traverse the tree level by level.
+2.	Use a queue to process nodes level-wise.
+3.	For each level:
+	-	Count how many nodes are at that level.
+	-	Sum their values.
+4.	Track:
+	-	maxSum → maximum level sum found so far.
+	-	answerLevel → level number corresponding to maxSum.
+5.	If the current level sum is greater than maxSum:
+	-	Update maxSum.
+	-	Update answerLevel to the current level.
+6.	Because we traverse levels in increasing order, the **first occurrence** of the maximum sum is automatically chosen.
+7.	Time Complexity: O(n), where n is the number of nodes.  
+   Space Complexity: O(n) due to the queue.
+
+	Solution
+
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int maxLevelSum(TreeNode* root) {
+        if (!root) return 0;
+
+        queue<TreeNode*> q;
+        q.push(root);
+
+        int level = 1;
+        int ansLevel = 1;
+        long long maxSum = LLONG_MIN;
+
+        while (!q.empty()) {
+            int sz = q.size();
+            long long currSum = 0;
+
+            for (int i = 0; i < sz; i++) {
+                TreeNode* node = q.front();
+                q.pop();
+
+                currSum += node->val;
+
+                if (node->left) q.push(node->left);
+                if (node->right) q.push(node->right);
+            }
+
+            if (currSum > maxSum) {
+                maxSum = currSum;
+                ansLevel = level;
+            }
+
+            level++;
+        }
+
+        return ansLevel;
+    }
+};
