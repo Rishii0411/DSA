@@ -1,0 +1,53 @@
+2025-12-12 | Count Distinct Elements in Every Window of Size k
+
+	Question
+Given an integer array arr[] and an integer k,  
+find the count of distinct elements in every contiguous subarray (window) of size k.
+
+	Approach
+1.	Use the **Sliding Window Technique** combined with a **hash map**.
+2.	The hash map stores:
+	-	key → element value
+	-	value → frequency of that element in the current window
+3.	Initialize the map with the first k elements.
+4.	The number of distinct elements in the window is simply the size of the map.
+5.	Slide the window:
+	-	Remove the element going out of the window (decrease its frequency).
+		-	If its frequency becomes zero, remove it from the map.
+	-	Add the new element entering the window (increase its frequency).
+6.	After each slide, record the current number of distinct elements.
+7.	Time Complexity: O(n)  
+   Space Complexity: O(k)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> countDistinct(int k, vector<int>& arr) {
+        int n = arr.size();
+        vector<int> result;
+        unordered_map<int, int> freq;
+
+        // First window
+        for (int i = 0; i < k; i++) {
+            freq[arr[i]]++;
+        }
+        result.push_back(freq.size());
+
+        // Slide the window
+        for (int i = k; i < n; i++) {
+            // Remove outgoing element
+            int out = arr[i - k];
+            freq[out]--;
+            if (freq[out] == 0)
+                freq.erase(out);
+
+            // Add incoming element
+            freq[arr[i]]++;
+
+            result.push_back(freq.size());
+        }
+
+        return result;
+    }
+};
