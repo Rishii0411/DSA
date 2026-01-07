@@ -1,0 +1,61 @@
+2025-12-12 | Maximum Product of Splitted Binary Tree
+
+	Question
+Given the root of a binary tree,  
+remove one edge to split it into two subtrees and return the maximum possible product of their sums.
+
+	Approach
+1.	First compute the **total sum** of all nodes in the tree.
+2.	Then perform a second DFS to compute the sum of every subtree.
+3.	For each subtree with sum `subSum`:
+	-	The other subtree will have sum `totalSum − subSum`.
+	-	The product formed by cutting above this subtree is:
+			subSum × (totalSum − subSum)
+4.	Track the **maximum product** encountered.
+5.	The root subtree itself is not considered as a cut (since no edge above it).
+6.	Finally, return:
+		maxProduct % (10⁹ + 7)
+7.	Time Complexity: O(n), where n is number of nodes.  
+   Space Complexity: O(h) recursion stack, where h is tree height.
+
+	Solution
+
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    static const int MOD = 1000000007;
+    long long totalSum = 0;
+    long long maxProduct = 0;
+
+    long long computeTotal(TreeNode* root) {
+        if (!root) return 0;
+        return root->val + computeTotal(root->left) + computeTotal(root->right);
+    }
+
+    long long dfs(TreeNode* root) {
+        if (!root) return 0;
+
+        long long leftSum = dfs(root->left);
+        long long rightSum = dfs(root->right);
+
+        long long subSum = root->val + leftSum + rightSum;
+
+        // Consider cutting the edge above this subtree
+        long long product = subSum * (totalSum - subSum);
+        maxProduct = max(maxProduct, product);
+
+        return subSum;
+    }
+
+    int maxProductSplit(TreeNode* root) {
+        totalSum = computeTotal(root);
+        dfs(root);
+        return (int)(maxProduct % MOD);
+    }
+};
