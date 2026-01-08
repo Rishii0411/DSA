@@ -1,0 +1,53 @@
+2025-12-12 | Count Subarrays with Exactly k Odd Numbers
+
+	Question
+Given an array arr[] of positive integers and an integer k,  
+count the number of subarrays that contain exactly k odd numbers.
+
+	Approach
+1.	Key idea:
+	-	Let’s define a helper function:
+			countAtMost(k)
+		which returns the number of subarrays containing **at most k odd numbers**.
+2.	If we can compute:
+			countAtMost(k) and countAtMost(k−1),
+		then the number of subarrays with **exactly k odds** is:
+			countAtMost(k) − countAtMost(k−1)
+3.	How to compute countAtMost(k):
+	-	Use a **sliding window**.
+	-	Expand the right pointer and count odd numbers.
+	-	If odd count exceeds k, move the left pointer until it becomes valid.
+	-	For each right index, add (right − left + 1) to the answer.
+4.	This works because all subarrays ending at `right` and starting from `left` to `right` are valid.
+5.	Time Complexity: O(n).  
+   Space Complexity: O(1).
+
+	Solution
+
+class Solution {
+public:
+    long long atMostK(vector<int>& arr, int k) {
+        int left = 0;
+        long long count = 0;
+        int oddCount = 0;
+
+        for (int right = 0; right < arr.size(); right++) {
+            if (arr[right] % 2 == 1)
+                oddCount++;
+
+            while (oddCount > k) {
+                if (arr[left] % 2 == 1)
+                    oddCount--;
+                left++;
+            }
+
+            count += (right - left + 1);
+        }
+
+        return count;
+    }
+
+    long long numberOfSubarrays(vector<int>& arr, int k) {
+        return atMostK(arr, k) - atMostK(arr, k - 1);
+    }
+};
