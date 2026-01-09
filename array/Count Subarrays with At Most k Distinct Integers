@@ -1,0 +1,53 @@
+2025-12-12 | Count Subarrays with At Most k Distinct Integers
+
+	Question
+Given an array arr[] of positive integers and an integer k,  
+find the number of subarrays where the count of distinct integers is at most k.
+
+	Approach
+1.	Use the **sliding window technique** with two pointers.
+2.	Maintain a hash map (or unordered_map) to store:
+	-	key → element value
+	-	value → frequency of that element in the current window
+3.	Expand the window by moving the right pointer:
+	-	Add arr[right] to the map.
+4.	If the number of distinct elements exceeds k:
+	-	Shrink the window from the left.
+	-	Decrease frequency of arr[left].
+	-	Remove it from the map if its frequency becomes zero.
+5.	For every valid window ending at index `right`,
+	-	The number of valid subarrays ending at `right` is:
+			(right − left + 1)
+6.	Add this value to the total count.
+7.	Time Complexity: O(n)  
+   Space Complexity: O(k)
+
+	Solution
+
+class Solution {
+public:
+    long long countSubarraysAtMostKDistinct(vector<int>& arr, int k) {
+        int n = arr.size();
+        unordered_map<int, int> freq;
+
+        int left = 0;
+        long long count = 0;
+
+        for (int right = 0; right < n; right++) {
+            freq[arr[right]]++;
+
+            // Shrink window if distinct count exceeds k
+            while (freq.size() > k) {
+                freq[arr[left]]--;
+                if (freq[arr[left]] == 0)
+                    freq.erase(arr[left]);
+                left++;
+            }
+
+            // Number of valid subarrays ending at right
+            count += (right - left + 1);
+        }
+
+        return count;
+    }
+};
