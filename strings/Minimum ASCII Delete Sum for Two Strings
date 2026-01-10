@@ -1,0 +1,62 @@
+2025-12-12 | Minimum ASCII Delete Sum for Two Strings
+
+	Question
+Given two strings s1 and s2,  
+return the minimum ASCII sum of deleted characters required to make the two strings equal.
+
+	Approach
+1.	This is a **Dynamic Programming** problem, closely related to the Longest Common Subsequence (LCS).
+2.	Define dp[i][j]:
+	-	The minimum ASCII delete sum to make:
+			s1[i … end] and s2[j … end] equal.
+3.	Base cases:
+	-	If s1 is exhausted, delete all remaining characters of s2.
+	-	If s2 is exhausted, delete all remaining characters of s1.
+4.	Transitions:
+	-	If s1[i] == s2[j]:
+			dp[i][j] = dp[i+1][j+1]
+	-	Else:
+			dp[i][j] = min(
+				ASCII(s1[i]) + dp[i+1][j],
+				ASCII(s2[j]) + dp[i][j+1]
+			)
+5.	Build the DP table from bottom-right to top-left.
+6.	The final answer is dp[0][0].
+7.	Time Complexity: O(n × m), where n and m are string lengths.  
+   Space Complexity: O(n × m).
+
+	Solution
+
+class Solution {
+public:
+    int minimumDeleteSum(string s1, string s2) {
+        int n = s1.size();
+        int m = s2.size();
+
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+
+        // Base cases
+        for (int i = n - 1; i >= 0; i--) {
+            dp[i][m] = dp[i + 1][m] + (int)s1[i];
+        }
+        for (int j = m - 1; j >= 0; j--) {
+            dp[n][j] = dp[n][j + 1] + (int)s2[j];
+        }
+
+        // Fill DP table
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+                if (s1[i] == s2[j]) {
+                    dp[i][j] = dp[i + 1][j + 1];
+                } else {
+                    dp[i][j] = min(
+                        (int)s1[i] + dp[i + 1][j],
+                        (int)s2[j] + dp[i][j + 1]
+                    );
+                }
+            }
+        }
+
+        return dp[0][0];
+    }
+};
