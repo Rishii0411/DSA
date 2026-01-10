@@ -1,0 +1,54 @@
+2025-12-12 | Count Substrings with Exactly k Distinct Characters
+
+	Question
+Given a string s of lowercase characters and an integer k,  
+count the number of substrings that have exactly k distinct characters.
+
+	Approach
+1.	This problem can be solved using the concept:
+			substrings with exactly k distinct  
+			= substrings with at most k distinct  
+			  − substrings with at most (k − 1) distinct
+2.	Define a helper function `atMostK(k)`:
+	-	Counts substrings having **at most k distinct characters**.
+3.	Use a **sliding window** with two pointers:
+	-	Expand the right pointer and include characters in a frequency map.
+	-	If distinct character count exceeds k, shrink the window from the left.
+4.	For each valid window ending at `right`, the number of valid substrings is:
+			(right − left + 1)
+5.	Compute:
+			atMostK(k) − atMostK(k − 1)
+6.	Time Complexity: O(n)  
+   Space Complexity: O(1) (since at most 26 lowercase characters)
+
+	Solution
+
+class Solution {
+public:
+    long long atMostK(string& s, int k) {
+        if (k < 0) return 0;
+
+        unordered_map<char, int> freq;
+        int left = 0;
+        long long count = 0;
+
+        for (int right = 0; right < s.size(); right++) {
+            freq[s[right]]++;
+
+            while (freq.size() > k) {
+                freq[s[left]]--;
+                if (freq[s[left]] == 0)
+                    freq.erase(s[left]);
+                left++;
+            }
+
+            count += (right - left + 1);
+        }
+
+        return count;
+    }
+
+    long long substrCount(string s, int k) {
+        return atMostK(s, k) - atMostK(s, k - 1);
+    }
+};
