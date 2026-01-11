@@ -1,0 +1,73 @@
+2025-12-12 | Minimum Window Subsequence
+
+	Question
+Given two strings s1 and s2,  
+return the smallest substring in s1 such that s2 is a subsequence of that substring.  
+If no such substring exists, return an empty string.
+
+	Approach
+1.	Use a **two-pointer greedy approach**.
+2.	Iterate over s1 with index `i`, and track progress in s2 using index `j`.
+3.	Whenever characters match, increment `j`.
+4.	When `j` reaches the length of s2:
+	-	We have found a valid window ending at index `i`.
+5.	Now **shrink the window from the right to left**:
+	-	Move backward to find the smallest possible start index
+		while still keeping s2 as a subsequence.
+6.	Record this window if it is smaller than previously found ones.
+7.	Reset pointers and continue scanning for the next possible window.
+8.	Time Complexity:
+	-	O(n × m) in worst case
+		where n = length of s1, m = length of s2.
+9.	Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    string minWindow(string s1, string s2) {
+        int n = s1.size();
+        int m = s2.size();
+
+        int minLen = INT_MAX;
+        int start = -1;
+
+        int i = 0;
+        while (i < n) {
+            int j = 0;
+            // Step 1: find subsequence match
+            while (i < n) {
+                if (s1[i] == s2[j]) {
+                    j++;
+                    if (j == m) break;
+                }
+                i++;
+            }
+
+            if (j < m) break; // no more valid windows
+
+            // Step 2: shrink window from right to left
+            int end = i;
+            j = m - 1;
+            while (i >= 0) {
+                if (s1[i] == s2[j]) {
+                    j--;
+                    if (j < 0) break;
+                }
+                i--;
+            }
+
+            int currLen = end - i + 1;
+            if (currLen < minLen) {
+                minLen = currLen;
+                start = i;
+            }
+
+            // move i to next possible start
+            i = i + 1;
+        }
+
+        return (start == -1) ? "" : s1.substr(start, minLen);
+    }
+};
