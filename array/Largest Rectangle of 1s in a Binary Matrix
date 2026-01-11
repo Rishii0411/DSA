@@ -1,0 +1,67 @@
+2025-12-12 | Largest Rectangle of 1s in a Binary Matrix
+
+	Question
+Given a rows × cols binary matrix filled with 0's and 1's,  
+find the area of the largest rectangle containing only 1's.
+
+	Approach
+1.	Key insight:
+	-	Treat each row as the **base of a histogram**.
+	-	For each column, maintain the height of consecutive 1s ending at the current row.
+2.	Build a histogram:
+	-	If matrix[i][j] == 1 → height[j]++
+	-	If matrix[i][j] == 0 → height[j] = 0
+3.	For each row’s histogram, compute the **largest rectangle in a histogram**.
+4.	Largest rectangle in histogram (optimized):
+	-	Use a **monotonic increasing stack**.
+	-	For every bar, determine how far it can expand left and right.
+5.	Track the maximum area across all rows.
+6.	This approach ensures:
+	-	Time Complexity: **O(rows × cols)**
+	-	Space Complexity: **O(cols)**
+
+	Solution
+
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        stack<int> st;
+        int maxArea = 0;
+        int n = heights.size();
+
+        for (int i = 0; i <= n; i++) {
+            int currHeight = (i == n) ? 0 : heights[i];
+
+            while (!st.empty() && currHeight < heights[st.top()]) {
+                int h = heights[st.top()];
+                st.pop();
+                int width = st.empty() ? i : i - st.top() - 1;
+                maxArea = max(maxArea, h * width);
+            }
+            st.push(i);
+        }
+        return maxArea;
+    }
+
+    int maximalRectangle(vector<vector<int>>& matrix) {
+        if (matrix.empty()) return 0;
+
+        int rows = matrix.size();
+        int cols = matrix[0].size();
+
+        vector<int> heights(cols, 0);
+        int maxRect = 0;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (matrix[i][j] == 1)
+                    heights[j]++;
+                else
+                    heights[j] = 0;
+            }
+            maxRect = max(maxRect, largestRectangleArea(heights));
+        }
+
+        return maxRect;
+    }
+};
