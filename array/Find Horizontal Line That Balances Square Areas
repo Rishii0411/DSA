@@ -1,0 +1,80 @@
+2025-12-12 | Find Horizontal Line That Balances Square Areas
+
+	Question
+Given squares[i] = [xi, yi, li],  
+find the minimum y such that the total area above y equals the total area below y.
+
+	Approach
+1.	Observation:
+	-	As we move the horizontal line upward, the area below the line **monotonically increases**,
+		and the area above decreases.
+	-	This monotonic behavior allows us to use **binary search on y**.
+2.	Define a function f(y):
+	-	f(y) = (area below y) − (area above y)
+	-	We want f(y) = 0.
+3.	For a given y and for each square:
+	-	If y ≤ yi:
+		-	The entire square is above the line.
+	-	If y ≥ yi + li:
+		-	The entire square is below the line.
+	-	Else:
+		-	The square is split by the line.
+		-	Below area = li × (y − yi)
+		-	Above area = li × (yi + li − y)
+4.	Binary search range:
+	-	low = minimum yi among all squares
+	-	high = maximum (yi + li) among all squares
+5.	Perform binary search until the range is sufficiently small (precision 1e-6).
+6.	Return the resulting y.
+7.	Time Complexity:
+	-	Each area check: O(n)
+	-	Binary search iterations: ~60
+	-	Total: O(n)
+   Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    double separateSquares(vector<vector<int>>& squares) {
+        double low = 1e18, high = -1e18;
+
+        // Determine search range
+        for (auto &sq : squares) {
+            low = min(low, (double)sq[1]);
+            high = max(high, (double)(sq[1] + sq[2]));
+        }
+
+        // Binary search for y
+        for (int iter = 0; iter < 60; iter++) {
+            double mid = (low + high) / 2.0;
+            double below = 0.0, above = 0.0;
+
+            for (auto &sq : squares) {
+                double y = sq[1];
+                double l = sq[2];
+
+                if (mid <= y) {
+                    above += l * l;
+                }
+                else if (mid >= y + l) {
+                    below += l * l;
+                }
+                else {
+                    double b = mid - y;
+                    double a = y + l - mid;
+                    below += l * b;
+                    above += l * a;
+                }
+            }
+
+            if (below >= above)
+                high = mid;
+            else
+                low = mid;
+        }
+
+        return low;
+    }
+};
