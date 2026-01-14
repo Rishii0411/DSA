@@ -1,0 +1,133 @@
+2025-12-12 | Balance Square Union Area with a Horizontal Line (Fully Optimized)
+
+	Question
+Given squares[i] = [xi, yi, li],  
+find the minimum y-coordinate of a horizontal line such that the union area of squares above the line equals the union area below the line.
+
+	Approach
+1.	Key observations:
+	-	As Y increases:
+		-	Area below Y **monotonically increases**
+		-	Area above Y **monotonically decreases**
+	-	This allows **binary search on Y**.
+2.	The main challenge:
+	-	Correctly computing **union area** (overlaps counted once),
+	-	After cutting squares by a horizontal line.
+3.	Binary search setup:
+	-	low = minimum yi
+	-	high = maximum (yi + li)
+4.	For a candidate Y:
+	-	Each square contributes a rectangle **below Y** and/or **above Y**.
+	-	We compute:
+		-	union area of all rectangles below Y
+		-	union area of all rectangles above Y
+5.	Union area computation (optimized):
+	-	Use a **sweep line on x-axis**:
+		-	Convert rectangles into x-events:
+			(x_start, +1, y1, y2)
+			(x_end,   -1, y1, y2)
+	-	Sort events by x.
+	-	Maintain active y-intervals.
+	-	At each x-segment:
+		-	Compute total covered y-length using interval merging.
+		-	Multiply by delta-x.
+6.	Binary search until precision < 1e-6.
+7.	Return the smallest Y satisfying the balance condition.
+8.	Time Complexity:
+	-	Binary search iterations ≈ 60
+	-	Each area computation: O(n log n)
+	-	Total: O(n log n)
+9.	Space Complexity:
+	-	O(n)
+
+	Solution
+
+class Solution {
+public:
+    struct Event {
+        double x;
+        int type; // +1 start, -1 end
+        double y1, y2;
+    };
+
+    double unionArea(vector<Event>& events) {
+        sort(events.begin(), events.end(),
+             [](const Event& a, const Event& b) {
+                 return a.x < b.x;
+             });
+
+        multiset<pair<double,double>> active;
+        double area = 0.0;
+
+        for (int i = 0; i + 1 < events.size(); i++) {
+            if (events[i].type == 1)
+                active.insert({events[i].y1, events[i].y2});
+            else
+                active.erase(active.find({events[i].y1, events[i].y2}));
+
+            double dx = events[i+1].x - events[i].x;
+            if (dx <= 0 || active.empty()) continue;
+
+            // merge y-intervals
+            double covered = 0.0;
+            double curStart = -1e18, curEnd = -1e18;
+
+            for (auto &p : active) {
+                if (p.first > curEnd) {
+                    covered += max(0.0, curEnd - curStart);
+                    curStart = p.first;
+                    curEnd = p.second;
+                } else {
+                    curEnd = max(curEnd, p.second);
+                }
+            }
+            covered += max(0.0, curEnd - curStart);
+            area += covered * dx;
+        }
+        return area;
+    }
+
+    double computeBelow(double Y, vector<vector<int>>& squares) {
+        vector<Event> events;
+        for (auto &s : squares) {
+            double x = s[0], y = s[1], l = s[2];
+            if (Y <= y) continue;
+            double top = min(Y, y + l);
+            events.push_back({x,     1, y, top});
+            events.push_back({x + l, -1, y, top});
+        }
+        return unionArea(events);
+    }
+
+    double computeAbove(double Y, vector<vector<int>>& squares) {
+        vector<Event> events;
+        for (auto &s : squares) {
+            double x = s[0], y = s[1], l = s[2];
+            if (Y >= y + l) continue;
+            double bottom = max(Y, y);
+            events.push_back({x,     1, bottom, y + l});
+            events.push_back({x + l, -1, bottom, y + l});
+        }
+        return unionArea(events);
+    }
+
+    double separateSquares(vector<vector<int>>& squares) {
+        double low = 1e18, high = -1e18;
+        for (auto &s : squares) {
+            low = min(low, (double)s[1]);
+            high = max(high, (double)(s[1] + s[2]));
+        }
+
+        for (int i = 0; i < 60; i++) {
+            double mid = (low + high) / 2.0;
+            double below = computeBelow(mid, squares);
+            double above = computeAbove(mid, squares);
+
+            if (below >= above)
+                high = mid;
+            else
+                low = mid;
+        }
+        return low;
+    }
+};
