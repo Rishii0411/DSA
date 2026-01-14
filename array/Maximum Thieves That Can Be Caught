@@ -1,0 +1,61 @@
+2025-12-12 | Maximum Thieves That Can Be Caught
+
+	Question
+Given an array arr[] containing 'P' and 'T', and an integer k,  
+find the maximum number of thieves that can be caught such that:
+-	Each policeman catches at most one thief.
+-	The distance between them is ≤ k.
+
+	Approach
+1.	Store the indices of all policemen in one list.
+2.	Store the indices of all thieves in another list.
+3.	Use a **two-pointer greedy strategy**:
+	-	One pointer for policemen list.
+	-	One pointer for thieves list.
+4.	Compare the current policeman and thief:
+	-	If their distance ≤ k:
+		-	A match is possible.
+		-	Increment answer and move both pointers.
+	-	If the thief is too far left:
+		-	Move the thief pointer forward.
+	-	If the policeman is too far left:
+		-	Move the policeman pointer forward.
+5.	This greedy matching ensures:
+	-	Earliest possible matches.
+	-	Maximum number of successful catches.
+6.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    int catchThieves(vector<char>& arr, int k) {
+        vector<int> police, thief;
+
+        for (int i = 0; i < arr.size(); i++) {
+            if (arr[i] == 'P')
+                police.push_back(i);
+            else if (arr[i] == 'T')
+                thief.push_back(i);
+        }
+
+        int i = 0, j = 0, ans = 0;
+
+        while (i < police.size() && j < thief.size()) {
+            if (abs(police[i] - thief[j]) <= k) {
+                ans++;
+                i++;
+                j++;
+            }
+            else if (thief[j] < police[i]) {
+                j++;
+            }
+            else {
+                i++;
+            }
+        }
+
+        return ans;
+    }
+};
