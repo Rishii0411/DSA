@@ -1,0 +1,62 @@
+2025-12-12 | Maximum Square Hole in a Grid After Removing Bars
+
+	Question
+Given integers n, m and arrays hBars and vBars,  
+return the maximum area of a square-shaped hole after removing some of the given bars.
+
+	Approach
+1.	Key observation:
+	-	To form a **square hole of side length L**, you need:
+		-	L consecutive unit rows (created by removing L−1 consecutive horizontal bars)
+		-	L consecutive unit columns (created by removing L−1 consecutive vertical bars)
+2.	Therefore:
+	-	We need to find the **longest consecutive sequence** in hBars.
+	-	We need to find the **longest consecutive sequence** in vBars.
+3.	If the longest consecutive removable bars length is:
+	-	kh in horizontal bars,
+	-	kv in vertical bars,
+	then:
+		-	max possible square side = min(kh + 1, kv + 1)
+4.	The area of the square is:
+			side × side
+5.	Steps:
+	1.	Sort hBars.
+	2.	Find the longest run of consecutive integers in hBars.
+	3.	Repeat for vBars.
+	4.	Compute the square side and area.
+6.	Time Complexity:
+	-	Sorting: O(n log n + m log m)
+7.	Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int longestConsecutive(vector<int>& bars) {
+        if (bars.empty()) return 0;
+
+        sort(bars.begin(), bars.end());
+        int longest = 1, curr = 1;
+
+        for (int i = 1; i < bars.size(); i++) {
+            if (bars[i] == bars[i - 1] + 1) {
+                curr++;
+            } else {
+                curr = 1;
+            }
+            longest = max(longest, curr);
+        }
+        return longest;
+    }
+
+    int maxSquareHoleArea(int n, int m,
+                          vector<int>& hBars,
+                          vector<int>& vBars) {
+        int maxH = longestConsecutive(hBars);
+        int maxV = longestConsecutive(vBars);
+
+        int side = min(maxH + 1, maxV + 1);
+        return side * side;
+    }
+};
