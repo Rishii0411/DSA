@@ -1,0 +1,79 @@
+2025-12-12 | Maximum Square Area by Removing Fences
+
+	Question
+Given m, n, and arrays hFences and vFences,  
+return the maximum possible area of a square field that can be formed by removing fences, or -1 if impossible.
+
+	Approach
+1.	Key insight:
+	-	A square field of side length L requires:
+		-	A vertical gap of size L.
+		-	A horizontal gap of size L.
+2.	The possible gaps are determined by **distances between consecutive fences**:
+	-	Include the boundary fences:
+		-	Horizontal: 1 and m
+		-	Vertical: 1 and n
+3.	Steps:
+	1.	Add boundary fences to hFences and vFences.
+	2.	Sort both fence arrays.
+	3.	Compute all possible distances between pairs of horizontal fences.
+	4.	Store these distances in a set `H`.
+	5.	Do the same for vertical fences, storing in set `V`.
+4.	A square is possible if a distance L exists in **both** H and V.
+5.	Among all common distances, choose the **maximum L**.
+6.	The area is L × L.
+7.	If no common distance exists, return -1.
+8.	Time Complexity:
+	-	O(h² + v²), where h and v are counts of fences.
+   Space Complexity:
+	-	O(h² + v²)
+
+	Solution
+
+class Solution {
+public:
+    static const int MOD = 1000000007;
+
+    int maxSquareArea(int m, int n,
+                      vector<int>& hFences,
+                      vector<int>& vFences) {
+        // Add boundary fences
+        hFences.push_back(1);
+        hFences.push_back(m);
+        vFences.push_back(1);
+        vFences.push_back(n);
+
+        sort(hFences.begin(), hFences.end());
+        sort(vFences.begin(), vFences.end());
+
+        unordered_set<int> hDist, vDist;
+
+        // All horizontal distances
+        for (int i = 0; i < hFences.size(); i++) {
+            for (int j = i + 1; j < hFences.size(); j++) {
+                hDist.insert(hFences[j] - hFences[i]);
+            }
+        }
+
+        // All vertical distances
+        for (int i = 0; i < vFences.size(); i++) {
+            for (int j = i + 1; j < vFences.size(); j++) {
+                vDist.insert(vFences[j] - vFences[i]);
+            }
+        }
+
+        long long maxSide = 0;
+
+        // Find maximum common distance
+        for (int d : hDist) {
+            if (vDist.count(d)) {
+                maxSide = max(maxSide, (long long)d);
+            }
+        }
+
+        if (maxSide == 0) return -1;
+
+        long long area = (maxSide * maxSide) % MOD;
+        return (int)area;
+    }
+};
