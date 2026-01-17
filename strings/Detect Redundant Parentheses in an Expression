@@ -1,0 +1,56 @@
+2025-12-12 | Detect Redundant Parentheses in an Expression
+
+	Question
+Given a balanced expression string s,  
+check if it contains any redundant parentheses.  
+Return true if redundant parentheses exist, otherwise false.
+
+	Approach
+1.	Use a **stack-based approach**.
+2.	Traverse the string character by character.
+3.	Push every character onto the stack **except closing ')'**.
+4.	When a closing parenthesis ')' is encountered:
+	-	Pop elements from the stack until '(' is found.
+	-	Check whether there was **at least one operator** inside the parentheses.
+5.	If no operator is found before encountering '(':
+	-	The parentheses are redundant → return true.
+6.	Pop the '(' from the stack and continue.
+7.	If the entire string is processed without detecting redundancy:
+	-	Return false.
+8.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    bool redundantParentheses(string s) {
+        stack<char> st;
+
+        for (char ch : s) {
+            if (ch == ')') {
+                bool hasOperator = false;
+
+                while (!st.empty() && st.top() != '(') {
+                    char top = st.top();
+                    st.pop();
+
+                    if (top == '+' || top == '-' ||
+                        top == '*' || top == '/')
+                        hasOperator = true;
+                }
+
+                // Pop the opening '('
+                if (!st.empty())
+                    st.pop();
+
+                // If no operator was found, parentheses are redundant
+                if (!hasOperator)
+                    return true;
+            } else {
+                st.push(ch);
+            }
+        }
+        return false;
+    }
+};
