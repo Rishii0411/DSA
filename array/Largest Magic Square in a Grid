@@ -1,0 +1,92 @@
+2025-12-12 | Largest Magic Square in a Grid
+
+	Question
+Given an m × n integer grid,  
+return the side length of the **largest magic square** contained in the grid.
+
+	Approach
+1.	Precomputation is key for optimization.
+2.	Use **prefix sums** to efficiently compute:
+	-	Row sums,
+	-	Column sums,
+	-	Main diagonal sums,
+	-	Anti-diagonal sums.
+3.	Build:
+	-	rowPrefix[i][j] → sum of row i from column 0 to j
+	-	colPrefix[i][j] → sum of column j from row 0 to i
+	-	diag1[i][j] → main diagonal prefix
+	-	diag2[i][j] → anti-diagonal prefix
+4.	Try all possible square sizes k from largest to smallest:
+	-	For each possible top-left corner (i, j):
+		1.	Compute the target sum using the first row.
+		2.	Check all rows in O(k).
+		3.	Check all columns in O(k).
+		4.	Check both diagonals in O(1).
+5.	The first valid k found is the answer.
+6.	Time Complexity:
+	-	O(min(m,n)³) worst case, but heavily optimized using prefix sums.
+7.	Space Complexity:
+	-	O(m × n)
+
+	Solution
+
+class Solution {
+public:
+    int largestMagicSquare(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+
+        // Prefix sums
+        vector<vector<int>> row(m, vector<int>(n + 1, 0));
+        vector<vector<int>> col(m + 1, vector<int>(n, 0));
+        vector<vector<int>> diag1(m + 1, vector<int>(n + 1, 0));
+        vector<vector<int>> diag2(m + 1, vector<int>(n + 1, 0));
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                row[i][j + 1] = row[i][j] + grid[i][j];
+                col[i + 1][j] = col[i][j] + grid[i][j];
+                diag1[i + 1][j + 1] = diag1[i][j] + grid[i][j];
+                diag2[i + 1][j] = diag2[i][j + 1] + grid[i][j];
+            }
+        }
+
+        int maxK = min(m, n);
+
+        for (int k = maxK; k >= 2; k--) {
+            for (int i = 0; i + k <= m; i++) {
+                for (int j = 0; j + k <= n; j++) {
+                    int target = row[i][j + k] - row[i][j];
+                    bool ok = true;
+
+                    // Check rows
+                    for (int r = i; r < i + k; r++) {
+                        if (row[r][j + k] - row[r][j] != target) {
+                            ok = false;
+                            break;
+                        }
+                    }
+
+                    // Check columns
+                    for (int c = j; c < j + k && ok; c++) {
+                        if (col[i + k][c] - col[i][c] != target) {
+                            ok = false;
+                            break;
+                        }
+                    }
+
+                    // Check diagonals
+                    if (ok) {
+                        int d1 = diag1[i + k][j + k] - diag1[i][j];
+                        int d2 = diag2[i + k][j] - diag2[i][j + k];
+                        if (d1 != target || d2 != target)
+                            ok = false;
+                    }
+
+                    if (ok) return k;
+                }
+            }
+        }
+
+        return 1; // Every single cell is a magic square
+    }
+};
