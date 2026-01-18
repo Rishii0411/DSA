@@ -1,0 +1,55 @@
+2025-12-12 | Next Greater Frequency Element
+
+	Question
+Given an array arr[] of integers,  
+for each element, find the first element to its right that has a higher frequency than the current element.  
+If no such element exists, return -1 for that position.
+
+	Approach
+1.	First compute the **frequency of each element** using a hash map.
+2.	Use a **monotonic stack** that stores indices of elements.
+3.	Traverse the array from **right to left**:
+	-	While the stack is not empty and
+		frequency(arr[stack.top()]) ≤ frequency(arr[i]):
+		pop the stack.
+	-	After popping:
+		-	If stack is empty → answer[i] = -1
+		-	Else → answer[i] = arr[stack.top()]
+	-	Push the current index i onto the stack.
+4.	This ensures:
+	-	The stack always keeps elements with **strictly higher frequency** on top.
+5.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> nextGreaterFrequency(vector<int>& arr) {
+        int n = arr.size();
+        unordered_map<int, int> freq;
+
+        // Step 1: Count frequency of each element
+        for (int x : arr)
+            freq[x]++;
+
+        vector<int> result(n, -1);
+        stack<int> st; // stores indices
+
+        // Step 2: Traverse from right to left
+        for (int i = n - 1; i >= 0; i--) {
+            while (!st.empty() && freq[arr[st.top()]] <= freq[arr[i]]) {
+                st.pop();
+            }
+
+            if (!st.empty())
+                result[i] = arr[st.top()];
+            else
+                result[i] = -1;
+
+            st.push(i);
+        }
+
+        return result;
+    }
+};
