@@ -1,0 +1,58 @@
+2025-12-12 | Remove k Digits to Form the Smallest Number
+
+	Question
+Given a string s representing a non-negative integer and an integer k,  
+remove exactly k digits so that the resulting number is the smallest possible.  
+Return the resulting number as a string.
+
+	Approach
+1.	This is a classic **monotonic stack (greedy)** problem.
+2.	Key idea:
+	-	To minimize the number, we want smaller digits to appear as early as possible.
+3.	Use a stack to build the result:
+	-	Iterate through each digit in s.
+	-	While:
+		-	the stack is not empty,
+		-	k > 0,
+		-	the top of the stack is **greater than the current digit**,
+	  pop the stack and decrement k.
+	-	Push the current digit onto the stack.
+4.	If k is still greater than 0 after processing all digits:
+	-	Remove the last k digits from the stack.
+5.	Build the result string from the stack.
+6.	Remove leading zeros from the result.
+7.	If the result is empty, return `"0"`.
+8.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    string removeKdigits(string s, int k) {
+        string st;
+
+        for (char c : s) {
+            while (!st.empty() && k > 0 && st.back() > c) {
+                st.pop_back();
+                k--;
+            }
+            st.push_back(c);
+        }
+
+        // If k still remains, remove from the end
+        while (k > 0 && !st.empty()) {
+            st.pop_back();
+            k--;
+        }
+
+        // Remove leading zeros
+        int idx = 0;
+        while (idx < st.size() && st[idx] == '0')
+            idx++;
+
+        string result = st.substr(idx);
+
+        return result.empty() ? "0" : result;
+    }
+};
