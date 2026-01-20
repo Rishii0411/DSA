@@ -1,0 +1,75 @@
+2025-12-12 | Construct Minimum Array with Bitwise OR Condition
+
+	Question
+Given an array nums of prime integers,  
+construct an array ans such that for every i:
+		ans[i] OR (ans[i] + 1) == nums[i]  
+and ans[i] is minimized, or set ans[i] = -1 if impossible.
+
+	Approach
+1.	Understand the bitwise behavior:
+	-	The expression x OR (x + 1) sets:
+		-	all bits of x,
+		-	and additionally flips the **rightmost 0 bit** of x to 1.
+2.	Key observation:
+	-	If nums[i] is **even**, it is impossible.
+		Reason:
+		-	x OR (x + 1) is always **odd**.
+		-	All prime numbers except 2 are odd.
+3.	Special case:
+	-	If nums[i] == 2:
+		-	No valid x exists → ans[i] = -1.
+4.	For an odd prime nums[i]:
+	-	We want the **smallest x** such that:
+			x OR (x + 1) == nums[i]
+5.	Greedy bit construction:
+	-	Start with x = nums[i].
+	-	Turn off bits from **least significant to most significant**:
+		-	For each bit j that is set in x:
+			-	Temporarily unset it.
+			-	Check if:
+					temp OR (temp + 1) == nums[i]
+			-	If yes, keep the change (this reduces x).
+6.	This ensures:
+	-	The condition holds.
+	-	The result is minimal.
+7.	Time Complexity:
+	-	O(n × log(nums[i]))  
+8.	Space Complexity:
+	-	O(1) extra space.
+
+	Solution
+
+class Solution {
+public:
+    vector<int> minBitwiseArray(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> ans(n, -1);
+
+        for (int i = 0; i < n; i++) {
+            int val = nums[i];
+
+            // Even numbers (including 2) are impossible
+            if (val % 2 == 0) {
+                ans[i] = -1;
+                continue;
+            }
+
+            int x = val;
+
+            // Try to minimize x by unsetting bits
+            for (int bit = 0; bit < 31; bit++) {
+                if ((x & (1 << bit)) != 0) {
+                    int temp = x ^ (1 << bit);
+                    if ((temp | (temp + 1)) == val) {
+                        x = temp;
+                    }
+                }
+            }
+
+            ans[i] = x;
+        }
+
+        return ans;
+    }
+};
