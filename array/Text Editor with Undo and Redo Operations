@@ -1,0 +1,73 @@
+2025-12-12 | Text Editor with Undo and Redo Operations
+
+	Question
+Implement the following functions for the text editor:
+1.	void append(char x)
+2.	void undo()
+3.	void redo()
+4.	string read()
+
+	Approach
+1.	Use two stacks:
+	-	mainText → stores the current characters of the document.
+	-	redoStack → stores characters removed by undo.
+2.	append(x):
+	-	Push x into mainText.
+	-	Clear redoStack because a new operation invalidates redo history.
+3.	undo():
+	-	If mainText is not empty:
+		-	Pop the top character from mainText.
+		-	Push it into redoStack.
+4.	redo():
+	-	If redoStack is not empty:
+		-	Pop the top character from redoStack.
+		-	Push it back into mainText.
+5.	read():
+	-	Convert the contents of mainText into a string (from bottom to top).
+6.	Time Complexity:
+	-	append, undo, redo → O(1)
+	-	read → O(n)
+7.	Space Complexity:
+	-	O(n), where n is the number of characters appended.
+
+	Solution
+
+class TextEditor {
+    stack<char> mainText;
+    stack<char> redoStack;
+
+public:
+    void append(char x) {
+        mainText.push(x);
+        // New append invalidates redo history
+        while (!redoStack.empty())
+            redoStack.pop();
+    }
+
+    void undo() {
+        if (!mainText.empty()) {
+            redoStack.push(mainText.top());
+            mainText.pop();
+        }
+    }
+
+    void redo() {
+        if (!redoStack.empty()) {
+            mainText.push(redoStack.top());
+            redoStack.pop();
+        }
+    }
+
+    string read() {
+        string result;
+        stack<char> temp = mainText;
+
+        while (!temp.empty()) {
+            result.push_back(temp.top());
+            temp.pop();
+        }
+
+        reverse(result.begin(), result.end());
+        return result;
+    }
+};
