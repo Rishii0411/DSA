@@ -1,0 +1,50 @@
+2025-12-12 | Stock Span Problem
+
+	Question
+Given an array arr[] representing daily stock prices,  
+return an array span[] where span[i] is the stock span for the ith day.
+
+	Approach
+1.	Use a **monotonic decreasing stack**.
+2.	The stack will store indices of days, maintaining the invariant:
+	-	Prices at stored indices are in **strictly decreasing order** from bottom to top.
+3.	Traverse the array from left to right:
+	-	While the stack is not empty and arr[stack.top()] ≤ arr[i]:
+		pop the stack.
+	-	If the stack is empty:
+		span[i] = i + 1
+	-	Else:
+		span[i] = i − stack.top()
+	-	Push index i onto the stack.
+4.	This ensures each index is pushed and popped at most once.
+5.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> stockSpan(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> span(n);
+        stack<int> st; // stores indices
+
+        for (int i = 0; i < n; i++) {
+            // Remove prices smaller or equal to current
+            while (!st.empty() && arr[st.top()] <= arr[i]) {
+                st.pop();
+            }
+
+            // Calculate span
+            if (st.empty())
+                span[i] = i + 1;
+            else
+                span[i] = i - st.top();
+
+            // Push current index
+            st.push(i);
+        }
+
+        return span;
+    }
+};
