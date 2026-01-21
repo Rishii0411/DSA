@@ -1,0 +1,73 @@
+2025-12-12 | Construct Minimum Array with Bitwise OR Condition
+
+	Question
+Given an array nums consisting of prime integers,  
+construct the minimum possible array ans such that:
+		ans[i] OR (ans[i] + 1) == nums[i]  
+or ans[i] = -1 if no such value exists.
+
+	Approach
+1.	Important bitwise observation:
+	-	For any integer x:
+			x OR (x + 1)
+		always results in an **odd number**.
+	-	This is because adding 1 flips the lowest 0-bit to 1.
+2.	Consequences:
+	-	If nums[i] is **even**, no solution exists.
+	-	Since nums[i] is prime:
+		-	Only possible even prime is 2 → no solution.
+3.	Therefore:
+	-	If nums[i] == 2 → ans[i] = -1.
+	-	Otherwise nums[i] is an **odd prime**.
+4.	Goal:
+	-	Find the **smallest x** such that:
+			x OR (x + 1) == nums[i]
+5.	Greedy minimization:
+	-	Start with x = nums[i].
+	-	Iterate over bits from least significant to most significant.
+	-	For each set bit:
+		-	Try unsetting it.
+		-	If the OR condition still holds, keep the change.
+6.	This guarantees:
+	-	The condition remains satisfied.
+	-	The smallest possible value of x is obtained.
+7.	Time Complexity:
+	-	O(n × log(nums[i]))
+8.	Space Complexity:
+	-	O(1) extra space.
+
+	Solution
+
+class Solution {
+public:
+    vector<int> minBitwiseArray(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> ans(n, -1);
+
+        for (int i = 0; i < n; i++) {
+            int val = nums[i];
+
+            // Even primes (only 2) are impossible
+            if (val % 2 == 0) {
+                ans[i] = -1;
+                continue;
+            }
+
+            int x = val;
+
+            // Minimize x by clearing bits where possible
+            for (int bit = 0; bit < 31; bit++) {
+                if (x & (1 << bit)) {
+                    int temp = x ^ (1 << bit);
+                    if ((temp | (temp + 1)) == val) {
+                        x = temp;
+                    }
+                }
+            }
+
+            ans[i] = x;
+        }
+
+        return ans;
+    }
+};
