@@ -1,0 +1,94 @@
+2025-12-12 | Sum of Subarray Ranges
+
+	Question
+Given an integer array arr[],  
+return the sum of the ranges (max − min) of all possible subarrays.
+
+	Approach
+1.	Key insight:
+	-	The total sum of subarray ranges can be rewritten as:
+			(sum of contributions as maximum)
+			− (sum of contributions as minimum)
+2.	For each element arr[i]:
+	-	Count how many subarrays where arr[i] is the **maximum**.
+	-	Count how many subarrays where arr[i] is the **minimum**.
+3.	Contribution formula:
+	-	If arr[i] is maximum in X subarrays → contributes arr[i] × X
+	-	If arr[i] is minimum in Y subarrays → contributes arr[i] × Y
+4.	Use **monotonic stacks** to find:
+	-	Previous and next greater element (for max contribution).
+	-	Previous and next smaller element (for min contribution).
+5.	For each index i:
+	-	Number of subarrays where arr[i] is max:
+			(leftGreater × rightGreater)
+	-	Number of subarrays where arr[i] is min:
+			(leftSmaller × rightSmaller)
+6.	Sum all max contributions and min contributions.
+7.	Answer = totalMax − totalMin.
+8.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    long long subArrayRanges(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> prevGreater(n), nextGreater(n);
+        vector<int> prevSmaller(n), nextSmaller(n);
+
+        stack<int> st;
+
+        // Previous Greater
+        for (int i = 0; i < n; i++) {
+            while (!st.empty() && arr[st.top()] <= arr[i])
+                st.pop();
+            prevGreater[i] = st.empty() ? -1 : st.top();
+            st.push(i);
+        }
+
+        while (!st.empty()) st.pop();
+
+        // Next Greater
+        for (int i = n - 1; i >= 0; i--) {
+            while (!st.empty() && arr[st.top()] < arr[i])
+                st.pop();
+            nextGreater[i] = st.empty() ? n : st.top();
+            st.push(i);
+        }
+
+        while (!st.empty()) st.pop();
+
+        // Previous Smaller
+        for (int i = 0; i < n; i++) {
+            while (!st.empty() && arr[st.top()] >= arr[i])
+                st.pop();
+            prevSmaller[i] = st.empty() ? -1 : st.top();
+            st.push(i);
+        }
+
+        while (!st.empty()) st.pop();
+
+        // Next Smaller
+        for (int i = n - 1; i >= 0; i--) {
+            while (!st.empty() && arr[st.top()] > arr[i])
+                st.pop();
+            nextSmaller[i] = st.empty() ? n : st.top();
+            st.push(i);
+        }
+
+        long long maxSum = 0, minSum = 0;
+
+        for (int i = 0; i < n; i++) {
+            long long maxCount =
+                (long long)(i - prevGreater[i]) * (nextGreater[i] - i);
+            long long minCount =
+                (long long)(i - prevSmaller[i]) * (nextSmaller[i] - i);
+
+            maxSum += arr[i] * maxCount;
+            minSum += arr[i] * minCount;
+        }
+
+        return maxSum - minSum;
+    }
+};
