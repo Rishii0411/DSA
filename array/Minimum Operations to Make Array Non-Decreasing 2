@@ -1,0 +1,51 @@
+2025-12-12 | Minimum Operations to Make Array Non-Decreasing
+
+	Question
+Given an array nums,  
+return the minimum number of operations needed to make the array non-decreasing using the given merge rule.
+
+	Approach
+1.	Key observation:
+	-	A violation occurs when a value is **smaller than its left neighbor**.
+	-	Such a violation cannot be fixed without merging elements.
+2.	Greedy insight:
+	-	Process the array from **left to right**.
+	-	Whenever a violation appears, the smaller element must be merged with its left neighbor.
+3.	Implementation idea:
+	-	Use a **stack-like vector** to maintain a non-decreasing sequence.
+	-	For each element:
+		1.	Push it onto the stack.
+		2.	While the last two elements violate non-decreasing order:
+			-	Merge them (replace by their sum).
+			-	Increment the operation count.
+4.	Why this works:
+	-	The problem’s rule of choosing the **leftmost minimum-sum adjacent pair**
+		results in the same merges as this greedy consolidation.
+	-	Each merge is necessary and cannot be avoided.
+5.	Each element is merged at most once, making the solution efficient.
+6.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    int minimumOperations(vector<int>& nums) {
+        vector<long long> st;
+        int operations = 0;
+
+        for (int x : nums) {
+            st.push_back(x);
+
+            // Fix violations by merging adjacent elements
+            while (st.size() >= 2 && st[st.size() - 2] > st.back()) {
+                long long last = st.back();
+                st.pop_back();
+                st.back() += last;
+                operations++;
+            }
+        }
+
+        return operations;
+    }
+};
