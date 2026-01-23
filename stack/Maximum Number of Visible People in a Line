@@ -1,0 +1,64 @@
+2025-12-12 | Maximum Number of Visible People in a Line
+
+	Question
+Given an array arr[] of heights,  
+return the maximum number of people that any person can see (including themselves).
+
+	Approach
+1.	The visibility rule means taller or equal-height people block the view.
+2.	For each person, count how many people they can see to the **left** and **right**.
+3.	Use a **monotonic decreasing stack** to efficiently compute visibility.
+4.	Left side computation:
+	-	Traverse from left to right.
+	-	Pop all shorter people from the stack (they are visible).
+	-	If the stack is not empty afterward, one taller/equal person is also visible.
+5.	Right side computation:
+	-	Traverse from right to left using the same logic.
+6.	For each index i:
+		totalVisible = leftVisible[i] + rightVisible[i] + 1
+	(+1 accounts for the person themselves)
+7.	The answer is the maximum totalVisible over all i.
+8.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    int maxPeopleVisible(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> left(n, 0), right(n, 0);
+        stack<int> st;
+
+        // Count visible people to the left
+        for (int i = 0; i < n; i++) {
+            while (!st.empty() && st.top() < arr[i]) {
+                st.pop();
+                left[i]++;
+            }
+            if (!st.empty())
+                left[i]++;
+            st.push(arr[i]);
+        }
+
+        while (!st.empty()) st.pop();
+
+        // Count visible people to the right
+        for (int i = n - 1; i >= 0; i--) {
+            while (!st.empty() && st.top() < arr[i]) {
+                st.pop();
+                right[i]++;
+            }
+            if (!st.empty())
+                right[i]++;
+            st.push(arr[i]);
+        }
+
+        int ans = 0;
+        for (int i = 0; i < n; i++) {
+            ans = max(ans, left[i] + right[i] + 1);
+        }
+
+        return ans;
+    }
+};
