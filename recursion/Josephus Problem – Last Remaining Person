@@ -1,0 +1,35 @@
+2025-12-12 | Josephus Problem – Last Remaining Person
+
+	Question
+Given two integers n and k,  
+return the position of the person who survives after repeatedly eliminating every kth person.
+
+	Approach
+1.	This is the classic **Josephus Problem**.
+2.	Instead of simulating the entire process (which would be slow), we use a **mathematical recurrence**.
+3.	Let:
+		J(n, k) = position of the survivor (0-based indexing).
+4.	Recurrence relation:
+		J(1, k) = 0  
+		J(n, k) = (J(n − 1, k) + k) % n
+5.	Once we compute J(n, k) in **0-based indexing**, convert it to **1-based indexing** by adding 1.
+6.	This solution runs in linear time and constant space.
+7.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+class Solution {
+public:
+    int josephus(int n, int k) {
+        // Base case
+        if (n == 1)
+            return 1;
+
+        // Recursive case (1-based indexing)
+        return (josephus(n - 1, k) + k - 1) % n + 1;
+    }
+
+    int findTheWinner(int n, int k) {
+        return josephus(n, k);
+    }
+};
