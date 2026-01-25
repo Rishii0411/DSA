@@ -1,0 +1,38 @@
+2025-12-12 | Minimize Difference Between Highest and Lowest of k Scores
+
+	Question
+Given an array nums and an integer k,  
+return the minimum possible difference between the highest and lowest scores among any k selected students.
+
+	Approach
+1.	If k is 1:
+	-	The difference is always 0, since only one score is selected.
+2.	Sort the array nums in ascending order.
+3.	After sorting, the best group of k students must appear as a **contiguous subarray** of size k.
+4.	Use a **sliding window** of size k:
+	-	For each window starting at index i:
+			diff = nums[i + k − 1] − nums[i]
+5.	Track the minimum difference across all such windows.
+6.	Time Complexity:
+	-	O(n log n) due to sorting.
+7.	Space Complexity:
+	-	O(1) extra space (excluding sorting).
+
+	Solution
+
+class Solution {
+public:
+    int minimumDifference(vector<int>& nums, int k) {
+        if (k <= 1) return 0;
+
+        sort(nums.begin(), nums.end());
+        int n = nums.size();
+        int ans = INT_MAX;
+
+        for (int i = 0; i + k - 1 < n; i++) {
+            ans = min(ans, nums[i + k - 1] - nums[i]);
+        }
+
+        return ans;
+    }
+};
