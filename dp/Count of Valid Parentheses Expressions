@@ -1,0 +1,47 @@
+2025-12-12 | Count of Valid Parentheses Expressions
+
+	Question
+Given an integer n,  
+return the number of valid parentheses expressions of length n using only '(' and ')'.
+
+	Approach
+1.	Key observation:
+	-	A valid parentheses expression must have:
+		-	Equal number of '(' and ')'.
+	-	So, if n is **odd**, it is impossible to form a valid expression.
+2.	If n is even:
+	-	Let pairs = n / 2.
+	-	The problem reduces to counting the number of ways to arrange `pairs` pairs of parentheses.
+3.	This is a classic **Catalan Number** problem.
+4.	The number of valid parentheses expressions with `pairs` pairs is the **pairs-th Catalan number**.
+5.	Catalan number recurrence:
+		C(0) = 1  
+		C(n) = Σ (C(i) × C(n − 1 − i)) for i = 0 to n − 1
+6.	Use **Dynamic Programming** to compute Catalan numbers efficiently.
+7.	Time Complexity:
+	-	O(n²)
+8.	Space Complexity:
+	-	O(n)
+
+	Solution
+
+class Solution {
+public:
+    long long countValidParentheses(int n) {
+        // Odd length cannot form valid parentheses
+        if (n % 2 != 0) return 0;
+
+        int pairs = n / 2;
+        vector<long long> dp(pairs + 1, 0);
+
+        dp[0] = 1;
+
+        for (int i = 1; i <= pairs; i++) {
+            for (int j = 0; j < i; j++) {
+                dp[i] += dp[j] * dp[i - 1 - j];
+            }
+        }
+
+        return dp[pairs];
+    }
+};
