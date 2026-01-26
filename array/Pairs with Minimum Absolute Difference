@@ -1,0 +1,45 @@
+2025-12-12 | Pairs with Minimum Absolute Difference
+
+	Question
+Given an array of distinct integers arr,  
+return all pairs `[a, b]` such that:
+-	`a < b`
+-	`b − a` equals the minimum absolute difference among all element pairs.
+
+	Approach
+1.	Sort the array in ascending order.
+2.	After sorting, the minimum absolute difference must occur between **adjacent elements**.
+3.	First pass:
+	-	Compute the minimum difference by checking `arr[i+1] − arr[i]`.
+4.	Second pass:
+	-	Collect all adjacent pairs whose difference equals this minimum.
+5.	Because the array is sorted and we process left to right:
+	-	Pairs are automatically in ascending order.
+6.	Time Complexity:
+	-	O(n log n) due to sorting.
+7.	Space Complexity:
+	-	O(1) extra space (excluding output).
+
+	Solution
+
+class Solution {
+public:
+    vector<vector<int>> minimumAbsDifference(vector<int>& arr) {
+        sort(arr.begin(), arr.end());
+        int n = arr.size();
+
+        int minDiff = INT_MAX;
+        for (int i = 0; i < n - 1; i++) {
+            minDiff = min(minDiff, arr[i + 1] - arr[i]);
+        }
+
+        vector<vector<int>> result;
+        for (int i = 0; i < n - 1; i++) {
+            if (arr[i + 1] - arr[i] == minDiff) {
+                result.push_back({arr[i], arr[i + 1]});
+            }
+        }
+
+        return result;
+    }
+};
