@@ -1,0 +1,46 @@
+2025-12-12 | Generate All Permutations of an Array
+
+	Question
+Given an array arr[] of unique elements,  
+generate and return all possible permutations of the array.
+
+	Approach
+1.	This is a classic **backtracking** problem.
+2.	We build permutations step by step by fixing one position at a time.
+3.	At index `idx`:
+	-	Try placing every unused element at this position.
+4.	Use swapping to avoid extra space:
+	-	Swap the current index with each index from `idx` to end.
+	-	Recurse for the next index.
+	-	Backtrack by swapping back.
+5.	When `idx` reaches the end of the array:
+	-	A complete permutation is formed.
+	-	Store it in the result.
+6.	Time Complexity:
+	-	O(n × n!) permutations.
+7.	Space Complexity:
+	-	O(n) recursion stack (excluding output).
+
+	Solution
+
+class Solution {
+public:
+    void solve(int idx, vector<int>& arr, vector<vector<int>>& res) {
+        if (idx == arr.size()) {
+            res.push_back(arr);
+            return;
+        }
+
+        for (int i = idx; i < arr.size(); i++) {
+            swap(arr[idx], arr[i]);
+            solve(idx + 1, arr, res);
+            swap(arr[idx], arr[i]); // backtrack
+        }
+    }
+
+    vector<vector<int>> permutations(vector<int>& arr) {
+        vector<vector<int>> res;
+        solve(0, arr, res);
+        return res;
+    }
+};
