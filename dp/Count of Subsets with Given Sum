@@ -1,0 +1,49 @@
+2025-12-12 | Count of Subsets with Given Sum
+
+	Question
+Given an array arr[] and an integer k,  
+return the number of subsets whose sum is exactly equal to k.
+
+	Approach
+1.	This is a classic **Dynamic Programming (Subset Sum Count)** problem.
+2.	Define dp[i][s]:
+	-	The number of subsets using the first i elements
+	-	That have a sum equal to s.
+3.	Base case:
+	-	dp[0][0] = 1  
+	  (There is exactly one subset—the empty subset—with sum 0.)
+4.	Transition:
+	-	For each element arr[i−1]:
+		1.	Do not include it:
+				dp[i][s] += dp[i−1][s]
+		2.	Include it (if s ≥ arr[i−1]):
+				dp[i][s] += dp[i−1][s − arr[i−1]]
+5.	The answer will be dp[n][k], where n is the size of the array.
+6.	Space optimization:
+	-	We can use a **1D DP array** by iterating sums backward.
+7.	Time Complexity:
+	-	O(n × k)
+8.	Space Complexity:
+	-	O(k)
+
+	Solution
+
+class Solution {
+public:
+    int countSubsets(vector<int>& arr, int k) {
+        int n = arr.size();
+        vector<int> dp(k + 1, 0);
+
+        // Base case
+        dp[0] = 1;
+
+        for (int i = 0; i < n; i++) {
+            // Traverse backwards to avoid reuse of same element
+            for (int sum = k; sum >= arr[i]; sum--) {
+                dp[sum] += dp[sum - arr[i]];
+            }
+        }
+
+        return dp[k];
+    }
+};
