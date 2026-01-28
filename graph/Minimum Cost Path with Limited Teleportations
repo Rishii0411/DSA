@@ -1,0 +1,109 @@
+2025-12-12 | Minimum Cost Path with Limited Teleportations
+
+	Question
+Given grid[][] and integer k,  
+return the minimum cost to reach (m−1,n−1) from (0,0) using at most k teleportations.
+
+	Approach
+1.	This is a **shortest path problem with state**.
+2.	The state must include:
+	-	Current cell (i, j)
+	-	Number of teleportations used so far (t)
+3.	Define:
+		dist[i][j][t] = minimum cost to reach cell (i,j)
+		               having used t teleports
+4.	We apply **Dijkstra’s algorithm** because:
+	-	Edge costs are non-negative (0 or positive)
+5.	State transitions:
+	1.	Normal move:
+		-	From (i, j, t) → (i+1, j, t) or (i, j+1, t)
+		-	Cost += grid[next cell]
+	2.	Teleport move (if t < k):
+		-	From (i, j, t) → (x, y, t+1)
+		-	Only allowed if grid[x][y] ≤ grid[i][j]
+		-	Cost += 0
+6.	To optimize teleportation:
+	-	Preprocess all cells sorted by their grid values
+	-	For each cell, teleport only to cells with ≤ current value
+7.	The answer is:
+		min(dist[m−1][n−1][t]) for t = 0..k
+8.	Time Complexity:
+	-	O(mn · k · log(mn))
+9.	Space Complexity:
+	-	O(mn · k)
+
+	Solution
+
+class Solution {
+public:
+    int minCost(vector<vector<int>>& grid, int k) {
+        int m = grid.size(), n = grid[0].size();
+        const int INF = 1e9;
+
+        // dist[i][j][t] = min cost to reach (i,j) using t teleports
+        vector<vector<vector<int>>> dist(
+            m, vector<vector<int>>(n, vector<int>(k + 1, INF))
+        );
+
+        // Min-heap: {cost, i, j, usedTeleports}
+        priority_queue<
+            array<int,4>,
+            vector<array<int,4>>,
+            greater<array<int,4>>
+        > pq;
+
+        dist[0][0][0] = grid[0][0];
+        pq.push({grid[0][0], 0, 0, 0});
+
+        // Pre-store all cells sorted by value (for teleportation)
+        vector<array<int,3>> cells;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                cells.push_back({grid[i][j], i, j});
+            }
+        }
+        sort(cells.begin(), cells.end());
+
+        while (!pq.empty()) {
+            auto [cost, i, j, used] = pq.top();
+            pq.pop();
+
+            if (cost > dist[i][j][used]) continue;
+
+            // Normal moves
+            if (i + 1 < m) {
+                int nc = cost + grid[i + 1][j];
+                if (nc < dist[i + 1][j][used]) {
+                    dist[i + 1][j][used] = nc;
+                    pq.push({nc, i + 1, j, used});
+                }
+            }
+            if (j + 1 < n) {
+                int nc = cost + grid[i][j + 1];
+                if (nc < dist[i][j + 1][used]) {
+                    dist[i][j + 1][used] = nc;
+                    pq.push({nc, i, j + 1, used});
+                }
+            }
+
+            // Teleport moves
+            if (used < k) {
+                for (auto &c : cells) {
+                    if (c[0] > grid[i][j]) break;
+                    int x = c[1], y = c[2];
+                    if (cost < dist[x][y][used + 1]) {
+                        dist[x][y][used + 1] = cost;
+                        pq.push({cost, x, y, used + 1});
+                    }
+                }
+            }
+        }
+
+        int ans = INF;
+        for (int t = 0; t <= k; t++) {
+            ans = min(ans, dist[m - 1][n - 1][t]);
+        }
+
+        return ans == INF ? -1 : ans;
+    }
+};
