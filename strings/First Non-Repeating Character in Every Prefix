@@ -1,0 +1,51 @@
+2025-12-12 | First Non-Repeating Character in Every Prefix
+
+	Question
+Given a string s of lowercase alphabets,  
+for each index i, find the first non-repeating character in the prefix s[0..i].  
+If none exists, use '#'.
+
+	Approach
+1.	This is a classic **stream processing** problem.
+2.	Maintain:
+	-	A frequency array `freq[26]` to count occurrences of characters.
+	-	A queue to store characters that are **candidates** for being non-repeating.
+3.	Process the string from left to right:
+	1.	Increment the frequency of the current character.
+	2.	Push the character into the queue.
+	3.	While the front of the queue has frequency > 1:
+		-	Pop it (it is no longer non-repeating).
+4.	After cleanup:
+	-	If the queue is empty → append '#'.
+	-	Else → append the front character of the queue.
+5.	This ensures each character is pushed and popped at most once.
+6.	Time Complexity: O(n)  
+   Space Complexity: O(1) (since only 26 lowercase letters)
+
+	Solution
+
+class Solution {
+public:
+    string firstNonRepeating(string s) {
+        vector<int> freq(26, 0);
+        queue<char> q;
+        string result;
+
+        for (char c : s) {
+            freq[c - 'a']++;
+            q.push(c);
+
+            // Remove repeating characters from the front
+            while (!q.empty() && freq[q.front() - 'a'] > 1) {
+                q.pop();
+            }
+
+            if (q.empty())
+                result.push_back('#');
+            else
+                result.push_back(q.front());
+        }
+
+        return result;
+    }
+};
