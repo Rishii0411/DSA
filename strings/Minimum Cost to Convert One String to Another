@@ -1,0 +1,78 @@
+2025-12-12 | Minimum Cost to Convert One String to Another
+
+	Question
+Given transformation rules with costs,  
+return the minimum cost to convert `source` into `target`, or -1 if impossible.
+
+	Approach
+1.	This problem can be modeled as a **graph shortest-path problem**.
+2.	Each character ('a' to 'z') is a node in a graph.
+3.	Each transformation:
+		original[i] → changed[i] with cost[i]
+	   is a **directed edge**.
+4.	We want the **minimum cost** to convert any character `c1` to `c2`.
+5.	Since there are only **26 characters**, we can efficiently use:
+		**Floyd–Warshall Algorithm**
+	to compute all-pairs shortest paths.
+6.	Steps:
+	1.	Initialize a 26 × 26 matrix `dist` with large values.
+	2.	Set `dist[i][i] = 0` for all characters.
+	3.	For each transformation rule:
+		-	Update `dist[original][changed]` with the minimum cost.
+	4.	Run Floyd–Warshall to compute minimum transformation costs.
+	5.	For each index i in source:
+		-	If source[i] == target[i], cost = 0.
+		-	Else, add `dist[source[i]][target[i]]` to the answer.
+		-	If unreachable, return -1.
+7.	Time Complexity:
+	-	Floyd–Warshall: O(26³) ≈ constant
+	-	String traversal: O(n)
+8.	Space Complexity:
+	-	O(26²)
+
+	Solution
+
+class Solution {
+public:
+    long long minimumCost(string source, string target,
+                          vector<char>& original,
+                          vector<char>& changed,
+                          vector<int>& cost) {
+        const long long INF = 1e18;
+        vector<vector<long long>> dist(26, vector<long long>(26, INF));
+
+        // Distance to self is zero
+        for (int i = 0; i < 26; i++) {
+            dist[i][i] = 0;
+        }
+
+        // Apply direct transformations
+        for (int i = 0; i < original.size(); i++) {
+            int u = original[i] - 'a';
+            int v = changed[i] - 'a';
+            dist[u][v] = min(dist[u][v], (long long)cost[i]);
+        }
+
+        // Floyd–Warshall to find all-pairs shortest paths
+        for (int k = 0; k < 26; k++) {
+            for (int i = 0; i < 26; i++) {
+                for (int j = 0; j < 26; j++) {
+                    if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                    }
+                }
+            }
+        }
+
+        long long totalCost = 0;
+        for (int i = 0; i < source.size(); i++) {
+            int s = source[i] - 'a';
+            int t = target[i] - 'a';
+            if (dist[s][t] == INF)
+                return -1;
+            totalCost += dist[s][t];
+        }
+
+        return totalCost;
+    }
+};
