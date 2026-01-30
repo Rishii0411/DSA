@@ -1,0 +1,46 @@
+2025-12-12 | Interleave the First Half of a Queue with the Second Half
+
+	Question
+Given a queue of even size,  
+rearrange it by interleaving its first half with its second half.
+
+	Approach
+1.	Let the size of the queue be `n` (n is even).
+2.	Use an auxiliary **queue** to store the first half.
+3.	Steps:
+	1.	Dequeue the first `n/2` elements from the original queue
+		and enqueue them into a temporary queue.
+	2.	Now, for each element in the temporary queue:
+		-	Dequeue one element from the temporary queue and enqueue it back to the original queue.
+		-	Dequeue one element from the original queue (from the second half)
+			and enqueue it back.
+4.	This produces the required interleaving while maintaining order.
+5.	Time Complexity: O(n)  
+   Space Complexity: O(n/2)
+
+	Solution
+
+class Solution {
+public:
+    void interleaveQueue(queue<int>& q) {
+        int n = q.size();
+        if (n % 2 != 0) return;  // safety check
+
+        queue<int> firstHalf;
+
+        // Step 1: Move first half to auxiliary queue
+        for (int i = 0; i < n / 2; i++) {
+            firstHalf.push(q.front());
+            q.pop();
+        }
+
+        // Step 2: Interleave the two halves
+        while (!firstHalf.empty()) {
+            q.push(firstHalf.front());
+            firstHalf.pop();
+
+            q.push(q.front());
+            q.pop();
+        }
+    }
+};
