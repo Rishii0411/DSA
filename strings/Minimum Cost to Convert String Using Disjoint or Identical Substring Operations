@@ -1,0 +1,71 @@
+2025-12-12 | Minimum Cost to Convert String Using Disjoint or Identical Substring Operations
+
+	Question
+Given substring replacement rules with costs and strict operation constraints,  
+return the minimum cost to convert `source` into `target`.
+
+	Approach
+1.	This is a **Dynamic Programming on string indices** problem.
+2.	Define:
+		dp[i] = minimum cost to convert source[0..i-1] to target[0..i-1]
+3.	Base case:
+		dp[0] = 0
+4.	Transition:
+	At position i, we have two possibilities:
+	1.	No operation at i:
+		-	If source[i] == target[i],
+			dp[i+1] = min(dp[i+1], dp[i])
+	2.	Apply a substring operation:
+		-	For each rule (orig → chg, cost):
+			-	Let len = orig.length
+			-	Check if:
+				-	source.substr(i, len) == orig
+				-	target.substr(i, len) == chg
+			-	If valid:
+				dp[i+len] = min(dp[i+len], dp[i] + cost)
+5.	This ensures:
+	-	Operations are **disjoint** (DP moves forward),
+	-	Identical range reuse is naturally handled.
+6.	Answer is dp[n], if reachable.
+7.	Time Complexity:
+	-	O(n × r × L)
+		where r = number of rules, L = average rule length
+8.	Space Complexity:
+	-	O(n)
+
+	Solution
+
+class Solution {
+public:
+    long long minimumCost(string source, string target,
+                          vector<string>& original,
+                          vector<string>& changed,
+                          vector<int>& cost) {
+        int n = source.size();
+        const long long INF = 1e18;
+
+        vector<long long> dp(n + 1, INF);
+        dp[0] = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (dp[i] == INF) continue;
+
+            // Case 1: No operation, characters must match
+            if (source[i] == target[i]) {
+                dp[i + 1] = min(dp[i + 1], dp[i]);
+            }
+
+            // Case 2: Apply substring operations
+            for (int j = 0; j < original.size(); j++) {
+                int len = original[j].size();
+                if (i + len <= n &&
+                    source.substr(i, len) == original[j] &&
+                    target.substr(i, len) == changed[j]) {
+                    dp[i + len] = min(dp[i + len], dp[i] + cost[j]);
+                }
+            }
+        }
+
+        return dp[n] == INF ? -1 : dp[n];
+    }
+};
