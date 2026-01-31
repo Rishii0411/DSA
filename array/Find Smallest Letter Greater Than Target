@@ -1,0 +1,48 @@
+2025-12-12 | Find Smallest Letter Greater Than Target
+
+	Question
+Given a sorted array of characters `letters` and a character `target`,  
+return the smallest character in `letters` that is lexicographically greater than `target`.  
+If none exists, return the first character in `letters`.
+
+	Approach
+1.	This is a classic **binary search** problem.
+2.	Because the array is sorted:
+	-	We can efficiently search for the first character greater than `target`.
+3.	Use binary search:
+	-	Initialize `left = 0`, `right = letters.size() - 1`.
+	-	While `left <= right`:
+		-	Compute `mid`.
+		-	If `letters[mid] <= target`:
+			-	Search the right half.
+		-	Else:
+			-	Search the left half.
+4.	After binary search:
+	-	If `left` is within bounds, `letters[left]` is the answer.
+	-	Otherwise, wrap around and return `letters[0]`.
+5.	Time Complexity: O(log n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    char nextGreatestLetter(vector<char>& letters, char target) {
+        int left = 0, right = letters.size() - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (letters[mid] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        // If no letter greater than target, wrap around
+        if (left == letters.size())
+            return letters[0];
+
+        return letters[left];
+    }
+};
