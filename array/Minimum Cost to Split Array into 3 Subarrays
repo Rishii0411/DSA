@@ -1,0 +1,45 @@
+2025-12-12 | Minimum Cost to Split Array into 3 Subarrays
+
+	Question
+Given an integer array nums,  
+divide it into exactly 3 contiguous non-empty subarrays and return the **minimum possible sum** of the costs of these subarrays.
+
+	Approach
+1.	Since subarrays must be contiguous and non-empty:
+	-	Choose two split points i and j such that:
+			0 < i < j < n
+	-	The three subarrays will be:
+			[0 .. i-1], [i .. j-1], [j .. n-1]
+2.	The cost of this partition is:
+			nums[0] + nums[i] + nums[j]
+3.	nums[0] is fixed for all partitions.
+4.	So the task reduces to:
+	-	Choose indices i and j (i < j)
+	-	Minimize nums[i] + nums[j]
+5.	Optimized strategy:
+	1.	Fix j as the start of the third subarray.
+	2.	Keep track of the **minimum nums[i]** seen so far for i < j.
+	3.	For each j from 2 to n-1:
+			total = nums[0] + minPrefix + nums[j]
+4.	Keep the minimum of all such totals.
+5.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    int minimumCost(vector<int>& nums) {
+        int n = nums.size();
+        int ans = INT_MAX;
+
+        int minPrefix = nums[1];
+
+        for (int j = 2; j < n; j++) {
+            ans = min(ans, nums[0] + minPrefix + nums[j]);
+            minPrefix = min(minPrefix, nums[j]);
+        }
+
+        return ans;
+    }
+};
