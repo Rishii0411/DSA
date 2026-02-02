@@ -1,0 +1,62 @@
+2025-12-12 | Maximum Sum Circular Subarray
+
+	Question
+Given a circular array arr[],  
+return the maximum sum of a non-empty subarray, considering both wrapping and non-wrapping cases.
+
+	Approach
+1.	The problem can be broken into two cases.
+	
+2.	Case 1: Non-wrapping subarray
+	-	This is the classic **maximum subarray sum** problem.
+	-	Solve using **Kadane’s Algorithm** to get maxKadane.
+
+3.	Case 2: Wrapping subarray
+	-	A wrapping subarray means:
+			totalArraySum − minimumSubarraySum
+	-	So we:
+		1.	Compute total sum of the array.
+		2.	Find the **minimum subarray sum** using a modified Kadane’s Algorithm.
+		3.	Compute:
+				maxWrap = totalSum − minSubarraySum
+
+4.	Important edge case:
+	-	If all elements are negative:
+		-	maxWrap becomes 0 (invalid)
+		-	In this case, the answer is maxKadane.
+
+5.	Final answer:
+			max(maxKadane, maxWrap)
+
+6.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    int maxSubarraySumCircular(vector<int>& arr) {
+        int totalSum = 0;
+        int maxEnding = arr[0], maxSoFar = arr[0];
+        int minEnding = arr[0], minSoFar = arr[0];
+
+        for (int i = 0; i < arr.size(); i++) {
+            totalSum += arr[i];
+
+            if (i > 0) {
+                maxEnding = max(arr[i], maxEnding + arr[i]);
+                maxSoFar = max(maxSoFar, maxEnding);
+
+                minEnding = min(arr[i], minEnding + arr[i]);
+                minSoFar = min(minSoFar, minEnding);
+            }
+        }
+
+        // If all elements are negative, maxSoFar is the answer
+        if (maxSoFar < 0)
+            return maxSoFar;
+
+        int maxWrap = totalSum - minSoFar;
+        return max(maxSoFar, maxWrap);
+    }
+};
