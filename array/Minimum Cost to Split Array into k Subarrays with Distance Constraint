@@ -1,0 +1,101 @@
+2025-12-12 | Minimum Cost to Split Array into k Subarrays with Distance Constraint
+
+	Question
+Given nums, k, and dist,  
+return the minimum possible sum of the costs of k contiguous subarrays satisfying the distance constraint.
+
+	Approach
+1.	Observation:
+	-	The cost always includes nums[0] (first subarray).
+	-	We must choose **k − 1 split points** among indices [1 .. n − 1].
+2.	Let the chosen split indices be:
+		i₁ < i₂ < ... < iₖ₋₁
+3.	The total cost becomes:
+		nums[0] + nums[i₁] + nums[i₂] + ... + nums[iₖ₋₁]
+4.	Constraint:
+		iₖ₋₁ − i₁ ≤ dist
+5.	Reformulation:
+	-	From indices [1 .. n − 1], choose k − 1 elements
+	-	Their indices must lie within a window of size dist + 1
+	-	Minimize the sum of their values
+6.	Sliding Window + Multiset Optimization:
+	-	Use a sliding window over indices [1 .. n − 1]
+	-	Window size ≤ dist + 1
+	-	Maintain the **k − 1 smallest values** inside the window
+	-	Use two multisets:
+		-	small → holds k − 1 smallest elements
+		-	large → remaining elements
+7.	As the window slides:
+	-	Add new element
+	-	Remove outgoing element
+	-	Rebalance multisets
+8.	Track the minimum sum of `small`
+9.	Add nums[0] to the result
+10.	Time Complexity:
+	-	O(n log n)
+11.	Space Complexity:
+	-	O(n)
+
+	Solution
+
+class Solution {
+public:
+    long long minimumCost(vector<int>& nums, int k, int dist) {
+        int n = nums.size();
+        const long long INF = 1e18;
+
+        multiset<int> small, large;
+        long long sumSmall = 0;
+        long long ans = INF;
+
+        auto add = [&](int x) {
+            if (small.size() < k - 1) {
+                small.insert(x);
+                sumSmall += x;
+            } else if (!small.empty() && x < *prev(small.end())) {
+                auto it = prev(small.end());
+                large.insert(*it);
+                sumSmall -= *it;
+                small.erase(it);
+                small.insert(x);
+                sumSmall += x;
+            } else {
+                large.insert(x);
+            }
+        };
+
+        auto remove = [&](int x) {
+            auto it = small.find(x);
+            if (it != small.end()) {
+                sumSmall -= x;
+                small.erase(it);
+                if (!large.empty()) {
+                    auto it2 = large.begin();
+                    sumSmall += *it2;
+                    small.insert(*it2);
+                    large.erase(it2);
+                }
+            } else {
+                large.erase(large.find(x));
+            }
+        };
+
+        // Initialize window
+        for (int i = 1; i <= dist + 1 && i < n; i++) {
+            add(nums[i]);
+        }
+
+        if (small.size() == k - 1)
+            ans = min(ans, sumSmall);
+
+        // Slide window
+        for (int i = dist + 2; i < n; i++) {
+            add(nums[i]);
+            remove(nums[i - (dist + 1)]);
+            if (small.size() == k - 1)
+                ans = min(ans, sumSmall);
+        }
+
+        return nums[0] + ans;
+    }
+};
