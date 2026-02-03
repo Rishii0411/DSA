@@ -1,0 +1,53 @@
+2026-02-03 | Check if an Array is Trionic
+
+	Question
+Given an integer array nums,  
+return true if nums is trionic, otherwise return false.
+
+	Approach
+1.	Start from index 0 and move forward while the sequence is strictly increasing.
+2.	Mark the index **p** where the increasing sequence ends.
+	-	If no increase happens or we reach the end, return false.
+3.	From index p, move forward while the sequence is strictly decreasing.
+4.	Mark the index **q** where the decreasing sequence ends.
+	-	If no decrease happens or we reach the end, return false.
+5.	From index q, move forward while the sequence is strictly increasing.
+6.	If this final increasing sequence reaches the last index (n − 1),
+	-	and all three phases were valid,
+	-	then the array is trionic.
+7.	Otherwise, return false.
+8.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool isTrionic(vector<int>& nums) {
+        int n = nums.size();
+        if (n < 4) return false;
+
+        int i = 0;
+
+        // 1. Strictly increasing
+        while (i + 1 < n && nums[i] < nums[i + 1]) {
+            i++;
+        }
+        if (i == 0 || i == n - 1) return false;
+        int p = i;
+
+        // 2. Strictly decreasing
+        while (i + 1 < n && nums[i] > nums[i + 1]) {
+            i++;
+        }
+        if (i == p || i == n - 1) return false;
+        int q = i;
+
+        // 3. Strictly increasing
+        while (i + 1 < n && nums[i] < nums[i + 1]) {
+            i++;
+        }
+
+        return i == n - 1;
+    }
+};
