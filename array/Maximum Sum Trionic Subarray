@@ -1,0 +1,90 @@
+2026-02-04 | Maximum Sum Trionic Subarray
+
+	Question
+Given an integer array nums,  
+return the maximum sum of any contiguous subarray that is trionic.
+
+	Approach
+1.	Key idea:
+	-	A trionic subarray is an **increase → decrease → increase** pattern.
+	-	This is similar to combining three monotonic segments.
+2.	We preprocess information about increasing and decreasing sequences:
+	1.	leftInc[i]:
+		-	The maximum sum of a strictly increasing subarray ending at index i.
+	2.	midDec[i]:
+		-	The maximum sum of a strictly decreasing subarray starting at index i.
+	3.	rightInc[i]:
+		-	The maximum sum of a strictly increasing subarray starting at index i.
+3.	Compute leftInc:
+	-	Traverse left to right.
+	-	If nums[i] > nums[i−1], extend the sequence.
+	-	Otherwise, start a new sequence at i.
+4.	Compute midDec:
+	-	Traverse left to right.
+	-	If nums[i] < nums[i−1], extend the decreasing sequence.
+	-	Otherwise, reset.
+5.	Compute rightInc:
+	-	Traverse right to left.
+	-	If nums[i] < nums[i+1], extend the increasing sequence.
+	-	Otherwise, reset.
+6.	Now consider every index i as the **middle turning point** (inside the decreasing part):
+	-	A valid trionic shape exists if:
+		-	leftInc[i−1] exists (first increasing part),
+		-	midDec[i] exists (decreasing part),
+		-	rightInc[i+1] exists (last increasing part).
+7.	The sum of such a trionic subarray is:
+		leftInc[i−1] + midDec[i] + rightInc[i+1]
+8.	Take the maximum over all valid i.
+9.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    long long maxTrionicSum(vector<int>& nums) {
+        int n = nums.size();
+        if (n < 4) return 0;
+
+        vector<long long> leftInc(n), midDec(n), rightInc(n);
+
+        // 1. Maximum sum of strictly increasing subarray ending at i
+        leftInc[0] = nums[0];
+        for (int i = 1; i < n; i++) {
+            if (nums[i] > nums[i - 1])
+                leftInc[i] = leftInc[i - 1] + nums[i];
+            else
+                leftInc[i] = nums[i];
+        }
+
+        // 2. Maximum sum of strictly decreasing subarray starting at i
+        midDec[n - 1] = nums[n - 1];
+        for (int i = n - 2; i >= 0; i--) {
+            if (nums[i] > nums[i + 1])
+                midDec[i] = midDec[i + 1] + nums[i];
+            else
+                midDec[i] = nums[i];
+        }
+
+        // 3. Maximum sum of strictly increasing subarray starting at i
+        rightInc[n - 1] = nums[n - 1];
+        for (int i = n - 2; i >= 0; i--) {
+            if (nums[i] < nums[i + 1])
+                rightInc[i] = rightInc[i + 1] + nums[i];
+            else
+                rightInc[i] = nums[i];
+        }
+
+        long long ans = 0;
+
+        // Combine three phases
+        for (int i = 1; i <= n - 3; i++) {
+            // i is inside the decreasing part
+            if (nums[i - 1] < nums[i] && nums[i] > nums[i + 1] && nums[i + 1] < nums[i + 2]) {
+                ans = max(ans, leftInc[i] + midDec[i + 1] + rightInc[i + 2]);
+            }
+        }
+
+        return ans;
+    }
+};
