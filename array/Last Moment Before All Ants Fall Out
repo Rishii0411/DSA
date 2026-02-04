@@ -1,0 +1,41 @@
+2026-02-04|Last Moment Before All Ants Fall Out
+
+	Question
+Given n, left[], and right[],  
+return the time at which the final ant (or ants) falls off the plank.
+
+	Approach
+1.	Key insight:
+	-	When two ants collide and reverse direction, it is equivalent to them **passing through each other**.
+	-	This means collisions do **not affect the final falling times**.
+2.	So we can treat each ant as moving straight to its respective end without interaction.
+3.	Time taken:
+	-	For an ant at position x moving left → time = x
+	-	For an ant at position x moving right → time = n − x
+4.	The answer is simply the **maximum** of:
+	-	all positions in left[]
+	-	all values (n − position) for positions in right[]
+5.	This works because all ants move at the same speed.
+6.	Time Complexity: O(L + R)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    int lastMoment(int n, vector<int>& left, vector<int>& right) {
+        int ans = 0;
+
+        // Ants moving left
+        for (int x : left) {
+            ans = max(ans, x);
+        }
+
+        // Ants moving right
+        for (int x : right) {
+            ans = max(ans, n - x);
+        }
+
+        return ans;
+    }
+};
