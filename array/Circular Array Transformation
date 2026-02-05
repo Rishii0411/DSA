@@ -1,0 +1,46 @@
+2026-02-05|Circular Array Transformation
+
+	Question
+Given a circular integer array nums,  
+return a new array result such that each index follows the movement rules described above.
+
+	Approach
+1.	This is a direct **simulation with modular arithmetic**.
+2.	For each index i:
+	-	Compute the destination index using modulo n.
+3.	Key detail:
+	-	In C++, modulo with negative numbers can be negative.
+	-	So we normalize indices using:
+			(newIndex % n + n) % n
+4.	Steps:
+	1.	Let n = nums.size().
+	2.	For each i:
+		-	If nums[i] == 0 → result[i] = 0.
+		-	Else:
+			newIndex = (i + nums[i]) mod n
+			result[i] = nums[newIndex]
+5.	Time Complexity: O(n)  
+   Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> circularTransform(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> result(n);
+
+        for (int i = 0; i < n; i++) {
+            if (nums[i] == 0) {
+                result[i] = 0;
+            } else {
+                int newIndex = (i + nums[i]) % n;
+                if (newIndex < 0)
+                    newIndex += n;
+                result[i] = nums[newIndex];
+            }
+        }
+
+        return result;
+    }
+};
