@@ -1,0 +1,49 @@
+2026-02-05|Maximum Consecutive Ones After Flipping at Most k Zeros
+
+	Question
+Given a binary array arr[] and an integer k,  
+find the maximum length of a contiguous subarray containing only 1s after flipping at most k zeros.
+
+	Approach
+1.	This problem is best solved using the **sliding window (two-pointer)** technique.
+2.	We maintain a window [l … r] such that:
+	-	The number of zeros inside the window ≤ k.
+3.	Algorithm steps:
+	1.	Initialize two pointers `l = 0`, `r = 0`.
+	2.	Maintain a counter `zeroCount` for the number of 0s in the current window.
+	3.	Expand the window by moving `r`:
+		-	If arr[r] == 0, increment `zeroCount`.
+	4.	If `zeroCount > k`, shrink the window from the left:
+		-	If arr[l] == 0, decrement `zeroCount`.
+		-	Move `l` forward.
+	5.	At each step, update the answer as:
+			maxLen = max(maxLen, r − l + 1)
+4.	The window always represents the longest valid segment ending at `r`.
+5.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    int longestOnes(vector<int>& arr, int k) {
+        int l = 0;
+        int zeroCount = 0;
+        int maxLen = 0;
+
+        for (int r = 0; r < arr.size(); r++) {
+            if (arr[r] == 0)
+                zeroCount++;
+
+            while (zeroCount > k) {
+                if (arr[l] == 0)
+                    zeroCount--;
+                l++;
+            }
+
+            maxLen = max(maxLen, r - l + 1);
+        }
+
+        return maxLen;
+    }
+};
