@@ -1,0 +1,76 @@
+2026-02-06|Happiest Triplet from Three Arrays
+
+	Question
+Given arrays a[], b[], and c[],  
+find and print the happiest triplet following the above rules.
+
+	Approach
+1.	Sort all three arrays in ascending order.
+2.	Use the **three-pointer technique**:
+	-	Initialize pointers i, j, k at the start of a, b, and c.
+3.	At each step:
+	-	Let x = a[i], y = b[j], z = c[k].
+	-	Compute:
+			currentMax = max(x, y, z)
+			currentMin = min(x, y, z)
+			diff = currentMax − currentMin
+			sum = x + y + z
+	-	Update the best answer if:
+		-	diff is smaller, or
+		-	diff is equal and sum is smaller.
+4.	To reduce the difference, move the pointer that currently
+	points to the **minimum element**, because increasing the minimum
+	is the only way to possibly reduce (max − min).
+5.	Repeat until any pointer reaches the end of its array.
+6.	Time Complexity:
+	-	O(n log n) due to sorting.
+7.	Space Complexity:
+	-	O(1) extra space (excluding sorting).
+
+	Solution
+
+class Solution {
+public:
+    vector<int> happiestTriplet(vector<int>& a, vector<int>& b, vector<int>& c) {
+        sort(a.begin(), a.end());
+        sort(b.begin(), b.end());
+        sort(c.begin(), c.end());
+
+        int i = 0, j = 0, k = 0;
+        int bestDiff = INT_MAX;
+        int bestSum = INT_MAX;
+        vector<int> best(3);
+
+        while (i < a.size() && j < b.size() && k < c.size()) {
+            int x = a[i], y = b[j], z = c[k];
+
+            int currentMax = max({x, y, z});
+            int currentMin = min({x, y, z});
+            int diff = currentMax - currentMin;
+            int sum = x + y + z;
+
+            if (diff < bestDiff || (diff == bestDiff && sum < bestSum)) {
+                bestDiff = diff;
+                bestSum = sum;
+                best = {x, y, z};
+            }
+
+            // Move pointer at minimum element
+            if (currentMin == x) i++;
+            else if (currentMin == y) j++;
+            else k++;
+        }
+
+        // Sort triplet in decreasing order
+        sort(best.begin(), best.end(), greater<int>());
+        return best;
+    }
+};
+
+	Output Format
+The returned vector contains the happiest triplet in **decreasing order**.
+
+	Key Insight
+The optimal triplet always lies among combinations where the
+current minimum element is progressively increased—this is why
+the three-pointer greedy strategy works efficiently.
