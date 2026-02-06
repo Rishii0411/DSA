@@ -1,0 +1,58 @@
+2026-02-06|Minimum Removals to Make Array Balanced
+
+	Question
+Given nums and k,  
+return the **minimum number of elements to remove** so that the remaining array is balanced.
+
+	Approach
+1.	Key observation:
+	-	Instead of thinking about removing elements, it is easier to think about
+		**keeping the largest possible balanced subarray**.
+	-	Answer = n − (size of largest balanced subarray).
+2.	Sort the array nums in ascending order.
+	-	After sorting, the minimum is at the left end,
+		and the maximum is at the right end of any window.
+3.	Use a **sliding window (two pointers)**:
+	-	Let l be the left pointer, r be the right pointer.
+	-	Maintain the window nums[l … r].
+4.	The window is valid (balanced) if:
+			nums[r] ≤ k × nums[l]
+5.	Algorithm steps:
+	1.	Initialize l = 0.
+	2.	For r from 0 to n−1:
+		-	While nums[r] > k × nums[l], increment l.
+		-	Update maxLen = max(maxLen, r − l + 1).
+6.	The largest valid window gives the maximum number of elements we can keep.
+7.	Minimum removals = n − maxLen.
+8.	Time Complexity: O(n log n) due to sorting  
+   Space Complexity: O(1) extra space
+
+	Solution
+
+class Solution {
+public:
+    int minimumRemovals(vector<int>& nums, int k) {
+        int n = nums.size();
+        if (n <= 1) return 0;
+
+        sort(nums.begin(), nums.end());
+
+        int l = 0;
+        int maxLen = 1;
+
+        for (int r = 0; r < n; r++) {
+            while ((long long)nums[r] > (long long)k * nums[l]) {
+                l++;
+            }
+            maxLen = max(maxLen, r - l + 1);
+        }
+
+        return n - maxLen;
+    }
+};
+
+	Key Insight
+By sorting and using a sliding window, we efficiently keep the
+largest subset where the smallest and largest elements satisfy
+the balance condition. Removing everything outside this window
+minimizes deletions.
