@@ -1,0 +1,50 @@
+2026-02-03|Minimum Deletions to Make String Balanced
+
+	Question
+Given a string s of only `'a'` and `'b'`,  
+return the minimum number of deletions required to make s balanced.
+
+	Approach
+1.	Key insight:
+	-	A violation occurs when a `'b'` appears before an `'a'`.
+	-	To fix this, we must delete either:
+		-	The `'b'` before, or
+		-	The `'a'` after.
+2.	Greedy strategy:
+	-	Traverse the string from left to right.
+	-	Keep track of:
+		-	`countB`: number of `'b'` characters seen so far.
+		-	`deletions`: minimum deletions needed up to the current index.
+3.	For each character:
+	-	If it is `'b'`:
+		-	Increment `countB`.
+	-	If it is `'a'`:
+		-	This creates a conflict with all previous `'b'`s.
+		-	We have two choices:
+			1.	Delete this `'a'` → deletions + 1
+			2.	Delete all previous `'b'`s → countB
+		-	Choose the minimum of these two options.
+4.	Update deletions accordingly.
+5.	The final value of `deletions` is the answer.
+6.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    int minimumDeletions(string s) {
+        int countB = 0;
+        int deletions = 0;
+
+        for (char c : s) {
+            if (c == 'b') {
+                countB++;
+            } else { // c == 'a'
+                deletions = min(deletions + 1, countB);
+            }
+        }
+
+        return deletions;
+    }
+};
