@@ -1,0 +1,60 @@
+2026-02-03|Maximum Value of ∑ i·arr[i] After Rotations
+
+	Question
+Given an array arr[],  
+return the maximum value of ∑ i·arr[i] that can be obtained by rotating the array.
+
+	Approach
+1.	Brute force approach:
+	-	Try all n rotations.
+	-	For each rotation, compute the sum in O(n).
+	-	Total complexity O(n²) → too slow.
+2.	Optimized observation:
+	-	Let:
+			R₀ = ∑ i·arr[i]  (value for the original array)
+			arrSum = ∑ arr[i]
+3.	There is a recurrence relation between consecutive rotations:
+	-	If Rₖ is the value after k rotations,
+	  then the next rotation value is:
+			Rₖ₊₁ = Rₖ + arrSum − n × arr[n−1−k]
+4.	This allows computing each rotation’s value in O(1).
+5.	Algorithm steps:
+	1.	Compute arrSum and R₀.
+	2.	Initialize ans = R₀.
+	3.	Iterate through remaining n−1 rotations:
+		-	Use the recurrence to compute the next value.
+		-	Update ans with the maximum value found.
+6.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    int maxRotateFunction(vector<int>& arr) {
+        int n = arr.size();
+        long long arrSum = 0;
+        long long currVal = 0;
+
+        // Compute arrSum and initial value R0
+        for (int i = 0; i < n; i++) {
+            arrSum += arr[i];
+            currVal += (long long)i * arr[i];
+        }
+
+        long long ans = currVal;
+
+        // Compute values for other rotations
+        for (int k = 1; k < n; k++) {
+            currVal = currVal + arrSum - (long long)n * arr[n - k];
+            ans = max(ans, currVal);
+        }
+
+        return (int)ans;
+    }
+};
+
+	Key Insight
+Instead of recomputing the weighted sum after every rotation,
+we reuse the previous result using a mathematical recurrence,
+reducing the time complexity from O(n²) to O(n).
