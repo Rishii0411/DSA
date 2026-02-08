@@ -1,0 +1,49 @@
+2026-02-08|Check if a Binary Tree Is Height-Balanced
+
+	Question
+Given the root of a binary tree,  
+return true if the tree is height-balanced, otherwise return false.
+
+	Approach
+1.	Use **Depth-First Search (DFS)** to compute heights bottom-up.
+2.	For each node:
+	-	Recursively compute the height of the left subtree.
+	-	Recursively compute the height of the right subtree.
+3.	If at any node:
+		|leftHeight − rightHeight| > 1  
+	then the tree is **not balanced**.
+4.	To optimize:
+	-	Return **−1** immediately if an unbalanced subtree is found.
+	-	This avoids unnecessary further computation.
+5.	If DFS completes without finding imbalance, the tree is balanced.
+6.	Time Complexity: O(n)  
+   Space Complexity: O(h), where h is the height of the tree (recursion stack).
+
+	Solution
+
+class Solution {
+public:
+    int height(TreeNode* root) {
+        if (!root) return 0;
+
+        int leftH = height(root->left);
+        if (leftH == -1) return -1;
+
+        int rightH = height(root->right);
+        if (rightH == -1) return -1;
+
+        if (abs(leftH - rightH) > 1)
+            return -1;
+
+        return max(leftH, rightH) + 1;
+    }
+
+    bool isBalanced(TreeNode* root) {
+        return height(root) != -1;
+    }
+};
+
+	Key Insight
+Checking balance while computing heights allows early termination.
+If any subtree is unbalanced, the entire tree is unbalanced—no need
+to traverse further.
