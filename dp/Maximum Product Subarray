@@ -1,0 +1,59 @@
+2026-02-08|Maximum Product Subarray
+
+	Question
+Given an integer array arr[],  
+return the maximum product that can be obtained from any subarray.
+
+	Approach
+1.	Key insight:
+	-	At each position, the maximum product ending there depends on:
+		-	The previous maximum product
+		-	The previous minimum product (important because of negatives)
+2.	Why track minimum?
+	-	A large negative product multiplied by a negative number
+		can become the maximum.
+3.	Define:
+	-	maxProd → maximum product ending at current index
+	-	minProd → minimum product ending at current index
+4.	Initialization:
+	-	maxProd = minProd = ans = arr[0]
+5.	For each element arr[i] (i from 1 to n−1):
+	1.	If arr[i] is negative:
+		-	Swap maxProd and minProd
+	2.	Update:
+		-	maxProd = max(arr[i], maxProd × arr[i])
+		-	minProd = min(arr[i], minProd × arr[i])
+	3.	Update answer:
+		-	ans = max(ans, maxProd)
+6.	Zeros automatically reset the running products.
+7.	Time Complexity: O(n)  
+   Space Complexity: O(1)
+
+	Solution
+
+class Solution {
+public:
+    int maxProduct(vector<int>& arr) {
+        int n = arr.size();
+        int maxProd = arr[0];
+        int minProd = arr[0];
+        int ans = arr[0];
+
+        for (int i = 1; i < n; i++) {
+            if (arr[i] < 0)
+                swap(maxProd, minProd);
+
+            maxProd = max(arr[i], maxProd * arr[i]);
+            minProd = min(arr[i], minProd * arr[i]);
+
+            ans = max(ans, maxProd);
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Tracking both the maximum and minimum product at each step
+handles negative numbers correctly and allows the solution
+to run efficiently in linear time.
