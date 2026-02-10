@@ -1,0 +1,81 @@
+2026-02-10 | Longest Balanced Subarray (Distinct Evens = Distinct Odds)
+
+	Question
+Given nums[], return the length of the longest subarray in which the count of
+distinct even numbers equals the count of distinct odd numbers.
+
+	Approach
+1.	Key challenge:
+	-	We are not counting how many evens/odds,
+	-	We are counting how many **distinct** evens and odds.
+2.	Observation:
+	-	Whether a number is even or odd matters,
+	-	But duplicates should only be counted once per subarray.
+3.	Prefix-state trick:
+	-	Traverse the array and maintain:
+		-	A set of evens seen so far
+		-	A set of odds seen so far
+	-	Let:
+			diff = (#distinct evens) − (#distinct odds)
+4.	If two prefixes have the **same diff value**, then:
+	-	The subarray between them has equal distinct evens and odds.
+5.	Use a hash map:
+	-	key → diff
+	-	value → earliest index where this diff occurred
+6.	Algorithm:
+	1.	Initialize diff = 0
+	2.	Map diff = 0 at index −1 (base case)
+	3.	Iterate through nums:
+		-	If nums[i] is even and first time seen → diff++
+		-	If nums[i] is odd and first time seen → diff--
+		-	If diff seen before:
+				ans = max(ans, i − firstIndex[diff])
+		-	Else store current index
+7.	Time Complexity: O(n)
+8.	Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    int longestBalancedSubarray(vector<int>& nums) {
+        unordered_map<int, int> firstIndex;
+        unordered_set<int> seenEven, seenOdd;
+
+        int diff = 0;
+        int ans = 0;
+
+        // Base case: diff 0 at index -1
+        firstIndex[0] = -1;
+
+        for (int i = 0; i < nums.size(); i++) {
+            int x = nums[i];
+
+            if (x % 2 == 0) {
+                if (!seenEven.count(x)) {
+                    seenEven.insert(x);
+                    diff++;
+                }
+            } else {
+                if (!seenOdd.count(x)) {
+                    seenOdd.insert(x);
+                    diff--;
+                }
+            }
+
+            if (firstIndex.count(diff)) {
+                ans = max(ans, i - firstIndex[diff]);
+            } else {
+                firstIndex[diff] = i;
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+The problem reduces to tracking how the **difference between distinct evens and odds**
+evolves as we scan the array. Whenever this difference repeats, the subarray in between
+is perfectly balanced. Using a prefix-hash technique converts a tricky distinct-count
+problem into a linear-time solution.
