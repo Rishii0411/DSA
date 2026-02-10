@@ -1,0 +1,64 @@
+2026-02-10 | Minimum Eating Speed for Koko
+
+	Question
+Given an array arr[] and integer k,  
+return the minimum eating speed s such that Koko can eat all bananas within k hours.
+
+	Approach
+1.	Key observation:
+	-	If Koko eats faster (larger s), she needs **fewer or equal hours**.
+	-	If she eats slower (smaller s), she needs **more hours**.
+	-	This creates a **monotonic condition**, perfect for binary search.
+2.	Search space for s:
+	-	Minimum possible s = 1
+	-	Maximum possible s = max(arr[])
+3.	Define a helper function:
+	-	For a given s, compute total hours needed:
+			hours += ceil(arr[i] / s)
+4.	Binary Search logic:
+	-	If hours ≤ k:
+		-	s is valid → try smaller s
+	-	If hours > k:
+		-	s is too small → increase s
+5.	The smallest valid s found is the answer.
+6.	Time Complexity:
+	-	O(n log max(arr))
+7.	Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool canFinish(vector<int>& arr, int k, int s) {
+        long long hours = 0;
+        for (int bananas : arr) {
+            hours += (bananas + s - 1) / s;  // ceil(bananas / s)
+        }
+        return hours <= k;
+    }
+
+    int minEatingSpeed(vector<int>& arr, int k) {
+        int low = 1;
+        int high = *max_element(arr.begin(), arr.end());
+        int ans = high;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (canFinish(arr, k, mid)) {
+                ans = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+The number of hours required is a **monotonic function** of eating speed.
+Binary search allows us to efficiently find the smallest speed that satisfies
+the time constraint, reducing the problem from brute force to logarithmic time.
