@@ -1,0 +1,65 @@
+2026-02-11 | Minimum Cost to Equalize Tower Heights
+
+	Question
+Given heights[] and cost[],  
+return the minimum total cost required to make all tower heights equal.
+
+	Approach
+1.	If we choose a target height H,
+		total cost = Σ |heights[i] − H| × cost[i]
+2.	This function is **convex** with respect to H.
+3.	The optimal H is the **weighted median** of heights
+	(using cost[] as weights).
+4.	Steps:
+	1.	Create pairs (height, cost).
+	2.	Sort by height.
+	3.	Compute total weight = sum(cost[i]).
+	4.	Find the smallest height where cumulative weight
+			≥ totalWeight / 2.
+	5.	That height is the optimal target.
+5.	Compute total cost using that height.
+6.	Time Complexity: O(n log n) (due to sorting)
+7.	Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    long long minCost(vector<int>& heights, vector<int>& cost) {
+        int n = heights.size();
+        vector<pair<long long, long long>> towers;
+
+        for (int i = 0; i < n; i++) {
+            towers.push_back({heights[i], cost[i]});
+        }
+
+        sort(towers.begin(), towers.end());
+
+        long long totalWeight = 0;
+        for (auto &p : towers)
+            totalWeight += p.second;
+
+        long long cumulative = 0;
+        long long target = 0;
+
+        for (auto &p : towers) {
+            cumulative += p.second;
+            if (cumulative * 2 >= totalWeight) {
+                target = p.first;
+                break;
+            }
+        }
+
+        long long ans = 0;
+        for (auto &p : towers) {
+            ans += abs(p.first - target) * p.second;
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+The cost function forms a convex curve.  
+The optimal equal height is the **weighted median**, which minimizes
+the sum of weighted absolute deviations.
