@@ -1,0 +1,58 @@
+2026-02-11 | Longest Balanced Subarray (Distinct Evens = Distinct Odds)
+
+	Question
+Given nums[], return the length of the longest subarray where
+the count of distinct even numbers equals the count of distinct odd numbers.
+
+	Approach
+1.	Key observation:
+	-	The constraint is on distinct values, not counts.
+	-	We must track distinct evens and distinct odds per subarray.
+2.	Since distinct tracking depends on the subarray,
+	we use a sliding start approach:
+3.	For each starting index i:
+	-	Use two hash sets:
+		-	one for distinct even values
+		-	one for distinct odd values
+	-	Expand the subarray from i to the right.
+	-	Update sets accordingly.
+4.	At each extension:
+	-	If sizes of both sets are equal,
+			update maximum length.
+5.	Time Complexity:
+	-	O(n²) in worst case
+6.	Space Complexity:
+	-	O(n) for sets
+
+	Solution
+
+class Solution {
+public:
+    int longestBalancedSubarray(vector<int>& nums) {
+        int n = nums.size();
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            unordered_set<int> evenSet;
+            unordered_set<int> oddSet;
+
+            for (int j = i; j < n; j++) {
+                if (nums[j] % 2 == 0)
+                    evenSet.insert(nums[j]);
+                else
+                    oddSet.insert(nums[j]);
+
+                if (evenSet.size() == oddSet.size()) {
+                    ans = max(ans, j - i + 1);
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Since the condition depends on distinct elements inside each subarray,
+we must explicitly track them while expanding the window.
+Although O(n²), this approach correctly captures distinct parity balance.
