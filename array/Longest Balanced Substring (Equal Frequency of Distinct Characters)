@@ -1,0 +1,71 @@
+2026-02-12 | Longest Balanced Substring (Equal Frequency of Distinct Characters)
+
+	Question
+Given a string s, return the length of the longest substring
+where all distinct characters occur the same number of times.
+
+	Approach
+1.	Key observation:
+	-	If a substring has:
+			d distinct characters
+			and each appears f times,
+	  then:
+			length = d × f
+2.	Since the string contains only lowercase letters,
+   the maximum distinct characters possible = 26.
+3.	Brute-force with optimization:
+	-	Fix a starting index i.
+	-	Maintain a frequency array of size 26.
+	-	Expand the substring to the right.
+4.	At each extension:
+	-	Update frequency.
+	-	Track:
+		-	distinct count
+		-	max frequency
+5.	A substring is balanced if:
+			length == distinct × maxFrequency
+6.	Update answer accordingly.
+7.	Time Complexity:
+	-	O(26 × n²) worst case
+	-	Practical because distinct count is bounded by 26.
+8.	Space Complexity:
+	-	O(1) (frequency array size 26)
+
+	Solution
+
+class Solution {
+public:
+    int longestBalancedSubstring(string s) {
+        int n = s.size();
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            vector<int> freq(26, 0);
+            int distinct = 0;
+            int maxFreq = 0;
+
+            for (int j = i; j < n; j++) {
+                int idx = s[j] - 'a';
+
+                if (freq[idx] == 0)
+                    distinct++;
+
+                freq[idx]++;
+                maxFreq = max(maxFreq, freq[idx]);
+
+                int length = j - i + 1;
+
+                if (length == distinct * maxFreq)
+                    ans = max(ans, length);
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+A substring is balanced if its total length equals
+(number of distinct characters × frequency of each).
+Since the alphabet size is fixed (26), we can efficiently
+check all substrings with a frequency table.
