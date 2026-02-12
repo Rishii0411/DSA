@@ -1,0 +1,80 @@
+2026-02-12 | Maximize Minimum Flower Height After k Days
+
+	Question
+Given arr[], k days, and window size w,
+return the maximum possible minimum height after watering optimally.
+
+	Approach
+1.	Key idea:
+	-	We want to maximize the minimum height.
+	-	This is a classic **binary search on answer** problem.
+2.	Search space:
+	-	Minimum possible height = current minimum in arr
+	-	Maximum possible height = current minimum + k
+3.	For a candidate height H:
+	-	Check if it is possible to make every flower ≥ H
+	  using at most k watering operations.
+4.	Greedy feasibility check:
+	-	Use a difference array to simulate watering efficiently.
+	-	Traverse left to right.
+	-	If current effective height < H:
+		-	We must add (H − currentHeight) operations starting here.
+		-	Increase operation count.
+		-	Update difference array to simulate range increment of length w.
+	-	If total operations exceed k → not feasible.
+5.	If feasible, try larger H.
+6.	Time Complexity:
+	-	O(n log k)
+7.	Space Complexity:
+	-	O(n)
+
+	Solution
+
+class Solution {
+public:
+    bool canAchieve(vector<int>& arr, int k, int w, long long target) {
+        int n = arr.size();
+        vector<long long> diff(n + 1, 0);
+        long long ops = 0, currAdd = 0;
+
+        for (int i = 0; i < n; i++) {
+            currAdd += diff[i];
+            long long currHeight = arr[i] + currAdd;
+
+            if (currHeight < target) {
+                long long need = target - currHeight;
+                ops += need;
+                if (ops > k) return false;
+
+                currAdd += need;
+                if (i + w < n)
+                    diff[i + w] -= need;
+            }
+        }
+        return true;
+    }
+
+    long long maximizeMinHeight(vector<int>& arr, int k, int w) {
+        long long low = *min_element(arr.begin(), arr.end());
+        long long high = low + k;
+        long long ans = low;
+
+        while (low <= high) {
+            long long mid = low + (high - low) / 2;
+
+            if (canAchieve(arr, k, w, mid)) {
+                ans = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+The minimum height we can achieve is monotonic with respect to operations.
+Binary search combined with a greedy difference-array simulation
+allows efficient checking of feasibility in linear time per attempt.
