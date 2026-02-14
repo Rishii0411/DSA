@@ -1,0 +1,55 @@
+2026-02-14 | Champagne Tower
+
+	Question
+Given poured, i, j,
+return the amount of champagne in glass (i, j).
+
+	Approach
+1.	This is a direct **dynamic programming simulation**.
+2.	Create a 2D array dp[101][101].
+	-	dp[r][c] represents champagne in glass (r, c).
+3.	Initialize:
+		dp[0][0] = poured
+4.	Process row by row:
+	For each glass:
+		If dp[r][c] > 1:
+			overflow = dp[r][c] − 1
+			dp[r][c] = 1
+			dp[r+1][c] += overflow / 2
+			dp[r+1][c+1] += overflow / 2
+5.	Continue until row i is computed.
+6.	Return:
+		min(1.0, dp[i][j])
+7.	Time Complexity:
+	-	O(i²) ≤ 100²
+8.	Space Complexity:
+	-	O(100²)
+
+	Solution
+
+class Solution {
+public:
+    double champagneTower(int poured, int query_row, int query_glass) {
+        vector<vector<double>> dp(101, vector<double>(101, 0.0));
+        dp[0][0] = poured;
+
+        for (int r = 0; r < 100; r++) {
+            for (int c = 0; c <= r; c++) {
+                if (dp[r][c] > 1.0) {
+                    double overflow = dp[r][c] - 1.0;
+                    dp[r][c] = 1.0;
+                    dp[r + 1][c] += overflow / 2.0;
+                    dp[r + 1][c + 1] += overflow / 2.0;
+                }
+            }
+        }
+
+        return min(1.0, dp[query_row][query_glass]);
+    }
+};
+
+	Key Insight
+This is a pure simulation problem.
+Since the maximum depth is only 100 rows,
+a straightforward dynamic programming solution
+is efficient and simple to implement.
