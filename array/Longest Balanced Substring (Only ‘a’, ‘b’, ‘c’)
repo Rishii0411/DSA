@@ -1,0 +1,78 @@
+2026-02-14 | Longest Balanced Substring (Only ‘a’, ‘b’, ‘c’)
+
+	Question
+Given string s (only 'a', 'b', 'c'),
+return the length of the longest balanced substring.
+
+	Approach
+1.	Since only three characters exist,
+	let:
+		countA = number of 'a' so far
+		countB = number of 'b' so far
+		countC = number of 'c' so far
+2.	A substring is balanced if:
+		countA == countB == countC
+3.	Rewriting condition:
+		(countA − countB) == 0
+		(countA − countC) == 0
+4.	Idea:
+	-	Track two differences as prefix state:
+			diff1 = countA − countB
+			diff2 = countA − countC
+5.	If two prefixes have the same (diff1, diff2),
+	then the substring between them is balanced.
+6.	Use a hashmap:
+	-	key = pair(diff1, diff2)
+	-	value = earliest index where this pair occurred
+7.	Initialize:
+	-	(diff1, diff2) = (0, 0) at index −1
+8.	Traverse string:
+	-	Update counts
+	-	Compute (diff1, diff2)
+	-	If seen before:
+			update answer
+		else:
+			store index
+9.	Time Complexity: O(n)
+10.	Space Complexity: O(n)
+
+	Solution
+
+class Solution {
+public:
+    int longestBalancedSubstring(string s) {
+        unordered_map<string, int> firstIndex;
+
+        int countA = 0, countB = 0, countC = 0;
+        int ans = 0;
+
+        // Base case
+        firstIndex["0#0"] = -1;
+
+        for (int i = 0; i < s.size(); i++) {
+            if (s[i] == 'a') countA++;
+            else if (s[i] == 'b') countB++;
+            else countC++;
+
+            int diff1 = countA - countB;
+            int diff2 = countA - countC;
+
+            string key = to_string(diff1) + "#" + to_string(diff2);
+
+            if (firstIndex.count(key)) {
+                ans = max(ans, i - firstIndex[key]);
+            } else {
+                firstIndex[key] = i;
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Instead of checking all substrings,
+we convert the equality condition into
+a prefix difference matching problem.
+Tracking two difference values allows us
+to solve the problem in linear time.
