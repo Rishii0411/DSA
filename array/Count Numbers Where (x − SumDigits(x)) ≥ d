@@ -1,0 +1,67 @@
+2026-02-14 | Count Numbers Where (x − SumDigits(x)) ≥ d
+
+	Question
+Given n and d,
+return how many numbers x (1 ≤ x ≤ n) satisfy:
+		x − sum_of_digits(x) ≥ d.
+
+	Approach
+1.	Observation:
+	-	The function:
+			f(x) = x − sum_of_digits(x)
+	  is monotonically increasing.
+	-	Reason:
+		x increases by 1 each step,
+		sum_of_digits(x) increases slowly (at most 9 per digit reset).
+2.	Because f(x) is monotonic,
+	we can use **binary search** to find
+	the smallest x such that:
+			f(x) ≥ d
+3.	Let that smallest value be L.
+4.	All numbers from L to n satisfy the condition.
+5.	If L > n → answer is 0.
+6.	Otherwise:
+			answer = n − L + 1
+7.	Time Complexity:
+	-	O(log n × log₁₀(n))
+8.	Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    long long digitSum(long long x) {
+        long long sum = 0;
+        while (x > 0) {
+            sum += x % 10;
+            x /= 10;
+        }
+        return sum;
+    }
+
+    long long countNumbers(long long n, long long d) {
+        long long low = 1, high = n;
+        long long ans = n + 1;  // store smallest valid x
+
+        while (low <= high) {
+            long long mid = low + (high - low) / 2;
+            long long value = mid - digitSum(mid);
+
+            if (value >= d) {
+                ans = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        if (ans > n) return 0;
+        return n - ans + 1;
+    }
+};
+
+	Key Insight
+Since x − sum_of_digits(x) is monotonic,
+we can binary search the first valid number
+and count all remaining numbers efficiently.
