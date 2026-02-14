@@ -1,0 +1,84 @@
+2026-02-14 | Painter’s Partition Problem (Minimum Time)
+
+This is essentially about splitting the array into k contiguous parts
+such that the maximum sum among those parts is minimized.
+
+	Question
+Given arr[] and k painters,
+return the minimum time needed to paint all boards.
+
+	Approach
+1.	Key Observation:
+	-	If we assume a time limit T,
+	  we can check if k painters are enough
+	  such that no painter paints more than T total length.
+	-	This forms a monotonic condition.
+2.	Search Space:
+	-	Minimum time = max(arr[i])
+	-	Maximum time = sum(arr[i])
+3.	Binary Search:
+	-	Mid = candidate maximum time per painter.
+	-	Check feasibility:
+		-	Greedy assign boards to painters.
+		-	If current painter exceeds mid,
+			assign new painter.
+	-	If painters used ≤ k:
+			try smaller time.
+	-	Else:
+			increase time.
+4.	Time Complexity:
+	-	O(n log(sum(arr)))
+5.	Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool isPossible(vector<int>& arr, int k, long long maxTime) {
+        long long currSum = 0;
+        int painters = 1;
+
+        for (int length : arr) {
+            if (currSum + length <= maxTime) {
+                currSum += length;
+            } else {
+                painters++;
+                currSum = length;
+                if (painters > k)
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    long long minTime(vector<int>& arr, int k) {
+        long long low = *max_element(arr.begin(), arr.end());
+        long long high = 0;
+
+        for (int x : arr)
+            high += x;
+
+        long long ans = high;
+
+        while (low <= high) {
+            long long mid = low + (high - low) / 2;
+
+            if (isPossible(arr, k, mid)) {
+                ans = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+This problem reduces to minimizing the maximum subarray sum
+when partitioning into k contiguous parts.
+Binary search on answer combined with greedy validation
+gives the most optimized solution.
