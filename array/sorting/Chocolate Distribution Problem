@@ -1,0 +1,55 @@
+2026-02-15 | Chocolate Distribution Problem
+
+	Question
+Given arr[] and integer m,
+return the minimum possible difference between the maximum and
+minimum chocolates among m selected packets.
+
+	Approach
+1.	Key Idea:
+	-	We must choose m packets.
+	-	We want to minimize:
+			max(selected) − min(selected)
+2.	Optimal strategy:
+	-	Sort the array.
+	-	After sorting, the best candidates
+		will be among consecutive elements.
+3.	Why consecutive?
+	-	If we pick any non-consecutive group,
+	  there exists a tighter consecutive group
+	  with smaller difference.
+4.	Algorithm:
+	1.	Sort arr.
+	2.	Slide a window of size m.
+	3.	For each window:
+			diff = arr[i + m − 1] − arr[i]
+	4.	Track minimum diff.
+5.	Time Complexity:
+	-	O(n log n) (sorting)
+6.	Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int minDifference(vector<int>& arr, int m) {
+        int n = arr.size();
+        if (m == 0 || m > n) return 0;
+
+        sort(arr.begin(), arr.end());
+
+        int minDiff = INT_MAX;
+
+        for (int i = 0; i + m - 1 < n; i++) {
+            minDiff = min(minDiff, arr[i + m - 1] - arr[i]);
+        }
+
+        return minDiff;
+    }
+};
+
+	Key Insight
+After sorting, the best distribution must come from
+a consecutive group of size m.
+A sliding window gives the optimal solution efficiently.
