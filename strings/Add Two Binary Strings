@@ -1,0 +1,61 @@
+2026-02-15 | Add Two Binary Strings
+
+	Question
+Given binary strings a and b,
+return their sum as a binary string.
+
+	Approach
+1.	We simulate binary addition from right to left.
+2.	Initialize:
+		i = last index of a
+		j = last index of b
+		carry = 0
+3.	While i ≥ 0 OR j ≥ 0 OR carry > 0:
+		sum = carry
+		if i ≥ 0 → add (a[i] − '0')
+		if j ≥ 0 → add (b[j] − '0')
+		result digit = sum % 2
+		carry = sum / 2
+4.	Append result digit to a string.
+5.	Reverse the result at the end.
+6.	Time Complexity:
+		O(max(n, m))
+7.	Space Complexity:
+		O(max(n, m))
+
+	Solution
+
+class Solution {
+public:
+    string addBinary(string a, string b) {
+        int i = a.size() - 1;
+        int j = b.size() - 1;
+        int carry = 0;
+        string result = "";
+
+        while (i >= 0 || j >= 0 || carry) {
+            int sum = carry;
+
+            if (i >= 0) {
+                sum += a[i] - '0';
+                i--;
+            }
+
+            if (j >= 0) {
+                sum += b[j] - '0';
+                j--;
+            }
+
+            result.push_back((sum % 2) + '0');
+            carry = sum / 2;
+        }
+
+        reverse(result.begin(), result.end());
+        return result;
+    }
+};
+
+	Key Insight
+This problem is simply manual binary addition.
+Process digits from right to left while maintaining carry,
+then reverse the final constructed string.
