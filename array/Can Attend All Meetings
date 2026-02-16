@@ -1,0 +1,44 @@
+2026-02-16 | Can Attend All Meetings
+
+	Question
+Given meeting intervals arr[][],
+return true if a person can attend all meetings,
+otherwise return false.
+
+	Approach
+1.	Key idea:
+	-	If any two meetings overlap,
+	  then it is impossible to attend both.
+2.	Sort the meetings by their starting time.
+3.	Traverse the sorted intervals:
+	-	For each meeting i:
+		If arr[i][0] < arr[i−1][1]
+			→ Overlap exists → return false
+4.	If no overlap found, return true.
+5.	Time Complexity:
+	-	O(n log n) due to sorting
+6.	Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool canAttendMeetings(vector<vector<int>>& arr) {
+        sort(arr.begin(), arr.end());
+
+        for (int i = 1; i < arr.size(); i++) {
+            if (arr[i][0] < arr[i - 1][1]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+
+	Key Insight
+After sorting by start time,
+any overlap can be detected by comparing
+each meeting with the previous one.
+If no overlaps exist, all meetings can be attended.
