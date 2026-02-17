@@ -1,0 +1,60 @@
+2026-02-17 | Maximum Number of Overlapping Intervals
+
+	Question
+Given intervals arr[][] (inclusive),
+return the maximum number of overlapping intervals.
+
+	Approach
+1.	This is a classic **sweep line problem**.
+2.	Idea:
+	-	When an interval starts → +1 active
+	-	When an interval ends → −1 active
+3.	Since intervals are inclusive:
+	-	Start contributes +1 at start
+	-	End contributes −1 at end + 1
+4.	Steps:
+	1.	Create a vector of events:
+			(start, +1)
+			(end + 1, −1)
+	2.	Sort events by time.
+	3.	Traverse events:
+			Keep running count of active intervals.
+			Update maximum.
+5.	Time Complexity:
+	-	O(n log n) (sorting)
+6.	Space Complexity:
+	-	O(n)
+
+	Solution
+
+class Solution {
+public:
+    int maxOverlap(vector<vector<int>>& arr) {
+        vector<pair<int, int>> events;
+
+        for (auto &interval : arr) {
+            int start = interval[0];
+            int end = interval[1];
+
+            events.push_back({start, 1});
+            events.push_back({end + 1, -1});
+        }
+
+        sort(events.begin(), events.end());
+
+        int active = 0;
+        int maxActive = 0;
+
+        for (auto &e : events) {
+            active += e.second;
+            maxActive = max(maxActive, active);
+        }
+
+        return maxActive;
+    }
+};
+
+	Key Insight
+By converting intervals into start and end events,
+we reduce the problem to tracking the maximum prefix sum.
+This sweep-line method efficiently computes overlap in O(n log n).
