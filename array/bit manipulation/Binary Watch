@@ -1,0 +1,56 @@
+2026-02-17 | Binary Watch
+
+	Question
+Given turnedOn,
+return all valid times that can be represented
+with exactly turnedOn LEDs ON.
+
+	Approach
+1.	Observation:
+	-	Valid hours range: 0 to 11
+	-	Valid minutes range: 0 to 59
+2.	Brute-force all valid times:
+	For hour from 0 to 11:
+		For minute from 0 to 59:
+			Count number of set bits in:
+				hour + minute
+			If total set bits == turnedOn:
+				add formatted time
+3.	Use builtin bit-count function:
+		__builtin_popcount()
+4.	Time Complexity:
+	-	12 × 60 = 720 → constant time
+5.	Space Complexity:
+	-	O(1) excluding output
+
+	Solution
+
+class Solution {
+public:
+    vector<string> readBinaryWatch(int turnedOn) {
+        vector<string> result;
+
+        for (int hour = 0; hour < 12; hour++) {
+            for (int minute = 0; minute < 60; minute++) {
+                int bits = __builtin_popcount(hour) + 
+                           __builtin_popcount(minute);
+
+                if (bits == turnedOn) {
+                    string time = to_string(hour) + ":";
+                    if (minute < 10)
+                        time += "0";
+                    time += to_string(minute);
+
+                    result.push_back(time);
+                }
+            }
+        }
+
+        return result;
+    }
+};
+
+	Key Insight
+The total number of possible times is small (720),
+so brute-force with bit counting is both simple
+and fully optimized.
