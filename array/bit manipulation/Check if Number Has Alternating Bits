@@ -1,0 +1,43 @@
+2026-02-18 | Check if Number Has Alternating Bits
+
+	Question
+Given integer n,
+return true if its binary representation
+has alternating bits, otherwise return false.
+
+	Approach
+1.	Observation:
+	If bits alternate,
+	then:
+		n XOR (n >> 1)
+	will produce a number consisting of all 1s.
+2.	Why?
+	-	Shifting n right aligns adjacent bits.
+	-	XOR of alternating bits always gives 1.
+3.	So let:
+		x = n ^ (n >> 1)
+4.	If x is of form 111...111,
+	then:
+		x & (x + 1) == 0
+5.	Time Complexity:
+	-	O(1)
+6.	Space Complexity:
+	-	O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool hasAlternatingBits(int n) {
+        int x = n ^ (n >> 1);
+        return (x & (x + 1)) == 0;
+    }
+};
+
+	Key Insight
+For alternating bits,
+XORing the number with itself shifted right
+produces a sequence of all 1s.
+Checking whether a number is all 1s
+can be done efficiently using:
+	x & (x + 1) == 0.
