@@ -1,0 +1,59 @@
+2026-02-19 | Count Binary Substrings with Equal Consecutive 0s and 1s
+
+	Question
+Given binary string s,
+return the number of non-empty substrings
+that contain equal consecutive groups of 0s and 1s.
+
+	Approach
+1.	Key Observation:
+	-	The substring must consist of exactly two consecutive groups:
+			(zeros followed by ones) OR (ones followed by zeros)
+	-	If we track lengths of consecutive groups,
+	  the number of valid substrings between two adjacent groups
+	  is:
+			min(length_of_prev_group, length_of_current_group)
+2.	Algorithm:
+	1.	Traverse the string and compute lengths of consecutive groups.
+	2.	Keep track of:
+			prevGroupLength
+			currGroupLength
+	3.	Whenever character changes:
+			Add min(prevGroupLength, currGroupLength) to answer.
+			Update prevGroupLength = currGroupLength.
+			Reset currGroupLength = 1.
+	4.	After loop, add final min(prev, curr).
+3.	Time Complexity:
+		O(n)
+4.	Space Complexity:
+		O(1)
+
+	Solution
+
+class Solution {
+public:
+    int countBinarySubstrings(string s) {
+        int prevGroup = 0;
+        int currGroup = 1;
+        int result = 0;
+
+        for (int i = 1; i < s.size(); i++) {
+            if (s[i] == s[i - 1]) {
+                currGroup++;
+            } else {
+                result += min(prevGroup, currGroup);
+                prevGroup = currGroup;
+                currGroup = 1;
+            }
+        }
+
+        result += min(prevGroup, currGroup);
+        return result;
+    }
+};
+
+	Key Insight
+Valid substrings only occur between two consecutive groups
+of 0s and 1s.
+Counting group lengths and summing the minimum of adjacent groups
+gives a clean O(n) solution.
