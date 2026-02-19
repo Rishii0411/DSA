@@ -1,0 +1,41 @@
+2026-02-19 | Find Missing Numbers in a Given Range
+    
+	Question
+Given arr[] and a range [low, high],
+return all numbers in that range
+that are missing from the array.
+
+	Approach
+1.	Use a hash set for quick lookup.
+2.	Insert all elements of arr[] into the set.
+3.	Iterate from low to high:
+		If number not present in set → add to result.
+4.	Since we iterate in increasing order,
+	result will already be sorted.
+5.	Time Complexity:
+		O(n + (high − low + 1))
+6.	Space Complexity:
+		O(n)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> findMissing(vector<int>& arr, int low, int high) {
+        unordered_set<int> st(arr.begin(), arr.end());
+        vector<int> result;
+
+        for (int num = low; num <= high; num++) {
+            if (!st.count(num)) {
+                result.push_back(num);
+            }
+        }
+
+        return result;
+    }
+};
+
+	Key Insight
+By converting the array into a hash set,
+we achieve O(1) lookups and can efficiently
+scan the required range to find missing numbers.
