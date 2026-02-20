@@ -1,0 +1,58 @@
+2026-02-20 | Form the Largest Number from Array
+
+	Question
+Given arr[] of non-negative integers,
+return the largest possible concatenated number as a string.
+
+	Approach
+1.	Key Observation:
+	-	To decide order between two numbers a and b,
+	  compare:
+			a + b  vs  b + a
+	-	If (a + b) is larger,
+	  then a should come before b.
+2.	Steps:
+	1.	Convert all integers to strings.
+	2.	Sort using custom comparator:
+			(a + b) > (b + a)
+	3.	Concatenate all strings.
+3.	Edge Case:
+	-	If highest element is "0",
+	  then all elements are zero.
+	  Return "0".
+4.	Time Complexity:
+	-	O(n log n)
+5.	Space Complexity:
+	-	O(n)
+
+	Solution
+
+class Solution {
+public:
+    static bool compare(string a, string b) {
+        return a + b > b + a;
+    }
+
+    string largestNumber(vector<int>& arr) {
+        vector<string> nums;
+
+        for (int x : arr)
+            nums.push_back(to_string(x));
+
+        sort(nums.begin(), nums.end(), compare);
+
+        if (nums[0] == "0")
+            return "0";
+
+        string result = "";
+        for (string &s : nums)
+            result += s;
+
+        return result;
+    }
+};
+
+	Key Insight
+The ordering depends on pairwise concatenation.
+Sorting using (a+b > b+a) ensures the final
+concatenation yields the maximum possible number.
