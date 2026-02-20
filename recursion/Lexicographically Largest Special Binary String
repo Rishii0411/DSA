@@ -1,0 +1,67 @@
+2026-02-20 | Lexicographically Largest Special Binary String
+
+	Question
+Given special binary string s,
+return the lexicographically largest string obtainable
+by repeatedly swapping consecutive special substrings.
+
+	Approach
+1.	Key Insight:
+	Special strings are equivalent to valid parentheses strings.
+2.	Every special string can be decomposed into:
+		"1" + inner_special_string + "0"
+3.	Algorithm:
+	1.	Traverse the string.
+	2.	Use a counter:
+			+1 for '1'
+			−1 for '0'
+	3.	Whenever counter becomes 0:
+			We found a special substring.
+	4.	Recursively process the inner part.
+	5.	Store all special substrings.
+	6.	Sort them in descending lexicographical order.
+	7.	Concatenate and return.
+4.	Time Complexity:
+	-	O(n log n) due to sorting
+5.	Space Complexity:
+	-	O(n)
+
+	Solution
+
+class Solution {
+public:
+    string makeLargestSpecial(string s) {
+        if (s.size() <= 2)
+            return s;
+
+        vector<string> parts;
+        int count = 0, start = 0;
+
+        for (int i = 0; i < s.size(); i++) {
+            if (s[i] == '1')
+                count++;
+            else
+                count--;
+
+            if (count == 0) {
+                string inner = s.substr(start + 1, i - start - 1);
+                parts.push_back("1" + makeLargestSpecial(inner) + "0");
+                start = i + 1;
+            }
+        }
+
+        sort(parts.begin(), parts.end(), greater<string>());
+
+        string result;
+        for (string &p : parts)
+            result += p;
+
+        return result;
+    }
+};
+
+	Key Insight
+A special string behaves like a balanced parentheses string.
+Break it into primitive special blocks,
+recursively optimize each,
+then sort blocks in descending order to maximize lexicographical value.
