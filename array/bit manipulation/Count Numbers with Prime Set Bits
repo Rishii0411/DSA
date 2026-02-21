@@ -1,0 +1,77 @@
+2026-02-21 | Count Numbers with Prime Set Bits
+
+	Question
+Given left and right,
+return how many numbers in [left, right]
+have a prime number of set bits.
+
+	Approach
+1.	Observation:
+	-	Maximum number of set bits in a 32-bit integer is 32.
+	-	So we only need to check primes up to 32.
+2.	Precompute small primes:
+		{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31}
+3.	For each number in [left, right]:
+		-	Count set bits using __builtin_popcount().
+		-	If count is prime → increment answer.
+4.	Time Complexity:
+		O((right − left + 1))
+5.	Space Complexity:
+		O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool isPrime(int x) {
+        if (x < 2) return false;
+        for (int i = 2; i * i <= x; i++) {
+            if (x % i == 0)
+                return false;
+        }
+        return true;
+    }
+
+    int countPrimeSetBits(int left, int right) {
+        int count = 0;
+
+        for (int i = left; i <= right; i++) {
+            int bits = __builtin_popcount(i);
+            if (isPrime(bits))
+                count++;
+        }
+
+        return count;
+    }
+};
+
+	Fully Optimized Trick (Using Precomputed Bitmask)
+	Instead of checking primality repeatedly,
+	we can hardcode prime counts (since max is small).
+
+class Solution {
+public:
+    int countPrimeSetBits(int left, int right) {
+        // Bitmask for prime numbers up to 32
+        // Prime numbers: 2,3,5,7,11,13,17,19,23,29,31
+        int primeMask = 0;
+        int primes[] = {2,3,5,7,11,13,17,19,23,29,31};
+        for (int p : primes)
+            primeMask |= (1 << p);
+
+        int result = 0;
+
+        for (int i = left; i <= right; i++) {
+            int bits = __builtin_popcount(i);
+            if (primeMask & (1 << bits))
+                result++;
+        }
+
+        return result;
+    }
+};
+
+	Key Insight
+The number of set bits is small (≤ 32),
+so primality checking is trivial.
+Using a bitmask makes the solution extremely efficient.
