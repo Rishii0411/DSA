@@ -1,0 +1,51 @@
+2026-02-22 | Binary Gap (Maximum Distance Between Adjacent 1s)
+
+	Question
+Given integer n,
+return the maximum distance between two adjacent 1s
+in its binary representation.
+If fewer than two 1s exist, return 0.
+
+	Approach
+1.	Traverse bits from right to left.
+2.	Keep:
+		lastPosition = index of last seen '1'
+		currentPosition = current bit index
+3.	Whenever we see a 1:
+		If lastPosition != -1:
+			update maxDistance
+		Update lastPosition
+4.	Shift n right each step.
+5.	Time Complexity:
+		O(log n)
+6.	Space Complexity:
+		O(1)
+
+	Solution
+
+class Solution {
+public:
+    int binaryGap(int n) {
+        int lastPos = -1;
+        int currPos = 0;
+        int maxDist = 0;
+
+        while (n > 0) {
+            if (n & 1) {
+                if (lastPos != -1)
+                    maxDist = max(maxDist, currPos - lastPos);
+                lastPos = currPos;
+            }
+            n >>= 1;
+            currPos++;
+        }
+
+        return maxDist;
+    }
+};
+
+	Key Insight
+We only need to track positions of 1s.
+Each time we encounter a new 1,
+compare it with the previous one
+and update the maximum distance.
