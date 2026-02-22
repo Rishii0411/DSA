@@ -1,0 +1,60 @@
+2026-02-22 | Count Subarrays with XOR Equal to k
+
+	Question
+Given arr[] and integer k,
+return the number of subarrays whose XOR is equal to k.
+
+	Approach
+1.	Key Idea:
+	Use prefix XOR.
+2.	Let:
+		prefixXor[i] = XOR of elements from index 0 to i.
+3.	For a subarray (l, r):
+		XOR(l, r) = prefixXor[r] ^ prefixXor[l-1]
+4.	We want:
+		prefixXor[r] ^ prefixXor[l-1] = k
+	Rearranging:
+		prefixXor[l-1] = prefixXor[r] ^ k
+5.	So while iterating:
+		-	Maintain a hashmap storing frequency of prefix XOR values.
+		-	At each index:
+			If (currentXor ^ k) exists in map,
+				add its frequency to answer.
+6.	Initialize:
+		map[0] = 1  (handles subarrays starting at index 0)
+7.	Time Complexity:
+		O(n)
+8.	Space Complexity:
+		O(n)
+
+	Solution
+
+class Solution {
+public:
+    int subarrayXor(vector<int>& arr, int k) {
+        unordered_map<int, int> freq;
+        freq[0] = 1;
+
+        int currXor = 0;
+        int count = 0;
+
+        for (int num : arr) {
+            currXor ^= num;
+
+            if (freq.count(currXor ^ k))
+                count += freq[currXor ^ k];
+
+            freq[currXor]++;
+        }
+
+        return count;
+    }
+};
+
+	Key Insight
+Instead of checking all subarrays (O(n²)),
+we use prefix XOR and a hashmap
+to reduce the complexity to O(n).
+The equation:
+	prefixXor[l-1] = prefixXor[r] ^ k
+is the core transformation.
