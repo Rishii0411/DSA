@@ -1,0 +1,64 @@
+2026-02-24 | Check If All Binary Codes of Size k Exist
+
+	Question
+Given binary string s and integer k,
+return true if every binary string of length k
+appears as a substring of s.
+
+	Approach
+1.	Key Insight:
+	-	Total possible binary codes of length k = 2^k.
+	-	We must see all of them.
+2.	Sliding Window + Bitmask:
+	-	Maintain a rolling integer value
+		representing current window of size k.
+	-	Use bit operations to:
+			Shift left,
+			Add new bit,
+			Remove old bit.
+3.	Use a boolean vector or unordered_set
+	to track seen codes.
+4.	If number of distinct codes == 2^k,
+	return true.
+5.	Time Complexity:
+		O(n)
+6.	Space Complexity:
+		O(2^k)
+
+	Solution
+
+class Solution {
+public:
+    bool hasAllCodes(string s, int k) {
+        int n = s.size();
+        if (k > n) return false;
+
+        int total = 1 << k;
+        vector<bool> seen(total, false);
+
+        int mask = 0;
+        int count = 0;
+
+        for (int i = 0; i < n; i++) {
+            mask = ((mask << 1) & (total - 1)) | (s[i] - '0');
+
+            if (i >= k - 1) {
+                if (!seen[mask]) {
+                    seen[mask] = true;
+                    count++;
+                    if (count == total)
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+};
+
+	Key Insight
+Instead of generating all possible patterns,
+we scan the string once using a rolling bitmask.
+If we encounter all 2^k possible values,
+the answer is true.
+This gives a clean O(n) solution.
