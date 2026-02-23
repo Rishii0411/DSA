@@ -1,0 +1,38 @@
+2026-02-23 | Union of Two Array
+
+Question
+Given arrays a[] and b[],
+return their union (distinct elements only).
+
+	Approach
+1.	Use a hash set to store unique elements.
+2.	Insert all elements from a[] into the set.
+3.	Insert all elements from b[] into the set.
+4.	Convert the set to a vector and return it.
+5.	Time Complexity:
+		O(n + m)
+6.	Space Complexity:
+		O(n + m)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> findUnion(vector<int>& a, vector<int>& b) {
+        unordered_set<int> st;
+
+        for (int x : a)
+            st.insert(x);
+
+        for (int x : b)
+            st.insert(x);
+
+        vector<int> result(st.begin(), st.end());
+        return result;
+    }
+};
+
+	Key Insight
+A set automatically removes duplicates.
+By inserting elements from both arrays,
+we directly obtain the union in optimal linear time.
