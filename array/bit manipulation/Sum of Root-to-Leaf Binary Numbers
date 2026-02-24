@@ -1,0 +1,46 @@
+2026-02-24 | Sum of Root-to-Leaf Binary Numbers
+
+	Question
+Given the root of a binary tree,
+return the total sum of all binary numbers
+formed from root to leaf paths.
+
+	Approach
+1.	Use Depth-First Search (DFS).
+2.	At each node:
+		Update current value:
+			curr = (curr << 1) | node->val
+3.	If the node is a leaf:
+		Add curr to total sum.
+4.	Otherwise:
+		Recurse for left and right child.
+5.	Time Complexity:
+		O(n)
+6.	Space Complexity:
+		O(h) recursion stack (h = tree height)
+
+	Solution
+
+class Solution {
+public:
+    int dfs(TreeNode* root, int curr) {
+        if (!root) return 0;
+
+        curr = (curr << 1) | root->val;
+
+        if (!root->left && !root->right)
+            return curr;
+
+        return dfs(root->left, curr) + dfs(root->right, curr);
+    }
+
+    int sumRootToLeaf(TreeNode* root) {
+        return dfs(root, 0);
+    }
+};
+
+	Key Insight
+Instead of constructing binary strings,
+we build the number directly using bit shifting:
+	curr = curr * 2 + node->val
+This makes the solution efficient and clean.
