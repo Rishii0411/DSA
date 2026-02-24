@@ -1,0 +1,68 @@
+2026-02-24 | Longest Common Span with Same Sum in Two Binary Arrays
+
+	Question
+Given two binary arrays of equal length,
+return the maximum length of a span
+where both have equal sum.
+
+	Approach
+1.	Key Idea:
+	If:
+		sum1(i, j) == sum2(i, j)
+	Then:
+		sum1(j) − sum1(i−1) == sum2(j) − sum2(i−1)
+2.	Rearranging:
+		(sum1(j) − sum2(j)) ==
+		(sum1(i−1) − sum2(i−1))
+3.	Define:
+		diff[i] = prefixSum1[i] − prefixSum2[i]
+4.	If two indices have the same diff,
+	then the span between them has equal sums.
+5.	Algorithm:
+	1.	Traverse arrays once.
+	2.	Maintain running prefix sums.
+	3.	Track diff.
+	4.	Use hashmap:
+			diff → first index where it occurred.
+	5.	If diff repeats:
+			update max length.
+6.	Time Complexity:
+		O(n)
+7.	Space Complexity:
+		O(n)
+
+	Solution
+
+class Solution {
+public:
+    int longestCommonSum(vector<int>& a1, vector<int>& a2) {
+        int n = a1.size();
+        unordered_map<int, int> firstIndex;
+
+        int prefix1 = 0, prefix2 = 0;
+        int maxLen = 0;
+
+        firstIndex[0] = -1;
+
+        for (int i = 0; i < n; i++) {
+            prefix1 += a1[i];
+            prefix2 += a2[i];
+
+            int diff = prefix1 - prefix2;
+
+            if (firstIndex.count(diff)) {
+                maxLen = max(maxLen, i - firstIndex[diff]);
+            } else {
+                firstIndex[diff] = i;
+            }
+        }
+
+        return maxLen;
+    }
+};
+
+	Key Insight
+Transform the problem into finding
+the longest subarray with prefix difference zero.
+Tracking prefix difference and using a hashmap
+reduces the problem to linear time.
