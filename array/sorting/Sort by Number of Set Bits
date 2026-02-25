@@ -1,0 +1,49 @@
+2026-02-25 | Sort by Number of Set Bits
+
+	Question
+Given arr[],
+return the array sorted by:
+	(1) number of set bits
+	(2) numeric value (if tie)
+
+	Approach
+1.	Use a custom comparator in sorting.
+2.	For two numbers a and b:
+		countA = number of set bits in a
+		countB = number of set bits in b
+3.	If countA != countB:
+		sort by countA < countB
+4.	Else:
+		sort by a < b
+5.	Use __builtin_popcount() for efficient bit counting.
+6.	Time Complexity:
+		O(n log n)
+7.	Space Complexity:
+		O(1)
+
+	Solution
+
+class Solution {
+public:
+    static bool compare(int a, int b) {
+        int countA = __builtin_popcount(a);
+        int countB = __builtin_popcount(b);
+
+        if (countA == countB)
+            return a < b;
+
+        return countA < countB;
+    }
+
+    vector<int> sortByBits(vector<int>& arr) {
+        sort(arr.begin(), arr.end(), compare);
+        return arr;
+    }
+};
+
+	Key Insight
+Sorting with a custom comparator lets us enforce
+multi-level ordering:
+First by bit count,
+then by numeric value.
+Bit counting is constant time using builtin function.
