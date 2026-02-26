@@ -1,0 +1,61 @@
+2026-02-26 | Check If Two Strings Are Isomorphic
+
+	Question
+Given s1 and s2,
+return true if they are isomorphic,
+otherwise return false.
+
+	Approach
+1.	We must ensure:
+		-	Every character in s1 maps consistently to s2.
+		-	The mapping is one-to-one (injective).
+2.	Use two arrays of size 26:
+		map1[c] → mapped character in s2
+		map2[c] → mapped character in s1
+3.	Traverse both strings:
+		Let c1 = s1[i]
+		Let c2 = s2[i]
+4.	If:
+		map1[c1] not set AND map2[c2] not set
+			create mapping
+		Else:
+			verify existing mapping matches
+5.	If conflict found → return false.
+6.	Time Complexity:
+		O(n)
+7.	Space Complexity:
+		O(1) (fixed alphabet size)
+
+	Solution
+
+class Solution {
+public:
+    bool isIsomorphic(string s1, string s2) {
+        if (s1.size() != s2.size())
+            return false;
+
+        vector<int> map1(26, -1);
+        vector<int> map2(26, -1);
+
+        for (int i = 0; i < s1.size(); i++) {
+            int c1 = s1[i] - 'a';
+            int c2 = s2[i] - 'a';
+
+            if (map1[c1] == -1 && map2[c2] == -1) {
+                map1[c1] = c2;
+                map2[c2] = c1;
+            } else {
+                if (map1[c1] != c2 || map2[c2] != c1)
+                    return false;
+            }
+        }
+
+        return true;
+    }
+};
+
+	Key Insight
+Isomorphic strings require a one-to-one character mapping.
+Using two-directional mapping ensures:
+	-	Consistency
+	-	No two characters map to the same character.
