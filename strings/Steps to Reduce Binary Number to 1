@@ -1,0 +1,59 @@
+2026-02-26 | Steps to Reduce Binary Number to 1
+
+	Question
+Given binary string s,
+return how many steps are needed to reduce it to 1.
+
+	Approach
+1.	Key Observation:
+	-	If last bit is '0' → number is even → divide by 2
+			This is equivalent to removing the last bit.
+	-	If last bit is '1' → number is odd → add 1
+			This causes binary carry propagation.
+2.	Instead of modifying string repeatedly,
+	we simulate from right to left using carry.
+3.	Maintain:
+		carry = 0
+		steps = 0
+4.	Process bits from rightmost to index 1:
+	-	currentBit = (s[i] - '0') + carry
+	-	If currentBit == 1:
+			Odd → add 1 step (for +1)
+			carry = 1
+	-	Then divide by 2 → always +1 step
+5.	Finally:
+	If carry == 1 → one extra step
+6.	Time Complexity:
+		O(n)
+7.	Space Complexity:
+		O(1)
+
+	Solution
+
+class Solution {
+public:
+    int numSteps(string s) {
+        int steps = 0;
+        int carry = 0;
+
+        for (int i = s.size() - 1; i > 0; i--) {
+            int bit = (s[i] - '0') + carry;
+
+            if (bit == 1) {
+                steps++;       // add 1
+                carry = 1;
+            }
+
+            steps++;           // divide by 2
+        }
+
+        return steps + carry;
+    }
+};
+
+	Key Insight
+Dividing by 2 removes the last bit.
+Adding 1 causes carry propagation.
+Tracking carry while scanning from right to left
+allows us to simulate operations efficiently
+without repeatedly modifying the string.
