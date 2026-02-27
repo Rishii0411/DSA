@@ -1,0 +1,70 @@
+2026-02-27 | Minimum Operations to Make All Bits 1
+
+	Question
+Given binary string s and integer k,
+return the minimum number of operations needed
+to make all bits '1'.
+
+	Approach
+1.	This is a fixed-length flip problem:
+		Whenever we encounter a '0',
+		we must flip starting from that index.
+2.	Greedy idea:
+		Traverse from left to right.
+		If current effective bit is 0,
+		perform flip of k consecutive bits starting here.
+3.	To simulate efficiently:
+		Use a difference array (or queue)
+		to track how many flips are currently affecting index i.
+4.	Maintain:
+		flipCount = number of flips affecting current index.
+5.	If effective bit == 0:
+		-	If remaining length < k → return -1.
+		-	Perform flip:
+				operations++
+				increment flipCount
+				mark flip ending at i + k.
+6.	Time Complexity:
+		O(n)
+7.	Space Complexity:
+		O(n)
+
+	Solution
+
+class Solution {
+public:
+    int minOperations(string s, int k) {
+        int n = s.size();
+        vector<int> flip(n, 0);
+
+        int flipCount = 0;
+        int operations = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (i >= k)
+                flipCount -= flip[i - k];
+
+            int currentBit = (s[i] - '0');
+            if (flipCount % 2 == 1)
+                currentBit ^= 1;
+
+            if (currentBit == 0) {
+                if (i + k > n)
+                    return -1;
+
+                operations++;
+                flipCount++;
+                flip[i] = 1;
+            }
+        }
+
+        return operations;
+    }
+};
+
+	Key Insight
+Always fix the leftmost zero greedily.
+Using a sliding window with lazy flip tracking
+allows simulation in linear time.
+If at any point fewer than k elements remain,
+the task becomes impossible.
