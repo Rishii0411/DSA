@@ -1,0 +1,66 @@
+2026-02-28 | Pair from Two Sorted Arrays with Sum Closest to x
+
+	Question
+Given two sorted arrays and integer x,
+return a pair (a, b) such that
+|a + b − x| is minimized.
+
+	Approach
+1.	Key Observation:
+	Since arrays are sorted,
+	we can use two-pointer technique.
+2.	Initialize:
+		i = 0 (start of arr1)
+		j = m − 1 (end of arr2)
+3.	While i < n and j ≥ 0:
+		sum = arr1[i] + arr2[j]
+		diff = abs(sum − x)
+4.	Update best answer if diff smaller.
+5.	If sum > x:
+		Decrement j (to reduce sum)
+	Else:
+		Increment i (to increase sum)
+6.	Time Complexity:
+		O(n + m)
+7.	Space Complexity:
+		O(1)
+
+	Solution
+
+class Solution {
+public:
+    pair<int, int> closestPair(vector<int>& arr1, vector<int>& arr2, int x) {
+        int n = arr1.size();
+        int m = arr2.size();
+
+        int i = 0;
+        int j = m - 1;
+
+        int minDiff = INT_MAX;
+        pair<int, int> result;
+
+        while (i < n && j >= 0) {
+            int sum = arr1[i] + arr2[j];
+            int diff = abs(sum - x);
+
+            if (diff < minDiff) {
+                minDiff = diff;
+                result = {arr1[i], arr2[j]};
+            }
+
+            if (sum > x)
+                j--;
+            else
+                i++;
+        }
+
+        return result;
+    }
+};
+
+	Key Insight
+Because arrays are sorted,
+moving pointers intelligently lets us
+explore all relevant pairs in linear time.
+This reduces complexity from O(nm)
+to O(n + m).
