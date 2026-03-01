@@ -1,0 +1,44 @@
+2026-02-27 | Move All Zeros to End
+
+	Question
+Given arr[],
+move all zeros to the right end
+while preserving the order of non-zero elements.
+
+	Approach
+1.	Use two-pointer technique.
+2.	Maintain:
+		insertPos → index where next non-zero should go.
+3.	Traverse the array:
+		If arr[i] != 0:
+			Swap arr[i] with arr[insertPos]
+			Increment insertPos.
+4.	This ensures:
+		-	All non-zero elements shift forward.
+		-	Zeros automatically move to the end.
+5.	Time Complexity:
+		O(n)
+6.	Space Complexity:
+		O(1)
+
+	Solution
+
+class Solution {
+public:
+    void moveZeroes(vector<int>& arr) {
+        int insertPos = 0;
+
+        for (int i = 0; i < arr.size(); i++) {
+            if (arr[i] != 0) {
+                swap(arr[i], arr[insertPos]);
+                insertPos++;
+            }
+        }
+    }
+};
+
+	Key Insight
+By compacting non-zero elements to the front
+using a single pass,
+zeros naturally shift to the end.
+This achieves an optimal O(n) in-place solution.
