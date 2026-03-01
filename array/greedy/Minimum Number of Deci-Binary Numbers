@@ -1,0 +1,37 @@
+2026-03-01 | Minimum Number of Deci-Binary Numbers
+
+	Question
+Given decimal string n,
+return the minimum number of deci-binary numbers
+required to sum up to n.
+
+	Approach
+1.	Traverse each character of n.
+2.	Convert it to integer.
+3.	Track the maximum digit.
+4.	Return that maximum.
+5.	Time Complexity:
+		O(length of n)
+6.	Space Complexity:
+		O(1)
+
+	Solution
+
+class Solution {
+public:
+    int minPartitions(string n) {
+        int maxDigit = 0;
+
+        for (char c : n) {
+            maxDigit = max(maxDigit, c - '0');
+        }
+
+        return maxDigit;
+    }
+};
+
+	Key Insight
+Each deci-binary number can contribute
+at most 1 per digit position.
+So the largest digit determines
+the minimum number of deci-binary numbers needed.
