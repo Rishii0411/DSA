@@ -1,0 +1,76 @@
+2026-03-02 | Minimum Swaps to Make Grid Valid
+
+	Question
+Given grid[][],
+return the minimum number of adjacent row swaps
+required to make the grid valid,
+or return -1 if impossible.
+
+	Approach
+1.	Key Observation:
+	For row i to be placed at position i,
+	it must have at least:
+			(n − i − 1) trailing zeros.
+2.	Precompute:
+	For each row,
+	count trailing zeros.
+3.	Greedy Strategy:
+	For each row position i:
+		Find the first row j ≥ i
+		with trailingZeros[j] ≥ (n − i − 1).
+	4.	If no such row exists → return -1.
+	5.	Otherwise:
+		Bring row j up to position i
+		using adjacent swaps.
+		Add (j − i) to total swaps.
+		Shift rows accordingly.
+6.	Time Complexity:
+		O(n²)
+7.	Space Complexity:
+		O(n)
+
+	Solution
+
+class Solution {
+public:
+    int minSwaps(vector<vector<int>>& grid) {
+        int n = grid.size();
+        vector<int> trailing(n);
+
+        // Count trailing zeros for each row
+        for (int i = 0; i < n; i++) {
+            int count = 0;
+            for (int j = n - 1; j >= 0 && grid[i][j] == 0; j--) {
+                count++;
+            }
+            trailing[i] = count;
+        }
+
+        int swaps = 0;
+
+        for (int i = 0; i < n; i++) {
+            int required = n - i - 1;
+            int j = i;
+
+            while (j < n && trailing[j] < required)
+                j++;
+
+            if (j == n)
+                return -1;
+
+            while (j > i) {
+                swap(trailing[j], trailing[j - 1]);
+                swaps++;
+                j--;
+            }
+        }
+
+        return swaps;
+    }
+};
+
+	Key Insight
+Each row i must have enough trailing zeros
+to ensure zeros above the diagonal.
+Greedily pulling the nearest valid row upward
+minimizes the number of adjacent swaps.
