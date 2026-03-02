@@ -1,0 +1,82 @@
+2026-03-02 | Trapping Rain Water
+
+	Question
+Given arr[],
+return how much rainwater can be trapped.
+
+	Approach 1 (Classic Idea)
+1.	Water above index i is determined by:
+		min(max height to left, max height to right) − arr[i]
+2.	Brute force would be O(n²).
+3.	Better approach:
+		Precompute leftMax[] and rightMax[].
+4.	Then sum up water at each index.
+
+	Time Complexity: O(n)
+	Space Complexity: O(n)
+
+	Better Optimized Approach (Two Pointers)
+
+	Optimized Approach (O(1) space)
+1.	Use two pointers:
+		left = 0
+		right = n−1
+2.	Maintain:
+		leftMax
+		rightMax
+3.	While left < right:
+		If arr[left] < arr[right]:
+			If arr[left] ≥ leftMax:
+				update leftMax
+			Else:
+				add leftMax − arr[left] to answer
+			left++
+		Else:
+			If arr[right] ≥ rightMax:
+				update rightMax
+			Else:
+				add rightMax − arr[right] to answer
+			right--
+4.	Time Complexity:
+		O(n)
+5.	Space Complexity:
+		O(1)
+
+	Solution
+
+class Solution {
+public:
+    int trap(vector<int>& arr) {
+        int n = arr.size();
+        if (n <= 2) return 0;
+
+        int left = 0, right = n - 1;
+        int leftMax = 0, rightMax = 0;
+        int water = 0;
+
+        while (left < right) {
+            if (arr[left] < arr[right]) {
+                if (arr[left] >= leftMax)
+                    leftMax = arr[left];
+                else
+                    water += leftMax - arr[left];
+                left++;
+            } else {
+                if (arr[right] >= rightMax)
+                    rightMax = arr[right];
+                else
+                    water += rightMax - arr[right];
+                right--;
+            }
+        }
+
+        return water;
+    }
+};
+
+	Key Insight
+Water trapped at each position depends on
+the smaller of the maximum heights
+on both sides.
+Two-pointer technique computes this efficiently
+in linear time with constant space.
