@@ -1,0 +1,56 @@
+2026-03-03 | Longest Subarray with At Most Two Distinct Integers
+
+	Question
+Given arr[],
+return the length of the longest subarray
+that contains at most two distinct integers.
+
+	Approach
+1.	This is a classic sliding window problem:
+		Longest subarray with at most K distinct elements.
+2.	Use two pointers:
+		left and right.
+3.	Maintain a hashmap:
+		value → frequency in current window.
+4.	Expand right pointer:
+		Increment frequency.
+5.	If distinct count > 2:
+		Shrink window from left
+		until distinct count ≤ 2.
+6.	Track maximum window size.
+7.	Time Complexity:
+		O(n)
+8.	Space Complexity:
+		O(1) (since max distinct ≤ 2)
+
+	Solution
+
+class Solution {
+public:
+    int longestSubarray(vector<int>& arr) {
+        unordered_map<int, int> freq;
+        int left = 0;
+        int maxLen = 0;
+
+        for (int right = 0; right < arr.size(); right++) {
+            freq[arr[right]]++;
+
+            while (freq.size() > 2) {
+                freq[arr[left]]--;
+                if (freq[arr[left]] == 0)
+                    freq.erase(arr[left]);
+                left++;
+            }
+
+            maxLen = max(maxLen, right - left + 1);
+        }
+
+        return maxLen;
+    }
+};
+
+	Key Insight
+Maintain a sliding window that always satisfies
+“at most two distinct”.
+Expand when valid, shrink when invalid.
+This guarantees an optimal O(n) solution.
