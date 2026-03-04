@@ -1,0 +1,44 @@
+2026-03-04 | Maximum XOR of Subarray of Size k
+
+	Question
+Given arr[] and integer k, find the maximum XOR value among all subarrays of size k.
+
+	Approach
+1.	Start by computing the XOR of the first k elements.
+	This represents the XOR of the first window.
+2.	Store it as the current answer.
+3.	Slide the window one step to the right each time.
+4.	To update the XOR efficiently:
+		Remove the element leaving the window using XOR.
+		Add the new element entering the window using XOR.
+5.	Update the maximum XOR value after each step.
+6.	Continue until all windows of size k are processed.
+
+	Time Complexity
+1.	O(n)
+
+	Space Complexity
+1.	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int maxXorSubarray(vector<int>& arr, int k) {
+        int n = arr.size();
+        int currentXor = 0;
+
+        for (int i = 0; i < k; i++)
+            currentXor ^= arr[i];
+
+        int ans = currentXor;
+
+        for (int i = k; i < n; i++) {
+            currentXor ^= arr[i - k];
+            currentXor ^= arr[i];
+            ans = max(ans, currentXor);
+        }
+
+        return ans;
+    }
+};
