@@ -1,0 +1,49 @@
+2026-03-05 | Longest Substring with Exactly K Distinct Characters
+
+	Question
+Given string s and integer k, return the length of the longest substring containing exactly k distinct characters.
+
+	Approach
+1.	Use sliding window technique with two pointers:
+		left and right.
+2.	Maintain a hashmap storing frequency of characters in the current window.
+3.	Expand the window by moving right pointer and updating frequency.
+4.	If distinct characters become greater than k:
+		shrink window from the left until distinct ≤ k.
+5.	Whenever distinct == k:
+		update the maximum length.
+6.	Continue until the string ends.
+7.	If no valid substring is found, return -1.
+
+	Time Complexity
+1.	O(n)
+
+	Space Complexity
+1.	O(26) → constant for lowercase letters
+
+	Solution
+
+class Solution {
+public:
+    int longestKSubstr(string s, int k) {
+        unordered_map<char,int> freq;
+        int left = 0;
+        int ans = -1;
+
+        for (int right = 0; right < s.size(); right++) {
+            freq[s[right]]++;
+
+            while (freq.size() > k) {
+                freq[s[left]]--;
+                if (freq[s[left]] == 0)
+                    freq.erase(s[left]);
+                left++;
+            }
+
+            if (freq.size() == k)
+                ans = max(ans, right - left + 1);
+        }
+
+        return ans;
+    }
+};
