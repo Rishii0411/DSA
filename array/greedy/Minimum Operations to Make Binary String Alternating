@@ -1,0 +1,51 @@
+2026-03-05 | Minimum Operations to Make Binary String Alternating
+
+	Question
+Return the minimum number of flips required to make the string alternating.
+
+	Approach
+1.	An alternating binary string can only have two possible patterns:
+		Pattern A: 010101...
+		Pattern B: 101010...
+2.	Traverse the string once.
+3.	Count mismatches for both patterns.
+		If index i is even:
+			Pattern A expects '0'
+			Pattern B expects '1'
+		If index i is odd:
+			Pattern A expects '1'
+			Pattern B expects '0'
+4.	Compute flips needed for both patterns.
+5.	Return the minimum of the two counts.
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int minOperations(string s) {
+        int n = s.size();
+        int pattern1 = 0; // starting with '0'
+        int pattern2 = 0; // starting with '1'
+
+        for (int i = 0; i < n; i++) {
+            char expected1 = (i % 2 == 0) ? '0' : '1';
+            char expected2 = (i % 2 == 0) ? '1' : '0';
+
+            if (s[i] != expected1) pattern1++;
+            if (s[i] != expected2) pattern2++;
+        }
+
+        return min(pattern1, pattern2);
+    }
+};
+
+	Key Insight
+There are only two valid alternating forms.
+By counting mismatches against both patterns,
+we can determine the minimum flips in linear time.
