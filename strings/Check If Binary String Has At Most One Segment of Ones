@@ -1,6 +1,6 @@
 2026-03-06 | Check If Binary String Has At Most One Segment of Ones
 
-	Question
+Question
 Return true if the binary string contains at most one contiguous segment of ones. Otherwise return false.
 
 	Approach
