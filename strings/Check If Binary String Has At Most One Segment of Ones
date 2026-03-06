@@ -1,0 +1,45 @@
+2026-03-06 | Check If Binary String Has At Most One Segment of Ones
+
+	Question
+Return true if the binary string contains at most one contiguous segment of ones. Otherwise return false.
+
+	Approach
+1.	If there are multiple segments of '1',
+		then the pattern "01" followed later by "10" exists.
+2.	The simplest check:
+		If substring "01" appears before another '1',
+		then multiple segments exist.
+3.	A simpler trick:
+		If the string contains "01",
+		then everything after that must be only zeros.
+4.	Thus if we find pattern "01" followed by '1',
+		return false.
+5.	Even simpler:
+		If substring "01" appears,
+		then ensure there is no '1' afterwards.
+6.	But the most concise solution:
+		Check if "01" occurs in the string.
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool checkOnesSegment(string s) {
+        return s.find("01") == string::npos;
+    }
+};
+
+	Key Insight
+A valid string must look like:
+
+	111...11000...000
+
+If "01" appears, it means the sequence of ones has ended.
+If another '1' appears afterward, multiple segments exist.
+So detecting "01" is enough to verify the condition.
