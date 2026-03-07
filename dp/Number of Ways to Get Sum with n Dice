@@ -1,0 +1,51 @@
+2026-03-07 | Number of Ways to Get Sum with n Dice
+
+	Question
+Given n dice with m faces each, find the number of ways to obtain sum x.
+
+	Approach
+1.	Define DP state:
+		dp[i][j] = number of ways to get sum j using i dice.
+2.	Base case:
+		dp[0][0] = 1  
+		(0 dice forming sum 0)
+3.	Transition:
+		For each dice i
+		For each possible sum j
+		Try all face values f from 1..m
+		If j ≥ f:
+				dp[i][j] += dp[i-1][j-f]
+4.	The final answer will be:
+		dp[n][x]
+5.	Time Complexity:
+		O(n * x * m)
+6.	Space Complexity:
+		O(n * x)
+
+	Solution
+
+class Solution {
+public:
+    long long numberOfWays(int n, int m, int x) {
+        vector<vector<long long>> dp(n + 1, vector<long long>(x + 1, 0));
+
+        dp[0][0] = 1;
+
+        for (int i = 1; i <= n; i++) {
+            for (int sum = 1; sum <= x; sum++) {
+                for (int face = 1; face <= m; face++) {
+                    if (sum >= face)
+                        dp[i][sum] += dp[i - 1][sum - face];
+                }
+            }
+        }
+
+        return dp[n][x];
+    }
+};
+
+	Key Insight
+This is a classic dynamic programming problem.
+Each dice adds values 1..m to the sum,
+so we build solutions incrementally
+based on previous dice results.
