@@ -1,0 +1,67 @@
+2026-03-07 | Minimum Flips to Make Binary String Alternating with Rotations
+
+	Question
+Return the minimum number of flips (type-2 operations) needed to make the string alternating, considering you can rotate the string any number of times.
+
+	Approach
+1.	Since rotations are allowed, treat the string as circular.
+2.	Create a doubled string:
+		s + s
+3.	The alternating patterns possible are:
+		pattern1: 010101...
+		pattern2: 101010...
+4.	Use sliding window of size n over the doubled string.
+5.	Count mismatches with both patterns inside the window.
+6.	As the window slides:
+		remove the left character mismatch
+		add the new right character mismatch.
+7.	Track the minimum flips needed.
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int minFlips(string s) {
+        int n = s.size();
+        string t = s + s;
+
+        int ans = INT_MAX;
+        int diff1 = 0, diff2 = 0;
+        int left = 0;
+
+        for (int right = 0; right < t.size(); right++) {
+            char expected1 = (right % 2) ? '1' : '0';
+            char expected2 = (right % 2) ? '0' : '1';
+
+            if (t[right] != expected1) diff1++;
+            if (t[right] != expected2) diff2++;
+
+            if (right - left + 1 > n) {
+                char exp1 = (left % 2) ? '1' : '0';
+                char exp2 = (left % 2) ? '0' : '1';
+
+                if (t[left] != exp1) diff1--;
+                if (t[left] != exp2) diff2--;
+                left++;
+            }
+
+            if (right - left + 1 == n)
+                ans = min(ans, min(diff1, diff2));
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Rotations make the string circular.
+By doubling the string and sliding a window of size n,
+we evaluate every possible rotation.
+Counting mismatches with the two valid alternating patterns
+gives the minimum flips needed.
