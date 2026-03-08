@@ -1,0 +1,62 @@
+2026-03-08 | Check if Pythagorean Triplet Exists
+
+	Question
+Return true if such a triplet exists in the array, otherwise return false.
+
+	Approach
+1.	Square all elements in the array.
+2.	Sort the array.
+3.	Now treat arr[i] as the largest element (c²).
+4.	Use two pointers to find a pair whose sum equals arr[i]:
+		left = 0
+		right = i - 1
+5.	If:
+		arr[left] + arr[right] == arr[i]
+			return true
+6.	If sum < arr[i]
+		move left++
+7.	If sum > arr[i]
+		move right--
+8.	If no such triplet found after checking all elements
+		return false.
+
+	Time Complexity
+	O(n²)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool checkTriplet(vector<int>& arr) {
+        int n = arr.size();
+
+        for (int &x : arr)
+            x = x * x;
+
+        sort(arr.begin(), arr.end());
+
+        for (int i = n - 1; i >= 2; i--) {
+            int left = 0, right = i - 1;
+
+            while (left < right) {
+                int sum = arr[left] + arr[right];
+
+                if (sum == arr[i])
+                    return true;
+                else if (sum < arr[i])
+                    left++;
+                else
+                    right--;
+            }
+        }
+
+        return false;
+    }
+};
+
+	Key Insight
+After squaring the numbers, the equation becomes a simple **two-sum problem**.
+Sorting allows us to efficiently check pairs using the two-pointer technique.
