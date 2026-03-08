@@ -1,0 +1,45 @@
+2026-03-08 | Find Unique Binary String
+
+	Question
+Given n unique binary strings of length n, construct a binary string of length n that does not appear in nums.
+
+	Approach
+1.	Use Cantor’s Diagonalization idea.
+2.	Construct a new string by flipping the diagonal characters.
+3.	For each index i:
+		if nums[i][i] == '0'
+			put '1'
+		else
+			put '0'
+4.	This guarantees the new string differs from every nums[i] at position i.
+5.	Therefore the constructed string cannot match any string in nums.
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    string findDifferentBinaryString(vector<string>& nums) {
+        int n = nums.size();
+        string result = "";
+
+        for (int i = 0; i < n; i++) {
+            if (nums[i][i] == '0')
+                result += '1';
+            else
+                result += '0';
+        }
+
+        return result;
+    }
+};
+
+	Key Insight
+By flipping the i-th character of the i-th string,
+the constructed string differs from every input string at least at one position.
+This guarantees the new string is not present in the array.
