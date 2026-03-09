@@ -1,0 +1,62 @@
+2026-03-09 | Count Stable Binary Arrays
+
+	Question
+Return the number of valid binary arrays satisfying these conditions.  
+Return the result modulo **1e9 + 7**.
+
+	Approach
+1.	Define DP state:
+		dp[i][j][0] → ways using i zeros and j ones ending with 0  
+		dp[i][j][1] → ways using i zeros and j ones ending with 1
+2.	Transition:
+	If we place a `0` at the end:
+		it must follow a sequence ending with `1`.
+		We can place up to `limit` zeros.
+3.	Similarly for placing `1`.
+4.	Use prefix sums to efficiently enforce the `limit` constraint.
+5.	Final result:
+		dp[zero][one][0] + dp[zero][one][1]
+
+	Time Complexity
+	O(zero × one)
+
+	Space Complexity
+	O(zero × one)
+
+	Solution
+
+class Solution {
+public:
+    int numberOfStableArrays(int zero, int one, int limit) {
+        const int MOD = 1e9 + 7;
+
+        vector<vector<long long>> dp0(zero + 1, vector<long long>(one + 1, 0));
+        vector<vector<long long>> dp1(zero + 1, vector<long long>(one + 1, 0));
+
+        dp0[1][0] = 1;
+        dp1[0][1] = 1;
+
+        for (int i = 0; i <= zero; i++) {
+            for (int j = 0; j <= one; j++) {
+
+                if (i > 0) {
+                    for (int k = 1; k <= limit && i - k >= 0; k++) {
+                        dp0[i][j] = (dp0[i][j] + dp1[i - k][j]) % MOD;
+                    }
+                }
+
+                if (j > 0) {
+                    for (int k = 1; k <= limit && j - k >= 0; k++) {
+                        dp1[i][j] = (dp1[i][j] + dp0[i][j - k]) % MOD;
+                    }
+                }
+            }
+        }
+
+        return (dp0[zero][one] + dp1[zero][one]) % MOD;
+    }
+};
+
+	Key Insight
+The constraint essentially limits the **maximum consecutive identical bits**.  
+So the problem becomes counting sequences with **exact counts of 0s and 1s while respecting run-length ≤ limit**, which can be handled using dynamic programming.
