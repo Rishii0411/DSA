@@ -1,0 +1,50 @@
+2026-03-09 | Lexicographically Largest String with At Most One Swap
+
+Question
+Return the lexicographically largest string obtainable by performing at most one swap.
+
+	Approach
+1.	Record the last occurrence of each character in the string.
+2.	Traverse the string from left to right.
+3.	For each position i:
+		check if there exists a larger character ('z' → s[i]+1)
+		that appears later in the string.
+4.	If such a character exists:
+		swap current character with the farthest occurrence
+		of the largest possible character.
+5.	Return the resulting string immediately after the swap.
+6.	If no beneficial swap exists, return the original string.
+
+	Time Complexity
+	O(n * 26) ≈ O(n)
+
+	Space Complexity
+	O(26)
+
+	Solution
+
+class Solution {
+public:
+    string largestString(string s) {
+        int n = s.size();
+        vector<int> last(26, -1);
+
+        for (int i = 0; i < n; i++)
+            last[s[i] - 'a'] = i;
+
+        for (int i = 0; i < n; i++) {
+            for (int c = 25; c > s[i] - 'a'; c--) {
+                if (last[c] > i) {
+                    swap(s[i], s[last[c]]);
+                    return s;
+                }
+            }
+        }
+
+        return s;
+    }
+};
+
+	Key Insight
+To maximize lexicographic order, we should swap the earliest possible character with the largest character appearing later in the string.  
+Tracking the last occurrence ensures we get the greatest possible improvement with a single swap.
