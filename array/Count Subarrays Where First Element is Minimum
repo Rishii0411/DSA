@@ -1,0 +1,53 @@
+2026-03-10 | Count Subarrays Where First Element is Minimum
+
+	Question
+Return the number of subarrays whose first element is the minimum element.
+
+	Approach
+1.	For every index i,
+		find the **next element to the right that is smaller than arr[i]**.
+2.	If the next smaller element appears at index j,
+		then valid subarrays starting at i can extend only until j−1.
+3.	Therefore number of valid subarrays starting at i:
+		j − i
+4.	If no smaller element exists,
+		then it extends to the end:
+		n − i
+5.	Use a **monotonic increasing stack** to compute the next smaller element efficiently.
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    long long countSubarrays(vector<int>& arr) {
+        int n = arr.size();
+        stack<int> st;
+        vector<int> nextSmaller(n, n);
+
+        for (int i = 0; i < n; i++) {
+            while (!st.empty() && arr[i] < arr[st.top()]) {
+                nextSmaller[st.top()] = i;
+                st.pop();
+            }
+            st.push(i);
+        }
+
+        long long ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            ans += nextSmaller[i] - i;
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+A subarray starting at index **i** remains valid until we encounter an element **smaller than arr[i]**.  
+Finding the **next smaller element** allows us to count all such subarrays in **O(n)** time using a monotonic stack.
