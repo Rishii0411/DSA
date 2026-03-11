@@ -1,0 +1,38 @@
+2026-03-11 | Find Complement of an Integer
+
+	Question
+Return the complement of integer n.
+
+	Approach
+1.	Find the smallest number that has all bits set to 1 and covers the binary length of n.
+2.	This mask can be built as:
+		mask = (1 << number_of_bits) - 1
+3.	The complement is then:
+		mask XOR n
+4.	This flips only the bits used by n.
+
+	Time Complexity
+	O(log n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int findComplement(int n) {
+        int mask = 1;
+
+        while (mask <= n)
+            mask <<= 1;
+
+        mask -= 1;
+
+        return mask ^ n;
+    }
+};
+
+	Key Insight
+If we create a mask of all 1s that matches the length of n's binary representation,  
+then XOR with n flips all its bits, giving the complement.
