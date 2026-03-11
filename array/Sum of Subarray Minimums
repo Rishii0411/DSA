@@ -1,0 +1,65 @@
+2026-03-11 | Sum of Subarray Minimums
+
+	Question
+Return the total sum of minimum elements across all subarrays.
+
+	Approach
+1.	Instead of generating all subarrays, compute contribution of each element.
+2.	For arr[i], find:
+		left = distance to previous smaller element
+		right = distance to next smaller element
+3.	arr[i] will be the minimum for:
+		left × right subarrays
+4.	Contribution:
+		arr[i] × left × right
+5.	Use two monotonic stacks to compute:
+		previous smaller element
+		next smaller element
+6.	Sum all contributions.
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    int sumSubarrayMins(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> left(n), right(n);
+        stack<int> st;
+
+        for (int i = 0; i < n; i++) {
+            while (!st.empty() && arr[st.top()] > arr[i])
+                st.pop();
+
+            left[i] = st.empty() ? (i + 1) : (i - st.top());
+            st.push(i);
+        }
+
+        while (!st.empty()) st.pop();
+
+        for (int i = n - 1; i >= 0; i--) {
+            while (!st.empty() && arr[st.top()] >= arr[i])
+                st.pop();
+
+            right[i] = st.empty() ? (n - i) : (st.top() - i);
+            st.push(i);
+        }
+
+        long long ans = 0;
+
+        for (int i = 0; i < n; i++)
+            ans += (long long)arr[i] * left[i] * right[i];
+
+        return ans;
+    }
+};
+
+	Key Insight
+Each element contributes to several subarrays as the minimum.  
+By determining how far it can extend left and right before encountering a smaller value,  
+we can compute its total contribution efficiently in **O(n)** time.
