@@ -1,0 +1,125 @@
+2026-03-12 | Maximum Stability of Spanning Tree with Upgrades
+
+	Question
+Return the maximum stability achievable, or **-1** if forming a spanning tree is impossible.
+
+	Key Idea
+The stability is the **minimum edge strength** in the final tree.
+
+So we can **binary search the answer**:
+	Check whether a spanning tree exists where every edge has
+	effective strength ≥ mid.
+
+	Approach
+1.	Binary search possible stability value `mid`.
+2.	For each `mid`, test feasibility using **Union-Find**.
+3.	Steps for feasibility check:
+		1.	Add all `must = 1` edges first.
+		   If any must edge strength < mid → impossible.
+		2.	Process optional edges:
+		   If s ≥ mid → use normally.
+		   Else if upgrade allowed and 2*s ≥ mid → may upgrade.
+4.	Use Union-Find to ensure no cycles.
+5.	Track number of upgrades used.
+6.	If we can connect all nodes with ≤ k upgrades → feasible.
+7.	Return maximum feasible `mid`.
+
+	Time Complexity
+	O(E log S)
+
+	where  
+	E = number of edges  
+	S = max strength range
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+
+    struct DSU {
+        vector<int> parent, rank;
+
+        DSU(int n) {
+            parent.resize(n);
+            rank.resize(n,0);
+            for(int i=0;i<n;i++) parent[i]=i;
+        }
+
+        int find(int x){
+            if(parent[x]!=x)
+                parent[x]=find(parent[x]);
+            return parent[x];
+        }
+
+        bool unite(int a,int b){
+            a=find(a);
+            b=find(b);
+            if(a==b) return false;
+
+            if(rank[a]<rank[b]) swap(a,b);
+            parent[b]=a;
+            if(rank[a]==rank[b]) rank[a]++;
+
+            return true;
+        }
+    };
+
+    bool can(int n, vector<vector<int>>& edges, int k, int mid){
+        DSU dsu(n);
+        int upgrades=0;
+        int used=0;
+
+        for(auto &e:edges){
+            if(e[3]==1){
+                if(e[2] < mid) return false;
+                if(dsu.unite(e[0],e[1])) used++;
+            }
+        }
+
+        for(auto &e:edges){
+            if(e[3]==1) continue;
+
+            int u=e[0],v=e[1],s=e[2];
+
+            if(s>=mid){
+                if(dsu.unite(u,v)) used++;
+            }
+            else if(2*s>=mid){
+                if(dsu.unite(u,v)){
+                    upgrades++;
+                    used++;
+                    if(upgrades>k) return false;
+                }
+            }
+        }
+
+        return used==n-1;
+    }
+
+    int maxStability(int n, vector<vector<int>>& edges, int k) {
+
+        int lo=0, hi=1e9, ans=-1;
+
+        while(lo<=hi){
+            int mid=(lo+hi)/2;
+
+            if(can(n,edges,k,mid)){
+                ans=mid;
+                lo=mid+1;
+            }
+            else hi=mid-1;
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Maximizing the minimum edge in a spanning tree suggests **binary search on the answer**.  
+For each candidate stability, we check if a spanning tree can be formed using **Union-Find** while respecting:
+- mandatory edges  
+- upgrade limits  
+- connectivity constraints.
