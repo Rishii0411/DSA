@@ -1,0 +1,76 @@
+2026-03-13 | Minimum Time to Reduce Mountain Height
+
+	Question
+Return the minimum seconds required.
+
+	Approach
+1.	The answer depends on **time**, so we apply **binary search on time**.
+2.	For a given time `T`, determine how much height each worker can reduce.
+3.	Worker condition:
+		t * (x(x+1)/2) ≤ T
+
+4.	Solve for x:
+		x(x+1)/2 ≤ T / t
+
+5.	Approximate x using quadratic formula or incremental calculation.
+6.	Sum all workers' contributions.
+7.	If total reduced height ≥ mountainHeight → feasible.
+8.	Binary search the minimum feasible time.
+
+	Time Complexity
+	O(W log T)
+
+	W = number of workers
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+
+    bool can(long long T, int H, vector<int>& wt){
+
+        long long reduced = 0;
+
+        for(int t : wt){
+
+            long long val = T / t;
+
+            long long x = (sqrt(1 + 8*val) - 1) / 2;
+
+            reduced += x;
+
+            if(reduced >= H)
+                return true;
+        }
+
+        return false;
+    }
+
+    long long minNumberOfSeconds(int mountainHeight, vector<int>& workerTimes) {
+
+        long long lo = 0;
+        long long hi = 1e18;
+        long long ans = hi;
+
+        while(lo <= hi){
+
+            long long mid = (lo + hi) / 2;
+
+            if(can(mid, mountainHeight, workerTimes)){
+                ans = mid;
+                hi = mid - 1;
+            }
+            else
+                lo = mid + 1;
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+The time needed by each worker grows as a **triangular sequence**.  
+So for any given time we compute the **maximum units a worker can remove** using the triangular formula and binary search the minimum time globally.
