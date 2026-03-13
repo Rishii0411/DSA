@@ -1,0 +1,68 @@
+2026-03-13 | Restore IP Addresses
+
+	Question
+Return **all possible valid IP address combinations** formed from the string.
+
+	Approach
+1.	This is a **backtracking / DFS partitioning** problem.
+2.	We try to split the string into **4 segments**.
+3.	Each segment length can be **1 to 3 digits**.
+4.	For each segment:
+		Check validity:
+			- value ≤ 255
+			- no leading zero unless single digit
+5.	If valid:
+		continue recursion for next segment.
+6.	If 4 segments are formed and the string is fully used,
+		add the IP address to the result.
+
+	Time Complexity
+	O(3⁴) ≈ constant (very small search space)
+
+	Space Complexity
+	O(1) excluding output
+
+	Solution
+
+class Solution {
+public:
+
+    bool valid(string s){
+        if(s.size()>1 && s[0]=='0') return false;
+        int num=stoi(s);
+        return num>=0 && num<=255;
+    }
+
+    void solve(string &s,int idx,int parts,string curr,vector<string> &ans){
+
+        if(parts==4 && idx==s.size()){
+            curr.pop_back();
+            ans.push_back(curr);
+            return;
+        }
+
+        if(parts==4 || idx==s.size())
+            return;
+
+        for(int len=1;len<=3 && idx+len<=s.size();len++){
+            string segment=s.substr(idx,len);
+
+            if(valid(segment)){
+                solve(s,idx+len,parts+1,curr+segment+".",ans);
+            }
+        }
+    }
+
+    vector<string> restoreIpAddresses(string s) {
+
+        vector<string> ans;
+
+        solve(s,0,0,"",ans);
+
+        return ans;
+    }
+};
+
+	Key Insight
+An IP address always has **exactly 4 segments**, each between **1 and 3 digits**.  
+So we explore all possible partitions using **backtracking**, validating each segment as we go.
