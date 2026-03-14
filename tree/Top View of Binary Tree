@@ -1,0 +1,65 @@
+2026-03-14 | Top View of Binary Tree
+
+	Question
+Return the nodes visible from the top of the tree from **leftmost HD to rightmost HD**.
+
+	Approach
+1.	Use **Breadth First Search (level order traversal)**.
+2.	Store pairs:
+		node + horizontal distance.
+3.	Use a map:
+		HD → first node encountered.
+4.	During BFS:
+		if HD not already present in map
+			store node value.
+5.	Traverse the map from smallest HD to largest HD to get the result.
+
+	Time Complexity
+	O(n log n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> topView(Node *root) {
+
+        if(!root) return {};
+
+        map<int,int> mp;
+        queue<pair<Node*,int>> q;
+
+        q.push({root,0});
+
+        while(!q.empty()){
+
+            auto front = q.front();
+            q.pop();
+
+            Node* node = front.first;
+            int hd = front.second;
+
+            if(mp.find(hd) == mp.end())
+                mp[hd] = node->data;
+
+            if(node->left)
+                q.push({node->left, hd-1});
+
+            if(node->right)
+                q.push({node->right, hd+1});
+        }
+
+        vector<int> ans;
+
+        for(auto &it : mp)
+            ans.push_back(it.second);
+
+        return ans;
+    }
+};
+
+	Key Insight
+The **first node encountered at each horizontal distance during BFS** is the one visible from the top.  
+Using a map keeps nodes automatically ordered from **leftmost to rightmost**.
