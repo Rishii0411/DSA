@@ -1,0 +1,59 @@
+2026-03-14 | K-th Happy String of Length n
+
+	Question
+Given integers **n** and **k**, return the k-th lexicographically smallest happy string of length n.
+
+	Approach
+1.	Use **backtracking** to generate happy strings.
+2.	At each step choose characters from:
+		'a', 'b', 'c'
+3.	Ensure:
+		the new character is different from the previous one.
+4.	Generate strings in lexicographical order.
+5.	Store or count strings until reaching the **k-th** one.
+6.	If total generated < k → return "".
+
+	Time Complexity
+	O(3 * 2^(n-1))
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+
+    void solve(int n, int k, string &curr, vector<string> &res){
+
+        if(curr.size() == n){
+            res.push_back(curr);
+            return;
+        }
+
+        for(char c : {'a','b','c'}){
+            if(curr.empty() || curr.back() != c){
+                curr.push_back(c);
+                solve(n,k,curr,res);
+                curr.pop_back();
+            }
+        }
+    }
+
+    string getHappyString(int n, int k) {
+
+        vector<string> res;
+        string curr="";
+
+        solve(n,k,curr,res);
+
+        if(k > res.size()) return "";
+
+        return res[k-1];
+    }
+};
+
+	Key Insight
+Once the first character is chosen (3 options), each next character has **only 2 choices** (cannot equal previous).  
+So total happy strings = **3 × 2^(n−1)**.  
+Backtracking in lexicographic order ensures the **k-th generated string** is the required answer.
