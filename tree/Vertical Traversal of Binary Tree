@@ -1,0 +1,64 @@
+2026-03-15 | Vertical Traversal of Binary Treeescription of the Problem
+
+	Question
+Return the vertical traversal of the tree from leftmost HD to rightmost HD.
+
+	Approach
+1.	Use **Breadth First Search (BFS)** to maintain level order.
+2.	Store pairs:
+		(node, horizontal distance).
+3.	Use a **map<int, vector<int>>**:
+		key → horizontal distance  
+		value → list of nodes in that vertical line.
+4.	During BFS:
+		add node values to the map.
+5.	Left child → HD − 1  
+	Right child → HD + 1
+6.	After traversal:
+		read the map from smallest HD to largest HD.
+
+	Time Complexity
+	O(n log n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    vector<vector<int>> verticalTraversal(Node* root) {
+
+        map<int, vector<int>> mp;
+        queue<pair<Node*, int>> q;
+
+        q.push({root, 0});
+
+        while (!q.empty()) {
+
+            auto front = q.front();
+            q.pop();
+
+            Node* node = front.first;
+            int hd = front.second;
+
+            mp[hd].push_back(node->data);
+
+            if (node->left)
+                q.push({node->left, hd - 1});
+
+            if (node->right)
+                q.push({node->right, hd + 1});
+        }
+
+        vector<vector<int>> ans;
+
+        for (auto &it : mp)
+            ans.push_back(it.second);
+
+        return ans;
+    }
+};
+
+	Key Insight
+BFS guarantees nodes are processed in **level order**, ensuring that nodes appearing earlier in the tree are printed first when they share the same vertical line.
