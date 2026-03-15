@@ -1,0 +1,95 @@
+2026-03-15 | Fancy Sequence API
+
+•	Operations:
+	1. append(val)
+		Add a new value to the sequence.
+
+	2. addAll(inc)
+		Add inc to every existing value.
+
+	3. multAll(m)
+		Multiply every existing value by m.
+
+	4. getIndex(idx)
+		Return the value at index idx.
+
+•	Constraints are large, so updating the entire array each time would be too slow.
+
+	Key Idea
+Use **lazy linear transformation**.
+
+Every element undergoes operations of the form:
+
+		value = value * mul + add
+
+We keep two global variables:
+		globalMul
+		globalAdd
+
+Instead of updating every element, we adjust these variables.
+
+When appending a value:
+We store its normalized form by reversing the current transformation.
+
+	Time Complexity
+		append → O(1)  
+		addAll → O(1)  
+		multAll → O(1)  
+		getIndex → O(1)
+
+	Space Complexity
+		O(n)
+
+	Solution
+
+class Fancy {
+public:
+    const long long MOD = 1e9 + 7;
+
+    vector<long long> arr;
+    long long mul = 1;
+    long long add = 0;
+
+    long long modInverse(long long x){
+        long long res = 1, p = MOD-2;
+
+        while(p){
+            if(p&1) res = (res*x)%MOD;
+            x = (x*x)%MOD;
+            p >>= 1;
+        }
+
+        return res;
+    }
+
+    Fancy() {}
+
+    void append(int val) {
+        long long inv = modInverse(mul);
+        long long v = ((val - add + MOD) % MOD * inv) % MOD;
+        arr.push_back(v);
+    }
+
+    void addAll(int inc) {
+        add = (add + inc) % MOD;
+    }
+
+    void multAll(int m) {
+        mul = (mul * m) % MOD;
+        add = (add * m) % MOD;
+    }
+
+    int getIndex(int idx) {
+        if(idx >= arr.size()) return -1;
+
+        long long val = arr[idx];
+        return (val * mul % MOD + add) % MOD;
+    }
+};
+
+	Key Insight
+Instead of updating every element on each operation, we maintain a **global affine transformation**:
+
+		value → value × mul + add
+
+New elements are inserted in normalized form so that when the transformation is applied later, the correct value is obtained.
