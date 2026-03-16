@@ -1,0 +1,78 @@
+2026-03-16 | Biggest Three Rhombus Border Sums in Grid
+
+	Question
+Return the **top three distinct rhombus border sums** in descending order.
+
+	Approach
+1.	For each cell treat it as the **top vertex** of a rhombus.
+2.	Try expanding rhombus size **k**.
+3.	The four corners are:
+		top        (r, c)
+		left       (r+k, c-k)
+		right      (r+k, c+k)
+		bottom     (r+2k, c)
+4.	If these indices are within bounds,
+	compute the **border sum** by traversing the four edges.
+5.	Insert each rhombus sum into a **set** to maintain uniqueness.
+6.	After processing all rhombuses,
+	extract the **largest three values**.
+
+	Time Complexity
+	O(m × n × min(m,n))
+
+	Space Complexity
+	O(K) for storing rhombus sums.
+
+	Solution
+
+class Solution {
+public:
+    vector<int> getBiggestThree(vector<vector<int>>& grid) {
+
+        int m = grid.size();
+        int n = grid[0].size();
+
+        set<int> st;
+
+        for(int r=0;r<m;r++){
+            for(int c=0;c<n;c++){
+
+                st.insert(grid[r][c]); // size 0 rhombus
+
+                for(int k=1;r+2*k<m && c-k>=0 && c+k<n;k++){
+
+                    int sum = 0;
+
+                    int x=r,y=c;
+
+                    for(int i=0;i<k;i++)
+                        sum += grid[x+i][y-i];
+
+                    for(int i=0;i<k;i++)
+                        sum += grid[x+k+i][y-k+i];
+
+                    for(int i=0;i<k;i++)
+                        sum += grid[x+2*k-i][y+i];
+
+                    for(int i=0;i<k;i++)
+                        sum += grid[x+k-i][y+k-i];
+
+                    st.insert(sum);
+                }
+            }
+        }
+
+        vector<int> ans;
+
+        auto it = st.rbegin();
+
+        for(int i=0;i<3 && it!=st.rend();i++,it++)
+            ans.push_back(*it);
+
+        return ans;
+    }
+};
+
+	Key Insight
+A rhombus border consists of **four diagonal edges**.  
+Enumerating every possible rhombus center and size while collecting unique sums allows us to select the **top three distinct values**.
