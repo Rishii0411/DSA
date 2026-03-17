@@ -1,0 +1,60 @@
+2026-03-17 | Largest Submatrix With Rearrangements
+
+	Approach
+1.	Build heights:
+		For each cell:
+			if matrix[i][j] == 1
+				height[j] += 1
+			else
+				height[j] = 0
+2.	For each row:
+		Sort heights in descending order.
+3.	Now compute area:
+		For each column j:
+			width = j + 1
+			area = height[j] × width
+4.	Take maximum over all rows.
+
+	Time Complexity
+	O(m × n log n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    int largestSubmatrix(vector<vector<int>>& matrix) {
+
+        int m = matrix.size();
+        int n = matrix[0].size();
+
+        vector<int> height(n, 0);
+        int ans = 0;
+
+        for (int i = 0; i < m; i++) {
+
+            for (int j = 0; j < n; j++) {
+                if (matrix[i][j] == 1)
+                    height[j]++;
+                else
+                    height[j] = 0;
+            }
+
+            vector<int> temp = height;
+            sort(temp.begin(), temp.end(), greater<int>());
+
+            for (int j = 0; j < n; j++) {
+                ans = max(ans, temp[j] * (j + 1));
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+By sorting column heights at each row,
+we simulate optimal column rearrangement.
+This transforms the problem into finding the largest rectangle in a histogram efficiently.
