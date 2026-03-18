@@ -1,0 +1,64 @@
+2026-03-18 | Distribute Candies in Binary Tree
+
+	Question
+Return the minimum number of moves required.
+
+	Key Idea
+Each node may have:
+		extra candies (surplus)
+		or need candies (deficit)
+
+We calculate **net flow** from each subtree:
+		flow = (left + right + node->val - 1)
+
+•	If flow > 0 → extra candies to pass up  
+•	If flow < 0 → needs candies from parent  
+
+Each transfer counts as moves:
+		moves += abs(left flow) + abs(right flow)
+
+	Approach
+1.	Use **postorder DFS**.
+2.	Compute:
+		left subtree balance
+		right subtree balance
+3.	Add moves:
+		abs(left) + abs(right)
+4.	Return:
+		current balance = left + right + node->val - 1
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(h)
+
+	Solution
+
+class Solution {
+public:
+
+    int moves = 0;
+
+    int dfs(TreeNode* root) {
+
+        if (!root) return 0;
+
+        int left = dfs(root->left);
+        int right = dfs(root->right);
+
+        moves += abs(left) + abs(right);
+
+        return root->val + left + right - 1;
+    }
+
+    int distributeCandies(TreeNode* root) {
+        dfs(root);
+        return moves;
+    }
+};
+
+	Key Insight
+Each subtree returns how many candies it needs to give or take.  
+The absolute value of this flow represents the number of moves required.  
+This greedy bottom-up flow ensures minimum moves.
