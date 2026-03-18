@@ -1,0 +1,57 @@
+2026-03-18 | Count Submatrices with Top-Left Corner and Sum ≤ k
+
+	Question
+Return the number of submatrices starting from (0,0) whose sum ≤ k.
+
+	Approach
+1.	Use **2D prefix sum**:
+		prefix[i][j] =
+			sum of elements from (0,0) to (i,j)
+2.	Formula:
+		prefix[i][j] =
+			grid[i][j]
+			+ prefix[i-1][j]
+			+ prefix[i][j-1]
+			- prefix[i-1][j-1]
+3.	For each cell (i, j):
+		if prefix[i][j] ≤ k
+			count++
+4.	Return total count.
+
+	Time Complexity
+	O(m × n)
+
+	Space Complexity
+	O(1) (can reuse grid)
+
+	Solution
+
+class Solution {
+public:
+    int countSubmatrices(vector<vector<int>>& grid, int k) {
+
+        int m = grid.size();
+        int n = grid[0].size();
+
+        int count = 0;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+
+                if (i > 0) grid[i][j] += grid[i - 1][j];
+                if (j > 0) grid[i][j] += grid[i][j - 1];
+                if (i > 0 && j > 0) grid[i][j] -= grid[i - 1][j - 1];
+
+                if (grid[i][j] <= k)
+                    count++;
+            }
+        }
+
+        return count;
+    }
+};
+
+	Key Insight
+Since every valid submatrix starts at (0,0),
+we only need prefix sums.
+Each prefix[i][j] directly represents one candidate submatrix,
