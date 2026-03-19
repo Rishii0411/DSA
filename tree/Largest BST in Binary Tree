@@ -1,0 +1,92 @@
+2026-03-19 | Largest BST in Binary Tree
+
+	Question
+Return the size (number of nodes) of the largest BST subtree.
+
+	Approach
+We solve using **postorder traversal (bottom-up)**.
+
+For each node, return:
+		1. isBST → whether subtree is BST
+		2. size → size of subtree if BST
+		3. min → minimum value in subtree
+		4. max → maximum value in subtree
+
+Steps:
+1.	Traverse left and right.
+2.	Check BST condition:
+		left.max < root.val < right.min
+3.	If valid:
+		size = left.size + right.size + 1
+		update global max
+4.	If invalid:
+		mark as not BST
+
+Why postorder?
+Because we need information from children before deciding for parent.
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(h)
+
+	Solution
+
+class Solution {
+public:
+
+    int maxSize = 0;
+
+    struct NodeInfo {
+        bool isBST;
+        int size;
+        int minVal;
+        int maxVal;
+    };
+
+    NodeInfo dfs(TreeNode* root) {
+
+        if (!root)
+            return {true, 0, INT_MAX, INT_MIN};
+
+        auto left = dfs(root->left);
+        auto right = dfs(root->right);
+
+        NodeInfo curr;
+
+        if (left.isBST && right.isBST &&
+            root->val > left.maxVal &&
+            root->val < right.minVal) {
+
+            curr.isBST = true;
+            curr.size = left.size + right.size + 1;
+            curr.minVal = min(root->val, left.minVal);
+            curr.maxVal = max(root->val, right.maxVal);
+
+            maxSize = max(maxSize, curr.size);
+        }
+        else {
+            curr.isBST = false;
+            curr.size = 0;
+            curr.minVal = INT_MIN;
+            curr.maxVal = INT_MAX;
+        }
+
+        return curr;
+    }
+
+    int largestBst(TreeNode* root) {
+        dfs(root);
+        return maxSize;
+    }
+};
+
+	Key Insight
+Each node decides:
+“Am I root of a BST?”
+
+Using:
+		left subtree info + right subtree info
+
+This avoids rechecking subtrees repeatedly → O(n) optimal solution.
