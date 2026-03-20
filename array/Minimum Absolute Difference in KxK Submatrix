@@ -1,0 +1,75 @@
+2026-03-20 | Minimum Absolute Difference in KxK Submatrix
+
+	Question
+For every k×k submatrix, compute:
+		min |a - b| for all distinct pairs
+
+	Approach
+Brute force per window:
+		collect elements → sort → check adjacent differences  
+
+Optimized approach:
+1.	Slide k×k window over grid  
+2.	For each window:
+		- insert elements into multiset (sorted order)
+		- iterate once to find min adjacent difference  
+3.	Store result  
+
+Optimization:
+Instead of recomputing from scratch:
+		we can still keep it simple since k ≤ small (usually constraints)
+
+	Time Complexity
+	O((m−k+1)(n−k+1) × k² log(k²))
+
+	Space Complexity
+	O(k²)
+
+	Solution
+
+class Solution {
+public:
+    vector<vector<int>> minDifference(vector<vector<int>>& grid, int k) {
+
+        int m = grid.size();
+        int n = grid[0].size();
+
+        vector<vector<int>> ans(m - k + 1, vector<int>(n - k + 1, 0));
+
+        for (int i = 0; i <= m - k; i++) {
+            for (int j = 0; j <= n - k; j++) {
+
+                vector<int> vals;
+
+                // collect k x k elements
+                for (int x = i; x < i + k; x++) {
+                    for (int y = j; y < j + k; y++) {
+                        vals.push_back(grid[x][y]);
+                    }
+                }
+
+                sort(vals.begin(), vals.end());
+
+                int minDiff = INT_MAX;
+
+                for (int t = 1; t < vals.size(); t++) {
+                    minDiff = min(minDiff, abs(vals[t] - vals[t - 1]));
+                }
+
+                ans[i][j] = (minDiff == INT_MAX ? 0 : minDiff);
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+The minimum absolute difference always comes from **adjacent elements after sorting**.  
+
+So instead of checking all pairs (O(k⁴)),
+we reduce it to O(k² log k²) per window.
+
+	If constraints are very large:
+→ can further optimize using frequency arrays (if values bounded)  
+→ or sliding window with ordered set reuse.
