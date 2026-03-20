@@ -1,0 +1,71 @@
+2026-03-20 | Inorder Predecessor and Successor in BST
+
+	Question
+Find predecessor and successor of a given key in BST.  
+If not present → return NULL.
+
+	Approach
+We use BST traversal:
+
+1.	Start from root
+2.	If root->val < key:
+		it can be predecessor
+		move right (to find closer value)
+3.	If root->val > key:
+		it can be successor
+		move left
+4.	If root->val == key:
+		- predecessor = max value in left subtree
+		- successor = min value in right subtree
+
+	Time Complexity
+	O(h) (height of tree)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    void findPreSuc(Node* root, Node*& pre, Node*& suc, int key) {
+
+        while (root) {
+
+            if (root->key < key) {
+                pre = root;
+                root = root->right;
+            }
+            else if (root->key > key) {
+                suc = root;
+                root = root->left;
+            }
+            else {
+
+                // predecessor (max in left subtree)
+                if (root->left) {
+                    Node* temp = root->left;
+                    while (temp->right)
+                        temp = temp->right;
+                    pre = temp;
+                }
+
+                // successor (min in right subtree)
+                if (root->right) {
+                    Node* temp = root->right;
+                    while (temp->left)
+                        temp = temp->left;
+                    suc = temp;
+                }
+
+                break;
+            }
+        }
+    }
+};
+
+	Key Insight
+•	Predecessor = last node smaller than key  
+•	Successor = last node greater than key  
+
+Using BST ordering, we avoid full traversal and achieve optimal O(h) solution.
