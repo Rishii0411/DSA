@@ -1,0 +1,55 @@
+2026-03-21 | Flip K×K Submatrix Vertically
+
+	Question
+Return the updated matrix after flipping the specified submatrix.
+
+	Approach
+1.	Identify the submatrix:
+		rows → x to x+k-1  
+		columns → y to y+k-1  
+
+2.	Use two pointers:
+		top = x  
+		bottom = x + k - 1  
+
+3.	While top < bottom:
+		swap entire rows within column range [y, y+k-1]
+
+4.	Move:
+		top++  
+		bottom--  
+
+5.	Return modified grid.
+
+	Time Complexity
+	O(k²)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    vector<vector<int>> flipSubmatrix(vector<vector<int>>& grid, int x, int y, int k) {
+
+        int top = x;
+        int bottom = x + k - 1;
+
+        while (top < bottom) {
+
+            for (int col = y; col < y + k; col++) {
+                swap(grid[top][col], grid[bottom][col]);
+            }
+
+            top++;
+            bottom--;
+        }
+
+        return grid;
+    }
+};
+
+	Key Insight
+We only reverse rows inside the square region.  
+This is equivalent to reversing a subarray of rows but only within a fixed column range.
