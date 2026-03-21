@@ -1,0 +1,60 @@
+2026-03-21 | Number of Unique BSTs for Each Root
+
+	Question
+For each index i, return number of unique BSTs when arr[i] is root.
+
+	Approach
+1.	First, sort the array (BST depends on relative ordering).
+2.	Let n = size of array.
+3.	If arr[i] is root:
+		left subtree size = i  
+		right subtree size = n - i - 1  
+
+4.	Number of BSTs:
+		Catalan(left) × Catalan(right)
+
+5.	Precompute Catalan numbers:
+		C[0] = 1  
+		C[n] = sum(C[i] * C[n-i-1])
+
+6.	Build answer using:
+		ans[i] = C[i] * C[n-i-1]
+
+	Time Complexity
+	O(n²) (for Catalan computation)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    vector<long long> countBST(vector<int>& arr) {
+
+        int n = arr.size();
+        sort(arr.begin(), arr.end());
+
+        vector<long long> catalan(n + 1, 0);
+        catalan[0] = catalan[1] = 1;
+
+        for (int i = 2; i <= n; i++) {
+            for (int j = 0; j < i; j++) {
+                catalan[i] += catalan[j] * catalan[i - j - 1];
+            }
+        }
+
+        vector<long long> ans(n);
+
+        for (int i = 0; i < n; i++) {
+            ans[i] = catalan[i] * catalan[n - i - 1];
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+The number of BSTs depends only on the **count of nodes**, not their actual values.  
+So once sorted, each element’s position determines:
+		how many nodes go left and right → leading to Catalan multiplication.
