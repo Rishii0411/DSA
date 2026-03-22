@@ -1,0 +1,77 @@
+2026-03-22 | Rotten Oranges (Minimum Time to Rot All)
+
+	Question
+Return minimum time required to rot all oranges, or -1 if impossible.
+
+	Approach
+1.	This is a **multi-source BFS problem**.
+2.	Push all initially rotten oranges into queue.
+3.	Count total fresh oranges.
+4.	Run BFS level by level:
+		Each level = 1 minute.
+5.	For each rotten orange:
+		convert adjacent fresh oranges → rotten
+		decrease fresh count
+6.	If at end fresh > 0 → return -1
+7.	Else return time.
+
+	Time Complexity
+	O(m × n)
+
+	Space Complexity
+	O(m × n)
+
+	Solution
+
+class Solution {
+public:
+    int orangesRotting(vector<vector<int>>& grid) {
+
+        int m = grid.size();
+        int n = grid[0].size();
+
+        queue<pair<int,int>> q;
+        int fresh = 0;
+
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if(grid[i][j]==2)
+                    q.push({i,j});
+                else if(grid[i][j]==1)
+                    fresh++;
+            }
+        }
+
+        int time = 0;
+        vector<int> dir = {0,1,0,-1,0};
+
+        while(!q.empty() && fresh>0){
+
+            int size = q.size();
+
+            for(int i=0;i<size;i++){
+                auto [x,y] = q.front();
+                q.pop();
+
+                for(int d=0;d<4;d++){
+                    int nx = x + dir[d];
+                    int ny = y + dir[d+1];
+
+                    if(nx>=0 && ny>=0 && nx<m && ny<n && grid[nx][ny]==1){
+                        grid[nx][ny] = 2;
+                        fresh--;
+                        q.push({nx,ny});
+                    }
+                }
+            }
+
+            time++;
+        }
+
+        return fresh==0 ? time : -1;
+    }
+};
+
+	Key Insight
+All rotten oranges spread simultaneously → this is classic **multi-source BFS**.  
+Each BFS level represents one unit of time, ensuring minimum time calculation.
