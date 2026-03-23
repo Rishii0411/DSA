@@ -1,0 +1,73 @@
+2026-03-23 | Longest Cycle in Directed Graph
+
+	Question
+Return the length of the longest cycle in the graph.
+
+	Approach
+1.	Use a **visited array** to track visited nodes.
+2.	Also track:
+		time (step count when visiting nodes)
+3.	For each node:
+		if not visited:
+			start traversal
+4.	Maintain a map:
+		node → time visited in current path
+5.	If during traversal we reach a node already in current path:
+		cycle detected  
+		cycle length = currentTime - storedTime
+6.	Update maximum cycle length.
+7.	Mark nodes as globally visited.
+
+	Time Complexity
+	O(V)
+
+	Space Complexity
+	O(V)
+
+	Solution
+
+class Solution {
+public:
+    int longestCycle(vector<vector<int>>& edges) {
+
+        int n = edges.size();
+        vector<int> vis(n, 0);
+        int ans = -1;
+
+        for(int i = 0; i < n; i++){
+
+            if(vis[i]) continue;
+
+            unordered_map<int,int> mp;
+            int node = i;
+            int step = 0;
+
+            while(node != -1 && !vis[node]){
+
+                vis[node] = 1;
+                mp[node] = step++;
+
+                int next = edges[node][1]; // u -> v
+
+                if(next != -1 && mp.count(next)){
+                    ans = max(ans, step - mp[next]);
+                    break;
+                }
+
+                node = next;
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Since each node has **at most one outgoing edge**,  
+we don’t need full DFS branching.
+
+Instead:
+- follow the path linearly  
+- detect cycle using **visit time tracking**  
+
+This gives an optimal **O(V)** solution.
