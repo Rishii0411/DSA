@@ -1,0 +1,88 @@
+2026-03-23 | Maximum Non-Negative Product in a Grid
+
+	Question
+Return maximum non-negative product from top-left to bottom-right.
+
+	Key Challenge
+Negative numbers can flip signs:
+→ minimum product can become maximum later  
+So we must track both **min and max product**.
+
+	Approach
+1.	Use DP:
+		dpMax[i][j] → maximum product till (i,j)  
+		dpMin[i][j] → minimum product till (i,j)
+
+2.	Transition:
+	From top and left:
+		candidates = {
+			dpMax * grid[i][j],
+			dpMin * grid[i][j]
+		}
+
+3.	Take:
+		dpMax = max(candidates)  
+		dpMin = min(candidates)
+
+4.	Base case:
+		dp[0][0] = grid[0][0]
+
+5.	Final answer:
+		if dpMax[m-1][n-1] < 0 → return -1  
+		else return dpMax % MOD
+
+	Time Complexity
+	O(m × n)
+
+	Space Complexity
+	O(m × n)
+
+	Solution
+
+class Solution {
+public:
+    int maxProductPath(vector<vector<int>>& grid) {
+
+        int m = grid.size();
+        int n = grid[0].size();
+        const long long MOD = 1e9 + 7;
+
+        vector<vector<long long>> dpMax(m, vector<long long>(n));
+        vector<vector<long long>> dpMin(m, vector<long long>(n));
+
+        dpMax[0][0] = dpMin[0][0] = grid[0][0];
+
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+
+                if(i==0 && j==0) continue;
+
+                long long mx = LLONG_MIN, mn = LLONG_MAX;
+
+                if(i>0){
+                    mx = max(mx, max(dpMax[i-1][j]*grid[i][j], dpMin[i-1][j]*grid[i][j]));
+                    mn = min(mn, min(dpMax[i-1][j]*grid[i][j], dpMin[i-1][j]*grid[i][j]));
+                }
+
+                if(j>0){
+                    mx = max(mx, max(dpMax[i][j-1]*grid[i][j], dpMin[i][j-1]*grid[i][j]));
+                    mn = min(mn, min(dpMax[i][j-1]*grid[i][j], dpMin[i][j-1]*grid[i][j]));
+                }
+
+                dpMax[i][j] = mx;
+                dpMin[i][j] = mn;
+            }
+        }
+
+        long long ans = dpMax[m-1][n-1];
+
+        if(ans < 0) return -1;
+
+        return ans % MOD;
+    }
+};
+
+	Key Insight
+Because of negative numbers:
+you must track both **maximum and minimum products** at each cell.  
+This ensures you don’t lose potential optimal paths due to sign flips.
