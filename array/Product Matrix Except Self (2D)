@@ -1,0 +1,71 @@
+2026-03-24 | Product Matrix Except Self (2D)
+
+Question
+Return the matrix where each cell contains product of all other elements.
+
+	Approach
+1.	Flatten matrix into 1D traversal order.
+2.	Compute:
+		prefix product array  
+		suffix product array  
+
+3.	For each index i:
+		result[i] = prefix[i-1] * suffix[i+1]
+
+4.	Map back to 2D matrix.
+
+5.	Handle modulo at each step.
+
+	Time Complexity
+	O(n × m)
+
+	Space Complexity
+	O(n × m)
+
+	Solution
+
+class Solution {
+public:
+    vector<vector<int>> constructProductMatrix(vector<vector<int>>& grid) {
+
+        int n = grid.size();
+        int m = grid[0].size();
+        int MOD = 12345;
+
+        int size = n * m;
+        vector<int> arr(size);
+
+        // flatten
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                arr[i*m + j] = grid[i][j] % MOD;
+            }
+        }
+
+        vector<int> prefix(size,1), suffix(size,1);
+
+        for(int i=1;i<size;i++){
+            prefix[i] = (prefix[i-1] * arr[i-1]) % MOD;
+        }
+
+        for(int i=size-2;i>=0;i--){
+            suffix[i] = (suffix[i+1] * arr[i+1]) % MOD;
+        }
+
+        vector<vector<int>> ans(n, vector<int>(m));
+
+        for(int i=0;i<size;i++){
+            int val = (prefix[i] * suffix[i]) % MOD;
+            ans[i/m][i%m] = val;
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Instead of recomputing product for every cell (O(n²m²)),
+we reuse prefix and suffix products to achieve O(nm).
+
+This is a 2D extension of:
+	“Product of Array Except Self” without division.
