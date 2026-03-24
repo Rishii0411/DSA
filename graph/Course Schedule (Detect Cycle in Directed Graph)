@@ -1,0 +1,68 @@
+2026-03-24 | Course Schedule (Detect Cycle in Directed Graph)
+
+	Question
+Return true if all courses can be completed, otherwise false.
+
+	Approach (Kahn’s Algorithm)
+1.	Build graph:
+		adj list from prerequisites  
+2.	Compute indegree of each node.
+3.	Push all nodes with indegree = 0 into queue.
+4.	Process queue:
+		pop node  
+		reduce indegree of neighbors  
+		if any becomes 0 → push to queue  
+5.	Count processed nodes.
+6.	If count == n → no cycle → return true  
+	else → cycle exists → return false  
+
+	Time Complexity
+	O(V + E)
+
+	Space Complexity
+	O(V + E)
+
+	Solution
+
+class Solution {
+public:
+    bool canFinish(int n, vector<vector<int>>& prerequisites) {
+
+        vector<vector<int>> adj(n);
+        vector<int> indegree(n, 0);
+
+        for(auto &p : prerequisites){
+            int u = p[1], v = p[0];
+            adj[u].push_back(v);
+            indegree[v]++;
+        }
+
+        queue<int> q;
+
+        for(int i=0;i<n;i++){
+            if(indegree[i]==0)
+                q.push(i);
+        }
+
+        int count = 0;
+
+        while(!q.empty()){
+            int node = q.front();
+            q.pop();
+            count++;
+
+            for(auto neigh : adj[node]){
+                indegree[neigh]--;
+                if(indegree[neigh]==0)
+                    q.push(neigh);
+            }
+        }
+
+        return count == n;
+    }
+};
+
+	Key Insight
+This problem reduces to **cycle detection in a directed graph**.  
+If a cycle exists → some courses depend on each other → impossible.  
+Topological sorting ensures we can process courses in valid order.
