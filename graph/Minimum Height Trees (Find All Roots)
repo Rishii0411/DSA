@@ -1,0 +1,81 @@
+2026-03-25 | Minimum Height Trees (Find All Roots)
+
+	Question
+Return all nodes that can be roots of Minimum Height Trees.
+
+	Approach (Leaf Trimming BFS)
+1.	If n == 1 → return {0}
+2.	Build adjacency list.
+3.	Find all leaf nodes:
+		nodes with degree = 1
+4.	Remove leaves level by level:
+		reduce degree of neighbors
+		new leaves appear
+5.	Continue until ≤ 2 nodes remain.
+6.	Remaining nodes are centroids.
+
+	Time Complexity
+	O(V)
+
+	Space Complexity
+	O(V)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
+
+        if(n == 1) return {0};
+
+        vector<vector<int>> adj(n);
+        vector<int> degree(n, 0);
+
+        for(auto &e : edges){
+            int u = e[0], v = e[1];
+            adj[u].push_back(v);
+            adj[v].push_back(u);
+            degree[u]++;
+            degree[v]++;
+        }
+
+        queue<int> q;
+
+        for(int i=0;i<n;i++){
+            if(degree[i] == 1)
+                q.push(i);
+        }
+
+        int remaining = n;
+
+        while(remaining > 2){
+
+            int size = q.size();
+            remaining -= size;
+
+            for(int i=0;i<size;i++){
+                int node = q.front();
+                q.pop();
+
+                for(int neigh : adj[node]){
+                    degree[neigh]--;
+                    if(degree[neigh] == 1)
+                        q.push(neigh);
+                }
+            }
+        }
+
+        vector<int> ans;
+
+        while(!q.empty()){
+            ans.push_back(q.front());
+            q.pop();
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+The roots of minimum height trees are always the **center(s) of the tree**.  
+By repeatedly removing leaves, we converge to 1 or 2 central nodes — the optimal roots.
