@@ -1,0 +1,124 @@
+2026-03-26 | Equal Partition with One Optional Cell Removal
+
+	Question
+Return true if such a partition exists.
+
+	Approach
+1.	Compute total sum of grid.
+2.	We try all possible cuts:
+		- horizontal cuts  
+		- vertical cuts  
+
+3.	For each cut:
+		let sum1 = left/top part  
+		sum2 = total - sum1  
+
+4.	If sum1 == sum2 → return true  
+
+5.	Otherwise:
+		diff = abs(sum1 - sum2)
+
+6.	We need to check:
+		can we remove a cell with value = diff from the larger section?
+
+7.	To do this efficiently:
+		- maintain frequency maps while scanning  
+		- track elements in current partition  
+
+8.	If such element exists → return true  
+
+9.	If no cut works → return false  
+
+	Time Complexity
+	O(m × n)
+
+	Space Complexity
+	O(m × n)
+
+	Solution
+
+class Solution {
+public:
+    bool check(vector<vector<int>>& grid, bool horizontal) {
+
+        int m = grid.size(), n = grid[0].size();
+        long long total = 0;
+
+        for(auto &row : grid)
+            for(int x : row)
+                total += x;
+
+        unordered_map<int,int> rightFreq;
+
+        for(auto &row : grid)
+            for(int x : row)
+                rightFreq[x]++;
+
+        unordered_map<int,int> leftFreq;
+
+        long long curr = 0;
+
+        if(horizontal){
+
+            for(int i=0;i<m-1;i++){
+
+                for(int j=0;j<n;j++){
+                    curr += grid[i][j];
+                    leftFreq[grid[i][j]]++;
+                    rightFreq[grid[i][j]]--;
+                    if(rightFreq[grid[i][j]]==0)
+                        rightFreq.erase(grid[i][j]);
+                }
+
+                long long other = total - curr;
+
+                if(curr == other) return true;
+
+                long long diff = abs(curr - other);
+
+                if(curr > other){
+                    if(leftFreq.count(diff)) return true;
+                } else {
+                    if(rightFreq.count(diff)) return true;
+                }
+            }
+        }
+        else{
+
+            for(int j=0;j<n-1;j++){
+
+                for(int i=0;i<m;i++){
+                    curr += grid[i][j];
+                    leftFreq[grid[i][j]]++;
+                    rightFreq[grid[i][j]]--;
+                    if(rightFreq[grid[i][j]]==0)
+                        rightFreq.erase(grid[i][j]);
+                }
+
+                long long other = total - curr;
+
+                if(curr == other) return true;
+
+                long long diff = abs(curr - other);
+
+                if(curr > other){
+                    if(leftFreq.count(diff)) return true;
+                } else {
+                    if(rightFreq.count(diff)) return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool canPartitionGrid(vector<vector<int>>& grid) {
+
+        return check(grid, true) || check(grid, false);
+    }
+};
+
+	Key Insight
+If sums are unequal, we only need to remove **one element equal to the difference** from the larger side.  
+
+Using frequency maps allows us to check this efficiently while scanning cuts, keeping the solution optimal at **O(m × n)**.
