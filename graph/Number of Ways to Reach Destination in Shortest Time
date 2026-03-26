@@ -1,0 +1,86 @@
+2026-03-26 | Number of Ways to Reach Destination in Shortest Time
+
+	Question
+Return the number of shortest paths from node 0 to node V-1.
+
+	Approach
+1.	Use **Dijkstra’s Algorithm** to find shortest distances.
+2.	Maintain:
+		dist[i] → shortest distance to node i  
+		ways[i] → number of ways to reach node i  
+
+3.	Initialization:
+		dist[0] = 0  
+		ways[0] = 1  
+
+4.	While processing edges:
+	- If new shorter path found:
+			dist[v] = newDist  
+			ways[v] = ways[u]  
+	- If same shortest path found:
+			ways[v] += ways[u]
+
+5.	Answer:
+		ways[V-1]
+
+	(Time modulo 1e9+7 if needed)
+
+	Time Complexity
+	O((V + E) log V)
+
+	Space Complexity
+	O(V + E)
+
+	Solution
+
+class Solution {
+public:
+    int countPaths(int n, vector<vector<int>>& edges) {
+
+        const int MOD = 1e9 + 7;
+
+        vector<vector<pair<int,int>>> adj(n);
+
+        for(auto &e : edges){
+            int u = e[0], v = e[1], w = e[2];
+            adj[u].push_back({v,w});
+            adj[v].push_back({u,w});
+        }
+
+        vector<long long> dist(n, LLONG_MAX);
+        vector<int> ways(n, 0);
+
+        priority_queue<pair<long long,int>, vector<pair<long long,int>>, greater<>> pq;
+
+        dist[0] = 0;
+        ways[0] = 1;
+        pq.push({0,0});
+
+        while(!pq.empty()){
+            auto [d,u] = pq.top();
+            pq.pop();
+
+            if(d > dist[u]) continue;
+
+            for(auto &[v,w] : adj[u]){
+
+                long long newDist = d + w;
+
+                if(newDist < dist[v]){
+                    dist[v] = newDist;
+                    ways[v] = ways[u];
+                    pq.push({newDist, v});
+                }
+                else if(newDist == dist[v]){
+                    ways[v] = (ways[v] + ways[u]) % MOD;
+                }
+            }
+        }
+
+        return ways[n-1];
+    }
+};
+
+	Key Insight
+We extend Dijkstra by tracking **number of shortest paths**.  
+Whenever we find another path with equal shortest distance, we **add ways instead of replacing**.
