@@ -1,0 +1,71 @@
+2026-03-27 | Check Matrix After K Cyclic Row Shifts
+
+	Question
+Return true if after k operations matrix becomes identical to original.
+
+	Approach
+1.	Key Observation:
+		Shifting k times = shifting (k % n) times  
+		where n = number of columns  
+
+2.	For each row:
+		- Even row → left shift by k % n  
+		- Odd row → right shift by k % n  
+
+3.	Instead of modifying matrix:
+		Compare positions directly.
+
+4.	For each cell (i, j):
+		find where it came from:
+		
+		If even row:
+			original index = (j + k) % n  
+		If odd row:
+			original index = (j - k + n) % n  
+
+5.	If any mismatch → return false  
+6.	If all match → return true  
+
+	Time Complexity
+	O(m × n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool areSimilar(vector<vector<int>>& mat, int k) {
+
+        int m = mat.size();
+        int n = mat[0].size();
+
+        k %= n;
+
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+
+                int originalIndex;
+
+                if(i % 2 == 0){
+                    originalIndex = (j + k) % n;
+                } else {
+                    originalIndex = (j - k + n) % n;
+                }
+
+                if(mat[i][j] != mat[i][originalIndex])
+                    return false;
+            }
+        }
+
+        return true;
+    }
+};
+
+	Key Insight
+After n shifts, rows return to original state.  
+So only **k % n** matters.  
+
+Instead of simulating shifts,
+we directly check if each element matches its expected original position.
