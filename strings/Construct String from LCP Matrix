@@ -1,0 +1,120 @@
+2026-03-28 | Construct String from LCP Matrix
+
+•	You are given an n × n matrix `lcp`.  
+•	lcp[i][j] = length of longest common prefix of suffixes:
+		word[i…] and word[j…]  
+
+•	Goal:
+		reconstruct the **lexicographically smallest string** that satisfies this matrix.  
+
+•	If impossible → return "".
+
+	Key Observations
+1.	If lcp[i][j] > 0:
+		word[i] == word[j]  
+2.	If lcp[i][j] = k:
+		then for next k positions:
+			word[i+x] == word[j+x]  
+3.	If mismatch occurs → invalid matrix  
+
+	Approach
+1.	Use **Union-Find (DSU)**:
+		group indices that must have same character  
+2.	For every (i, j):
+		if lcp[i][j] > 0:
+			union(i, j)  
+
+3.	Assign characters:
+		for each group assign smallest unused character  
+		(limit 26 letters → if exceed → impossible)
+
+4.	Build string  
+
+5.	Validate:
+		recompute LCP matrix from constructed string  
+		if mismatch → return ""
+
+	Time Complexity
+	O(n²)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+
+    struct DSU {
+        vector<int> parent;
+
+        DSU(int n){
+            parent.resize(n);
+            for(int i=0;i<n;i++) parent[i]=i;
+        }
+
+        int find(int x){
+            if(parent[x]!=x)
+                parent[x]=find(parent[x]);
+            return parent[x];
+        }
+
+        void unite(int a,int b){
+            a=find(a), b=find(b);
+            if(a!=b) parent[b]=a;
+        }
+    };
+
+    string findTheString(vector<vector<int>>& lcp) {
+
+        int n = lcp.size();
+        DSU dsu(n);
+
+        // Step 1: group equal indices
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                if(lcp[i][j] > 0)
+                    dsu.unite(i,j);
+            }
+        }
+
+        // Step 2: assign smallest characters
+        unordered_map<int,char> mp;
+        char ch = 'a';
+
+        string res(n,'?');
+
+        for(int i=0;i<n;i++){
+            int p = dsu.find(i);
+
+            if(!mp.count(p)){
+                if(ch > 'z') return "";
+                mp[p] = ch++;
+            }
+
+            res[i] = mp[p];
+        }
+
+        // Step 3: validate LCP
+        vector<vector<int>> calc(n, vector<int>(n,0));
+
+        for(int i=n-1;i>=0;i--){
+            for(int j=n-1;j>=0;j--){
+                if(res[i]==res[j]){
+                    calc[i][j] = 1;
+                    if(i+1<n && j+1<n)
+                        calc[i][j] += calc[i+1][j+1];
+                }
+            }
+        }
+
+        if(calc != lcp) return "";
+
+        return res;
+    }
+};
+
+	Key Insight
+The LCP matrix enforces **equality constraints across indices**.  
+Union-Find groups these constraints, and greedy assignment ensures lexicographically smallest string.  
+Final validation guarantees correctness.
