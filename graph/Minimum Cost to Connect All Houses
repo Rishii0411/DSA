@@ -1,0 +1,65 @@
+2026-03-30 | Minimum Cost to Connect All Houses
+
+	Question
+Return minimum cost to connect all houses.
+
+	Approach (Prim’s Algorithm)
+1.	Start from any node (say 0).  
+2.	Maintain:
+		minDist[i] → minimum cost to connect node i  
+3.	At each step:
+		pick node with smallest connection cost  
+4.	Update distances of remaining nodes  
+5.	Sum all selected edge costs  
+
+	Time Complexity
+	O(n²)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    int minCostConnectPoints(vector<vector<int>>& points) {
+
+        int n = points.size();
+        vector<int> minDist(n, INT_MAX);
+        vector<bool> used(n, false);
+
+        minDist[0] = 0;
+        int totalCost = 0;
+
+        for(int i = 0; i < n; i++){
+
+            int u = -1;
+
+            for(int j = 0; j < n; j++){
+                if(!used[j] && (u == -1 || minDist[j] < minDist[u])){
+                    u = j;
+                }
+            }
+
+            used[u] = true;
+            totalCost += minDist[u];
+
+            for(int v = 0; v < n; v++){
+                if(!used[v]){
+                    int dist = abs(points[u][0] - points[v][0]) +
+                               abs(points[u][1] - points[v][1]);
+
+                    minDist[v] = min(minDist[v], dist);
+                }
+            }
+        }
+
+        return totalCost;
+    }
+};
+
+	Key Insight
+This is a **complete graph** (every pair has an edge).  
+Using Prim’s algorithm avoids building all edges explicitly.  
+
+We greedily connect the closest unconnected house each time → optimal MST.
