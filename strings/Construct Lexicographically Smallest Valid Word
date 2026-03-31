@@ -1,0 +1,129 @@
+2026-03-31 | Construct Lexicographically Smallest Valid Word
+
+Question:
+•	You are given:
+		str1 → tells constraints ('T' or 'F')  
+		str2 → pattern string  
+
+•	You must construct a string `word` of length n + m - 1  
+
+•	Rules:
+	- If str1[i] == 'T':
+			word[i … i+m-1] must equal str2  
+	- If str1[i] == 'F':
+			word[i … i+m-1] must NOT equal str2  
+
+•	Goal:
+		find the **lexicographically smallest valid word**  
+
+	Approach
+1.	Initialize result string:
+		word = '?' of length (n + m - 1)
+
+2.	Apply all 'T' constraints:
+		for each i where str1[i] == 'T':
+			for j in [0, m-1]:
+				if conflict → return ""
+				else assign word[i+j] = str2[j]
+
+3.	Fill remaining '?' with smallest char 'a'
+
+4.	Handle 'F' constraints:
+		for each i where str1[i] == 'F':
+			check if substring == str2  
+			if yes:
+				try to break match by modifying one position  
+				change smallest possible character  
+				(if impossible → return "")
+
+5.	Return final word
+
+	Time Complexity
+	O(n × m)
+
+	Space Complexity
+	O(n + m)
+
+	Solution
+
+class Solution {
+public:
+    string generateString(string str1, string str2) {
+
+        int n = str1.size();
+        int m = str2.size();
+
+        string word(n + m - 1, '?');
+
+        // Step 1: Apply 'T' constraints
+        for(int i = 0; i < n; i++){
+            if(str1[i] == 'T'){
+                for(int j = 0; j < m; j++){
+                    if(word[i+j] != '?' && word[i+j] != str2[j])
+                        return "";
+                    word[i+j] = str2[j];
+                }
+            }
+        }
+
+        // Step 2: Fill remaining with 'a'
+        for(char &c : word){
+            if(c == '?') c = 'a';
+        }
+
+        // Step 3: Fix 'F' constraints
+        for(int i = 0; i < n; i++){
+            if(str1[i] == 'F'){
+
+                bool match = true;
+                for(int j = 0; j < m; j++){
+                    if(word[i+j] != str2[j]){
+                        match = false;
+                        break;
+                    }
+                }
+
+                if(match){
+                    bool changed = false;
+
+                    for(int j = 0; j < m; j++){
+                        char original = word[i+j];
+
+                        for(char c = 'a'; c <= 'z'; c++){
+                            if(c == str2[j]) continue;
+
+                            word[i+j] = c;
+
+                            bool stillMatch = true;
+                            for(int k = 0; k < m; k++){
+                                if(word[i+k] != str2[k]){
+                                    stillMatch = false;
+                                    break;
+                                }
+                            }
+
+                            if(!stillMatch){
+                                changed = true;
+                                break;
+                            }
+                        }
+
+                        if(changed) break;
+                        word[i+j] = original;
+                    }
+
+                    if(!changed) return "";
+                }
+            }
+        }
+
+        return word;
+    }
+};
+
+	Key Insight
+•	First strictly satisfy all **'T' constraints**  
+•	Then ensure **'F' constraints** by breaking matches minimally  
+•	Greedy replacement ensures **lexicographically smallest result**  
+
+This is a **constraint satisfaction + greedy correction** problem.
