@@ -1,0 +1,61 @@
+2026-04-01 | Count Binary Strings Without Consecutive 1s
+
+	Question
+Return total number of valid binary strings of length n.
+
+	Approach
+1.	Define DP:
+		dp[i][0] → strings of length i ending with 0  
+		dp[i][1] → strings of length i ending with 1  
+
+2.	Transitions:
+		dp[i][0] = dp[i-1][0] + dp[i-1][1]  
+		dp[i][1] = dp[i-1][0]   (cannot follow 1 with 1)
+
+3.	Base case:
+		dp[1][0] = 1  
+		dp[1][1] = 1  
+
+4.	Answer:
+		dp[n][0] + dp[n][1]
+
+	Optimization
+We can reduce to Fibonacci:
+		f[n] = f[n-1] + f[n-2]
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int countStrings(int n) {
+
+        if(n == 1) return 2;
+
+        long long a = 1; // dp[i-1][0]
+        long long b = 1; // dp[i-1][1]
+
+        for(int i = 2; i <= n; i++){
+            long long newA = a + b;
+            long long newB = a;
+
+            a = newA;
+            b = newB;
+        }
+
+        return a + b;
+    }
+};
+
+	Key Insight
+This follows a **Fibonacci pattern** because:
+- placing 0 → free choice  
+- placing 1 → must follow 0  
+
+So total count grows like:
+		F(n+2)
