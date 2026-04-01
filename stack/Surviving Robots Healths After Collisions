@@ -1,0 +1,138 @@
+2026-04-01 | Surviving Robots Healths After Collisions
+
+Question:
+•	You have robots on a line with:
+		position, health, direction (L or R)  
+
+•	All robots move at same speed.  
+•	Collisions happen when:
+		a right-moving robot meets a left-moving robot  
+
+•	Collision rules:
+		- lower health robot dies  
+		- higher health robot loses 1 health  
+		- equal health → both die  
+
+•	Goal:
+		find final health of surviving robots in original order.
+
+	Approach
+1.	Combine all info into a structure:
+		(position, health, direction, original index)
+
+2.	Sort robots by position.
+
+3.	Use a stack:
+		store indices of robots moving right (R)
+
+4.	Process robots:
+		If direction == 'R':
+			push to stack  
+		If direction == 'L':
+			resolve collisions with stack top  
+
+5.	Collision simulation:
+		while stack not empty:
+			compare healths  
+			handle 3 cases:
+				- equal → both removed  
+				- stack robot stronger → reduce its health  
+				- current stronger → reduce current health and continue  
+
+6.	Track alive robots.
+
+7.	Collect survivors in original order.
+
+	Time Complexity
+	O(n log n) (sorting)  
+	O(n) (simulation)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> survivedRobotsHealths(vector<int>& positions,
+                                      vector<int>& health,
+                                      string directions) {
+
+        int n = positions.size();
+
+        vector<tuple<int,int,char,int>> robots;
+
+        for(int i=0;i<n;i++){
+            robots.push_back({positions[i], health[i], directions[i], i});
+        }
+
+        sort(robots.begin(), robots.end());
+
+        stack<int> st;
+        vector<int> currHealth(n);
+        vector<bool> alive(n, true);
+
+        for(int i=0;i<n;i++){
+            currHealth[i] = get<1>(robots[i]);
+        }
+
+        for(int i=0;i<n;i++){
+
+            char dir = get<2>(robots[i]);
+
+            if(dir == 'R'){
+                st.push(i);
+            }
+            else{
+
+                while(!st.empty() && currHealth[i] > 0){
+
+                    int j = st.top();
+
+                    if(currHealth[j] < currHealth[i]){
+                        alive[j] = false;
+                        st.pop();
+                        currHealth[i]--;
+                    }
+                    else if(currHealth[j] > currHealth[i]){
+                        alive[i] = false;
+                        currHealth[j]--;
+                        break;
+                    }
+                    else{
+                        alive[i] = false;
+                        alive[j] = false;
+                        st.pop();
+                        break;
+                    }
+                }
+            }
+        }
+
+        vector<pair<int,int>> survivors;
+
+        for(int i=0;i<n;i++){
+            if(alive[i]){
+                int idx = get<3>(robots[i]);
+                survivors.push_back({idx, currHealth[i]});
+            }
+        }
+
+        sort(survivors.begin(), survivors.end());
+
+        vector<int> ans;
+        for(auto &p : survivors){
+            ans.push_back(p.second);
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Only **R vs L interactions matter**.  
+Using a stack simulates pending right-moving robots.  
+
+This is similar to:
+		"asteroid collision" problem  
+but with health reduction logic.
