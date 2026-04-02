@@ -1,0 +1,67 @@
+2026-04-02 | Paint Fence (No More Than Two Adjacent Same Color)
+
+	Question
+Return total number of valid ways to paint the fence.
+
+	Approach
+We track two cases:
+
+1.	same:
+		last two posts have same color  
+2.	diff:
+		last two posts have different colors  
+
+Transitions:
+- If same:
+		we must paint next different  
+- If diff:
+		we can paint same or different  
+
+Recurrence:
+- same[i] = diff[i-1]  
+- diff[i] = (same[i-1] + diff[i-1]) * (k-1)
+
+Total:
+		total[i] = same[i] + diff[i]
+
+Base cases:
+- n = 1 → k  
+- n = 2 → k + k*(k-1) = k²  
+
+Optimized:
+		f[i] = (f[i-1] + f[i-2]) * (k-1)
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int countWays(int n, int k) {
+
+        if(n == 1) return k;
+
+        int prev2 = k;        // f[1]
+        int prev1 = k * k;    // f[2]
+
+        for(int i = 3; i <= n; i++){
+            int curr = (prev1 + prev2) * (k - 1);
+            prev2 = prev1;
+            prev1 = curr;
+        }
+
+        return prev1;
+    }
+};
+
+	Key Insight
+We track whether last two posts are same or different.  
+This leads to a **Fibonacci-like recurrence**:
+
+		f[n] = (f[n-1] + f[n-2]) × (k-1)
+
+This efficiently counts all valid configurations.
