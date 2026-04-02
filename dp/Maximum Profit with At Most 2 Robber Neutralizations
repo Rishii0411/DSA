@@ -1,0 +1,94 @@
+2026-04-01 | Maximum Profit with At Most 2 Robber Neutralizations
+
+	Question
+Return maximum profit achievable.
+
+	Approach
+1.	Define DP:
+		dp[i][j][k] =
+			max coins at cell (i,j) using k neutralizations  
+
+	where k ∈ {0,1,2}
+
+2.	Transition:
+		from top (i-1,j) or left (i,j-1)
+
+3.	If current cell value = val:
+		Option 1 → take it normally:
+			dp = prev + val  
+
+		Option 2 (if val < 0 and k > 0):
+			neutralize → dp = prev (no loss)
+
+4.	Take maximum.
+
+5.	Base case:
+		dp[0][0][k]:
+			if negative → can neutralize  
+
+	Time Complexity
+	O(m × n × 3)
+
+	Space Complexity
+	O(m × n × 3)
+
+	Solution
+
+class Solution {
+public:
+    int maximumAmount(vector<vector<int>>& coins) {
+
+        int m = coins.size();
+        int n = coins[0].size();
+
+        vector<vector<vector<int>>> dp(m,
+            vector<vector<int>>(n, vector<int>(3, -1e9)));
+
+        // base case
+        for(int k=0;k<3;k++){
+            if(coins[0][0] < 0 && k > 0)
+                dp[0][0][k] = 0;
+            else
+                dp[0][0][k] = coins[0][0];
+        }
+
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+
+                if(i==0 && j==0) continue;
+
+                for(int k=0;k<3;k++){
+
+                    int val = coins[i][j];
+
+                    int best = -1e9;
+
+                    if(i>0){
+                        best = max(best, dp[i-1][j][k] + val);
+                        if(val < 0 && k > 0)
+                            best = max(best, dp[i-1][j][k-1]);
+                    }
+
+                    if(j>0){
+                        best = max(best, dp[i][j-1][k] + val);
+                        if(val < 0 && k > 0)
+                            best = max(best, dp[i][j-1][k-1]);
+                    }
+
+                    dp[i][j][k] = best;
+                }
+            }
+        }
+
+        return max({dp[m-1][n-1][0],
+                    dp[m-1][n-1][1],
+                    dp[m-1][n-1][2]});
+    }
+};
+
+	Key Insight
+This is a **grid DP with limited resource (neutralizations)**.  
+We track how many neutralizations we’ve used so far and choose:
+		take loss OR skip loss  
+
+This ensures we explore all optimal paths efficiently.
