@@ -1,0 +1,59 @@
+2026-04-03 | Print Anti-Diagonals of Matrix
+
+	Question
+Return all elements grouped by anti-diagonals.
+
+	Approach
+1.	Total diagonals = 2*n - 1  
+2.	For each diagonal d:
+		i + j = d  
+
+3.	Iterate:
+		i from 0 to n-1  
+		j = d - i  
+
+4.	Ensure:
+		j is within bounds  
+
+5.	Collect elements for each diagonal  
+
+	Time Complexity
+	O(n²)
+
+	Space Complexity
+	O(n²)
+
+	Solution
+
+class Solution {
+public:
+    vector<vector<int>> antiDiagonal(vector<vector<int>>& mat) {
+
+        int n = mat.size();
+        vector<vector<int>> ans;
+
+        for(int d = 0; d < 2*n - 1; d++){
+
+            vector<int> temp;
+
+            for(int i = 0; i < n; i++){
+                int j = d - i;
+
+                if(j >= 0 && j < n){
+                    temp.push_back(mat[i][j]);
+                }
+            }
+
+            ans.push_back(temp);
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+All elements on same anti-diagonal satisfy:
+		i + j = constant  
+
+By iterating over all possible sums (0 → 2n-2),
+we can extract all diagonals efficiently.
