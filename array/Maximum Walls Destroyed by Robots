@@ -1,0 +1,110 @@
+2026-04-03 | Maximum Walls Destroyed by Robots
+
+	Question
+Choose direction for each robot to maximize number of destroyed walls.
+
+	Key Observations
+1.	Robots block bullets → act as boundaries  
+2.	Each robot independently chooses direction  
+3.	We should avoid double-counting walls  
+4.	Greedy choice per robot works because:
+		robots don’t interfere except blocking  
+
+	Approach
+1.	Sort robots and walls.  
+2.	For each robot:
+		find nearest robot on left and right  
+
+3.	Compute:
+		left range:
+			max(robot[i] - distance[i], prevRobot + 1)  
+		right range:
+			min(robot[i] + distance[i], nextRobot - 1)
+
+4.	Count walls in both ranges using binary search.  
+
+5.	Pick direction with maximum walls.  
+
+6.	Mark walls as used (to avoid duplicates).  
+
+	Time Complexity
+	O(n log n + m log m)
+
+	Space Complexity
+	O(m)
+
+	Solution
+
+class Solution {
+public:
+    int maxWallsDestroyed(vector<int>& robots,
+                          vector<int>& distance,
+                          vector<int>& walls) {
+
+        int n = robots.size();
+        sort(walls.begin(), walls.end());
+
+        vector<pair<int,int>> r;
+        for(int i=0;i<n;i++)
+            r.push_back({robots[i], distance[i]});
+
+        sort(r.begin(), r.end());
+
+        unordered_set<int> destroyed;
+
+        for(int i=0;i<n;i++){
+
+            int pos = r[i].first;
+            int dist = r[i].second;
+
+            int leftLimit = pos - dist;
+            int rightLimit = pos + dist;
+
+            if(i > 0)
+                leftLimit = max(leftLimit, r[i-1].first + 1);
+
+            if(i < n-1)
+                rightLimit = min(rightLimit, r[i+1].first - 1);
+
+            // count left
+            int l = lower_bound(walls.begin(), walls.end(), leftLimit) - walls.begin();
+            int r1 = upper_bound(walls.begin(), walls.end(), pos) - walls.begin();
+
+            int leftCount = 0;
+            for(int j=l;j<r1;j++){
+                if(!destroyed.count(walls[j]))
+                    leftCount++;
+            }
+
+            // count right
+            int l2 = lower_bound(walls.begin(), walls.end(), pos) - walls.begin();
+            int r2 = upper_bound(walls.begin(), walls.end(), rightLimit) - walls.begin();
+
+            int rightCount = 0;
+            for(int j=l2;j<r2;j++){
+                if(!destroyed.count(walls[j]))
+                    rightCount++;
+            }
+
+            // choose best direction
+            if(leftCount >= rightCount){
+                for(int j=l;j<r1;j++)
+                    destroyed.insert(walls[j]);
+            } else {
+                for(int j=l2;j<r2;j++)
+                    destroyed.insert(walls[j]);
+            }
+        }
+
+        return destroyed.size();
+    }
+};
+
+	Key Insight
+Each robot has **two independent choices** (left/right), but robots act as **barriers**.  
+
+So we:
+- restrict each robot’s shooting interval  
+- greedily pick the direction that destroys more *new* walls  
+
+This ensures maximum unique wall destruction.
