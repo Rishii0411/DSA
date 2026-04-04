@@ -1,0 +1,48 @@
+2026-04-05 | Generate Gray Code Sequence
+
+	Question
+Return all numbers representing Gray code of n bits.
+
+	Approach
+Direct formula for Gray code:
+		Gray(i) = i ^ (i >> 1)
+
+Steps:
+1.	Iterate i from 0 to (2ⁿ - 1)  
+2.	Compute:
+		i ^ (i >> 1)  
+3.	Add to result  
+
+	Time Complexity
+	O(2ⁿ)
+
+	Space Complexity
+	O(2ⁿ)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> grayCode(int n) {
+
+        vector<int> ans;
+
+        int size = 1 << n;
+
+        for(int i = 0; i < size; i++){
+            ans.push_back(i ^ (i >> 1));
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+The formula:
+		i ^ (i >> 1)
+
+ensures:
+- consecutive values differ by exactly one bit  
+- sequence starts from 0  
+
+This is the most optimal and elegant way to generate Gray code.
