@@ -1,0 +1,66 @@
+2026-04-05 | Target Sum (Count Expressions with + and -)
+
+	Question
+Return number of expressions that evaluate to target.
+
+	Key Transformation
+Let:
+		S1 = sum of numbers with '+'  
+		S2 = sum of numbers with '-'  
+
+Then:
+		S1 - S2 = target  
+		S1 + S2 = totalSum  
+
+Add:
+		2*S1 = totalSum + target  
+		S1 = (totalSum + target) / 2  
+
+So problem becomes:
+→ count subsets with sum = S1  
+
+	If (totalSum + target) is odd → return 0  
+
+	Approach
+1.	Compute total sum  
+2.	Check validity  
+3.	Set targetSum = (total + target)/2  
+4.	Use subset sum DP:
+		dp[i] = number of ways to form sum i  
+
+	Time Complexity
+	O(n × targetSum)
+
+	Space Complexity
+	O(targetSum)
+
+	Solution
+
+class Solution {
+public:
+    int findTargetSumWays(vector<int>& nums, int target) {
+
+        int sum = 0;
+        for(int x : nums) sum += x;
+
+        if((sum + target) % 2 != 0 || abs(target) > sum)
+            return 0;
+
+        int S1 = (sum + target) / 2;
+
+        vector<int> dp(S1 + 1, 0);
+        dp[0] = 1;
+
+        for(int num : nums){
+            for(int j = S1; j >= num; j--){
+                dp[j] += dp[j - num];
+            }
+        }
+
+        return dp[S1];
+    }
+};
+
+	Key Insight
+Assigning + and - splits numbers into two groups.  
+This converts into a **subset sum counting problem**, making it solvable efficiently with DP.
