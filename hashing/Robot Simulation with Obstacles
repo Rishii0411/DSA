@@ -1,0 +1,91 @@
+2026-04-06 | Robot Simulation with Obstacles
+
+	Question
+Return max(x² + y²) during movement.
+
+	Approach
+1.	Use direction array:
+		North, East, South, West  
+
+2.	Track current direction index:
+		0 → North  
+		1 → East  
+		2 → South  
+		3 → West  
+
+3.	Store obstacles in a set for O(1) lookup.
+
+4.	Process commands:
+	- Turn:
+			update direction  
+	- Move:
+			step-by-step movement  
+			check obstacle before moving  
+
+5.	After each step:
+		update max distance  
+
+	Time Complexity
+	O(n × k)
+
+	Space Complexity
+	O(m)
+
+	Solution
+
+class Solution {
+public:
+    int robotSim(vector<int>& commands, vector<vector<int>>& obstacles) {
+
+        set<pair<int,int>> obs;
+        for(auto &o : obstacles){
+            obs.insert({o[0], o[1]});
+        }
+
+        vector<pair<int,int>> dir = {
+            {0,1},   // North
+            {1,0},   // East
+            {0,-1},  // South
+            {-1,0}   // West
+        };
+
+        int d = 0;
+        int x = 0, y = 0;
+        int maxDist = 0;
+
+        for(int cmd : commands){
+
+            if(cmd == -1){
+                d = (d + 1) % 4;
+            }
+            else if(cmd == -2){
+                d = (d + 3) % 4;
+            }
+            else{
+                for(int step = 0; step < cmd; step++){
+
+                    int nx = x + dir[d].first;
+                    int ny = y + dir[d].second;
+
+                    if(obs.count({nx, ny}))
+                        break;
+
+                    x = nx;
+                    y = ny;
+
+                    maxDist = max(maxDist, x*x + y*y);
+                }
+            }
+        }
+
+        return maxDist;
+    }
+};
+
+	Key Insight
+•	Movement must be **step-by-step** (not jump),  
+	because obstacle may block mid-way.  
+
+•	Using a set ensures **O(1)** obstacle checking.  
+
+•	Track max distance at every step, not just final position.
