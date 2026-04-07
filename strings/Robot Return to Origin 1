@@ -1,0 +1,51 @@
+2026-04-07 | Robot Return to Origin
+
+	Question
+Return true if final position is (0,0), else false.
+
+	Approach
+1.	Track coordinates:
+		x → horizontal  
+		y → vertical  
+
+2.	Process each move:
+		'U' → y++  
+		'D' → y--  
+		'R' → x++  
+		'L' → x--  
+
+3.	At end:
+		if x == 0 AND y == 0 → return true  
+		else → return false  
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    bool judgeCircle(string moves) {
+
+        int x = 0, y = 0;
+
+        for(char c : moves){
+            if(c == 'U') y++;
+            else if(c == 'D') y--;
+            else if(c == 'R') x++;
+            else if(c == 'L') x--;
+        }
+
+        return (x == 0 && y == 0);
+    }
+};
+
+	Key Insight
+The robot returns to origin if:
+		total right moves = total left moves  
+		total up moves = total down moves  
+
+Tracking coordinates directly gives the simplest solution.
