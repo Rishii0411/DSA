@@ -1,0 +1,57 @@
+2026-04-08 | Apply Queries with Step Updates and Return XOR
+
+	Question
+Apply all updates and return final XOR of array.
+
+	Approach
+1.	Loop through each query:
+2.	For each query:
+		for idx = li to ri step ki:
+			update nums[idx]
+
+3.	After all queries:
+		compute XOR of array  
+
+4.	Use MOD = 1e9 + 7  
+
+	Time Complexity
+	Worst case: O(q × n/ki) → O(qn)  
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int processQueries(vector<int>& nums, vector<vector<int>>& queries) {
+
+        const int MOD = 1e9 + 7;
+
+        for(auto &q : queries){
+
+            int l = q[0];
+            int r = q[1];
+            int k = q[2];
+            int v = q[3];
+
+            for(int idx = l; idx <= r; idx += k){
+                nums[idx] = (1LL * nums[idx] * v) % MOD;
+            }
+        }
+
+        int ans = 0;
+
+        for(int x : nums){
+            ans ^= x;
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Each query updates only **specific indices with step k**.  
+
+Since constraints usually allow it, direct simulation works.  
+Finally, XOR aggregation gives the result efficiently.
