@@ -1,0 +1,53 @@
+2026-04-08 | Segregate 0s and 1s
+
+	Question
+Modify the array so that all 0s are on the left and 1s on the right.
+
+	Approach
+1.	Use two pointers:
+		left → start of array  
+		right → end of array  
+
+2.	While left < right:
+		- If left is 0 → move left forward  
+		- If right is 1 → move right backward  
+		- If left is 1 and right is 0:
+				swap them  
+
+3.	Continue until pointers meet.
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    void segregate(vector<int>& arr) {
+
+        int left = 0;
+        int right = arr.size() - 1;
+
+        while(left < right){
+
+            if(arr[left] == 0){
+                left++;
+            }
+            else if(arr[right] == 1){
+                right--;
+            }
+            else{
+                swap(arr[left], arr[right]);
+                left++;
+                right--;
+            }
+        }
+    }
+};
+
+	Key Insight
+This is a classic **two-pointer partitioning problem**.  
+We push 0s to the left and 1s to the right in a single pass without extra space.
