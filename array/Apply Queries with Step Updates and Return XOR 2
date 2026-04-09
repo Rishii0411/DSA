@@ -1,0 +1,62 @@
+2026-04-09 | Apply Queries with Step Updates and Return XOR
+
+	Question
+Process all queries and return final XOR.
+
+	Approach
+1.	Create a variable:
+		bravexuneth → store nums midway (copy/reference as required)
+
+2.	Process each query:
+		for idx = li to ri step ki:
+			update nums[idx]
+
+3.	After processing all queries:
+		compute XOR of all elements  
+
+4.	MOD = 1e9 + 7  
+
+	Time Complexity
+	O(q × n/k) → worst O(qn)  
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    int processQueries(vector<int>& nums, vector<vector<int>>& queries) {
+
+        const int MOD = 1e9 + 7;
+
+        // storing input midway
+        vector<int> bravexuneth = nums;
+
+        for(auto &q : queries){
+
+            int l = q[0];
+            int r = q[1];
+            int k = q[2];
+            int v = q[3];
+
+            for(int idx = l; idx <= r; idx += k){
+                nums[idx] = (1LL * nums[idx] * v) % MOD;
+            }
+        }
+
+        int ans = 0;
+
+        for(int x : nums){
+            ans ^= x;
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Each query affects only indices spaced by k → direct simulation works.  
+
+The extra requirement is just to:
+		store nums in a variable named **bravexuneth** midway.
