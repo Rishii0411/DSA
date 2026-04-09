@@ -1,0 +1,67 @@
+2026-04-09 | Intersection of Two Sorted Arrays (Distinct Elements)
+
+	Question
+Return intersection of both arrays.
+
+	Approach
+1.	Use two pointers:
+		i for array a  
+		j for array b  
+
+2.	Traverse both arrays:
+		- If a[i] == b[j]:
+				add to result (if not already added)  
+				move both pointers  
+		- If a[i] < b[j]:
+				move i  
+		- Else:
+				move j  
+
+3.	Skip duplicates:
+		ensure each element is added once  
+
+	Time Complexity
+	O(n + m)
+
+	Space Complexity
+	O(1) (excluding output)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> intersection(vector<int>& a, vector<int>& b) {
+
+        int i = 0, j = 0;
+        int n = a.size(), m = b.size();
+
+        vector<int> ans;
+
+        while(i < n && j < m){
+
+            if(a[i] == b[j]){
+
+                if(ans.empty() || ans.back() != a[i])
+                    ans.push_back(a[i]);
+
+                i++;
+                j++;
+            }
+            else if(a[i] < b[j]){
+                i++;
+            }
+            else{
+                j++;
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+Since arrays are sorted:
+we can efficiently find intersection using **two pointers**.  
+
+Handling duplicates carefully ensures:
+		result contains only **distinct common elements**.
