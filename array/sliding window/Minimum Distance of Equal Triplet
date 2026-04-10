@@ -1,0 +1,85 @@
+2026-04-10 | Minimum Distance of Equal Triplet
+
+Question:
+•	You are given an array nums.  
+•	A valid (good) triplet:
+		nums[i] == nums[j] == nums[k]  
+		i, j, k are distinct  
+
+•	Distance:
+		|i - j| + |j - k| + |k - i|  
+
+•	Goal:
+		find minimum possible distance among all such triplets.
+
+	Key Insight
+For sorted indices i < j < k:
+		distance = (j-i) + (k-j) + (k-i)
+				 = 2*(k - i)
+
+So:
+→ minimize (k - i)
+
+Meaning:
+just pick **closest 3 occurrences** of same number.
+
+	Approach
+1.	Group indices by value using hashmap:
+		value → list of indices  
+
+2.	For each value:
+		if size < 3 → skip  
+
+3.	Check every consecutive triplet:
+		indices[i], indices[i+1], indices[i+2]  
+
+		distance = 2 * (indices[i+2] - indices[i])
+
+4.	Take minimum over all values  
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    int minimumDistance(vector<int>& nums) {
+
+        unordered_map<int, vector<int>> mp;
+
+        int n = nums.size();
+
+        for(int i = 0; i < n; i++){
+            mp[nums[i]].push_back(i);
+        }
+
+        int ans = INT_MAX;
+
+        for(auto &p : mp){
+
+            auto &v = p.second;
+
+            if(v.size() < 3) continue;
+
+            for(int i = 0; i + 2 < v.size(); i++){
+                int dist = 2 * (v[i+2] - v[i]);
+                ans = min(ans, dist);
+            }
+        }
+
+        return ans == INT_MAX ? -1 : ans;
+    }
+};
+
+	Key Insight
+The formula simplifies drastically:
+		distance = 2 × (k - i)
+
+So we only need to find:
+		three closest occurrences of same value  
+
+This reduces problem to a simple **sliding window on indices**.
