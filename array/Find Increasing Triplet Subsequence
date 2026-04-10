@@ -1,0 +1,66 @@
+2026-04-10 | Find Increasing Triplet Subsequence
+
+Question
+Return any valid increasing subsequence of size 3.
+
+	Approach
+1.	Create two arrays:
+		leftMin[i] → smallest element before i  
+		rightMax[i] → largest element after i  
+
+2.	Fill leftMin:
+		leftMin[0] = arr[0]  
+		leftMin[i] = min(leftMin[i-1], arr[i])  
+
+3.	Fill rightMax:
+		rightMax[n-1] = arr[n-1]  
+		rightMax[i] = max(rightMax[i+1], arr[i])  
+
+4.	For each index j:
+		if leftMin[j] < arr[j] < rightMax[j]:
+			return {leftMin[j], arr[j], rightMax[j]}  
+
+5.	If none found → return empty  
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> find3Numbers(vector<int>& arr) {
+
+        int n = arr.size();
+
+        vector<int> leftMin(n), rightMax(n);
+
+        leftMin[0] = arr[0];
+        for(int i = 1; i < n; i++){
+            leftMin[i] = min(leftMin[i-1], arr[i]);
+        }
+
+        rightMax[n-1] = arr[n-1];
+        for(int i = n-2; i >= 0; i--){
+            rightMax[i] = max(rightMax[i+1], arr[i]);
+        }
+
+        for(int i = 1; i < n-1; i++){
+            if(leftMin[i] < arr[i] && arr[i] < rightMax[i]){
+                return {leftMin[i], arr[i], rightMax[i]};
+            }
+        }
+
+        return {};
+    }
+};
+
+	Key Insight
+For each element as middle:
+- check if a smaller exists on left  
+- and a larger exists on right  
+
+This guarantees an increasing triplet in O(n) time.
