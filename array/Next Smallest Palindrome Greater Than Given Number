@@ -1,0 +1,98 @@
+2026-04-13 | Next Smallest Palindrome Greater Than Given Number
+
+	Question
+Return next smallest palindrome as array.
+
+	Approach
+1.	Mirror left half to right:
+		make number palindrome  
+
+2.	Check:
+		if mirrored number > original → done  
+
+3.	If NOT:
+		need to increment middle and propagate carry  
+
+4.	Steps:
+	- Start from middle  
+	- Add 1 and handle carry  
+	- Mirror again  
+
+5.	Edge case:
+		all digits are 9 → answer is:
+			1 0 0 ... 0 1  
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    vector<int> generateNextPalindrome(vector<int>& num) {
+
+        int n = num.size();
+
+        // check all 9s
+        bool all9 = true;
+        for(int x : num){
+            if(x != 9){
+                all9 = false;
+                break;
+            }
+        }
+
+        if(all9){
+            vector<int> res(n+1, 0);
+            res[0] = res[n] = 1;
+            return res;
+        }
+
+        vector<int> res = num;
+
+        // mirror left to right
+        for(int i = 0; i < n/2; i++){
+            res[n-1-i] = res[i];
+        }
+
+        // check if already greater
+        if(res > num) return res;
+
+        // increment middle
+        int carry = 1;
+        int mid = n/2;
+
+        if(n % 2 == 1){
+            res[mid] += carry;
+            carry = res[mid] / 10;
+            res[mid] %= 10;
+            mid--;
+        } else {
+            mid = n/2 - 1;
+        }
+
+        while(mid >= 0 && carry){
+            res[mid] += carry;
+            carry = res[mid] / 10;
+            res[mid] %= 10;
+            mid--;
+        }
+
+        // mirror again
+        for(int i = 0; i < n/2; i++){
+            res[n-1-i] = res[i];
+        }
+
+        return res;
+    }
+};
+
+	Key Insight
+Two main steps:
+1.	Try simple mirroring  
+2.	If not enough → increment middle and mirror again  
+
+This guarantees the **smallest palindrome strictly greater** than input in O(n).
