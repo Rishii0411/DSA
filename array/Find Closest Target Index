@@ -1,0 +1,41 @@
+2026-04-13 | Find Closest Target Index
+
+	Question
+Return the minimum possible distance.
+
+	Approach
+1.	Initialize answer = large value  
+2.	Traverse the array:
+		for each index i:
+			if nums[i] == target:
+				update answer = min(answer, abs(i - start))  
+
+3.	Return answer  
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int getMinDistance(vector<int>& nums, int target, int start) {
+
+        int ans = INT_MAX;
+
+        for(int i = 0; i < nums.size(); i++){
+            if(nums[i] == target){
+                ans = min(ans, abs(i - start));
+            }
+        }
+
+        return ans;
+    }
+};
+
+	Key Insight
+We simply scan all occurrences of target and track the closest one to start.  
+This guarantees optimal answer in a single pass.
