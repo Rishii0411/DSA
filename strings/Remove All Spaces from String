@@ -1,0 +1,37 @@
+2026-04-14 | Remove All Spaces from String
+
+	Question
+Return string after removing all spaces.
+
+	Approach
+1.	Traverse the string character by character  
+2.	If character is not a space:
+		add it to result  
+3.	Skip spaces  
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    string removeSpaces(string s) {
+
+        string result = "";
+
+        for(char c : s){
+            if(c != ' ')
+                result += c;
+        }
+
+        return result;
+    }
+};
+
+	Key Insight
+Simply filter out unwanted characters (spaces).  
+This is a straightforward **linear traversal problem**.
