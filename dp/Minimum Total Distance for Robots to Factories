@@ -1,0 +1,93 @@
+2026-04-14 | Minimum Total Distance for Robots to Factories
+
+Question:
+•	You have robots on a line and factories with capacities.  
+•	Each robot must go to **one factory**.  
+•	Each factory can repair limited robots.  
+
+•	Cost:
+		distance = |robot position - factory position|  
+
+•	Goal:
+		assign robots to factories such that:
+		total distance is minimized.
+
+	Key Idea
+This is a **minimum cost assignment with capacity constraints**.  
+After sorting, optimal assignment happens in order.
+
+	Approach
+1.	Sort robots  
+2.	Sort factories by position  
+
+3.	Use DP:
+		dp[i][j] =
+			min cost to assign first i robots using first j factories  
+
+4.	Transition:
+		For each factory j:
+			try assigning k robots (0 to limitj)
+
+5.	Cost calculation:
+		sum of distances of assigned robots  
+
+	Time Complexity
+	O(n × m × limit)
+
+	Space Complexity
+	O(n × m)
+
+	Solution
+
+class Solution {
+public:
+    long long minimumTotalDistance(vector<int>& robot,
+                                   vector<vector<int>>& factory) {
+
+        sort(robot.begin(), robot.end());
+        sort(factory.begin(), factory.end());
+
+        int n = robot.size();
+        int m = factory.size();
+
+        vector<vector<long long>> dp(n+1, vector<long long>(m+1, LLONG_MAX));
+
+        for(int j=0;j<=m;j++) dp[0][j] = 0;
+
+        for(int j=1;j<=m;j++){
+
+            int pos = factory[j-1][0];
+            int limit = factory[j-1][1];
+
+            for(int i=0;i<=n;i++){
+
+                // case: don't use this factory
+                dp[i][j] = dp[i][j-1];
+
+                long long cost = 0;
+
+                for(int k=1;k<=limit && k<=i;k++){
+
+                    cost += abs(robot[i-k] - pos);
+
+                    if(dp[i-k][j-1] != LLONG_MAX){
+                        dp[i][j] = min(dp[i][j],
+                                       dp[i-k][j-1] + cost);
+                    }
+                }
+            }
+        }
+
+        return dp[n][m];
+    }
+};
+
+	Key Insight
+After sorting:
+optimal matching is **sequential (no crossing assignments)**  
+
+So we can:
+- assign robots in order  
+- distribute them across factories using DP  
+
+This converts a complex matching problem into structured DP.
