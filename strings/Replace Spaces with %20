@@ -1,0 +1,39 @@
+2026-04-15 | Replace Spaces with %20
+
+	Question
+Return the modified string after replacement.
+
+	Approach
+1.	Traverse the string character by character  
+2.	If character is a space:
+		append "%20"  
+3.	Otherwise:
+		append the character as it is  
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+    string replaceSpaces(string s) {
+
+        string result = "";
+
+        for(char c : s){
+            if(c == ' ')
+                result += "%20";
+            else
+                result += c;
+        }
+
+        return result;
+    }
+};
+
+	Key Insight
+This is a simple **string transformation problem** where each space expands into three characters.
