@@ -1,0 +1,73 @@
+2026-04-16 | String to Integer (atoi)
+
+	Question
+Convert string to 32-bit signed integer.
+
+	Approach
+1.	Skip leading spaces  
+2.	Check sign:
+		+ → positive  
+		- → negative  
+
+3.	Parse digits:
+		while character is digit  
+		build number  
+
+4.	Handle overflow:
+		if num > INT_MAX:
+			return INT_MAX or INT_MIN  
+
+5.	Return sign × number  
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int myAtoi(string s) {
+
+        int i = 0, n = s.size();
+
+        // 1. skip spaces
+        while(i < n && s[i] == ' ') i++;
+
+        // 2. sign
+        int sign = 1;
+        if(i < n && (s[i] == '+' || s[i] == '-')){
+            if(s[i] == '-') sign = -1;
+            i++;
+        }
+
+        // 3. parse digits
+        long long num = 0;
+
+        while(i < n && isdigit(s[i])){
+
+            num = num * 10 + (s[i] - '0');
+
+            // 4. overflow check
+            if(sign == 1 && num > INT_MAX)
+                return INT_MAX;
+
+            if(sign == -1 && -num < INT_MIN)
+                return INT_MIN;
+
+            i++;
+        }
+
+        return sign * num;
+    }
+};
+
+	Key Insight
+This is a **state-based parsing problem**:
+- skip → sign → digits → stop  
+
+The tricky part is:
+		handling overflow during construction  
+not after.
