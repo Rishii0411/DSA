@@ -1,0 +1,70 @@
+2026-04-17 | Minimum Distance of Mirror Pair
+
+	Question
+Return minimum distance or -1 if no pair exists.
+
+	Approach
+1.	Define function to reverse number.  
+
+2.	Use hashmap:
+		value → last seen index  
+
+3.	Traverse array:
+		for each index i:
+			rev = reverse(nums[i])  
+
+4.	If rev exists in map:
+		update answer:
+			ans = min(ans, i - lastIndex[rev])  
+
+5.	Update map:
+		store current index for nums[i]  
+
+	Time Complexity
+	O(n × digits)
+
+	Space Complexity
+	O(n)
+
+	Solution
+
+class Solution {
+public:
+
+    int reverseNum(int x){
+        int rev = 0;
+        while(x > 0){
+            rev = rev * 10 + x % 10;
+            x /= 10;
+        }
+        return rev;
+    }
+
+    int minMirrorDistance(vector<int>& nums) {
+
+        unordered_map<int,int> mp;
+        int ans = INT_MAX;
+
+        for(int i = 0; i < nums.size(); i++){
+
+            int rev = reverseNum(nums[i]);
+
+            if(mp.count(rev)){
+                ans = min(ans, i - mp[rev]);
+            }
+
+            mp[nums[i]] = i;
+        }
+
+        return ans == INT_MAX ? -1 : ans;
+    }
+};
+
+	Key Insight
+Instead of checking all pairs:
+we store previously seen values  
+
+For each number:
+		check if its reverse was seen before  
+
+This reduces complexity from O(n²) → O(n).
