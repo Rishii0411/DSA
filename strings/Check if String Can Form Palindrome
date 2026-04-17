@@ -1,0 +1,54 @@
+2026-04-17 | Check if String Can Form Palindrome
+
+	Question
+Return true if rearrangement can form a palindrome.
+
+	Key Observation
+For a palindrome:
+- Even length:
+		all characters must have even frequency  
+- Odd length:
+		only ONE character can have odd frequency  
+
+	Approach
+1.	Count frequency of each character  
+2.	Count how many characters have odd frequency  
+3.	If odd count > 1 → return false  
+4.	Else → return true  
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1) (26 letters)
+
+	Solution
+
+class Solution {
+public:
+    bool canPermutePalindrome(string s) {
+
+        vector<int> freq(26, 0);
+
+        for(char c : s){
+            freq[c - 'a']++;
+        }
+
+        int oddCount = 0;
+
+        for(int f : freq){
+            if(f % 2 != 0)
+                oddCount++;
+        }
+
+        return oddCount <= 1;
+    }
+};
+
+	Key Insight
+A palindrome is symmetric:
+		all characters must pair up  
+		except possibly one middle character  
+
+So we only need to check:
+		number of odd frequencies ≤ 1
