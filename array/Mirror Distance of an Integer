@@ -1,0 +1,43 @@
+2026-04-18 | Mirror Distance of an Integer
+
+	Question
+Return the mirror distance of n.
+
+	Approach
+1.	Reverse the number:
+		extract digits one by one  
+
+2.	Compute:
+		abs(n - reversedNumber)  
+
+	Time Complexity
+	O(digits)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int reverseNum(int x){
+        int rev = 0;
+        while(x > 0){
+            rev = rev * 10 + x % 10;
+            x /= 10;
+        }
+        return rev;
+    }
+
+    int mirrorDistance(int n) {
+        int rev = reverseNum(n);
+        return abs(n - rev);
+    }
+};
+
+	Key Insight
+This is a simple **digit manipulation problem**:
+- reverse number  
+- compute absolute difference  
+
+Leading zeros automatically disappear during reversal.
