@@ -1,0 +1,68 @@
+2026-04-18 | Maximize 1s After One Flip
+
+	Question
+Return maximum possible count of 1s.
+
+	Key Insight
+Flipping:
+- 0 → +1 gain  
+- 1 → -1 loss  
+
+So:
+transform array:
+		0 → +1  
+		1 → -1  
+
+Now problem becomes:
+		find subarray with maximum sum (Kadane)
+
+	Approach
+1.	Count original number of 1s  
+
+2.	Transform array:
+		val = +1 if 0  
+		val = -1 if 1  
+
+3.	Apply Kadane:
+		maxGain = maximum subarray sum  
+
+4.	Result:
+		totalOnes + max(0, maxGain)
+
+	Time Complexity
+	O(n)
+
+	Space Complexity
+	O(1)
+
+	Solution
+
+class Solution {
+public:
+    int maxOnes(vector<int>& arr) {
+
+        int totalOnes = 0;
+
+        for(int x : arr){
+            if(x == 1) totalOnes++;
+        }
+
+        int maxGain = 0, curr = 0;
+
+        for(int x : arr){
+
+            int val = (x == 0) ? 1 : -1;
+
+            curr = max(val, curr + val);
+            maxGain = max(maxGain, curr);
+        }
+
+        return totalOnes + maxGain;
+    }
+};
+
+	Key Insight
+Flipping converts problem into:
+		maximum subarray sum problem  
+
+So we use **Kadane’s algorithm** to find best segment to flip.
