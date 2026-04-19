@@ -1,0 +1,31 @@
+2026-04-19 | Check if y is a Power of x
+
+Question
+Return true if y is a power of x, else false.
+	Approach (Preferred: Iterative Division)
+1.	Handle edge cases:
+		if x == 1:
+			return y == 1  
+2.	While y is divisible by x:
+		y /= x  
+3.	If y becomes 1 → return true  
+	else → return false  
+	Time Complexity
+	O(logₓ y)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool isPower(int x, int y) {
+        if(x == 1) return y == 1;
+        while(y % x == 0){
+            y /= x;
+        }
+        return y == 1;
+    }
+};
+	Key Insight
+If y is a power of x:
+		you can repeatedly divide y by x until it becomes 1.  
+If at any point it’s not divisible → not a power.
