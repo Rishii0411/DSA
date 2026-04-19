@@ -1,0 +1,43 @@
+2026-04-19 | Maximum Distance Between Valid Pairs
+
+Question
+Return maximum distance among all valid pairs.
+	Approach
+1.	Use two pointers:
+		i = 0 (nums1)  
+		j = 0 (nums2)  
+2.	Traverse:
+		while i < n1 and j < n2:
+3.	If nums1[i] ≤ nums2[j]:
+		valid pair → update answer  
+		move j forward (increase distance)  
+4.	Else:
+		move i forward (need smaller nums1[i])  
+5.	Keep track of max distance  
+	Time Complexity
+	O(n + m)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int maxDistance(vector<int>& nums1, vector<int>& nums2) {
+        int i = 0, j = 0;
+        int n1 = nums1.size(), n2 = nums2.size();
+        int ans = 0;
+        while(i < n1 && j < n2){
+            if(nums1[i] <= nums2[j]){
+                ans = max(ans, j - i);
+                j++;
+            } else {
+                i++;
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+Because arrays are **non-increasing**:
+- moving j forward reduces nums2[j]  
+- moving i forward reduces nums1[i]  
+This monotonic behavior allows efficient **two-pointer traversal** instead of brute force.
