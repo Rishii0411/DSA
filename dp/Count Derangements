@@ -1,0 +1,42 @@
+2026-04-20 | Count Derangements
+
+Question
+Return number of derangements of n elements.
+	Key Insight
+Recurrence relation:
+		D(n) = (n - 1) × (D(n-1) + D(n-2))
+Why?
+- First element can go to (n-1) positions  
+- Then two cases form → leads to recurrence  
+	Base Cases
+		D(1) = 0  
+		D(2) = 1  
+	Approach
+1.	Use DP with two variables  
+2.	Iterate from 3 to n  
+3.	Apply recurrence  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int countDerangements(int n) {
+        if(n == 1) return 0;
+        if(n == 2) return 1;
+        int prev2 = 0; // D(1)
+        int prev1 = 1; // D(2)
+        for(int i = 3; i <= n; i++){
+            int curr = (i - 1) * (prev1 + prev2);
+            prev2 = prev1;
+            prev1 = curr;
+        }
+        return prev1;
+    }
+};
+	Key Insight
+Derangements follow a **classic combinatorial DP pattern**.  
+The recurrence:
+		D(n) = (n-1)(D(n-1) + D(n-2))  
+helps reduce exponential permutations into linear computation.
