@@ -1,0 +1,47 @@
+2026-04-20 | Maximum Distance Between Houses with Different Colors
+
+Question
+Return maximum possible distance.
+	Approach
+1.	Observation:
+		max distance will involve either:
+			first house OR last house  
+2.	Check from left:
+		find farthest index j where colors[j] != colors[0]  
+3.	Check from right:
+		find farthest index i where colors[i] != colors[n-1]  
+4.	Take maximum of both distances  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int maxDistance(vector<int>& colors) {
+        int n = colors.size();
+        int ans = 0;
+        // compare with first element
+        for(int i = n - 1; i >= 0; i--){
+            if(colors[i] != colors[0]){
+                ans = max(ans, i);
+                break;
+            }
+        }
+        // compare with last element
+        for(int i = 0; i < n; i++){
+            if(colors[i] != colors[n-1]){
+                ans = max(ans, n - 1 - i);
+                break;
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+The maximum distance must involve:
+		an endpoint (0 or n-1)  
+So we only check:
+- farthest from first  
+- farthest from last  
+This avoids O(n²) brute force.
