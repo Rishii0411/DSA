@@ -1,0 +1,78 @@
+2026-04-21 | Water Jug Problem (Minimum Operations)
+
+Question
+Return minimum operations to get d litres, or -1 if impossible.
+	Key Insight
+1.	Mathematical condition:
+		d must be divisible by gcd(m, n)  
+		and d ≤ max(m, n)  
+2.	To minimize operations:
+		use **BFS on states (x, y)**  
+		where:
+			x = water in jug1  
+			y = water in jug2  
+	Approach
+1.	Check feasibility using gcd  
+2.	Use BFS:
+		start from (0,0)  
+3.	For each state:
+		generate next states:
+			- fill jug1 → (m, y)  
+			- fill jug2 → (x, n)  
+			- empty jug1 → (0, y)  
+			- empty jug2 → (x, 0)  
+			- pour jug1 → jug2  
+			- pour jug2 → jug1  
+4.	Stop when:
+		x == d OR y == d  
+	Time Complexity
+	O(m × n)
+	Space Complexity
+	O(m × n)
+	Solution
+class Solution {
+public:
+    int minSteps(int m, int n, int d) {
+        if(d > max(m,n)) return -1;
+        if(d % __gcd(m,n) != 0) return -1;
+        queue<pair<pair<int,int>, int>> q;
+        set<pair<int,int>> vis;
+        q.push({{0,0}, 0});
+        vis.insert({0,0});
+        while(!q.empty()){
+            auto [state, steps] = q.front();
+            q.pop();
+            int x = state.first;
+            int y = state.second;
+            if(x == d || y == d)
+                return steps;
+            vector<pair<int,int>> nextStates;
+            // fill
+            nextStates.push_back({m, y});
+            nextStates.push_back({x, n});
+            // empty
+            nextStates.push_back({0, y});
+            nextStates.push_back({x, 0});
+            // pour x->y
+            int pour = min(x, n - y);
+            nextStates.push_back({x - pour, y + pour});
+            // pour y->x
+            pour = min(y, m - x);
+            nextStates.push_back({x + pour, y - pour});
+            for(auto &ns : nextStates){
+                if(!vis.count(ns)){
+                    vis.insert(ns);
+                    q.push({ns, steps + 1});
+                }
+            }
+        }
+        return -1;
+    }
+};
+	Key Insight
+This is a **state graph problem**:
+- nodes → (x, y) water states  
+- edges → operations  
+BFS guarantees:
+		minimum number of operations  
+Mathematical condition (gcd) ensures feasibility.
