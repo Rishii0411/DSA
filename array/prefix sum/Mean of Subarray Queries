@@ -1,0 +1,42 @@
+2026-04-22 | Mean of Subarray Queries
+
+Question
+Return results for all queries.
+	Approach
+1.	Build prefix sum array:
+		prefix[i] = sum of elements from 0 to i  
+2.	For each query [l, r]:
+		sum = prefix[r] - prefix[l-1] (if l > 0)  
+		length = r - l + 1  
+		mean = sum / length  
+3.	Store result  
+	Time Complexity
+	O(n + q)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<int> subarrayMean(vector<int>& arr, vector<vector<int>>& queries) {
+        int n = arr.size();
+        vector<long long> prefix(n);
+        prefix[0] = arr[0];
+        for(int i = 1; i < n; i++){
+            prefix[i] = prefix[i-1] + arr[i];
+        }
+        vector<int> ans;
+        for(auto &q : queries){
+            int l = q[0];
+            int r = q[1];
+            long long sum = prefix[r];
+            if(l > 0) sum -= prefix[l-1];
+            int len = r - l + 1;
+            ans.push_back(sum / len);
+        }
+        return ans;
+    }
+};
+	Key Insight
+Prefix sum allows:
+		O(1) range sum queries  
+So each query becomes constant time after preprocessing.
