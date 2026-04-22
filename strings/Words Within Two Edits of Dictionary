@@ -1,0 +1,49 @@
+2026-04-22 | Words Within Two Edits of Dictionary
+
+Question
+Return all such valid query words.
+	Approach
+1.	For each query word:
+2.	Compare with each dictionary word  
+3.	Count mismatches:
+		for each position:
+			if characters differ → count++  
+4.	If mismatch ≤ 2:
+		this query is valid → add to answer  
+		break early  
+5.	Continue for all queries  
+	Time Complexity
+	O(Q × D × L)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    vector<string> twoEditWords(vector<string>& queries,
+                               vector<string>& dictionary) {
+        vector<string> ans;
+        for(string &q : queries){
+            for(string &d : dictionary){
+                int mismatch = 0;
+                for(int i = 0; i < q.size(); i++){
+                    if(q[i] != d[i]){
+                        mismatch++;
+                        if(mismatch > 2) break;
+                    }
+                }
+                if(mismatch <= 2){
+                    ans.push_back(q);
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+Since:
+		word lengths are small  
+		edit limit is tiny (≤2)  
+We can directly:
+		count mismatches  
+This avoids complex edit-distance DP and keeps solution efficient.
