@@ -1,0 +1,38 @@
+2026-04-23 | Split Array into Two Equal Sum Subarrays
+
+Question
+Return true if such a split exists, else false.
+	Approach
+1.	Compute total sum of array  
+2.	If total sum is odd:
+		return false  
+3.	Target = totalSum / 2  
+4.	Traverse array:
+		keep running prefix sum  
+5.	If prefix sum == target:
+		valid split found → return true  
+6.	If never found → return false  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool canSplit(vector<int>& arr) {
+        int total = 0;
+        for(int x : arr) total += x;
+        if(total % 2 != 0) return false;
+        int prefix = 0;
+        for(int i = 0; i < arr.size() - 1; i++){
+            prefix += arr[i];
+            if(prefix == total / 2)
+                return true;
+        }
+        return false;
+    }
+};
+	Key Insight
+We just need to find a point where:
+		prefix sum = half of total sum  
+This ensures remaining suffix also has equal sum.
