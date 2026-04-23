@@ -1,0 +1,64 @@
+2026-04-23 | Sum of Distances Between Equal Elements
+
+Question
+Return array arr where arr[i] is total distance.
+	Key Insight
+Brute force is O(n²) → too slow  
+Instead:
+→ group indices by value  
+→ process each group using prefix sums  
+	Approach
+1.	Map value → list of indices  
+2.	For each group:
+		let indices = v  
+3.	Build prefix sum:
+		prefix[i] = sum of indices up to i  
+4.	For each index k in group:
+		left contribution:
+			k * v[k] - prefix[k-1]  
+		right contribution:
+			(prefix[last] - prefix[k]) - (size-k-1)*v[k]  
+5.	Add both  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<long long> distance(vector<int>& nums) {
+        int n = nums.size();
+        unordered_map<int, vector<int>> mp;
+        for(int i = 0; i < n; i++){
+            mp[nums[i]].push_back(i);
+        }
+        vector<long long> ans(n, 0);
+        for(auto &p : mp){
+            auto &v = p.second;
+            int m = v.size();
+            vector<long long> prefix(m);
+            prefix[0] = v[0];
+            for(int i = 1; i < m; i++){
+                prefix[i] = prefix[i-1] + v[i];
+            }
+            for(int i = 0; i < m; i++){
+                long long left = 0, right = 0;
+                if(i > 0){
+                    left = (long long)v[i] * i - prefix[i-1];
+                }
+                if(i < m-1){
+                    right = (prefix[m-1] - prefix[i]) -
+                            (long long)(m - i - 1) * v[i];
+                }
+                ans[v[i]] = left + right;
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+For each value:
+		process all its indices together  
+Prefix sums allow:
+		computing total distances in O(1) per index  
+This reduces complexity from O(n²) → O(n).
