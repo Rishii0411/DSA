@@ -1,0 +1,47 @@
+2026-04-24 | Furthest Distance from Origin
+
+	Question
+Return maximum possible distance after all moves.
+	Key Insight
+To maximize distance:
+- always move in the **same direction**  
+So:
+1.	Count:
+		L = number of 'L'  
+		R = number of 'R'  
+		F = number of '_'  
+2.	We can assign all '_' to:
+		either left OR right  
+3.	Final max distance:
+		max(L, R) + F  
+	Approach
+1.	Count L, R, and '_'  
+2.	Return max(L, R) + F  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+
+	Solution
+class Solution {
+public:
+    int visibleBuildings(const vector<int>& arr) {
+
+        int count = 0;
+        int maxHeight = INT_MIN;
+
+        for (int h : arr) {
+            if (h >= maxHeight) {   // 🔥 FIX HERE
+                count++;
+                maxHeight = h;
+            }
+        }
+
+        return count;
+    }
+};
+
+	Key Insight
+Flexible moves '_' should always be used to:
+		extend the dominant direction  
+This greedy choice guarantees maximum distance.
