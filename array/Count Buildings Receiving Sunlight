@@ -1,0 +1,38 @@
+2026-04-24 | Count Buildings Receiving Sunlight
+
+Question
+Return number of buildings that can see sunlight.
+	Approach
+1.	Initialize:
+		count = 0  
+		maxHeight = 0  
+2.	Traverse from left to right:
+		for each building:
+			if height > maxHeight:
+				count++  
+				update maxHeight  
+3.	Return count  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+
+
+	Solution
+class Solution {
+public:
+    int countBuildings(vector<int>& arr) {
+        int count = 0;
+        int maxHeight = 0;
+        for(int h : arr){
+            if(h > maxHeight){
+                count++;
+                maxHeight = h;
+            }
+        }
+        return count;
+    }
+};
+	Key Insight
+A building sees sunlight only if it is **strictly taller than all buildings before it**.  
+So we track a running maximum and count how many times it increases.
