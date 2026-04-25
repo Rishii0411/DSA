@@ -1,0 +1,84 @@
+2026-04-25 | Maximize Minimum Manhattan Distance on Square Boundary
+
+Question
+Return the largest possible minimum distance.
+	Key Insight
+1.	Convert 2D boundary points → 1D positions along perimeter  
+2.	Then problem becomes:
+		select k points on a circular line  
+		maximize minimum distance  
+3.	Use:
+		Binary Search + Greedy Check  
+	Approach
+1.	Map each boundary point to perimeter distance:
+		if (x==0) → y  
+		if (y==side) → side + x  
+		if (x==side) → 2*side + (side - y)  
+		if (y==0) → 3*side + (side - x)  
+2.	Sort positions  
+3.	Binary search on answer (distance d)
+4.	Check function:
+		try to pick k points greedily:
+			start from first  
+			pick next point ≥ last + d  
+5.	Since circular:
+		duplicate array with +perimeter  
+		and try each starting point  
+	Time Complexity
+	O(n log n + n log perimeter)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int maxDistance(int side, vector<vector<int>>& points, int k) {
+        vector<int> pos;
+        // map to perimeter
+        for(auto &p : points){
+            int x = p[0], y = p[1];
+            if(x == 0) pos.push_back(y);
+            else if(y == side) pos.push_back(side + x);
+            else if(x == side) pos.push_back(2*side + (side - y));
+            else pos.push_back(3*side + (side - x));
+        }
+        sort(pos.begin(), pos.end());
+        int n = pos.size();
+        int perimeter = 4 * side;
+        // extend for circular handling
+        vector<int> ext = pos;
+        for(int x : pos){
+            ext.push_back(x + perimeter);
+        }
+        auto can = [&](int d){
+            for(int i = 0; i < n; i++){
+                int count = 1;
+                int last = ext[i];
+                for(int j = i + 1; j < i + n; j++){
+                    if(ext[j] - last >= d){
+                        count++;
+                        last = ext[j];
+                    }
+                    if(count >= k) return true;
+                }
+            }
+            return false;
+        };
+        int low = 0, high = perimeter, ans = 0;
+        while(low <= high){
+            int mid = (low + high) / 2;
+            if(can(mid)){
+                ans = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+This is a classic pattern:
+		“maximize minimum distance” → binary search  
+Key trick:
+		convert 2D boundary → 1D circular line  
+This simplifies geometry into a linear greedy problem.
