@@ -1,0 +1,59 @@
+2026-04-25 | Reduce Array by Opposite Sign Collisions
+
+Question
+Return final array after all operations.
+	Key Insight
+This behaves like a **collision problem (similar to asteroid collision)**.  
+So we use a stack to simulate left-to-right processing.
+	Approach
+1.	Initialize empty stack  
+2.	Traverse array:
+		for each element x:
+			while stack not empty AND top and x have opposite signs:
+				resolve collision  
+3.	Collision logic:
+		if abs(top) < abs(x):
+			pop top and continue  
+		if abs(top) > abs(x):
+			discard x  
+		if equal:
+			pop top and discard x  
+4.	If x survives → push to stack  
+5.	Return stack as result  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<int> finalArray(vector<int>& arr) {
+        vector<int> st;
+        for(int x : arr){
+            bool alive = true;
+            while(!st.empty() && alive &&
+                  ((st.back() > 0 && x < 0) || (st.back() < 0 && x > 0))){
+                if(abs(st.back()) < abs(x)){
+                    st.pop_back();
+                }
+                else if(abs(st.back()) > abs(x)){
+                    alive = false;
+                }
+                else{
+                    st.pop_back();
+                    alive = false;
+                }
+            }
+            if(alive){
+                st.push_back(x);
+            }
+        }
+        return st;
+    }
+};
+	Key Insight
+We simulate interactions using a stack:
+		only adjacent opposite signs interact  
+This ensures:
+		each element is processed once → O(n)  
+This is a classic **collision reduction problem**.
