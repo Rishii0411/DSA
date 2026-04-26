@@ -1,0 +1,50 @@
+2026-04-26 | Common Elements in Three Sorted Arrays
+
+Question
+Return all common elements across the three arrays.
+	Approach
+1.	Use three pointers:
+		i → arr1  
+		j → arr2  
+		k → arr3  
+2.	Traverse simultaneously:
+		if arr1[i] == arr2[j] == arr3[k]:
+			add to result (avoid duplicates)  
+			move all three pointers  
+		else:
+			move the pointer with smallest value  
+3.	Continue until any array ends  
+	Time Complexity
+	O(n1 + n2 + n3)
+	Space Complexity
+	O(1) (excluding output)
+	Solution
+class Solution {
+public:
+    vector<int> commonElements(vector<int>& a,
+                               vector<int>& b,
+                               vector<int>& c) {
+        int i = 0, j = 0, k = 0;
+        vector<int> ans;
+        while(i < a.size() && j < b.size() && k < c.size()){
+            if(a[i] == b[j] && b[j] == c[k]){
+                if(ans.empty() || ans.back() != a[i])
+                    ans.push_back(a[i]);
+                i++; j++; k++;
+            }
+            else{
+                int mn = min({a[i], b[j], c[k]});
+                if(a[i] == mn) i++;
+                if(b[j] == mn) j++;
+                if(c[k] == mn) k++;
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+Since arrays are sorted:
+		we can efficiently compare using pointers  
+Moving the pointer with the smallest value helps:
+		synchronize values across arrays  
+This avoids brute force and keeps solution linear.
