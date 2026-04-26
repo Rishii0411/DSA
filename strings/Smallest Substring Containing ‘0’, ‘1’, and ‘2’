@@ -1,0 +1,41 @@
+2026-04-27 | Smallest Substring Containing ‘0’, ‘1’, and ‘2’
+
+Question
+Return length of the smallest valid substring.
+	Approach
+1.	Use sliding window:
+		left = 0  
+		expand right  
+2.	Keep count of characters:
+		count[0], count[1], count[2]  
+3.	When all three counts ≥ 1:
+		try to shrink window from left  
+4.	Update minimum length  
+5.	Continue until end  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int smallestSubstring(string s) {
+        vector<int> count(3, 0);
+        int left = 0;
+        int ans = INT_MAX;
+        for(int right = 0; right < s.size(); right++){
+            count[s[right] - '0']++;
+            while(count[0] > 0 && count[1] > 0 && count[2] > 0){
+                ans = min(ans, right - left + 1);
+                count[s[left] - '0']--;
+                left++;
+            }
+        }
+        return ans == INT_MAX ? -1 : ans;
+    }
+};
+	Key Insight
+This is a classic:
+		“minimum window containing all required characters”  
+Sliding window ensures:
+		efficient O(n) solution instead of O(n²).
