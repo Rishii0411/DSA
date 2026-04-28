@@ -1,0 +1,47 @@
+2026-04-28 | Longest Repeating Character Replacement
+
+	Question
+Return maximum length of valid substring.
+	Key Insight
+In a window:
+		window size = right - left + 1  
+To make all characters same:
+		operations needed = window size - maxFreq  
+So condition:
+		(window size - maxFreq) ≤ k  
+	Approach
+1.	Use sliding window  
+2.	Maintain frequency of characters  
+3.	Track maxFreq (most frequent char in window)  
+4.	If window invalid:
+		shrink from left  
+5.	Update answer  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int characterReplacement(string s, int k) {
+        vector<int> freq(26, 0);
+        int left = 0, maxFreq = 0, ans = 0;
+        for(int right = 0; right < s.size(); right++){
+            freq[s[right] - 'A']++;
+            maxFreq = max(maxFreq, freq[s[right] - 'A']);
+            while((right - left + 1) - maxFreq > k){
+                freq[s[left] - 'A']--;
+                left++;
+            }
+            ans = max(ans, right - left + 1);
+        }
+        return ans;
+    }
+};
+	Key Insight
+We don’t need to change all characters:
+		just ensure at most k mismatches  
+The trick:
+		keep track of most frequent character  
+This allows:
+		efficient O(n) solution using sliding window.
