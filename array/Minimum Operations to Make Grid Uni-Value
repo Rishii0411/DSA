@@ -1,0 +1,53 @@
+2026-04-28 | Minimum Operations to Make Grid Uni-Value
+
+	Question
+Return minimum operations needed.
+	Key Insight
+1.	All numbers must have same remainder modulo x:
+		otherwise impossible  
+2.	Convert grid → 1D array  
+3.	To minimize operations:
+		make all elements equal to the **median**  
+(Why median? → minimizes sum of absolute differences)
+	Approach
+1.	Flatten grid into array  
+2.	Check feasibility:
+		(arr[i] - arr[0]) % x == 0 for all i  
+3.	Sort array  
+4.	Choose median  
+5.	Compute operations:
+		sum(|val - median| / x)  
+	Time Complexity
+	O(mn log(mn))
+	Space Complexity
+	O(mn)
+	Solution
+class Solution {
+public:
+    int minOperations(vector<vector<int>>& grid, int x) {
+        vector<int> arr;
+        for(auto &row : grid){
+            for(int val : row){
+                arr.push_back(val);
+            }
+        }
+        // check feasibility
+        for(int val : arr){
+            if((val - arr[0]) % x != 0)
+                return -1;
+        }
+        sort(arr.begin(), arr.end());
+        int median = arr[arr.size()/2];
+        int ops = 0;
+        for(int val : arr){
+            ops += abs(val - median) / x;
+        }
+        return ops;
+    }
+};
+	Key Insight
+Two critical observations:
+1.	Feasibility → all values must align modulo x  
+2.	Optimal target → median minimizes total moves  
+This converts problem into a classic:
+		minimum absolute difference optimization.
