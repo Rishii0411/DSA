@@ -1,0 +1,81 @@
+2026-04-29 | Maximum Score After Column Painting
+
+	Question
+Return maximum possible score.
+	Key Insight
+For each column j:
+we decide how many top cells to paint black  
+This defines a boundary:
+		rows above → black  
+		rows below → white  
+Contribution comes from:
+		white cells adjacent to black columns  
+So problem reduces to:
+		choosing optimal heights per column  
+	Approach
+1.	Precompute prefix sums for each column  
+2.	For each column:
+		try making it “active” (paint some rows)  
+3.	Contribution comes from:
+		neighboring columns  
+4.	Optimized idea:
+		for each column j:
+			we take best prefix from adjacent columns  
+	Time Complexity
+	O(n²)
+	Space Complexity
+	O(n²)
+Solution
+class Solution {
+ public:
+  long long maximumScore(vector<vector<int>>& grid) {
+    const int n = grid.size();
+    // prefix[j][i] := the sum of the first i elements in the j-th column
+    vector<vector<long>> prefix(n, vector<long>(n + 1));
+    // prevPick[i] := the maximum achievable score up to the previous column,
+    // where the bottommost selected element in that column is in row (i - 1)
+    vector<long> prevPick(n + 1);
+    // prevSkip[i] := the maximum achievable score up to the previous column,
+    // where the bottommost selected element in the column before the previous
+    // one is in row (i - 1)
+    vector<long> prevSkip(n + 1);
+
+    for (int j = 0; j < n; ++j)
+      for (int i = 0; i < n; ++i)
+        prefix[j][i + 1] = prefix[j][i] + grid[i][j];
+
+    for (int j = 1; j < n; ++j) {
+      vector<long> currPick(n + 1);
+      vector<long> currSkip(n + 1);
+      // Consider all possible combinations of the number of current and
+      // previous selected elements.
+      for (int curr = 0; curr <= n; ++curr)
+        for (int prev = 0; prev <= n; ++prev)
+          if (curr > prev) {
+            // 1. The current bottom is deeper than the previous bottom.
+            // Get the score of grid[prev..curr)[j - 1] for pick and skip.
+            const long score = prefix[j - 1][curr] - prefix[j - 1][prev];
+            currPick[curr] = max(currPick[curr], prevSkip[prev] + score);
+            currSkip[curr] = max(currSkip[curr], prevSkip[prev] + score);
+          } else {
+            // 2. The previous bottom is deeper than the current bottom.
+            // Get the score of grid[curr..prev)[j] for pick only.
+            const long score = prefix[j][prev] - prefix[j][curr];
+            currPick[curr] = max(currPick[curr], prevPick[prev] + score);
+            currSkip[curr] = max(currSkip[curr], prevPick[prev]);
+          }
+      prevPick = std::move(currPick);
+      prevSkip = std::move(currSkip);
+    }
+
+    return ranges::max(prevPick);
+  }
+};
+	Key Insight
+The problem simplifies to:
+		choosing a “cut height” per column  
+Only adjacent columns contribute to score.  
+So:
+		use prefix sums to efficiently compute contributions  
+This converts a complex painting process into:
+		column-wise greedy optimization.
