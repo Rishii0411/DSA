@@ -1,0 +1,50 @@
+2026-04-29 | Minimum Swaps to Group All 1s Together
+
+Question
+Return minimum swaps or -1 if no 1 exists.
+	Key Insight
+Let total number of 1s = k  
+Then:
+we want a window of size k containing maximum 1s  
+Because:
+		swaps needed = k - (number of 1s already in window)
+	Approach
+1.	Count total 1s → k  
+2.	If k == 0 → return -1  
+3.	Use sliding window of size k  
+4.	Count number of 1s in current window  
+5.	Track maximum 1s in any window  
+6.	Result:
+		k - maxOnesInWindow  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int minSwaps(vector<int>& arr) {
+        int n = arr.size();
+        int k = 0;
+        for(int x : arr) if(x == 1) k++;
+        if(k == 0) return -1;
+        int curr = 0;
+        for(int i = 0; i < k; i++){
+            if(arr[i] == 1) curr++;
+        }
+        int maxOnes = curr;
+        for(int i = k; i < n; i++){
+            if(arr[i] == 1) curr++;
+            if(arr[i - k] == 1) curr--;
+            maxOnes = max(maxOnes, curr);
+        }
+        return k - maxOnes;
+    }
+};
+	Key Insight
+Instead of thinking about swaps directly:
+		think about best window  
+The fewer 0s inside the window → fewer swaps needed  
+So:
+		min swaps = number of 0s in best window  
+		         = k - max 1s in window
