@@ -1,0 +1,39 @@
+2026-04-30 | Check if Array Represents Max Heap
+
+Question
+Return true if array satisfies max heap property.
+	Approach
+1.	Traverse all non-leaf nodes:
+		i from 0 to (n/2 - 1)  
+2.	Check:
+		if left child exists:
+			arr[i] ≥ arr[left]  
+		if right child exists:
+			arr[i] ≥ arr[right]  
+3.	If any violation → return false  
+4.	If all satisfied → return true  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool isMaxHeap(vector<int>& arr) {
+        int n = arr.size();
+        for(int i = 0; i <= (n/2 - 1); i++){
+            int left = 2*i + 1;
+            int right = 2*i + 2;
+            if(left < n && arr[i] < arr[left])
+                return false;
+            if(right < n && arr[i] < arr[right])
+                return false;
+        }
+        return true;
+    }
+};
+	Key Insight
+In array representation:
+		only need to check parent vs children  
+No need to check leaves → they have no children  
+This ensures efficient validation in O(n).
