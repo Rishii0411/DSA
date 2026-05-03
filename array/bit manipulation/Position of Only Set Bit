@@ -1,0 +1,35 @@
+2026-05-03 | Position of Only Set Bit
+
+	Question
+Return position of single set bit or -1.
+	Key Insight
+A number has exactly one set bit if:
+		n > 0 AND (n & (n - 1)) == 0  
+This means it's a power of 2.
+	Approach
+1.	Check:
+		if n == 0 → return -1  
+		if (n & (n-1)) != 0 → return -1  
+2.	Find position:
+		count how many right shifts until n == 1  
+	Time Complexity
+	O(log n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int findPosition(int n) {
+        if(n == 0 || (n & (n - 1)) != 0)
+            return -1;
+        int pos = 1;
+        while(n > 1){
+            n >>= 1;
+            pos++;
+        }
+        return pos;
+    }
+};
+	Key Insight
+- Power of 2 → exactly one set bit  
+- Then position = number of shifts needed to reach 1  
