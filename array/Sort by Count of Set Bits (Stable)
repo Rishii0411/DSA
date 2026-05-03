@@ -1,0 +1,33 @@
+2026-05-03 | Sort by Count of Set Bits (Stable)
+
+	Question
+Return array sorted by set bit count.
+	Approach
+1.	Define function to count set bits:
+		use built-in or bit manipulation  
+2.	Use **stable_sort**:
+		compare based on set bits  
+3.	For equal set bits:
+		stable_sort automatically preserves order  
+	Time Complexity
+	O(n log n)
+	Space Complexity
+	O(1) (excluding sorting overhead)
+	Solution
+class Solution {
+public:
+    int countBits(int x){
+        return __builtin_popcount(x);
+    }
+    void sortBySetBitCount(vector<int>& arr) {
+        stable_sort(arr.begin(), arr.end(),
+            [&](int a, int b){
+                return countBits(a) > countBits(b);
+            });
+    }
+};
+	Key Insight
+- Sorting criteria: number of set bits  
+- Stability requirement → use stable_sort  
+This ensures:
+		correct ordering + original order preserved for ties.
