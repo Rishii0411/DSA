@@ -1,0 +1,35 @@
+2026-05-03 | Check if String is Rotation of Another
+
+	Question
+Return true if goal is a rotation of s.
+	Key Insight
+If goal is a rotation of s:
+		it must be a substring of (s + s)  
+Example:
+		s = "abcde"  
+		s+s = "abcdeabcde"  
+		goal = "cdeab" → present inside  
+	Approach
+1.	If lengths differ → return false  
+2.	Create string temp = s + s  
+3.	Check if goal is substring of temp  
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    bool rotateString(string s, string goal) {
+        if(s.size() != goal.size())
+            return false;
+        string temp = s + s;
+        return temp.find(goal) != string::npos;
+    }
+};
+	Key Insight
+All rotations of s are contained in:
+		s + s  
+So we just need to check:
+		is goal a substring of s+s  
+This avoids simulating rotations explicitly.
