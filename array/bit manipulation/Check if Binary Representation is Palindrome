@@ -1,0 +1,42 @@
+2026-05-04 | Check if Binary Representation is Palindrome
+
+	Question
+Return true if binary representation is palindrome.
+	Approach
+1.	Find highest set bit (left pointer)  
+2.	Set right pointer at LSB  
+3.	Compare bits:
+		left bit vs right bit  
+4.	If mismatch → return false  
+5.	Move inward:
+		left--, right++  
+6.	If all match → return true  
+	Time Complexity
+	O(log n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool isBinaryPalindrome(int n) {
+        int left = 31;
+        // find highest set bit
+        while(left >= 0 && ((n >> left) & 1) == 0){
+            left--;
+        }
+        int right = 0;
+        while(left > right){
+            int lbit = (n >> left) & 1;
+            int rbit = (n >> right) & 1;
+            if(lbit != rbit)
+                return false;
+            left--;
+            right++;
+        }
+        return true;
+    }
+};
+	Key Insight
+Instead of converting to string:
+		compare bits directly  
+This saves space and keeps solution efficient.
