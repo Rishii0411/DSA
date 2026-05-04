@@ -1,0 +1,45 @@
+2026-05-04 | Rotate Image by 90 Degrees Clockwise
+
+Question
+Modify matrix to its rotated form.
+	Key Insight
+Rotation can be done in 2 steps:
+1.	Transpose the matrix  
+		swap (i,j) ↔ (j,i)  
+2.	Reverse each row  
+Why this works:
+		transpose flips across diagonal  
+		row reverse gives rotation  
+	Approach
+1.	Transpose matrix:
+		for i:
+			for j > i:
+				swap(mat[i][j], mat[j][i])  
+2.	Reverse each row  
+	Time Complexity
+	O(n²)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    void rotate(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        // Step 1: Transpose
+        for(int i = 0; i < n; i++){
+            for(int j = i+1; j < n; j++){
+                swap(matrix[i][j], matrix[j][i]);
+            }
+        }
+        // Step 2: Reverse each row
+        for(int i = 0; i < n; i++){
+            reverse(matrix[i].begin(), matrix[i].end());
+        }
+    }
+};
+	Key Insight
+Instead of rotating layer by layer:
+		use mathematical transformation  
+Transpose + Reverse:
+		simplifies the problem cleanly and efficiently  
+This is the standard optimal in-place solution.
