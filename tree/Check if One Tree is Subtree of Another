@@ -1,0 +1,44 @@
+2026-05-07 | Check if One Tree is Subtree of Another
+
+Question
+Return true if S is a subtree of T.
+	Approach
+1.	Create helper function isSame():
+		check whether two trees are identical  
+2.	For every node in T:
+		check:
+			is subtree rooted here identical to S?  
+3.	If yes → return true  
+4.	Otherwise recursively search:
+		left subtree  
+		right subtree  
+	Time Complexity
+	O(N × M) worst case
+	Space Complexity
+	O(height of tree)
+	Solution
+class Solution {
+public:
+    bool isSame(Node* a, Node* b){
+        if(a == NULL && b == NULL)
+            return true;
+        if(a == NULL || b == NULL)
+            return false;
+        return (a->data == b->data) &&
+               isSame(a->left, b->left) &&
+               isSame(a->right, b->right);
+    }
+    bool isSubTree(Node* root1, Node* root2) {
+        if(root2 == NULL) return true;
+        if(root1 == NULL) return false;
+        if(isSame(root1, root2))
+            return true;
+        return isSubTree(root1->left, root2) ||
+               isSubTree(root1->right, root2);
+    }
+};
+	Key Insight
+The problem breaks into two recursive tasks:
+1.	Find candidate node in T  
+2.	Check if both trees are identical from that node  
+This recursive decomposition makes the solution simple and clean.
