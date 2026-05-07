@@ -1,0 +1,73 @@
+2026-05-07 | Maximum Reachable Value Through Valid Jumps
+
+Question
+Return ans[i] = maximum reachable value from i.
+	Key Observation
+If there exists any larger value reachable indirectly,
+eventually you can keep moving toward larger elements.
+The important insight:
+		all indices connected through valid jumps
+		form connected components.
+And:
+		every element in a component can reach
+		the maximum element of that component.
+Now observe:
+- if there exists a smaller element to the right,
+  you can jump there
+- then from there potentially jump left to larger values
+This effectively connects indices across ranges.
+The reachable maximum for an index becomes:
+		the maximum value in its connected region.
+	Approach
+1.	Build connected components implicitly:
+		adjacent indices with different values
+		become mutually reachable through chains.
+2.	Using monotonic behavior:
+		all indices in same connected segment
+		share the same maximum reachable value.
+3.	We process components using DFS/BFS.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<int> maxValue(vector<int>& nums) {
+        
+        int n = nums.size();
+
+        vector<int> ans(n);
+        vector<int> pref(n);
+
+        // Build prefix maximum array
+        pref[0] = nums[0];
+
+        for(int i = 1; i < n; i++) {
+            pref[i] = max(pref[i - 1], nums[i]);
+        }
+
+        int suffMin = INT_MAX;
+
+        // Traverse from right to left
+        for(int i = n - 1; i >= 0; i--) {
+
+            if(pref[i] > suffMin) {
+                ans[i] = (i + 1 < n) ? ans[i + 1] : pref[i];
+            }
+            else {
+                ans[i] = pref[i];
+            }
+
+            suffMin = min(suffMin, nums[i]);
+        }
+
+        return ans;
+    }
+};
+	Key Insight
+The problem is fundamentally:
+		reachability in a directed graph  
+Each valid jump forms a directed edge.  
+Then for every node:
+		find maximum-valued reachable node.
