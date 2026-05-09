@@ -1,0 +1,81 @@
+2026-05-09 | Count Number of Spanning Trees
+
+	Question
+Return total number of spanning trees.
+	Key Insight
+This is a classic application of:
+		Matrix Tree Theorem (Kirchhoff’s Theorem)
+Steps:
+1.	Build Laplacian Matrix:
+		L[i][i] = degree of node i  
+		L[i][j] = -1 if edge exists  
+2.	Remove any one row and one column
+		to form a cofactor matrix  
+3.	Determinant of this matrix
+		= number of spanning trees
+	Approach
+1.	Create n × n Laplacian matrix  
+2.	For every edge (u,v):
+		L[u][u]++
+		L[v][v]++
+		L[u][v]--
+		L[v][u]--  
+3.	Remove last row and column  
+4.	Compute determinant using Gaussian elimination  
+	Time Complexity
+	O(n³)
+	Space Complexity
+	O(n²)
+	Solution
+class Solution {
+public:
+    long long determinant(vector<vector<double>>& mat, int n){
+        double det = 1;
+        for(int i = 0; i < n; i++){
+            int pivot = i;
+            for(int j = i; j < n; j++){
+                if(abs(mat[j][i]) > abs(mat[pivot][i]))
+                    pivot = j;
+            }
+            if(abs(mat[pivot][i]) < 1e-9)
+                return 0;
+            if(i != pivot){
+                swap(mat[i], mat[pivot]);
+                det *= -1;
+            }
+            det *= mat[i][i];
+            for(int j = i + 1; j < n; j++){
+                double factor = mat[j][i] / mat[i][i];
+                for(int k = i; k < n; k++){
+                    mat[j][k] -= factor * mat[i][k];
+                }
+            }
+        }
+        return round(det);
+    }
+    long long countSpanningTrees(int n, vector<vector<int>>& edges) {
+        vector<vector<double>> lap(n, vector<double>(n, 0));
+        for(auto &e : edges){
+            int u = e[0];
+            int v = e[1];
+            lap[u][u]++;
+            lap[v][v]++;
+            lap[u][v]--;
+            lap[v][u]--;
+        }
+        // create cofactor matrix
+        vector<vector<double>> cof(n-1, vector<double>(n-1));
+        for(int i = 0; i < n-1; i++){
+            for(int j = 0; j < n-1; j++){
+                cof[i][j] = lap[i][j];
+            }
+        }
+        return determinant(cof, n-1);
+    }
+};
+	Key Insight
+Matrix Tree Theorem states:
+		any cofactor of Laplacian matrix
+		gives number of spanning trees  
+This transforms a graph-counting problem into:
+		matrix determinant computation.
