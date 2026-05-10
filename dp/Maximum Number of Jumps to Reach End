@@ -1,0 +1,49 @@
+2026-05-10 | Maximum Number of Jumps to Reach End
+
+	Question
+Return maximum jumps to reach n-1.
+	Key Insight
+Since jumps only move forward:
+		graph is a DAG (Directed Acyclic Graph)
+So:
+		use DP for longest path.
+	Approach
+1.	Define:
+		dp[i] =
+			max jumps needed to reach index i  
+2.	Initialize:
+		dp[0] = 0  
+		all others = -1  
+3.	For every pair (j → i):
+		if valid jump:
+			dp[i] = max(dp[i], dp[j] + 1)
+4.	Final answer:
+		dp[n-1]
+	Time Complexity
+	O(n²)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int maximumJumps(vector<int>& nums, int target) {
+        int n = nums.size();
+        vector<int> dp(n, -1);
+        dp[0] = 0;
+        for(int i = 1; i < n; i++){
+            for(int j = 0; j < i; j++){
+                if(dp[j] != -1 &&
+                   abs(nums[i] - nums[j]) <= target){
+                    dp[i] = max(dp[i], dp[j] + 1);
+                }
+            }
+        }
+        return dp[n-1];
+    }
+};
+	Key Insight
+This is essentially:
+		longest valid path in forward graph  
+Because movement is only forward:
+		no cycles exist  
+So dynamic programming works naturally.
