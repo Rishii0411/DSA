@@ -1,0 +1,33 @@
+2026-05-11 | Separate Digits in an Array
+
+	Question
+Return array containing separated digits.
+	Approach
+1.	Traverse each number in nums  
+2.	Extract digits:
+		use to_string()
+		OR repeated division  
+3.	Add every digit to answer array
+		in original order  
+	Time Complexity
+	O(total digits)
+	Space Complexity
+	O(total digits)
+	Solution
+class Solution {
+public:
+    vector<int> separateDigits(vector<int>& nums) {
+        vector<int> ans;
+        for(int x : nums){
+            string s = to_string(x);
+            for(char c : s){
+                ans.push_back(c - '0');
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+Using string conversion makes:
+		digit extraction simple and ordered  
+This avoids reversing digits manually.
