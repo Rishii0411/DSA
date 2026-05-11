@@ -1,0 +1,57 @@
+2026-05-11 | Palindrome Pair in Array of Strings
+
+	Question
+Return true if any valid pair exists.
+	Key Insight
+For two strings to form palindrome:
+		one side often mirrors the other  
+A simple and effective approach:
+		try all pairs and check palindrome.
+	Approach
+1.	Define helper function:
+		check if string is palindrome  
+2.	Try every pair (i, j):
+		where i ≠ j  
+3.	Concatenate:
+		arr[i] + arr[j]  
+4.	If palindrome found:
+		return true  
+5.	If no pair works:
+		return false  
+	Time Complexity
+	O(n² × L)
+	where L = average string length
+	Space Complexity
+	O(L)
+	Solution
+class Solution {
+public:
+    bool isPalindrome(string &s){
+        int l = 0;
+        int r = s.size() - 1;
+        while(l < r){
+            if(s[l] != s[r])
+                return false;
+            l++;
+            r--;
+        }
+        return true;
+    }
+    bool palindromepair(vector<string>& arr) {
+        int n = arr.size();
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < n; j++){
+                if(i == j) continue;
+                string temp = arr[i] + arr[j];
+                if(isPalindrome(temp))
+                    return true;
+            }
+        }
+        return false;
+    }
+};
+	Key Insight
+The problem directly asks about:
+		pairwise concatenation behavior  
+So brute-force pair checking with palindrome validation
+is straightforward and reliable.
