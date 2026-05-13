@@ -1,0 +1,71 @@
+2026-05-13 | Minimum Moves to Make Array Complementary
+
+	Question
+Return minimum moves needed.
+	Key Insight
+For one pair (a,b):
+we analyze cost to make sum = S.
+Possibilities:
+- 0 moves:
+		S = a+b  
+- 1 move:
+		S in [min(a,b)+1 , max(a,b)+limit]
+- 2 moves:
+		otherwise
+Instead of checking every pair for every sum naively:
+		use difference array.
+	Approach
+1.	For every pair:
+		a = nums[i]
+		b = nums[n-1-i]
+2.	Update difference array for ranges:
+		default cost = 2  
+		1-move range decreases cost by 1  
+		0-move point decreases cost by 1 more  
+3.	Build prefix sums over all sums:
+		possible sums from 2 → 2*limit
+4.	Minimum value = answer.
+	Time Complexity
+	O(n + limit)
+	Space Complexity
+	O(limit)
+	Solution
+class Solution {
+public:
+    int minMoves(vector<int>& nums, int limit) {
+        int n = nums.size();
+        vector<int> diff(2 * limit + 2, 0);
+        for(int i = 0; i < n / 2; i++){
+            int a = nums[i];
+            int b = nums[n - 1 - i];
+            int low = min(a, b) + 1;
+            int high = max(a, b) + limit;
+            int sum = a + b;
+            // initially 2 moves everywhere
+            diff[2] += 2;
+            // one move range
+            diff[low] -= 1;
+            diff[high + 1] += 1;
+            // zero move at exact sum
+            diff[sum] -= 1;
+            diff[sum + 1] += 1;
+            // restore after range
+            diff[2 * limit + 1] -= 2;
+        }
+        int ans = INT_MAX;
+        int curr = 0;
+        for(int s = 2; s <= 2 * limit; s++){
+            curr += diff[s];
+            ans = min(ans, curr);
+        }
+        return ans;
+    }
+};
+	Key Insight
+Instead of evaluating each target sum separately:
+		use range updates with difference array  
+This converts:
+		O(n × limit)
+into:
+		O(n + limit)  
+A very important optimization technique for range-cost problems.
