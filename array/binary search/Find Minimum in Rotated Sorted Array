@@ -1,0 +1,54 @@
+2026-05-15 | Find Minimum in Rotated Sorted Array
+
+	Question
+Return minimum element in rotated array.
+	Key Insight
+In rotated sorted array:
+		one half is always sorted  
+The minimum lies in the unsorted half.
+Using binary search:
+- compare mid with rightmost element  
+If nums[mid] > nums[right]:
+		minimum is in right half  
+Else:
+		minimum is in left half including mid
+	Approach
+1.	Initialize:
+		left = 0
+		right = n-1  
+2.	While left < right:
+		find mid  
+3.	If nums[mid] > nums[right]:
+		search right half  
+4.	Else:
+		search left half including mid  
+5.	Finally:
+		left points to minimum  
+	Time Complexity
+	O(log n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int findMin(vector<int>& nums) {
+        int left = 0;
+        int right = nums.size() - 1;
+        while(left < right){
+            int mid = left + (right - left) / 2;
+            if(nums[mid] > nums[right]){
+                left = mid + 1;
+            }
+            else{
+                right = mid;
+            }
+        }
+        return nums[left];
+    }
+};
+	Key Insight
+The rotated array always has:
+		one sorted half
+		and one disrupted half  
+The minimum element lies where rotation happened,
+and binary search efficiently locates it.
