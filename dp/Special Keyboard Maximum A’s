@@ -1,0 +1,60 @@
+2026-05-15 | Special Keyboard Maximum A’s
+
+	Question
+Return maximum possible A's after n operations.
+	Key Insight
+At some point:
+		it becomes better to:
+				Ctrl+A → Ctrl+C → multiple Ctrl+V
+Instead of typing individual A's.
+So for every position:
+		try breaking at earlier point.
+	Approach
+1.	Define:
+		dp[i] =
+			max A's possible using i operations  
+2.	Base case:
+		dp[i] = i
+		(by pressing A every time)
+3.	For every i:
+		try all breakpoints j:
+				before:
+					dp[j]
+				then:
+					Ctrl+A
+					Ctrl+C
+					pastes
+4.	Formula:
+		dp[i] = max(
+				dp[j] * (i-j-1)
+		)
+Why?
+After Ctrl+A and Ctrl+C:
+		remaining operations are pastes.
+	Time Complexity
+	O(n²)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int optimalKeys(int n) {
+        vector<int> dp(n + 1, 0);
+        for(int i = 1; i <= n; i++){
+            // press A directly
+            dp[i] = i;
+            for(int j = 1; j <= i - 3; j++){
+                // Ctrl+A, Ctrl+C, then paste
+                dp[i] = max(dp[i],
+                            dp[j] * (i - j - 1));
+            }
+        }
+        return dp[n];
+    }
+};
+	Key Insight
+The optimal strategy eventually becomes:
+		build some text once
+		then repeatedly paste it  
+This is a classic:
+		DP partition optimization problem.
