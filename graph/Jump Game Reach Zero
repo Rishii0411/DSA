@@ -1,0 +1,60 @@
+2026-05-17 | Jump Game Reach Zero
+
+Question
+Return true if reaching value 0 is possible.
+	Key Insight
+This is a graph traversal problem:
+- each index = node  
+- jumps = edges  
+So:
+		use BFS or DFS.
+Need visited array to avoid infinite loops.
+	Approach
+1.	Use queue for BFS  
+2.	Start from given index  
+3.	For current index:
+		if arr[idx] == 0:
+				return true  
+4.	Try both jumps:
+		idx + arr[idx]
+		idx - arr[idx]
+5.	If valid and unvisited:
+		push into queue
+6.	If traversal ends:
+		return false
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    bool canReach(vector<int>& arr, int start) {
+        int n = arr.size();
+        vector<bool> vis(n, false);
+        queue<int> q;
+        q.push(start);
+        vis[start] = true;
+        while(!q.empty()){
+            int idx = q.front();
+            q.pop();
+            if(arr[idx] == 0)
+                return true;
+            int next1 = idx + arr[idx];
+            int next2 = idx - arr[idx];
+            if(next1 >= 0 && next1 < n && !vis[next1]){
+                vis[next1] = true;
+                q.push(next1);
+            }
+            if(next2 >= 0 && next2 < n && !vis[next2]){
+                vis[next2] = true;
+                q.push(next2);
+            }
+        }
+        return false;
+    }
+};
+	Key Insight
+The array naturally forms a graph of reachable indices.  
+BFS/DFS explores all possible jumps efficiently
+while avoiding revisiting states.
