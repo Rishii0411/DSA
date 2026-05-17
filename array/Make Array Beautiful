@@ -1,0 +1,47 @@
+2026-05-17 | Make Array Beautiful
+
+	Question
+Return final beautiful array.
+	Key Insight
+This behaves exactly like:
+		pair cancellation problems  
+A stack efficiently simulates removals.
+	Approach
+1.	Create empty stack/vector  
+2.	Traverse array:
+		let current = x  
+3.	If stack top and current have opposite signs:
+		remove top
+		do not insert current  
+4.	Otherwise:
+		push current  
+5.	Return remaining elements.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<int> makeBeautiful(vector<int>& arr) {
+        vector<int> st;
+        for(int x : arr){
+            if(!st.empty()){
+                int top = st.back();
+                // opposite signs
+                if((top >= 0 && x < 0) ||
+                   (top < 0 && x >= 0)){
+                    st.pop_back();
+                    continue;
+                }
+            }
+            st.push_back(x);
+        }
+        return st;
+    }
+};
+	Key Insight
+Whenever opposite signs appear adjacent:
+		they disappear together  
+A stack naturally handles:
+		repeated chain removals efficiently.
