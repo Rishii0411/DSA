@@ -1,0 +1,58 @@
+2026-05-18 | Maximum Sum with Recursive Breaks
+
+	Question
+Return maximum possible value.
+	Key Insight
+For every number n:
+		answer =
+		max(
+				n,
+				f(n/2)+f(n/3)+f(n/4)
+		)
+This naturally forms:
+		overlapping subproblems
+So:
+		use memoization DP.
+	Approach
+1.	Define recursive function solve(n)
+2.	Base:
+		if n == 0:
+				return 0
+3.	If already computed:
+		return memoized value
+4.	Compute:
+		breakValue =
+				solve(n/2)
+			  + solve(n/3)
+			  + solve(n/4)
+5.	Return:
+		max(n, breakValue)
+	Time Complexity
+	O(number of distinct states)
+	Space Complexity
+	O(number of states)
+	Solution
+class Solution {
+public:
+    unordered_map<long long, long long> dp;
+    long long solve(long long n){
+        if(n == 0)
+            return 0;
+        if(dp.count(n))
+            return dp[n];
+        long long breakValue =
+            solve(n/2) +
+            solve(n/3) +
+            solve(n/4);
+        return dp[n] = max(n, breakValue);
+    }
+    long long maxSum(long long n) {
+        return solve(n);
+    }
+};
+	Key Insight
+Sometimes breaking gives better profit,
+sometimes keeping original number is better.  
+So for every state:
+		choose maximum of:
+				keep OR break recursively.
