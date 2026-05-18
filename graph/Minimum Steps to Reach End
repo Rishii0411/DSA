@@ -1,0 +1,80 @@
+2026-05-18 | Minimum Steps to Reach End
+
+	Question
+Return minimum steps needed to reach last index.
+	Key Insight
+This is a shortest path problem:
+- indices = graph nodes  
+- jumps = graph edges  
+Since all moves cost 1:
+		BFS gives shortest path.
+Optimization:
+After processing all equal-value jumps once,
+clear them to avoid repeated traversals.
+	Approach
+1.	Store indices for every value:
+		value → list of indices  
+2.	Start BFS from index 0  
+3.	For current index:
+		try:
+			i+1
+			i-1
+			all same-value indices
+4.	Use visited array to avoid loops  
+5.	After processing same-value group:
+		clear its vector
+		to avoid TLE
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int minJumps(vector<int>& arr) {
+        int n = arr.size();
+        if(n == 1)
+            return 0;
+        unordered_map<int, vector<int>> mp;
+        for(int i = 0; i < n; i++){
+            mp[arr[i]].push_back(i);
+        }
+        queue<pair<int,int>> q;
+        vector<bool> vis(n, false);
+        q.push({0, 0});
+        vis[0] = true;
+        while(!q.empty()){
+            auto [idx, steps] = q.front();
+            q.pop();
+            if(idx == n - 1)
+                return steps;
+            // i-1
+            if(idx - 1 >= 0 && !vis[idx - 1]){
+                vis[idx - 1] = true;
+                q.push({idx - 1, steps + 1});
+            }
+            // i+1
+            if(idx + 1 < n && !vis[idx + 1]){
+                vis[idx + 1] = true;
+                q.push({idx + 1, steps + 1});
+            }
+            // same value jumps
+            for(int next : mp[arr[idx]]){
+                if(!vis[next]){
+                    vis[next] = true;
+                    q.push({next, steps + 1});
+                }
+            }
+            // important optimization
+            mp[arr[idx]].clear();
+        }
+        return -1;
+    }
+};
+	Key Insight
+BFS guarantees:
+		first time reaching last index
+		is minimum steps.  
+Clearing processed equal-value groups
+prevents repeated expensive traversals
+and makes the solution efficient.
