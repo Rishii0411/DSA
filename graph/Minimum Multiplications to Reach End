@@ -1,0 +1,60 @@
+2026-05-19 | Minimum Multiplications to Reach End
+
+	Question
+Return minimum steps required, or -1 if impossible.
+	Key Insight
+Each number from:
+		0 to 999
+can be treated as a graph node.
+From one node:
+		you can move to multiple new nodes
+		using multiplication operations.
+Since every operation costs 1:
+		use BFS for shortest path.
+	Approach
+1.	Create distance array of size 1000  
+2.	Start BFS from start  
+3.	For every current value:
+		try:
+				(current * x) % 1000
+		for all x in arr  
+4.	If new state not visited:
+		update distance
+		push into queue
+5.	If end reached:
+		return steps
+	Time Complexity
+	O(1000 × size(arr))
+	Space Complexity
+	O(1000)
+	Solution
+class Solution {
+public:
+    int minimumMultiplications(vector<int>& arr,
+                               int start,
+                               int end) {
+        vector<int> dist(1000, -1);
+        queue<int> q;
+        q.push(start);
+        dist[start] = 0;
+        while(!q.empty()){
+            int curr = q.front();
+            q.pop();
+            if(curr == end)
+                return dist[curr];
+            for(int x : arr){
+                int next = (curr * x) % 1000;
+                if(dist[next] == -1){
+                    dist[next] = dist[curr] + 1;
+                    q.push(next);
+                }
+            }
+        }
+        return -1;
+    }
+};
+	Key Insight
+The modulo operation limits states to:
+		only 1000 possible numbers  
+So BFS efficiently explores all reachable states
+and guarantees minimum operations.
