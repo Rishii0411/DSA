@@ -1,0 +1,51 @@
+2026-05-20 | Prefix Common Array of Two Permutations
+
+	Question
+Return prefix common array C.
+	Key Insight
+As we move index by index:
+		track visited numbers.
+If a number appears in both arrays so far:
+		it contributes to common count.
+	Approach
+1.	Create frequency/visited array  
+2.	Process indices from 0 to n-1:
+		add A[i]
+		add B[i]
+3.	If after insertion:
+		a value becomes seen in both arrays:
+				increase common count
+4.	Store current count in answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<int> findThePrefixCommonArray(vector<int>& A,
+                                         vector<int>& B) {
+        int n = A.size();
+        vector<int> freq(n + 1, 0);
+        vector<int> ans(n);
+        int common = 0;
+        for(int i = 0; i < n; i++){
+            freq[A[i]]++;
+            if(freq[A[i]] == 2)
+                common++;
+            freq[B[i]]++;
+            if(freq[B[i]] == 2)
+                common++;
+            ans[i] = common;
+        }
+        return ans;
+    }
+};
+	Key Insight
+A number becomes “common”
+exactly when it has appeared:
+		once in A prefix
+		and once in B prefix  
+So:
+		frequency reaching 2
+		means newly common element.
