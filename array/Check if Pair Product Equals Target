@@ -1,0 +1,57 @@
+2026-05-20| Check if Pair Product Equals Target
+
+	Question
+Return true if such a pair exists.
+	Key Insight
+For every number x:
+		needed value =
+				target / x
+If that needed value already exists,
+then pair found.
+Need careful handling for:
+		x = 0
+	Approach
+1.	Use hash set to store visited elements  
+2.	Traverse array:
+		for current x:
+3.	If x == 0:
+		product can only be 0
+4.	Otherwise:
+		if target % x == 0:
+				check whether
+				target/x exists in set
+5.	If found:
+		return true
+6.	Insert current number into set
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    bool isProduct(vector<int>& arr, long long target) {
+        unordered_set<long long> st;
+        for(long long x : arr){
+            if(x == 0){
+                if(target == 0 && st.count(0))
+                    return true;
+            }
+            else{
+                if(target % x == 0){
+                    long long need = target / x;
+                    if(st.count(need))
+                        return true;
+                }
+            }
+            st.insert(x);
+        }
+        return false;
+    }
+};
+	Key Insight
+Instead of checking all pairs:
+		transform product condition into:
+				search for required complement value  
+Hashing reduces:
+		O(n²) → O(n).
