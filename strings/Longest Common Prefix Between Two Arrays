@@ -1,0 +1,58 @@
+2026-05-21 | Longest Common Prefix Between Two Arrays
+
+	Question
+Return length of longest common prefix.
+	Key Insight
+Instead of comparing every pair completely:
+		store all prefixes of arr1 numbers in a set.
+Then:
+		check prefixes of arr2 numbers.
+	Approach
+1.	For every number in arr1:
+		generate all prefixes
+		store in hash set
+2.	For every number in arr2:
+		generate prefixes
+3.	If prefix exists in set:
+		update answer with prefix length
+4.	Return maximum length found
+	Time Complexity
+	O(total digits)
+	Space Complexity
+	O(total prefixes)
+	Solution
+class Solution {
+public:
+    int longestCommonPrefix(vector<int>& arr1,
+                            vector<int>& arr2) {
+        unordered_set<string> st;
+        // store prefixes of arr1
+        for(int x : arr1){
+            string s = to_string(x);
+            string pref = "";
+            for(char c : s){
+                pref += c;
+                st.insert(pref);
+            }
+        }
+        int ans = 0;
+        // check prefixes of arr2
+        for(int x : arr2){
+            string s = to_string(x);
+            string pref = "";
+            for(char c : s){
+                pref += c;
+                if(st.count(pref)){
+                    ans = max(ans,
+                              (int)pref.size());
+                }
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+The problem becomes easy once viewed as:
+		prefix matching problem  
+Hashing all prefixes allows:
+		fast lookups and efficient comparison.
