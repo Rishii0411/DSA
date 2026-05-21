@@ -1,0 +1,42 @@
+2026-05-21 | Check if All Bits are Set
+
+	Question
+Return true if every bit is set.
+	Key Insight
+A number with all bits set looks like:
+		1
+		11
+		111
+		1111
+		...
+Such numbers satisfy:
+		n & (n + 1) == 0
+Why?
+Example:
+		n = 7  → 111
+		n+1=8 →1000
+		111 & 1000 = 0
+	Approach
+1.	Check:
+		(n & (n + 1)) == 0
+2.	If true:
+		all bits are set
+3.	Otherwise:
+		not all bits are set
+	Time Complexity
+	O(1)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool isBitSet(int n) {
+        return (n & (n + 1)) == 0;
+    }
+};
+	Key Insight
+Numbers containing all 1s in binary
+have a very special property:
+		adding 1 creates power of 2  
+That makes:
+		n & (n+1) = 0.
