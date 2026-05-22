@@ -1,0 +1,71 @@
+2026-05-22 | Search in Rotated Sorted Array
+
+	Question
+Return index of target, or -1 if absent.
+	Key Insight
+In a rotated sorted array:
+		one half is always sorted.
+Using binary search:
+- identify sorted half  
+- check whether target lies there  
+- discard the other half
+	Approach
+1.	Initialize:
+		left = 0
+		right = n-1
+2.	While left <= right:
+		find mid
+3.	If nums[mid] == target:
+		return mid
+4.	Check which half is sorted:
+		If left half sorted:
+				nums[left] <= nums[mid]
+		Else:
+				right half sorted
+5.	Decide where target belongs
+		and shrink search space
+6.	If not found:
+		return -1
+	Time Complexity
+	O(log n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int left = 0;
+        int right = nums.size() - 1;
+        while(left <= right){
+            int mid = left + (right - left) / 2;
+            if(nums[mid] == target)
+                return mid;
+            // left half sorted
+            if(nums[left] <= nums[mid]){
+                if(target >= nums[left] &&
+                   target < nums[mid]){
+                    right = mid - 1;
+                }
+                else{
+                    left = mid + 1;
+                }
+            }
+            // right half sorted
+            else{
+                if(target > nums[mid] &&
+                   target <= nums[right]){
+                    left = mid + 1;
+                }
+                else{
+                    right = mid - 1;
+                }
+            }
+        }
+        return -1;
+    }
+};
+	Key Insight
+Even after rotation:
+		at least one half remains sorted.  
+Binary search uses this property
+to eliminate half the search space each time.
