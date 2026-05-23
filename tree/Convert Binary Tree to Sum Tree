@@ -1,0 +1,47 @@
+2026-05-23 | Convert Binary Tree to Sum Tree
+
+	Question
+Convert tree into Sum Tree.
+	Key Insight
+We need subtree sums before updating parent.  
+So:
+		process children first
+		then update current node.
+This is exactly:
+		Postorder Traversal
+		(left → right → node)
+	Approach
+1.	Recursively compute:
+		left subtree sum
+		right subtree sum
+2.	Store original node value  
+3.	Update current node:
+		node->data = leftSum + rightSum
+4.	Return:
+		original value + new subtree sum
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(h)
+	where h = tree height
+	Solution
+class Solution {
+public:
+    int solve(Node* root){
+        if(root == NULL)
+            return 0;
+        int leftSum = solve(root->left);
+        int rightSum = solve(root->right);
+        int oldValue = root->data;
+        root->data = leftSum + rightSum;
+        return oldValue + root->data;
+    }
+    void toSumTree(Node *node) {
+        solve(node);
+    }
+};
+	Key Insight
+Postorder traversal ensures:
+		children are processed before parent  
+That allows correct subtree sums
+before modifying current node.
