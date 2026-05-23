@@ -1,0 +1,47 @@
+2026-05-23 | Check if Array is Sorted and Rotated
+
+	Question
+Return true if array is sorted and rotated.
+	Key Insight
+In a sorted rotated array:
+		there can be at most ONE position
+		where order decreases.
+Example:
+		[3,4,5,1,2]
+				only one drop: 5 → 1
+Invalid:
+		[3,4,2,5,1]
+				two drops
+Need circular check:
+		last → first also matters.
+	Approach
+1.	Count number of decreases:
+		nums[i] > nums[(i+1)%n]
+2.	If count > 1:
+		return false
+3.	Otherwise:
+		return true
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool check(vector<int>& nums) {
+        int n = nums.size();
+        int count = 0;
+        for(int i = 0; i < n; i++){
+            if(nums[i] > nums[(i + 1) % n]){
+                count++;
+            }
+        }
+        return count <= 1;
+    }
+};
+	Key Insight
+A sorted rotated array has:
+		only one breaking point
+		where larger element comes before smaller one.  
+More than one such break means:
+		array cannot come from sorted rotation.
