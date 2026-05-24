@@ -1,0 +1,48 @@
+2026-05-24 | Last Remaining Coin After Greedy Picks
+
+	Question
+Return value of final remaining coin.
+	Key Insight
+At every step:
+		remove one end coin greedily.
+So we can directly simulate the process
+using two pointers.
+	Approach
+1.	Initialize:
+		left = 0
+		right = n-1
+2.	While more than one coin remains:
+		compare arr[left] and arr[right]
+3.	Remove larger one:
+		if left coin >= right coin:
+				left++
+		else:
+				right--
+4.	When left == right:
+		that coin remains
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int lastCoin(vector<int>& arr) {
+        int left = 0;
+        int right = arr.size() - 1;
+        while(left < right){
+            if(arr[left] >= arr[right]){
+                left++;
+            }
+            else{
+                right--;
+            }
+        }
+        return arr[left];
+    }
+};
+	Key Insight
+Since players always greedily remove
+the larger end coin,
+the process becomes a straightforward
+two-pointer simulation.
