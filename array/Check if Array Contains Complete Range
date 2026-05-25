@@ -1,0 +1,40 @@
+2026-05-25 | Check if Array Contains Complete Range
+
+	Question
+Return true if all range elements exist.
+	Key Insight
+Fast lookup is needed for checking presence.
+Hash set allows:
+		O(1) average lookup.
+	Approach
+1.	Insert all array elements into hash set  
+2.	Traverse numbers from:
+		start → end
+3.	If any number missing:
+		return false
+4.	If all found:
+		return true
+	Time Complexity
+	O(n + (end-start+1))
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    bool containsRange(vector<int>& arr,
+                       int start,
+                       int end) {
+        unordered_set<int> st(arr.begin(),
+                              arr.end());
+        for(int x = start; x <= end; x++){
+            if(!st.count(x))
+                return false;
+        }
+        return true;
+    }
+};
+	Key Insight
+Hashing converts repeated searching:
+		from O(n)
+		to O(1) average time  
+This makes range verification efficient.
