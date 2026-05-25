@@ -1,0 +1,71 @@
+2026-05-25 | Jump Game VII
+
+Question
+Return true if reaching last index is possible.
+	Key Insight
+Naively checking all jumps for every index
+would become:
+		O(n × range)
+Too slow for n = 100000.
+Optimization:
+		use sliding window count
+		to track reachable positions.
+	Approach
+1.	Create reachable array:
+		dp[i] =
+			can we reach i?
+2.	dp[0] = true
+3.	Maintain:
+		count of reachable indices
+		inside current valid jump window
+4.	For each index i:
+		add:
+				dp[i-minJump]
+		remove:
+				dp[i-maxJump-1]
+5.	If:
+		window count > 0
+		and s[i]=='0'
+		then:
+				dp[i]=true
+6.	Return dp[n-1]
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    bool canReach(string s,
+                  int minJump,
+                  int maxJump) {
+        int n = s.size();
+        vector<bool> dp(n, false);
+        dp[0] = true;
+        int reachable = 0;
+        for(int i = 1; i < n; i++){
+            // add new reachable index
+            if(i - minJump >= 0 &&
+               dp[i - minJump]){
+                reachable++;
+            }
+            // remove expired index
+            if(i - maxJump - 1 >= 0 &&
+               dp[i - maxJump - 1]){
+                reachable--;
+            }
+            if(s[i] == '0' &&
+               reachable > 0){
+                dp[i] = true;
+            }
+        }
+        return dp[n - 1];
+    }
+};
+	Key Insight
+Instead of checking all previous positions repeatedly,
+we maintain:
+		how many reachable indices exist
+		inside valid jump range.  
+This sliding-window optimization reduces:
+		O(n²) → O(n).
