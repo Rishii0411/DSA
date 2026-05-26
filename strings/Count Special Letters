@@ -1,0 +1,51 @@
+2026-05-26 | Count Special Letters
+
+	Question
+Return number of special letters.
+	Key Insight
+We only need to know:
+		which lowercase letters exist
+		and which uppercase letters exist.
+Then compare both.
+	Approach
+1.	Create two sets:
+		lowercase letters
+		uppercase letters
+2.	Traverse string:
+		if lowercase:
+				store in lower set
+		else:
+				store lowercase equivalent
+				in upper set
+3.	Count letters present in both sets.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	(at most 26 letters)
+	Solution
+class Solution {
+public:
+    int numberOfSpecialChars(string word) {
+        unordered_set<char> lower;
+        unordered_set<char> upper;
+        for(char c : word){
+            if(islower(c)){
+                lower.insert(c);
+            }
+            else{
+                upper.insert(tolower(c));
+            }
+        }
+        int count = 0;
+        for(char c : lower){
+            if(upper.count(c))
+                count++;
+        }
+        return count;
+    }
+};
+	Key Insight
+A character becomes special only if:
+		both versions of same alphabet exist.  
+Hash sets make this checking simple and efficient.
