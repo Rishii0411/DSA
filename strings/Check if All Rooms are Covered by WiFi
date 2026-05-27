@@ -1,0 +1,50 @@
+2026-05-27 | Check if All Rooms are Covered by WiFi
+
+	Question
+Return true if all rooms are covered.
+	Key Insight
+For every router position:
+		mark all rooms within range as covered.
+Finally:
+		check whether any room remains uncovered.
+	Approach
+1.	Create coverage array initialized false  
+2.	Traverse string:
+		if s[i]=='1':
+				cover range:
+				[max(0,i-x) ... min(n-1,i+x)]
+3.	After processing all routers:
+		if any room uncovered:
+				return false
+4.	Otherwise:
+		return true
+	Time Complexity
+	O(n × x)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    bool wifiRange(int n, string s, int x) {
+        vector<bool> covered(n, false);
+        for(int i = 0; i < n; i++){
+            if(s[i] == '1'){
+                int left = max(0, i - x);
+                int right = min(n - 1, i + x);
+                for(int j = left; j <= right; j++){
+                    covered[j] = true;
+                }
+            }
+        }
+        for(bool room : covered){
+            if(!room)
+                return false;
+        }
+        return true;
+    }
+};
+	Key Insight
+Each router creates a coverage interval.  
+The problem reduces to:
+		checking whether union of all intervals
+		covers every room.
