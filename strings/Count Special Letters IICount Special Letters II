@@ -1,0 +1,64 @@
+2026-05-27 | Count Special Letters II
+
+	Question
+Return number of special letters.
+	Key Insight
+For every character:
+		track:
+				last lowercase position
+				first uppercase position
+A character is special if:
+		lastLower < firstUpper
+	Approach
+1.	Create arrays:
+		lastLower[26]
+		firstUpper[26]
+2.	Traverse string:
+		update:
+				last lowercase occurrence
+				first uppercase occurrence
+3.	For every character:
+		if:
+				both exist
+				and
+				lastLower < firstUpper
+		then count it.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int numberOfSpecialChars(string word) {
+        vector<int> lastLower(26, -1);
+        vector<int> firstUpper(26, INT_MAX);
+        for(int i = 0; i < word.size(); i++){
+            char c = word[i];
+            if(islower(c)){
+                lastLower[c - 'a'] = i;
+            }
+            else{
+                firstUpper[c - 'A'] =
+                    min(firstUpper[c - 'A'], i);
+            }
+        }
+        int ans = 0;
+        for(int i = 0; i < 26; i++){
+            if(lastLower[i] != -1 &&
+               firstUpper[i] != INT_MAX &&
+               lastLower[i] < firstUpper[i]){
+                ans++;
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+The important condition is:
+		no lowercase occurrence
+		should appear after uppercase starts.  
+So comparing:
+		last lowercase position
+		with first uppercase position
+is sufficient.
