@@ -1,0 +1,56 @@
+2026-05-28 | Vertical Sum of Binary Tree
+
+	Question
+Return vertical sums of binary tree.
+	Key Insight
+Assign every node a:
+		horizontal distance (HD)
+Rules:
+- root → HD = 0
+- left child → HD - 1
+- right child → HD + 1
+Nodes having same HD
+belong to same vertical line.
+	Approach
+1.	Use DFS traversal  
+2.	Pass current horizontal distance  
+3.	Store:
+		sum for each HD
+		in ordered map
+4.	Traverse:
+		left with hd-1
+		right with hd+1
+5.	Finally:
+		extract sums from ordered map
+	Time Complexity
+	O(n log n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    void dfs(Node* root,
+             int hd,
+             map<int,int>& mp){
+        if(root == NULL)
+            return;
+        mp[hd] += root->data;
+        dfs(root->left, hd - 1, mp);
+        dfs(root->right, hd + 1, mp);
+    }
+    vector<int> verticalSum(Node *root) {
+        map<int,int> mp;
+        dfs(root, 0, mp);
+        vector<int> ans;
+        for(auto &it : mp){
+            ans.push_back(it.second);
+        }
+        return ans;
+    }
+};
+	Key Insight
+Horizontal distance uniquely identifies
+a vertical line in the tree.  
+So the problem becomes:
+		group nodes by HD
+		and sum them.
