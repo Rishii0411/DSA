@@ -1,0 +1,35 @@
+2026-05-29 | Minimum Element After Digit Sum Replacement
+
+	Question
+Return the minimum element after all replacements.
+	Approach
+1.	Traverse each number in nums.
+2.	Compute its digit sum.
+3.	Keep track of the minimum digit sum seen.
+4.	Return the minimum.
+	Time Complexity
+	O(n × digits)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int digitSum(int x){
+        int sum = 0;
+        while(x > 0){
+            sum += x % 10;
+            x /= 10;
+        }
+        return sum;
+    }
+    int minElement(vector<int>& nums) {
+        int ans = INT_MAX;
+        for(int x : nums){
+            ans = min(ans, digitSum(x));
+        }
+        return ans;
+    }
+};
+	Key Insight
+There is no need to actually modify the array.
+Simply compute the digit sum of each element and keep the smallest one.
