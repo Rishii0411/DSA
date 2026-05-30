@@ -1,0 +1,142 @@
+2026-05-30 | Block Placement Queries
+
+	Question
+For every type-2 query return whether placement is possible.
+	Key Insight
+A block can be placed iff there exists a free interval
+of length at least sz inside [0, x].
+After obstacles are added:
+		0 ----- obstacle ----- obstacle ----- x
+The answer depends on the maximum gap between
+consecutive obstacles (including boundaries).
+Naively recomputing gaps for every query is too slow.
+We need:
+		dynamic obstacle insertion
+		maximum gap query up to position x
+This is solved using:
+		ordered set
+		+
+		segment tree
+	Approach
+1.	Collect all obstacle positions appearing in queries.
+2.	Coordinate compress them.
+3.	Maintain:
+		set of obstacles
+4.	When inserting obstacle:
+		find predecessor and successor
+		old gap:
+				(succ - pred)
+		split into:
+				(x - pred)
+				(succ - x)
+5.	Store gap information in segment tree.
+6.	For query [2, x, sz]:
+		find largest free segment inside [0,x]
+		check:
+				maxGap >= sz
+7.	Return true/false.
+	Time Complexity
+	O(Q log Q)
+	Space Complexity
+	O(Q)
+	Solution
+class Solution {
+public:
+    vector<bool> getResults(vector<vector<int>>& queries) {
+        vector<int> coords = {0};
+        for(auto &q : queries){
+            if(q[0] == 1)
+                coords.push_back(q[1]);
+            else
+                coords.push_back(q[1]);
+        }
+        sort(coords.begin(), coords.end());
+        coords.erase(unique(coords.begin(), coords.end()),
+                     coords.end());
+        int m = coords.size();
+        vector<int> seg(4 * m, 0);
+        auto update = [&](auto&& self,
+                          int node,
+                          int l,
+                          int r,
+                          int idx,
+                          int val) -> void {
+            if(l == r){
+                seg[node] = val;
+                return;
+            }
+            int mid = (l + r) >> 1;
+            if(idx <= mid)
+                self(self,node*2,l,mid,idx,val);
+            else
+                self(self,node*2+1,mid+1,r,idx,val);
+            seg[node] =
+                max(seg[node*2],
+                    seg[node*2+1]);
+        };
+        auto query = [&](auto&& self,
+                         int node,
+                         int l,
+                         int r,
+                         int ql,
+                         int qr)->int {
+            if(qr < l || r < ql)
+                return 0;
+            if(ql <= l && r <= qr)
+                return seg[node];
+            int mid = (l + r) >> 1;
+            return max(
+                self(self,node*2,l,mid,ql,qr),
+                self(self,node*2+1,mid+1,r,ql,qr)
+            );
+        };
+        unordered_map<int,int> pos;
+        for(int i = 0; i < m; i++)
+            pos[coords[i]] = i;
+        set<int> obstacles;
+        obstacles.insert(0);
+        vector<bool> ans;
+        for(auto &q : queries){
+            if(q[0] == 1){
+                int x = q[1];
+                auto it = obstacles.insert(x).first;
+                auto prv = prev(it);
+                int gap = x - *prv;
+                update(update,
+                       1,0,m-1,
+                       pos[x],
+                       gap);
+            }
+            else{
+                int x = q[1];
+                int sz = q[2];
+                int idx =
+                    upper_bound(coords.begin(),
+                                coords.end(),
+                                x)
+                    - coords.begin() - 1;
+                int best =
+                    query(query,
+                          1,0,m-1,
+                          0,idx);
+                auto it =
+                    obstacles.upper_bound(x);
+                int lastObs = 0;
+                if(it != obstacles.begin()){
+                    --it;
+                    lastObs = *it;
+                }
+                best = max(best,
+                           x - lastObs);
+                ans.push_back(best >= sz);
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+The problem is really asking:
+		"What is the largest obstacle-free interval
+		inside [0, x]?"
+If that interval length is at least sz,
+the block can be placed. Using an ordered set for obstacle positions and a segment tree for maximum gap queries gives an efficient O(Q log Q) solution.
