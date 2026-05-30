@@ -1,0 +1,41 @@
+2026-05-30 | Replace Each Element with XOR of Adjacent Elements
+
+	Question
+Modify the array in-place according to the rules.
+	Key Insight
+If we directly modify arr,
+later computations will use already-updated values,
+which is incorrect.
+So:
+		first store original array in a copy.
+Then compute all new values using the copy.
+	Approach
+1.	Create a copy of the original array.
+2.	Update first element:
+		copy[0] ^ copy[1]
+3.	Update middle elements:
+		copy[i-1] ^ copy[i+1]
+4.	Update last element:
+		copy[n-2] ^ copy[n-1]
+5.	Write results back into arr.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    void updateArray(vector<int>& arr) {
+        int n = arr.size();
+        if(n == 1)
+            return;
+        vector<int> temp = arr;
+        arr[0] = temp[0] ^ temp[1];
+        for(int i = 1; i < n - 1; i++){
+            arr[i] = temp[i - 1] ^ temp[i + 1];
+        }
+        arr[n - 1] = temp[n - 2] ^ temp[n - 1];
+    }
+};
+	Key Insight
+All replacements must use the original array values, not the already modified ones. Therefore, keeping a copy of the original array is necessary before performing updates.
