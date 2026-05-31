@@ -1,0 +1,43 @@
+2026-05-31 | Destroying Asteroids
+
+	Question
+Return true if all asteroids can be destroyed.
+	Key Insight
+To maximize the planet's growth,
+always destroy the smallest available asteroid first.
+Why?
+Destroying smaller asteroids increases mass,
+making larger asteroids easier to destroy later.
+This is a classic greedy strategy.
+	Approach
+1.	Sort asteroids in ascending order.
+2.	Store planet mass in long long
+		(to avoid overflow).
+3.	Process asteroids from smallest to largest.
+4.	If:
+		currentMass < asteroid
+		return false.
+5.	Otherwise:
+		currentMass += asteroid.
+6.	If all asteroids processed:
+		return true.
+	Time Complexity
+	O(n log n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool asteroidsDestroyed(int mass, vector<int>& asteroids) {
+        sort(asteroids.begin(), asteroids.end());
+        long long currMass = mass;
+        for(int asteroid : asteroids){
+            if(currMass < asteroid)
+                return false;
+            currMass += asteroid;
+        }
+        return true;
+    }
+};
+	Key Insight
+Choosing the smallest asteroid first is always optimal because it gives the maximum chance to increase the planet's mass before facing larger asteroids. After sorting, a single linear scan determines whether all asteroids can be destroyed.
