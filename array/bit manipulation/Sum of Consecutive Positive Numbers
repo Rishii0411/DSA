@@ -1,0 +1,41 @@
+2026-05-31 | Sum of Consecutive Positive Numbers
+
+	Question
+Return true if n can be expressed as a sum of two or more consecutive positive numbers.
+	Key Insight
+A famous mathematical result:
+		A positive integer can be represented
+		as a sum of consecutive positive integers
+		if and only if
+		it is NOT a power of 2.
+Examples:
+		8 = 2³
+		→ false
+		16 = 2⁴
+		→ false
+		9
+		→ not power of 2
+		→ true
+Why?
+All powers of 2 have no odd divisor other than 1,
+while every other positive integer can be expressed
+as a sum of consecutive positive integers.
+	Approach
+1.	Check whether n is a power of 2.
+2.	If n is a power of 2:
+			return false
+3.	Otherwise:
+			return true
+	Time Complexity
+	O(1)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool isPossible(long long n) {
+        return (n & (n - 1)) != 0;
+    }
+};
+	Key Insight
+A number can be written as a sum of two or more consecutive positive integers exactly when it is not a power of 2. Therefore, the entire problem reduces to a simple bit-manipulation check.
