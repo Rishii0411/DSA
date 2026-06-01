@@ -1,0 +1,79 @@
+2026-06-01 | Maximum Product Subset of an Array
+
+Question
+Return maximum product possible from any subset.
+	Key Insight
+To maximize product:
+1. Include all positive numbers.
+2. Include negative numbers in pairs.
+3. If count of negative numbers is odd:
+		remove the negative number
+		with smallest absolute value
+		(largest value among negatives).
+4. Zeros are useful only when product
+		would otherwise be negative.
+	Approach
+1. Count:
+		negatives
+		zeros
+2. Find negative having maximum value
+		(e.g. -1 preferred over -5)
+3. Multiply all non-zero elements.
+4. If negatives count is odd:
+		divide product by removed negative.
+5. Handle special cases:
+		only zeros
+		single negative with zeros
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    long long maxProductSubset(vector<int>& arr) {
+        const long long MOD = 1000000007;
+        int n = arr.size();
+        if(n == 1){
+            long long x = arr[0];
+            x %= MOD;
+            if(x < 0) x += MOD;
+            return x;
+        }
+        long long product = 1;
+        int negCount = 0;
+        int zeroCount = 0;
+        int maxNegative = INT_MIN;
+        for(int x : arr){
+            if(x == 0){
+                zeroCount++;
+                continue;
+            }
+            if(x < 0){
+                negCount++;
+                maxNegative = max(maxNegative, x);
+            }
+            product *= x;
+        }
+        // all zeros
+        if(zeroCount == n)
+            return 0;
+        // only one negative and rest zeros
+        if(negCount == 1 &&
+           zeroCount + negCount == n)
+            return 0;
+        if(negCount & 1){
+            product /= maxNegative;
+        }
+        product %= MOD;
+        if(product < 0)
+            product += MOD;
+        return product;
+    }
+};
+	Key Insight
+A negative product is harmful when we can avoid it.
+If the number of negatives is odd,
+remove the negative whose absolute value is smallest
+(the negative closest to zero).
+This keeps the final positive product as large as possible.
