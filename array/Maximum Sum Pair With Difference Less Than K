@@ -1,0 +1,56 @@
+2026-05-02 | Maximum Sum Pair With Difference Less Than K
+
+	Question
+Return the maximum possible pair sum.
+	Key Insight
+After sorting:
+		a[0] ≤ a[1] ≤ ... ≤ a[n-1]
+If:
+		a[i] - a[i-1] < k
+then pairing these two adjacent elements is always the best choice.
+Why?
+Because a[i] is the largest remaining element.
+If it can form a valid pair with a[i-1],
+pairing it with any earlier element would only reduce the sum.
+This leads to DP.
+	Approach
+1.	Sort the array.
+2.	Define:
+		dp[i]
+		= maximum sum obtainable using first i elements.
+3.	Transition:
+		If arr[i] - arr[i-1] < k
+		then either:
+		- don't use arr[i]
+				dp[i-1]
+		- pair arr[i] with arr[i-1]
+				dp[i-2] + arr[i] + arr[i-1]
+		Take maximum.
+4.	If pair not possible:
+		dp[i] = dp[i-1]
+5.	Return dp[n-1].
+	Time Complexity
+	O(n log n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int maxSumPairWithDifferenceLessThanK(vector<int>& arr, int k) {
+        int n = arr.size();
+        sort(arr.begin(), arr.end());
+        vector<int> dp(n, 0);
+        for(int i = 1; i < n; i++) {
+            dp[i] = dp[i - 1];
+            if(arr[i] - arr[i - 1] < k) {
+                int pairSum = arr[i] + arr[i - 1];
+                if(i >= 2)
+                    pairSum += dp[i - 2];
+                dp[i] = max(dp[i], pairSum);
+            }
+        }
+        return dp[n - 1];
+    }
+};
+	Key Insight
+After sorting, whenever two adjacent elements can form a valid pair, they are the most profitable pair involving the larger element. Dynamic Programming then decides whether taking that pair produces a better total sum than skipping it.
