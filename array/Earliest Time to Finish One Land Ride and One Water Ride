@@ -1,0 +1,78 @@
+2026-05-02 | Earliest Time to Finish One Land Ride and One Water Ride
+
+	Question
+Return the earliest possible finishing time.
+	Key Insight
+For every pair of rides:
+		Land i
+		Water j
+We only need to evaluate two possibilities:
+		1. Land → Water
+		2. Water → Land
+and take the minimum finish time.
+For Land → Water:
+		landFinish =
+				landStart + landDuration
+		waterBegin =
+				max(landFinish, waterStart)
+		totalFinish =
+				waterBegin + waterDuration
+Similarly for Water → Land.
+	Approach
+1.	Initialize answer = infinity.
+2.	For every land ride i.
+3.	For every water ride j.
+4.	Compute:
+		Land → Water finish time.
+5.	Compute:
+		Water → Land finish time.
+6.	Update minimum answer.
+7.	Return answer.
+	Time Complexity
+	O(L × W)
+	where:
+		L = number of land rides
+		W = number of water rides
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int earliestFinishTime(vector<int>& landStartTime,
+                           vector<int>& landDuration,
+                           vector<int>& waterStartTime,
+                           vector<int>& waterDuration) {
+        int n = landStartTime.size();
+        int m = waterStartTime.size();
+        long long ans = LLONG_MAX;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                // Land -> Water
+                long long landFinish =
+                    (long long)landStartTime[i] +
+                    landDuration[i];
+                long long waterBegin =
+                    max(landFinish,
+                        (long long)waterStartTime[j]);
+                ans = min(ans,
+                          waterBegin +
+                          waterDuration[j]);
+                // Water -> Land
+                long long waterFinish =
+                    (long long)waterStartTime[j] +
+                    waterDuration[j];
+                long long landBegin =
+                    max(waterFinish,
+                        (long long)landStartTime[i]);
+                ans = min(ans,
+                          landBegin +
+                          landDuration[i]);
+            }
+        }
+        return (int)ans;
+    }
+};
+	Key Insight
+Since exactly one ride from each category must be chosen, every valid solution is determined by:
+		(one land ride, one water ride)
+and only two possible orders exist. Evaluating both orders for every pair and taking the minimum gives the earliest finishing time.
