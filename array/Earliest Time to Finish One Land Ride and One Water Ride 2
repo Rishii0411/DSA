@@ -1,0 +1,138 @@
+2026-05-03 | Earliest Time to Finish One Land Ride and One Water Ride
+
+	Question
+Return the earliest possible finishing time.
+	Key Insight
+For a land ride finishing at time T:
+		finish time =
+		min over all water rides
+		(max(T, waterStart[j]) + waterDuration[j])
+Similarly for water → land.
+If we evaluate every pair directly:
+		O(n × m)
+We can do better.
+For a query time T, we need:
+		min(max(T, start[i]) + duration[i])
+Split rides into:
+		start[i] ≤ T
+		start[i] > T
+Then:
+		start[i] ≤ T
+		=> T + duration[i]
+		start[i] > T
+		=> start[i] + duration[i]
+So we only need:
+		min duration among rides opened so far
+		min(start + duration) among rides opening later
+These can be preprocessed using sorting,
+prefix minima and suffix minima.
+	Approach
+1.	Build helper structure for water rides.
+2.	For every land ride:
+		compute land finish time.
+		Find earliest possible completion
+		of second water ride.
+3.	Build same helper structure for land rides.
+4.	For every water ride:
+		compute water finish time.
+		Find earliest possible completion
+		of second land ride.
+5.	Return minimum answer.
+	Time Complexity
+	O((n + m) log(n + m))
+	Space Complexity
+	O(n + m)
+	Solution
+class Solution {
+public:
+    struct Helper {
+        vector<int> start;
+        vector<long long> prefDur;
+        vector<long long> suffStartDur;
+    };
+    Helper build(vector<int>& st,
+                 vector<int>& dur) {
+        int n = st.size();
+        vector<pair<int,int>> rides;
+        for(int i = 0; i < n; i++) {
+            rides.push_back({st[i], dur[i]});
+        }
+        sort(rides.begin(), rides.end());
+        Helper h;
+        h.start.resize(n);
+        h.prefDur.resize(n);
+        h.suffStartDur.resize(n);
+        for(int i = 0; i < n; i++) {
+            h.start[i] = rides[i].first;
+        }
+        h.prefDur[0] = rides[0].second;
+        for(int i = 1; i < n; i++) {
+            h.prefDur[i] =
+                min(h.prefDur[i - 1],
+                    (long long)rides[i].second);
+        }
+        h.suffStartDur[n - 1] =
+            (long long)rides[n - 1].first +
+            rides[n - 1].second;
+        for(int i = n - 2; i >= 0; i--) {
+            h.suffStartDur[i] =
+                min(h.suffStartDur[i + 1],
+                    (long long)rides[i].first +
+                    rides[i].second);
+        }
+        return h;
+    }
+    long long query(Helper &h, long long T) {
+        int n = h.start.size();
+        int pos =
+            upper_bound(h.start.begin(),
+                        h.start.end(),
+                        T)
+            - h.start.begin();
+        long long ans = LLONG_MAX;
+        if(pos > 0) {
+            ans = min(ans,
+                      T + h.prefDur[pos - 1]);
+        }
+        if(pos < n) {
+            ans = min(ans,
+                      h.suffStartDur[pos]);
+        }
+        return ans;
+    }
+    int earliestFinishTime(vector<int>& landStartTime,
+                           vector<int>& landDuration,
+                           vector<int>& waterStartTime,
+                           vector<int>& waterDuration) {
+        Helper water =
+            build(waterStartTime,
+                  waterDuration);
+        Helper land =
+            build(landStartTime,
+                  landDuration);
+        long long ans = LLONG_MAX;
+        for(int i = 0; i < landStartTime.size(); i++) {
+            long long finishLand =
+                (long long)landStartTime[i] +
+                landDuration[i];
+            ans = min(ans,
+                      query(water, finishLand));
+        }
+        for(int i = 0; i < waterStartTime.size(); i++) {
+            long long finishWater =
+                (long long)waterStartTime[i] +
+                waterDuration[i];
+            ans = min(ans,
+                      query(land, finishWater));
+        }
+        return (int)ans;
+    }
+};
+	Key Insight
+The expensive part is repeatedly computing:
+		min(max(T,start[i]) + duration[i])
+for many values of T.
+By sorting rides and precomputing:
+		prefix minimum durations
+		suffix minimum (start + duration),
+each query can be answered in O(log n), reducing the overall complexity from O(n × m) to O((n + m) log(n + m)).
