@@ -1,0 +1,125 @@
+2026-05-04 | Sum of Waviness in a Range
+
+	Question
+Return total waviness in the given range.
+	Key Insight
+Checking every number individually is impossible for large ranges.
+Whenever a digit becomes the third digit of a sequence:
+		a b c
+we can determine whether
+		b is a peak or valley.
+So while building a number digit-by-digit,
+we only need to remember:
+		1. previous digit
+		2. second previous digit
+This is a classic Digit DP.
+	Approach
+1.	Create function:
+		F(x)
+		= total waviness of all numbers
+		  from 0 to x.
+2.	Use Digit DP state:
+		position
+		tight
+		started
+		last digit
+		second last digit
+3.	When adding a new digit d:
+		check whether
+		previous digit forms:
+				peak
+				or
+				valley
+		with neighbors:
+				secondLast
+				and d
+4.	Add contribution to DP.
+5.	Answer:
+		F(num2) - F(num1 - 1)
+	Time Complexity
+	O(positions × 10 × states)
+	Approximately O(20 × 10 × states)
+	Space Complexity
+	O(states)
+	Solution
+class Solution {
+public:
+    struct Node {
+        long long cnt;
+        long long waviness;
+    };
+    string s;
+    Node dp[20][11][11][2][2];
+    bool vis[20][11][11][2][2];
+    Node solve(int pos,
+               int prev1,
+               int prev2,
+               bool started,
+               bool tight) {
+        if(pos == s.size())
+            return {1, 0};
+        if(prev1 != 10 &&
+           prev2 != 10 &&
+           vis[pos][prev1][prev2][started][tight])
+            return dp[pos][prev1][prev2][started][tight];
+        int limit = tight ? s[pos] - '0' : 9;
+        Node res = {0, 0};
+        for(int d = 0; d <= limit; d++) {
+            bool ntight =
+                tight && (d == limit);
+            if(!started && d == 0) {
+                Node nxt =
+                    solve(pos + 1,
+                          10,
+                          10,
+                          false,
+                          ntight);
+                res.cnt += nxt.cnt;
+                res.waviness += nxt.waviness;
+            }
+            else {
+                int add = 0;
+                if(prev1 != 10 &&
+                   prev2 != 10) {
+                    if((prev1 > prev2 && prev1 > d) ||
+                       (prev1 < prev2 && prev1 < d))
+                        add = 1;
+                }
+                int nprev2 =
+                    (prev1 == 10 ? d : prev1);
+                Node nxt =
+                    solve(pos + 1,
+                          d,
+                          nprev2,
+                          true,
+                          ntight);
+                res.cnt += nxt.cnt;
+                res.waviness +=
+                    nxt.waviness +
+                    (long long)add * nxt.cnt;
+            }
+        }
+        if(prev1 != 10 &&
+           prev2 != 10) {
+            vis[pos][prev1][prev2][started][tight]
+                = true;
+            dp[pos][prev1][prev2][started][tight]
+                = res;
+        }
+        return res;
+    }
+    long long calc(long long x) {
+        if(x < 0)
+            return 0;
+        memset(vis, 0, sizeof(vis));
+        s = to_string(x);
+        return solve(0,10,10,false,true).waviness;
+    }
+    long long totalWaviness(long long num1,
+                            long long num2) {
+        return calc(num2) -
+               calc(num1 - 1);
+    }
+};
+	Key Insight
+A digit's peak/valley status can only be determined when both its neighbors are known. Therefore, while constructing numbers digit-by-digit, keeping track of the last two digits is sufficient. This makes the problem a classic Digit DP where we count total waviness over an entire range without enumerating every number.
