@@ -1,0 +1,68 @@
+2026-05-05 | Lexicographically Smallest String After Corrected K Deletions
+
+	Question
+Return the lexicographically smallest string after corrected deletions.
+	Key Insight
+This is exactly the same idea as:
+		Remove K Digits
+except now we work with characters.
+To obtain the smallest lexicographical string:
+		remove larger characters
+		when a smaller upcoming character exists.
+A monotonic increasing stack gives the optimal result.
+	Approach
+1.	Compute corrected k.
+2.	Check validity:
+		if k >= n
+				return "-1"
+3.	Maintain stack/string.
+4.	For every character c:
+		while stack not empty
+		and stack.back() > c
+		and k > 0
+				pop
+		push c
+5.	If deletions still remain:
+		remove from end.
+6.	If result becomes empty:
+		return "-1"
+7.	Return result.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    bool isPowerOfTwo(int n) {
+        return n > 0 && (n & (n - 1)) == 0;
+    }
+    string lexicographicallySmallest(string s, int k) {
+        int n = s.size();
+        if(isPowerOfTwo(n))
+            k /= 2;
+        else
+            k *= 2;
+        if(k >= n)
+            return "-1";
+        string st;
+        for(char c : s) {
+            while(!st.empty() &&
+                  k > 0 &&
+                  st.back() > c) {
+                st.pop_back();
+                k--;
+            }
+            st.push_back(c);
+        }
+        while(k > 0 && !st.empty()) {
+            st.pop_back();
+            k--;
+        }
+        if(st.empty())
+            return "-1";
+        return st;
+    }
+};
+	Key Insight
+For the lexicographically smallest string, whenever a smaller character appears, it is beneficial to remove larger characters before it. A monotonic increasing stack efficiently performs these optimal deletions in O(n) time.
