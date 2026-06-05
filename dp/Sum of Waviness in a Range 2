@@ -1,0 +1,123 @@
+2026-05-05 | Sum of Waviness in a Range
+
+	Question
+Return the sum of waviness of all numbers in the range.
+	Key Insight
+Checking every number individually is impossible for large ranges.
+A digit can be classified as peak/valley only when:
+		left digit
+		current digit
+		right digit
+are all known.
+So while constructing a number digit-by-digit,
+we keep track of:
+		previous digit
+		second previous digit
+When a new digit arrives, we can determine
+whether the middle digit became a peak or valley.
+This is a classic Digit DP problem.
+	Approach
+1.	Create function:
+		F(x)
+		= total waviness of all numbers
+		  from 0 to x.
+2.	Digit DP state:
+		position
+		tight
+		started
+		last digit
+		second last digit
+3.	Whenever we place a new digit d:
+		a b d
+		check whether b is:
+				peak
+				or
+				valley
+4.	Store:
+		count of numbers
+		total waviness
+	for every state.
+5.	Final answer:
+		F(num2) - F(num1 - 1)
+	Time Complexity
+	O(positions × states × 10)
+	Approximately O(20 × 11 × 11 × 10)
+	Space Complexity
+	O(states)
+	Solution
+class Solution {
+public:
+    struct Node {
+        long long cnt;
+        long long sum;
+    };
+    string num;
+    Node dp[20][11][11][2][2];
+    bool vis[20][11][11][2][2];
+    Node solve(int pos,
+               int prev1,
+               int prev2,
+               int started,
+               int tight) {
+        if(pos == num.size())
+            return {1, 0};
+        if(!tight &&
+           vis[pos][prev1][prev2][started][0]) {
+            return dp[pos][prev1][prev2][started][0];
+        }
+        int limit = tight ? num[pos] - '0' : 9;
+        Node res = {0, 0};
+        for(int d = 0; d <= limit; d++) {
+            int ntight =
+                tight && (d == limit);
+            if(!started && d == 0) {
+                Node nxt =
+                    solve(pos + 1,
+                          10,
+                          10,
+                          0,
+                          ntight);
+                res.cnt += nxt.cnt;
+                res.sum += nxt.sum;
+            }
+            else {
+                int add = 0;
+                if(prev1 != 10 &&
+                   prev2 != 10) {
+                    if((prev1 > prev2 && prev1 > d) ||
+                       (prev1 < prev2 && prev1 < d))
+                        add = 1;
+                }
+                int newPrev2 =
+                    (prev1 == 10 ? d : prev1);
+                Node nxt =
+                    solve(pos + 1,
+                          d,
+                          newPrev2,
+                          1,
+                          ntight);
+                res.cnt += nxt.cnt;
+                res.sum += nxt.sum +
+                           1LL * add * nxt.cnt;
+            }
+        }
+        if(!tight) {
+            vis[pos][prev1][prev2][started][0] = true;
+            dp[pos][prev1][prev2][started][0] = res;
+        }
+        return res;
+    }
+    long long get(long long x) {
+        if(x < 0)
+            return 0;
+        memset(vis, 0, sizeof(vis));
+        num = to_string(x);
+        return solve(0, 10, 10, 0, 1).sum;
+    }
+    long long totalWaviness(long long num1,
+                            long long num2) {
+        return get(num2) - get(num1 - 1);
+    }
+};
+	Key Insight
+A digit's peak/valley status becomes known only after both neighbors are available. Therefore, during digit DP we remember the previous two digits. Whenever a new digit is placed, the middle digit can be evaluated immediately, allowing us to accumulate total waviness over an entire range without enumerating every number.
