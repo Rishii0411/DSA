@@ -1,0 +1,63 @@
+2026-05-06 | Count Ways to Place Two Knights So They Do Not Attack
+
+	Question
+Return the number of valid placements.
+	Key Insight
+First count all possible placements.
+Total squares:
+		n × m
+Choose 2 different squares:
+		total =
+		(n*m)*(n*m-1)/2
+Now subtract attacking placements.
+A knight attack occurs inside:
+		2 × 3 rectangle
+		or
+		3 × 2 rectangle
+In every such rectangle:
+		exactly 2 attacking pairs exist.
+Number of 2×3 rectangles:
+		(n-1)*(m-2)
+Number of 3×2 rectangles:
+		(n-2)*(m-1)
+Therefore:
+		attackingPairs =
+		2 * (
+			(n-1)*(m-2)
+			+
+			(n-2)*(m-1)
+		)
+Answer:
+		total - attackingPairs
+	Approach
+1.	Compute total ways to place two knights.
+2.	Compute number of attacking pairs.
+3.	Subtract attacking pairs from total.
+4.	Return result.
+	Time Complexity
+	O(1)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    long long knightInGeekland(long long n, long long m) {
+        long long cells = n * m;
+        long long totalWays =
+            cells * (cells - 1) / 2;
+        long long attackingPairs = 0;
+        if(n >= 2 && m >= 3)
+            attackingPairs +=
+                2LL * (n - 1) * (m - 2);
+        if(n >= 3 && m >= 2)
+            attackingPairs +=
+                2LL * (n - 2) * (m - 1);
+        return totalWays - attackingPairs;
+    }
+};
+	Key Insight
+Instead of trying to count all non-attacking placements directly, count:
+		all possible placements
+and subtract:
+		all attacking placements.
+The attacking pairs can be counted mathematically using the number of 2×3 and 3×2 rectangles on the board, giving an O(1) solution.
