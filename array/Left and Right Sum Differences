@@ -1,0 +1,54 @@
+2026-05-06 | Left and Right Sum Differences
+
+	Question
+Return the array answer.
+	Key Insight
+Instead of computing left and right sums separately for every index (which would be O(n²)):
+		use prefix sums.
+If totalSum is known:
+		rightSum =
+		totalSum - leftSum - nums[i]
+Thus each answer can be computed in O(1).
+	Approach
+1.	Compute total sum of array.
+2.	Maintain:
+		leftSum = 0
+3.	For every index i:
+		rightSum =
+		totalSum - leftSum - nums[i]
+		answer[i] =
+		abs(leftSum - rightSum)
+4.	Update:
+		leftSum += nums[i]
+5.	Return answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	(excluding output array)
+	Solution
+class Solution {
+public:
+    vector<int> leftRightDifference(vector<int>& nums) {
+        int n = nums.size();
+        int totalSum = 0;
+        for(int x : nums) {
+            totalSum += x;
+        }
+        vector<int> answer(n);
+        int leftSum = 0;
+        for(int i = 0; i < n; i++) {
+            int rightSum =
+                totalSum - leftSum - nums[i];
+            answer[i] =
+                abs(leftSum - rightSum);
+            leftSum += nums[i];
+        }
+        return answer;
+    }
+};
+	Key Insight
+Once we know the total array sum, the right-side sum at any index can be derived instantly:
+		rightSum =
+		totalSum - leftSum - currentElement
+This avoids repeatedly summing subarrays and gives an efficient O(n) solution.
