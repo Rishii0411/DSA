@@ -1,0 +1,57 @@
+2026-06-07 | Find Profession in Special Family Tree
+
+	Question
+Return the profession of the person.
+	Key Insight
+Observe the transitions:
+		Engineer (E)
+		Left Child  -> E
+		Right Child -> D
+		Doctor (D)
+		Left Child  -> D
+		Right Child -> E
+The profession changes only when we move to a right child.
+Starting from the root Engineer:
+		every right move flips profession
+		every left move keeps profession same
+The number of flips equals the number of 1-bits in:
+		(pos - 1)
+If number of set bits is:
+		even → Engineer
+		odd  → Doctor
+	Approach
+1.	Compute:
+		x = pos - 1
+2.	Count set bits in x.
+3.	If count is even:
+		return "Engineer"
+4.	Otherwise:
+		return "Doctor"
+	Time Complexity
+	O(log pos)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    string profession(int level, int pos) {
+        int flips = __builtin_popcount(pos - 1);
+        return (flips % 2 == 0)
+               ? "Engineer"
+               : "Doctor";
+    }
+};
+	Why Does This Work?
+Represent the path from root to position using:
+		pos - 1
+in binary.
+Each bit represents:
+		0 → left move
+		1 → right move
+Every right move flips the profession.
+So:
+		even number of right moves
+		→ Engineer
+		odd number of right moves
+		→ Doctor
+This gives a very elegant O(log pos) solution without constructing the tree.
