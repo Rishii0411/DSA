@@ -1,0 +1,49 @@
+2026-06-09 | Maximum Total Value of K Chosen Subarrays
+
+	Question
+Return the maximum possible total value.
+	Key Insight
+Since the same subarray can be chosen multiple times, we only need to find:
+		the maximum possible value of a single subarray.
+Then we can pick that subarray k times.
+So:
+		answer =
+		k × (maximum subarray value)
+Now let's find the maximum subarray value.
+Any subarray value is:
+		max(subarray) - min(subarray)
+This can never exceed:
+		globalMax - globalMin
+where:
+		globalMax = maximum element of nums
+		globalMin = minimum element of nums
+Moreover, the subarray between the positions of the global maximum and global minimum contains both of them, so its value is exactly:
+		globalMax - globalMin
+Therefore:
+		maximum subarray value
+		=
+		globalMax - globalMin
+	Approach
+1.	Find the maximum element in nums.
+2.	Find the minimum element in nums.
+3.	Compute:
+		diff = maxElement - minElement
+4.	Return:
+		k × diff
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    long long maximumValueSum(vector<int>& nums, int k) {
+        long long mx = *max_element(nums.begin(), nums.end());
+        long long mn = *min_element(nums.begin(), nums.end());
+        return 1LL * k * (mx - mn);
+    }
+};
+	Key Insight
+Because the same subarray may be selected multiple times, the entire problem reduces to finding the largest possible value of a single subarray. That value is simply:
+		max(nums) - min(nums)
+and choosing that optimal subarray exactly k times.
