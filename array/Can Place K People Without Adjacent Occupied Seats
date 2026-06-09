@@ -1,0 +1,57 @@
+2026-06-09 | Can Place K People Without Adjacent Occupied Seats
+
+	Question
+Return true if all k people can be seated, otherwise false.
+	Key Insight
+To maximize the number of people seated:
+		whenever a seat can safely be occupied,
+		occupy it immediately.
+This greedy choice never hurts future placements.
+A seat i can be occupied if:
+		seats[i] == 0
+		and
+		left neighbor is empty
+		(or doesn't exist)
+		and
+		right neighbor is empty
+		(or doesn't exist)
+	Approach
+1.	Traverse the seats array.
+2.	For each empty seat:
+		check left seat
+		check right seat
+3.	If both sides are empty:
+		place a person there
+		decrement k
+4.	If k becomes 0:
+		return true
+5.	After traversal:
+		return whether k == 0.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool canPlacePeople(vector<int>& seats, int k) {
+        int n = seats.size();
+        for(int i = 0; i < n; i++) {
+            if(seats[i] == 1)
+                continue;
+            bool leftEmpty =
+                (i == 0 || seats[i - 1] == 0);
+            bool rightEmpty =
+                (i == n - 1 || seats[i + 1] == 0);
+            if(leftEmpty && rightEmpty) {
+                seats[i] = 1;
+                k--;
+                if(k == 0)
+                    return true;
+            }
+        }
+        return k == 0;
+    }
+};
+	Key Insight
+Greedily placing a person whenever a seat is valid maximizes future seating opportunities. Since each seat is checked once, the solution runs in O(n) time and O(1) extra space.
