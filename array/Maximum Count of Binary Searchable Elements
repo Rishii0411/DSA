@@ -1,0 +1,76 @@
+2026-06-10 | Maximum Count of Binary Searchable Elements
+
+	Question
+Return the maximum count of binary searchable elements.
+	Key Insight
+For an element arr[i] to be binary searchable:
+•	Every element on its left must be smaller than it.
+•	Every element on its right must be greater than it.
+Why?
+During binary search:
+•	If a larger element exists on the left,
+		search decisions may incorrectly skip arr[i].
+•	If a smaller element exists on the right,
+		search decisions may incorrectly skip arr[i].
+So arr[i] must satisfy:
+		max(arr[0...i-1]) < arr[i]
+		and
+		min(arr[i+1...n-1]) > arr[i]
+	Approach
+1.	Build prefix maximum array.
+		prefixMax[i]
+		=
+		maximum element from 0 to i
+2.	Build suffix minimum array.
+		suffixMin[i]
+		=
+		minimum element from i to n-1
+3.	For every index i:
+		left condition:
+		i == 0
+		or
+		prefixMax[i-1] < arr[i]
+		right condition:
+		i == n-1
+		or
+		suffixMin[i+1] > arr[i]
+4.	If both conditions hold,
+		increment answer.
+5.	Return answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int binarySearchableElements(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> prefixMax(n);
+        vector<int> suffixMin(n);
+        prefixMax[0] = arr[0];
+        for(int i = 1; i < n; i++) {
+            prefixMax[i] =
+                max(prefixMax[i - 1], arr[i]);
+        }
+        suffixMin[n - 1] = arr[n - 1];
+        for(int i = n - 2; i >= 0; i--) {
+            suffixMin[i] =
+                min(suffixMin[i + 1], arr[i]);
+        }
+        int ans = 0;
+        for(int i = 0; i < n; i++) {
+            bool leftOk =
+                (i == 0) ||
+                (prefixMax[i - 1] < arr[i]);
+            bool rightOk =
+                (i == n - 1) ||
+                (suffixMin[i + 1] > arr[i]);
+            if(leftOk && rightOk)
+                ans++;
+        }
+        return ans;
+    }
+};
+	Key Insight
+An element is binary searchable if it is greater than every element to its left and smaller than every element to its right. Using prefix maximums and suffix minimums lets us verify this condition for every index in O(n) time.
