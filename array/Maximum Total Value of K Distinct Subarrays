@@ -1,0 +1,44 @@
+2026-06-10 | Maximum Total Value of K Distinct Subarrays
+
+	Question
+Return the maximum possible sum of values of exactly k distinct subarrays.
+	Key Insight
+The problem is equivalent to:
+		Find all subarray values
+		(max - min)
+		and take the largest k of them.
+However, there are O(n²) subarrays, so generating all values is impossible for large n.
+The standard solution uses:
+1.	Monotonic stacks
+		to count subarrays whose maximum/minimum
+		contributes to a value.
+2.	Binary search on a threshold T.
+3.	A counting function:
+		count(T)
+		= number of subarrays with
+				max(subarray) - min(subarray) >= T
+4.	Along with the count, compute the total sum of all
+		subarray values above the threshold.
+5.	Use binary search to find the boundary where
+		at least k subarrays exist.
+6.	Recover the exact sum of the largest k values.
+	Approach
+1.	Binary search the score T.
+2.	For a fixed T:
+		count how many subarrays have
+				max - min ≥ T
+		using monotonic structures.
+3.	Also compute the sum of those values.
+4.	Find the largest threshold producing
+		at least k subarrays.
+5.	Use the count/sum information at the threshold
+		to obtain the exact sum of the top k values.
+	Time Complexity
+	O(n log² V)
+	where V is the range of possible values.
+	Space Complexity
+	O(n)
+	Important Observation
+If repetitions of the same subarray were allowed, the answer would simply be:
+		k × (globalMax - globalMin)
+But the statement requires k distinct subarrays, so we must actually find the k largest distinct subarray values, which requires the binary-search + counting approach above rather than a simple greedy formula.
