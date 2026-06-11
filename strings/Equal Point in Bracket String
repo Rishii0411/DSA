@@ -1,0 +1,67 @@
+2026-06-11 | Equal Point in Bracket String
+
+Question
+Find the first equal point.
+	Key Insight
+Let:
+		openBefore
+		=
+		number of '(' before current position
+		closeAfter
+		=
+		number of ')' from current position to end
+We need:
+		openBefore == closeAfter
+First compute total number of closing brackets.
+Then scan from left to right while maintaining:
+		openBefore
+		closeAfter
+	Approach
+1.	Count total closing brackets in string.
+2.	Initialize:
+		openBefore = 0
+		closeAfter = totalClosing
+3.	Check every split position.
+4.	Before processing s[i]:
+		if openBefore == closeAfter
+				return i
+5.	Update counts:
+		if s[i] == '('
+				openBefore++
+		else
+				closeAfter--
+6.	After loop, check split at n.
+7.	Return n if valid.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int findEqualPoint(string s) {
+        int n = s.size();
+        int closeAfter = 0;
+        for(char ch : s) {
+            if(ch == ')')
+                closeAfter++;
+        }
+        int openBefore = 0;
+        for(int i = 0; i < n; i++) {
+            if(openBefore == closeAfter)
+                return i;
+            if(s[i] == '(')
+                openBefore++;
+            else
+                closeAfter--;
+        }
+        if(openBefore == closeAfter)
+            return n;
+        return -1;
+    }
+};
+	Key Insight
+At any split position k:
+		left part contributes only '(' count
+		right part contributes only ')' count
+So by maintaining a running count of opening brackets on the left and remaining closing brackets on the right, we can find the first valid split in a single traversal.
