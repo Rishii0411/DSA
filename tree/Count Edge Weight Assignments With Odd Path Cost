@@ -1,0 +1,88 @@
+2026-06-11 | Count Edge Weight Assignments With Odd Path Cost
+
+	Question
+Return the number of weight assignments producing an odd path sum.
+	Key Insight
+Let the path length be:
+		L = number of edges
+		from root to deepest node
+Each edge can receive:
+		1 (odd)
+		2 (even)
+A sum is odd iff the number of odd terms is odd.
+So we need:
+		number of assignments
+		with an odd count of 1's.
+For L edges:
+		total assignments = 2^L
+Exactly half of them have odd parity.
+Therefore:
+		answer = 2^(L-1)
+(for L ≥ 1)
+So the problem reduces to finding the maximum depth.
+	Approach
+1.	Build adjacency list.
+2.	Run DFS/BFS from node 1.
+3.	Find maximum depth D.
+4.	Path contains:
+		L = D edges
+5.	If L = 0:
+		no edge exists,
+		sum = 0 (even)
+		answer = 0
+6.	Otherwise:
+		answer = 2^(L-1) mod (1e9+7)
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    static const long long MOD = 1000000007;
+    long long modPow(long long a, long long b) {
+        long long res = 1;
+        while(b) {
+            if(b & 1)
+                res = (res * a) % MOD;
+            a = (a * a) % MOD;
+            b >>= 1;
+        }
+        return res;
+    }
+    int maxDepth(int node,
+                 int parent,
+                 vector<vector<int>>& adj) {
+        int depth = 0;
+        for(int nxt : adj[node]) {
+            if(nxt == parent)
+                continue;
+            depth = max(depth,
+                        1 + maxDepth(nxt,
+                                     node,
+                                     adj));
+        }
+        return depth;
+    }
+    int assignEdgeWeights(int n,
+                          vector<vector<int>>& edges) {
+        vector<vector<int>> adj(n + 1);
+        for(auto &e : edges) {
+            int u = e[0];
+            int v = e[1];
+            adj[u].push_back(v);
+            adj[v].push_back(u);
+        }
+        int L = maxDepth(1, 0, adj);
+        if(L == 0)
+            return 0;
+        return (int)modPow(2, L - 1);
+    }
+};
+	Key Insight
+Once the deepest path contains L edges, each edge independently contributes either:
+		even (2)
+		or odd (1)
+Among all 2^L assignments, exactly half produce an odd total sum. Therefore the answer is simply:
+		2^(L-1)
+after finding the maximum depth of the tree.
