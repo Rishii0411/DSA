@@ -1,0 +1,140 @@
+2026-06-12 | Count Odd Cost Assignments for Tree Path Queries
+
+	Question
+For each query, return the number of assignments producing an odd path cost.
+	Key Insight
+Let the path contain L edges.
+Each edge has 2 choices:
+		1 or 2
+So total assignments:
+		2^L
+A sum is odd iff the number of odd-valued edges
+(weight 1) is odd.
+Among all binary choices, exactly half have odd parity
+and half have even parity.
+Therefore:
+		Odd assignments
+		=
+		2^(L-1)
+whenever L ≥ 1.
+If L = 0:
+		no edge exists
+		cost = 0
+		answer = 0
+So the real problem becomes finding:
+		number of edges in path(u,v)
+for every query.
+	Approach
+1.	Build the tree.
+2.	Preprocess:
+		depth[]
+		binary lifting table up[][]
+3.	For each query:
+		l = LCA(u,v)
+		pathLength =
+		depth[u] + depth[v]
+		- 2 * depth[l]
+4.	If pathLength == 0:
+			answer = 0
+5.	Else:
+			answer =
+			2^(pathLength - 1)
+			mod (1e9+7)
+	Time Complexity
+	Preprocessing:
+		O(n log n)
+	Per Query:
+		O(log n)
+	Total:
+		O((n + q) log n)
+	Space Complexity
+	O(n log n)
+	Solution
+class Solution {
+public:
+    static const long long MOD = 1000000007;
+    static const int LOG = 20;
+    vector<vector<int>> adj;
+    vector<int> depth;
+    vector<vector<int>> up;
+    long long modPow(long long a, long long b) {
+        long long res = 1;
+        while(b) {
+            if(b & 1)
+                res = (res * a) % MOD;
+            a = (a * a) % MOD;
+            b >>= 1;
+        }
+        return res;
+    }
+    void dfs(int node, int parent) {
+        up[node][0] = parent;
+        for(int j = 1; j < LOG; j++) {
+            up[node][j] =
+                up[ up[node][j - 1] ][j - 1];
+        }
+        for(int nxt : adj[node]) {
+            if(nxt == parent)
+                continue;
+            depth[nxt] = depth[node] + 1;
+            dfs(nxt, node);
+        }
+    }
+    int lca(int u, int v) {
+        if(depth[u] < depth[v])
+            swap(u, v);
+        int diff = depth[u] - depth[v];
+        for(int j = LOG - 1; j >= 0; j--) {
+            if(diff & (1 << j))
+                u = up[u][j];
+        }
+        if(u == v)
+            return u;
+        for(int j = LOG - 1; j >= 0; j--) {
+            if(up[u][j] != up[v][j]) {
+                u = up[u][j];
+                v = up[v][j];
+            }
+        }
+        return up[u][0];
+    }
+    vector<int> assignEdgeWeights(
+        int n,
+        vector<vector<int>>& edges,
+        vector<vector<int>>& queries) {
+        adj.assign(n + 1, {});
+        depth.assign(n + 1, 0);
+        up.assign(n + 1, vector<int>(LOG, 0));
+        for(auto &e : edges) {
+            int u = e[0];
+            int v = e[1];
+            adj[u].push_back(v);
+            adj[v].push_back(u);
+        }
+        dfs(1, 0);
+        vector<int> ans;
+        for(auto &q : queries) {
+            int u = q[0];
+            int v = q[1];
+            int L = lca(u, v);
+            long long len =
+                depth[u] + depth[v]
+                - 2LL * depth[L];
+            if(len == 0) {
+                ans.push_back(0);
+            }
+            else {
+                ans.push_back(
+                    (int)modPow(2, len - 1)
+                );
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+For a path containing L edges:
+		total assignments = 2^L
+The parity of the sum depends only on how many edges receive weight 1. Exactly half of all assignments produce an odd sum, giving:
+		2^(L-1)
+So after computing the path length using LCA, the answer follows immediately.
