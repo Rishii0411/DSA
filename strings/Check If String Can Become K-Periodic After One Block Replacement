@@ -1,0 +1,52 @@
+2026-06-12 | Check If String Can Become K-Periodic After One Block Replacement
+
+	Question
+Return true if this is possible, otherwise false.
+	Key Insight
+If the final string is k-periodic, then all k-length blocks must be identical.
+Since we can modify only one block:
+		All blocks must already be the same
+		or
+		Exactly one block is different.
+So the problem reduces to counting distinct blocks.
+	Approach
+1.	Split the string into substrings of length k.
+2.	Count frequency of each block.
+3.	Let totalBlocks = n / k.
+4.	If there is only one distinct block:
+		return true
+5.	If there are exactly two distinct blocks:
+		and one of them occurs exactly once
+		then we can replace that block.
+		return true
+6.	Otherwise return false.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n/k)
+	Solution
+class Solution {
+public:
+    bool kPeriodic(string s, int k) {
+        unordered_map<string, int> freq;
+        int blocks = 0;
+        for(int i = 0; i < s.size(); i += k) {
+            string part = s.substr(i, k);
+            freq[part]++;
+            blocks++;
+        }
+        if(freq.size() == 1)
+            return true;
+        if(freq.size() != 2)
+            return false;
+        for(auto &it : freq) {
+            if(it.second == 1)
+                return true;
+        }
+        return false;
+    }
+};
+	Key Insight
+After the operation, every k-sized block must be identical. Since only one block can be changed, at most one block may differ from the others initially. Therefore:
+		number of distinct blocks ≤ 2
+and if there are two distinct blocks, one of them must appear exactly once.
