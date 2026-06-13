@@ -1,0 +1,57 @@
+2026-06-13 | Convert Words to Reverse Alphabet Characters Using Weights
+
+	Question
+Return the final concatenated string.
+	Key Insight
+The reverse alphabet mapping is:
+		0 -> z
+		1 -> y
+		...
+		25 -> a
+For remainder r:
+		char =
+		'z' - r
+Examples:
+		r = 0
+		'z'
+		r = 1
+		'y'
+		r = 25
+		'a'
+	Approach
+1.	Initialize empty answer string.
+2.	For each word:
+		compute total weight
+3.	Calculate:
+		rem = totalWeight % 26
+4.	Map:
+		char c = 'z' - rem
+5.	Append c to answer.
+6.	Return answer.
+	Time Complexity
+	O(total characters in all words)
+	Space Complexity
+	O(1)
+	excluding output string
+	Solution
+class Solution {
+public:
+    string generateString(vector<string>& words,
+                          vector<int>& weights) {
+        string ans;
+        for(string &word : words) {
+            long long sum = 0;
+            for(char ch : word) {
+                sum += weights[ch - 'a'];
+            }
+            int rem = sum % 26;
+            ans.push_back('z' - rem);
+        }
+        return ans;
+    }
+};
+	Key Insight
+After computing a word's weight, only its remainder modulo 26 matters. The reverse alphabet mapping is directly obtained using:
+		'z' - (weight % 26)
+which converts:
+		0→z, 1→y, ..., 25→a.
