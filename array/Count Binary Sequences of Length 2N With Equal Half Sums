@@ -1,0 +1,77 @@
+2026-06-13 | Count Binary Sequences of Length 2N With Equal Half Sums
+
+	Question
+Return the count modulo 10^9+7.
+	Key Insight
+Suppose both halves contain exactly k ones.
+Number of ways to choose k ones in first half:
+		C(n, k)
+Number of ways to choose k ones in second half:
+		C(n, k)
+Therefore for a fixed k:
+		ways =
+		C(n,k) × C(n,k)
+Summing over all possible k:
+		Σ C(n,k)^2
+	for k = 0 to n
+A famous combinatorial identity states:
+		Σ C(n,k)^2
+		=
+		C(2n,n)
+So the answer becomes:
+		C(2n,n)
+	Approach
+1.	Compute:
+		C(2n,n)
+2.	Use modular arithmetic.
+3.	Precompute factorials and inverse factorials.
+4.	Return result modulo 10^9+7.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    static const long long MOD = 1000000007;
+    long long power(long long a, long long b) {
+        long long res = 1;
+        while(b) {
+            if(b & 1)
+                res = (res * a) % MOD;
+            a = (a * a) % MOD;
+            b >>= 1;
+        }
+        return res;
+    }
+    long long countBinarySeq(int n) {
+        vector<long long> fact(2 * n + 1);
+        vector<long long> invFact(2 * n + 1);
+        fact[0] = 1;
+        for(int i = 1; i <= 2 * n; i++) {
+            fact[i] = (fact[i - 1] * i) % MOD;
+        }
+        invFact[2 * n] =
+            power(fact[2 * n], MOD - 2);
+        for(int i = 2 * n - 1; i >= 0; i--) {
+            invFact[i] =
+                (invFact[i + 1] * (i + 1)) % MOD;
+        }
+        long long ans = fact[2 * n];
+        ans = (ans * invFact[n]) % MOD;
+        ans = (ans * invFact[n]) % MOD;
+        return ans;
+    }
+};
+	Key Insight
+Let both halves contain exactly k ones.
+		First half:
+		C(n,k) ways
+		Second half:
+		C(n,k) ways
+So:
+		Answer =
+		Σ C(n,k)²
+A well-known combinatorial identity simplifies this to:
+		C(2n,n)
+which is called the Central Binomial Coefficient.
