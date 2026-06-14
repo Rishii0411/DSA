@@ -1,0 +1,62 @@
+2026-06-14 | Exit Point in a Matrix
+
+	Question
+Find the exit point of the matrix.
+	Key Insight
+There are only four possible directions:
+		0 → right
+		1 → down
+		2 → left
+		3 → up
+Whenever we encounter 1:
+		dir = (dir + 1) % 4
+and set the current cell to 0.
+When we move outside the matrix,
+the previous valid cell is the exit point.
+	Approach
+1.	Start at:
+		row = 0
+		col = 0
+		dir = right
+2.	While inside matrix:
+		if mat[row][col] == 1
+				dir = (dir + 1) % 4
+				mat[row][col] = 0
+3.	Move according to current direction.
+4.	When indices go out of bounds:
+		move one step back
+		that position is the exit point.
+5.	Return its coordinates.
+	Time Complexity
+	O(n × m)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    vector<int> FindExitPoint(vector<vector<int>>& mat) {
+        int n = mat.size();
+        int m = mat[0].size();
+        int row = 0;
+        int col = 0;
+        int dir = 0; // 0:right, 1:down, 2:left, 3:up
+        while(row >= 0 && row < n &&
+              col >= 0 && col < m) {
+            if(mat[row][col] == 1) {
+                dir = (dir + 1) % 4;
+                mat[row][col] = 0;
+            }
+            if(dir == 0) col++;
+            else if(dir == 1) row++;
+            else if(dir == 2) col--;
+            else row--;
+        }
+        if(dir == 0) col--;
+        else if(dir == 1) row--;
+        else if(dir == 2) col++;
+        else row++;
+        return {row, col};
+    }
+};
+	Key Insight
+The direction changes only when a cell contains 1. By maintaining the current direction and simulating the movement exactly as described, the last valid cell before leaving the matrix is the required exit point.
