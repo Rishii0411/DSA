@@ -1,0 +1,72 @@
+2026-06-14 | Maximum Twin Sum of a Linked List
+
+	Question
+Return the maximum twin sum among all twin pairs.
+	Key Insight
+In a linked list, accessing the twin node directly is difficult.
+So:
+1.	Find the middle of the linked list.
+2.	Reverse the second half.
+3.	Now:
+		first half moves forward
+		reversed second half moves forward
+	and corresponding twin nodes become aligned.
+4.	Compute sums pairwise.
+5.	Track the maximum.
+	Approach
+1.	Use slow and fast pointers to find the middle.
+2.	Reverse the second half of the list.
+3.	Maintain two pointers:
+		first = head
+		second = reversed half
+4.	For each pair:
+		maxAns =
+		max(maxAns,
+		    first->val + second->val)
+5.	Move both pointers.
+6.	Return maximum answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* prev = nullptr;
+        ListNode* curr = head;
+        while(curr) {
+            ListNode* nextNode = curr->next;
+            curr->next = prev;
+            prev = curr;
+            curr = nextNode;
+        }
+        return prev;
+    }
+    int pairSum(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+        while(fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        ListNode* secondHalf = reverseList(slow);
+        int ans = 0;
+        ListNode* first = head;
+        ListNode* second = secondHalf;
+        while(second) {
+            ans = max(ans,
+                      first->val + second->val);
+            first = first->next;
+            second = second->next;
+        }
+        return ans;
+    }
+};
+	Key Insight
+After reversing the second half, twin nodes appear at the same relative position in two forward-moving lists:
+		first half:
+		5 → 4
+		reversed second half:
+		1 → 2
+This allows computing every twin sum in a single traversal, achieving O(n) time and O(1) extra space.
