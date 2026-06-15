@@ -1,0 +1,58 @@
+2026-06-15 | Delete the Middle Node of a Linked List
+
+	Question
+Delete the middle node and return the head.
+	Key Insight
+We need to find the middle node efficiently.
+Use:
+		slow pointer
+		fast pointer
+When:
+		fast moves 2 steps
+		slow moves 1 step
+By the time fast reaches the end:
+		slow points to the middle node.
+To delete it, we also keep track of:
+		prev = node before slow
+Then:
+		prev->next = slow->next
+	Approach
+1.	If the list contains only one node:
+			return nullptr.
+2.	Initialize:
+			slow = head
+			fast = head
+			prev = nullptr
+3.	Move:
+			slow by 1 step
+			fast by 2 steps
+4.	When traversal ends:
+			slow = middle node
+5.	Delete the middle node:
+			prev->next = slow->next
+6.	Return head.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    ListNode* deleteMiddle(ListNode* head) {
+        if(head == nullptr || head->next == nullptr)
+            return nullptr;
+        ListNode* slow = head;
+        ListNode* fast = head;
+        ListNode* prev = nullptr;
+        while(fast && fast->next) {
+            prev = slow;
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        prev->next = slow->next;
+        delete slow;
+        return head;
+    }
+};
+	Key Insight
+The slow-fast pointer technique finds the middle node in a single traversal. Keeping a pointer to the node before the middle allows us to remove the middle node in O(1) time once it is found, giving an overall O(n) solution.
