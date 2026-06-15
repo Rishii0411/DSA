@@ -1,0 +1,55 @@
+2026-06-15 | Minimum Cost to Buy Exactly W Kg Oranges
+
+	Question
+Return the minimum cost, or -1 if it is impossible.
+	Key Insight
+This is a classic Unbounded Knapsack problem.
+For every available packet:
+		weight = i + 1
+		cost = cost[i]
+We can use that packet multiple times.
+Let:
+		dp[x]
+	be the minimum cost required to buy exactly x kg.
+Transition:
+		dp[x]
+		=
+		min(dp[x],
+		    dp[x - packetWeight] + packetCost)
+	Approach
+1.	Create dp array of size w + 1.
+2.	Initialize:
+		dp[0] = 0
+		all others = INF
+3.	For every available packet:
+		weight = i + 1
+4.	Run unbounded knapsack transition.
+5.	If dp[w] remains INF:
+		return -1
+6.	Else return dp[w].
+	Time Complexity
+	O(n × w)
+	Space Complexity
+	O(w)
+	Solution
+class Solution {
+public:
+    int minimumCost(vector<int>& cost, int w) {
+        const int INF = 1e9;
+        vector<int> dp(w + 1, INF);
+        dp[0] = 0;
+        int n = cost.size();
+        for(int i = 0; i < n; i++) {
+            if(cost[i] == -1)
+                continue;
+            int weight = i + 1;
+            for(int j = weight; j <= w; j++) {
+                dp[j] = min(dp[j],
+                            dp[j - weight] + cost[i]);
+            }
+        }
+        return dp[w] == INF ? -1 : dp[w];
+    }
+};
+	Key Insight
+The problem is identical to making a target weight using unlimited copies of available packet sizes while minimizing cost. Therefore it is a direct application of the Unbounded Knapsack Dynamic Programming pattern.
