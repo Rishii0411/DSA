@@ -1,0 +1,73 @@
+2026-06-16 | Final Array After Insert and Global XOR Operations
+
+	Question
+Process all queries and return the final sorted array.
+	Key Insight
+Instead of immediately applying every XOR operation to all elements:
+		maintain a global XOR value
+say:
+		xr
+Whenever we see:
+		1 x
+just do:
+		xr ^= x
+This means every stored element is logically XORed by xr.
+For insertion:
+		0 x
+we need to store the value in a way that future XORs are handled correctly.
+If current global XOR is xr:
+		store
+			x ^ xr
+Why?
+Later final value becomes:
+			(x ^ xr) ^ xr
+			= x
+Thus all insertions remain correct.
+After processing all queries:
+		actual value =
+		stored value ^ xr
+Apply this to every element and sort.
+	Approach
+1.	Initialize:
+			arr = {0}
+			xr = 0
+2.	For each query:
+		if type == 0
+				store (x ^ xr)
+		if type == 1
+				xr ^= x
+3.	Convert stored values to actual values:
+				val = stored ^ xr
+4.	Sort the resulting array.
+5.	Return it.
+	Time Complexity
+	O(q + n log n)
+	where n is final array size.
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<int> constructArray(vector<vector<int>>& queries) {
+        vector<int> arr;
+        arr.push_back(0);
+        int xr = 0;
+        for(auto &q : queries) {
+            int type = q[0];
+            int x = q[1];
+            if(type == 0) {
+                arr.push_back(x ^ xr);
+            }
+            else {
+                xr ^= x;
+            }
+        }
+        for(int &x : arr) {
+            x ^= xr;
+        }
+        sort(arr.begin(), arr.end());
+        return arr;
+    }
+};
+	Key Insight
+A global XOR operation affects every element equally. Instead of updating the entire array each time, keep a lazy XOR value `xr`. Store inserted elements as `x ^ xr`, and at the end apply the final XOR once to every element. This reduces repeated updates from O(q²) to O(q).
