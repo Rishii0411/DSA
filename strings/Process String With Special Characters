@@ -1,0 +1,49 @@
+2026-06-16 | Process String With Special Characters
+
+	Question
+Return the resulting string after applying all operations.
+	Key Insight
+This is a direct simulation problem.
+We maintain the current string result and process each character according to its meaning.
+	Approach
+1.	Initialize:
+			result = ""
+2.	Traverse every character c in s.
+3.	If c is a lowercase letter:
+			append c
+4.	If c is '*':
+			remove last character if present
+5.	If c is '#':
+			result = result + result
+6.	If c is '%':
+			reverse(result)
+7.	Return result.
+	Time Complexity
+	O(n + total length of generated string)
+	Space Complexity
+	O(length of final string)
+	Solution
+class Solution {
+public:
+    string processString(string s) {
+        string result;
+        for(char ch : s) {
+            if(ch >= 'a' && ch <= 'z') {
+                result.push_back(ch);
+            }
+            else if(ch == '*') {
+                if(!result.empty())
+                    result.pop_back();
+            }
+            else if(ch == '#') {
+                result += result;
+            }
+            else if(ch == '%') {
+                reverse(result.begin(), result.end());
+            }
+        }
+        return result;
+    }
+};
+	Key Insight
+The operations affect only the current state of the string, so a straightforward simulation from left to right correctly produces the final result.
