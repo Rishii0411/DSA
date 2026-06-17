@@ -1,0 +1,97 @@
+2026-06-17 | Maximum Product Cutting
+
+	Question
+Return the maximum product obtainable after at least one cut.
+	Approach
+Let:
+		dp[i]
+represent the maximum product obtainable from a rope of length i.
+For every possible first cut j:
+		j | (i-j)
+Two possibilities exist for the second part:
+		1. Don't cut further
+				(i-j)
+		2. Cut further
+				dp[i-j]
+Similarly for j.
+So:
+		dp[i] =
+		max(
+			j*(i-j),
+			j*dp[i-j]
+		)
+for all j from 1 to i-1.
+	Example
+	n = 4
+	Cuts:
+		1 × 3 = 3
+		2 × 2 = 4
+	Maximum = 4
+	Time Complexity
+	O(n²)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int maxProd(int n) {
+        vector<int> dp(n + 1, 0);
+        dp[1] = 1;
+        for(int i = 2; i <= n; i++) {
+            for(int j = 1; j < i; j++) {
+                dp[i] = max(dp[i],
+                            max(j * (i - j),
+                                j * dp[i - j]));
+            }
+        }
+        return dp[n];
+    }
+};
+	Mathematical Optimization
+There is a famous observation:
+•	The product is maximized when the rope is cut into pieces of length 3 as much as possible.
+Rules:
+		n = 2 → 1
+		n = 3 → 2
+		if n % 3 == 0
+				answer = 3^(n/3)
+		if n % 3 == 1
+				answer = 4 × 3^((n-4)/3)
+		if n % 3 == 2
+				answer = 2 × 3^(n/3)
+	This gives:
+	Time Complexity
+	O(log n)
+	Mathematical Solution
+class Solution {
+public:
+    long long power(long long a, long long b) {
+        long long res = 1;
+        while(b) {
+            if(b & 1)
+                res *= a;
+            a *= a;
+            b >>= 1;
+        }
+        return res;
+    }
+    long long maxProd(int n) {
+        if(n == 2) return 1;
+        if(n == 3) return 2;
+        if(n % 3 == 0)
+            return power(3, n / 3);
+        if(n % 3 == 1)
+            return 4 * power(3, (n - 4) / 3);
+        return 2 * power(3, n / 3);
+    }
+};
+	Key Insight
+Breaking a rope into pieces of length 3 produces the maximum product. The only exception is when a remainder 1 is left, where replacing:
+		3 + 1
+with
+		2 + 2
+increases the product from:
+		3 × 1 = 3
+to
+		2 × 2 = 4
+which leads to the optimal mathematical solution.
