@@ -1,0 +1,96 @@
+2026-06-17 | Find K-th Character in Final Processed String
+
+	Question
+Return the character at index k in the final string, or '.' if k is outside the final string.
+	Key Insight
+Building the entire string may be impossible because:
+		"#"
+		doubles the size.
+Instead:
+1.	Compute the length after every operation.
+2.	Walk backwards through the operations.
+3.	Map the required index k to the corresponding index in the previous state.
+This is similar to decoding an encoded string.
+	Reverse Mapping Rules
+Let len be the current length.
+Letter c:
+		previous length = len - 1
+		if k == len - 1
+				answer = c
+		else
+				continue
+'*':
+		deletion removed one character.
+		Going backwards:
+		length increases by 1.
+		k remains unchanged.
+'#':
+		current string = old + old
+		length = 2 * oldLength
+		if k >= oldLength
+				k -= oldLength
+'%':
+		current string = reverse(old)
+		k = oldLength - 1 - k
+	Approach
+1.	Compute length after each operation.
+2.	If k is outside final length:
+		return '.'
+3.	Process operations from right to left.
+4.	Continuously transform k into the corresponding index in the previous state.
+5.	When a letter creates the required position,
+		return that letter.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    char kthCharacter(string s, long long k) {
+        int n = s.size();
+        vector<long long> len(n + 1, 0);
+        for(int i = 0; i < n; i++) {
+            char ch = s[i];
+            if(ch >= 'a' && ch <= 'z') {
+                len[i + 1] = len[i] + 1;
+            }
+            else if(ch == '*') {
+                len[i + 1] = max(0LL, len[i] - 1);
+            }
+            else if(ch == '#') {
+                len[i + 1] = min((long long)4e18,
+                                 len[i] * 2);
+            }
+            else { // %
+                len[i + 1] = len[i];
+            }
+        }
+        if(k >= len[n])
+            return '.';
+        for(int i = n - 1; i >= 0; i--) {
+            char ch = s[i];
+            if(ch >= 'a' && ch <= 'z') {
+                if(k == len[i])
+                    return ch;
+            }
+            else if(ch == '#') {
+                long long oldLen = len[i];
+                if(k >= oldLen)
+                    k -= oldLen;
+            }
+            else if(ch == '%') {
+                long long oldLen = len[i];
+                k = oldLen - 1 - k;
+            }
+            else { // '*'
+                // length before deletion = len[i]
+                // after deletion = len[i+1]
+                // surviving indices stay unchanged
+            }
+        }
+        return '.';
+    }
+};
+	Key Insight
+Instead of constructing the exponentially growing string, track only its length and work backwards. Each operation provides a simple mapping from an index in the current string to the corresponding index in the previous string, allowing the k-th character to be found in O(n) time.
