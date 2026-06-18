@@ -1,0 +1,54 @@
+2026-06-18 | Angle Between Hands of a Clock
+
+	Question
+Return the minimum angle between the hour and minute hands.
+	Key Insight
+The minute hand moves:
+		360° in 60 minutes
+So:
+		minuteAngle =
+		6 × minutes
+The hour hand moves:
+		360° in 12 hours
+		30° per hour
+But it also moves continuously as minutes pass:
+		hourAngle =
+		30 × hour
+		+
+		0.5 × minutes
+If hour = 12:
+		treat it as 0.
+The required angle is:
+		diff =
+		abs(hourAngle - minuteAngle)
+The smaller angle is:
+		min(diff, 360 - diff)
+	Approach
+1.	Convert hour hand position to degrees.
+2.	Convert minute hand position to degrees.
+3.	Compute absolute difference.
+4.	Return the smaller of:
+		diff
+		360 - diff
+	Time Complexity
+	O(1)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    double angleClock(int hour, int minutes) {
+        hour %= 12;
+        double hourAngle =
+            30.0 * hour +
+            0.5 * minutes;
+        double minuteAngle =
+            6.0 * minutes;
+        double diff =
+            abs(hourAngle - minuteAngle);
+        return min(diff, 360.0 - diff);
+    }
+};
+	Formula Used
+	Key Insight
+The minute hand moves 6° per minute, while the hour hand moves 30° per hour plus an additional 0.5° per minute. After computing both positions, the smaller angle is simply the minimum of the direct difference and its complement with respect to 360°.
