@@ -1,0 +1,127 @@
+2026-06-18 | Total Coverage of All Zero Cells
+
+	Question
+Find the total coverage of all zero cells.
+	Key Insight
+For every 0 cell, we need to know whether a 1 exists:
+		on its left
+		on its right
+		above it
+		below it
+Doing this by scanning in four directions for every cell would take:
+		O(nm(n+m))
+Instead, preprocess:
+		left[i][j]
+		right[i][j]
+		up[i][j]
+		down[i][j]
+where each array stores whether a 1 exists in that direction.
+Then every 0 cell can be evaluated in O(1).
+	Approach
+1.	Build left array:
+		left[i][j] = true
+		if a 1 exists somewhere to the left.
+2.	Build right array similarly.
+3.	Build up array similarly.
+4.	Build down array similarly.
+5.	For every cell containing 0:
+		coverage =
+			left +
+			right +
+			up +
+			down
+6.	Add to answer.
+7.	Return answer.
+	Time Complexity
+	O(n × m)
+	Space Complexity
+	O(n × m)
+	Solution
+class Solution {
+public:
+    int findCoverage(vector<vector<int>>& mat) {
+        int n = mat.size();
+        int m = mat[0].size();
+        vector<vector<int>> left(n, vector<int>(m, 0));
+        vector<vector<int>> right(n, vector<int>(m, 0));
+        vector<vector<int>> up(n, vector<int>(m, 0));
+        vector<vector<int>> down(n, vector<int>(m, 0));
+        for(int i = 0; i < n; i++) {
+            bool seen = false;
+            for(int j = 0; j < m; j++) {
+                left[i][j] = seen;
+                if(mat[i][j] == 1)
+                    seen = true;
+            }
+        }
+        for(int i = 0; i < n; i++) {
+            bool seen = false;
+            for(int j = m - 1; j >= 0; j--) {
+                right[i][j] = seen;
+                if(mat[i][j] == 1)
+                    seen = true;
+            }
+        }
+        for(int j = 0; j < m; j++) {
+            bool seen = false;
+            for(int i = 0; i < n; i++) {
+                up[i][j] = seen;
+                if(mat[i][j] == 1)
+                    seen = true;
+            }
+        }
+        for(int j = 0; j < m; j++) {
+            bool seen = false;
+            for(int i = n - 1; i >= 0; i--) {
+                down[i][j] = seen;
+                if(mat[i][j] == 1)
+                    seen = true;
+            }
+        }
+        int ans = 0;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                if(mat[i][j] == 0) {
+                    ans += left[i][j];
+                    ans += right[i][j];
+                    ans += up[i][j];
+                    ans += down[i][j];
+                }
+            }
+        }
+        return ans;
+    }
+};
+	More Optimal Observation (GFG Version)
+In many versions of this problem, coverage means checking only the four adjacent cells:
+		up
+		down
+		left
+		right
+and counting how many of them contain 1.
+In that case:
+class Solution {
+public:
+    int findCoverage(vector<vector<int>>& mat) {
+        int n = mat.size();
+        int m = mat[0].size();
+        int ans = 0;
+        int dr[] = {-1, 1, 0, 0};
+        int dc[] = {0, 0, -1, 1};
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                if(mat[i][j] == 0) {
+                    for(int k = 0; k < 4; k++) {
+                        int nr = i + dr[k];
+                        int nc = j + dc[k];
+                        if(nr >= 0 && nr < n &&
+                           nc >= 0 && nc < m &&
+                           mat[nr][nc] == 1)
+                            ans++;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+};
