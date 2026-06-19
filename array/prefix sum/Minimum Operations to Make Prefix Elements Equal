@@ -1,0 +1,74 @@
+2026-06-19 | Minimum Operations to Make Prefix Elements Equal
+
+	Question
+Return an array ans where:
+		ans[i]
+	= minimum operations needed to make
+	  arr[0...i] equal.
+	Key Insight
+For minimizing:
+		Σ |arr[j] - x|
+the optimal value of x is the median.
+Since the array is already sorted:
+		median index of prefix [0...i]
+		m = i / 2
+		target = arr[m]
+So for each prefix we need:
+		Σ |arr[j] - arr[m]|
+Using prefix sums this can be computed in O(1).
+	Formula
+Let:
+		pref[i]
+		=
+		sum of first i+1 elements
+For median index m:
+Left side cost:
+		arr[m] * (m + 1)
+		-
+		pref[m]
+Right side cost:
+		(pref[i] - pref[m])
+		-
+		arr[m] * (i - m)
+Total:
+		leftCost + rightCost
+	Approach
+1.	Build prefix sum array.
+2.	For every prefix ending at i:
+		find median index:
+				m = i / 2
+3.	Compute left cost.
+4.	Compute right cost.
+5.	Store total cost.
+6.	Return answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	(or O(1) extra excluding answer if prefix sums are reused)
+	Solution
+class Solution {
+public:
+    vector<long long> minOperations(vector<int>& arr) {
+        int n = arr.size();
+        vector<long long> pref(n);
+        pref[0] = arr[0];
+        for(int i = 1; i < n; i++) {
+            pref[i] = pref[i - 1] + arr[i];
+        }
+        vector<long long> ans(n);
+        for(int i = 0; i < n; i++) {
+            int m = i / 2;
+            long long median = arr[m];
+            long long leftCost =
+                median * (m + 1LL) - pref[m];
+            long long rightCost =
+                (pref[i] - pref[m])
+                - median * (i - m);
+            ans[i] = leftCost + rightCost;
+        }
+        return ans;
+    }
+};
+	Key Insight
+To minimize the total number of increment/decrement operations, all elements should be converted to the median value of the prefix. Because the array is sorted, the median is immediately known, and prefix sums allow the total absolute difference from that median to be computed in O(1) for each prefix, resulting in an overall O(n) solution.
