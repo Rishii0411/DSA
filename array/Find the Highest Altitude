@@ -1,0 +1,59 @@
+2026-06-19 | Find the Highest Altitude
+
+	Question
+Return the maximum altitude reached.
+	Key Insight
+The altitude at any point is simply the running sum of gains.
+Let:
+		currentAltitude
+represent the biker's current altitude.
+Initially:
+		currentAltitude = 0
+For every gain:
+		currentAltitude += gain[i]
+Keep track of:
+		maxAltitude
+throughout the journey.
+	Approach
+1.	Start with:
+			current = 0
+			answer = 0
+2.	Traverse gain.
+3.	Update:
+			current += gain[i]
+4.	Update:
+			answer = max(answer, current)
+5.	Return answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int largestAltitude(vector<int>& gain) {
+        int current = 0;
+        int ans = 0;
+        for(int x : gain) {
+            current += x;
+            ans = max(ans, current);
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+			gain = [-5,1,5,0,-7]
+	Altitudes:
+			0
+			-5
+			-4
+			1
+			1
+			-6
+	Highest altitude:
+			1
+	Output:
+			1
+	Key Insight
+The altitude at each point is the prefix sum of the gain array. Therefore, the highest altitude is simply the maximum prefix sum encountered during traversal, including the starting altitude 0.
