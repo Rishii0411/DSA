@@ -1,0 +1,109 @@
+2026-06-20 | Maximum Building Height
+
+Question
+Return the maximum height of the tallest building.
+	Key Insight
+This is not a DP problem.
+The crucial observation is:
+		restrictions only matter at
+		specific positions.
+First make all restrictions consistent.
+Then compute the highest peak possible between every pair of neighboring restrictions.
+	Step 1: Add Mandatory Restriction
+Since:
+		building 1 = 0
+Add:
+		[1,0]
+If building n is not restricted:
+		[n,n-1]
+can be added because from building 1 we can increase by at most 1 per step.
+	Step 2: Sort Restrictions
+Sort by building index.
+	Step 3: Propagate Constraints
+Left → Right
+For consecutive restrictions:
+		(id1,h1)
+		(id2,h2)
+Maximum reachable height at id2:
+		h1 + (id2-id1)
+So:
+		h2 =
+		min(h2,
+		    h1 + distance)
+Right → Left
+Similarly:
+		h1 =
+		min(h1,
+		    h2 + distance)
+After these two passes all restrictions become feasible.
+	Step 4: Find Maximum Peak
+Consider two neighboring restrictions:
+		(id1,h1)
+		(id2,h2)
+let
+		d = id2-id1
+The tallest achievable building between them occurs by:
+		climbing up
+		then descending
+Maximum peak:
+		(h1 + h2 + d) / 2
+(integer floor)
+Take maximum over all intervals.
+	Approach
+1.	Add mandatory restrictions.
+2.	Sort restrictions.
+3.	Left-to-right propagation.
+4.	Right-to-left propagation.
+5.	For every adjacent pair:
+			peak =
+			(h1+h2+d)/2
+6.	Return maximum peak.
+	Time Complexity
+	O(m log m)
+	where m = number of restrictions.
+	Space Complexity
+	O(m)
+	Solution
+class Solution {
+public:
+    int maxBuilding(int n, vector<vector<int>>& restrictions) {
+        restrictions.push_back({1, 0});
+        sort(restrictions.begin(), restrictions.end());
+        if(restrictions.back()[0] != n) {
+            restrictions.push_back({n, n - 1});
+        }
+        int m = restrictions.size();
+        for(int i = 1; i < m; i++) {
+            int dist =
+                restrictions[i][0] -
+                restrictions[i - 1][0];
+            restrictions[i][1] =
+                min(restrictions[i][1],
+                    restrictions[i - 1][1] + dist);
+        }
+        for(int i = m - 2; i >= 0; i--) {
+            int dist =
+                restrictions[i + 1][0] -
+                restrictions[i][0];
+            restrictions[i][1] =
+                min(restrictions[i][1],
+                    restrictions[i + 1][1] + dist);
+        }
+        int ans = 0;
+        for(int i = 1; i < m; i++) {
+            long long id1 = restrictions[i - 1][0];
+            long long h1  = restrictions[i - 1][1];
+            long long id2 = restrictions[i][0];
+            long long h2  = restrictions[i][1];
+            long long d = id2 - id1;
+            long long peak =
+                (h1 + h2 + d) / 2;
+            ans = max(ans, (int)peak);
+        }
+        return ans;
+    }
+};
+	Key Insight
+After making all restrictions mutually consistent, each interval between two restricted buildings becomes independent. The highest possible building in that interval is obtained by rising at slope +1 and falling at slope -1, giving:
+		peak = (leftHeight + rightHeight + distance) / 2
+The answer is the maximum such peak over all intervals.
