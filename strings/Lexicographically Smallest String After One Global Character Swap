@@ -1,0 +1,66 @@
+2026-06-21 | Lexicographically Smallest String After One Global Character Swap
+
+	Question
+Return the lexicographically smallest string obtainable.
+	Key Insight
+To make the string lexicographically smaller, we should improve the earliest possible position.
+For each character s[i]:
+•	Check whether there exists a smaller character that appears somewhere later in the string.
+•	If yes, swapping those two characters globally will make the first differing position smaller, which is always optimal.
+So:
+1. Find the first position where a beneficial swap exists.
+2. Swap that character with the smallest possible character appearing later.
+3. Perform the swap globally.
+	Example
+	s = "ccad"
+	At index 0:
+			'c'
+	A smaller character exists later:
+			'a'
+	Swap all 'c' and 'a'
+	Result:
+			aacd
+	Approach
+1. Store the last occurrence of every character.
+2. Traverse the string from left to right.
+3. For current character s[i]:
+		try all smaller characters
+		from 'a' to s[i]-1
+4. If a smaller character exists later:
+		perform a global swap
+		and return the result.
+5. If no beneficial swap exists,
+		return the original string.
+	Time Complexity
+	O(26 × n)
+	Space Complexity
+	O(26)
+	Solution
+class Solution {
+public:
+    string chooseandswap(string s) {
+        vector<int> last(26, -1);
+        for(int i = 0; i < s.size(); i++) {
+            last[s[i] - 'a'] = i;
+        }
+        for(int i = 0; i < s.size(); i++) {
+            int cur = s[i] - 'a';
+            for(int ch = 0; ch < cur; ch++) {
+                if(last[ch] > i) {
+                    char a = s[i];
+                    char b = char(ch + 'a');
+                    for(char &c : s) {
+                        if(c == a)
+                            c = b;
+                        else if(c == b)
+                            c = a;
+                    }
+                    return s;
+                }
+            }
+        }
+        return s;
+    }
+};
+	Key Insight
+The lexicographical order is determined by the earliest differing position. Therefore, the optimal strategy is to find the first character that can be replaced by a smaller character appearing later in the string and perform that global swap immediately. This guarantees the smallest possible resulting string.
