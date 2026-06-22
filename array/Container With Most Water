@@ -1,0 +1,73 @@
+2026-06-22 | Container With Most Water
+
+Question
+Return the maximum rectangular area that can be formed.
+	Key Insight
+A brute-force solution checks every pair:
+		O(n²)
+This is too slow.
+Use Two Pointers:
+		left = 0
+		right = n-1
+At every step:
+		area =
+		min(height[left], height[right])
+		×
+		(right-left)
+Update answer.
+Then move the shorter bar:
+•	If left bar is smaller,
+		move left forward.
+•	If right bar is smaller,
+		move right backward.
+Why?
+The area is limited by the shorter bar. Keeping it and reducing width can never improve the answer. We must try to find a taller bar.
+	Approach
+1.	Initialize:
+			left = 0
+			right = n-1
+2.	While left < right:
+			compute area
+			update answer
+3.	Move the pointer at the smaller height.
+4.	Continue until pointers meet.
+5.	Return answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        int left = 0;
+        int right = height.size() - 1;
+        long long ans = 0;
+        while(left < right) {
+            long long area =
+                1LL * min(height[left],
+                          height[right])
+                * (right - left);
+            ans = max(ans, area);
+            if(height[left] < height[right])
+                left++;
+            else
+                right--;
+        }
+        return (int)ans;
+    }
+};
+	Example
+	Input:
+			[1,8,6,2,5,4,8,3,7]
+	Best choice:
+			height 8 at index 1
+			height 7 at index 8
+	Area:
+			min(8,7) × (8-1)
+			= 7 × 7
+			= 49
+	Output:
+			49
+	Key Insight
+The width decreases whenever we move a pointer. Therefore, the only way to potentially increase the area is to look for a taller bar than the current shorter one. This observation leads to the optimal O(n) two-pointer solution.
