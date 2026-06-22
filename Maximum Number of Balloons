@@ -1,0 +1,64 @@
+2026-06-22 | Maximum Number of Balloons
+
+	Question
+Return the maximum number of times the word "balloon" can be formed.
+	Key Insight
+Count the frequency of every character in text.
+Then determine how many complete "balloon"s can be formed.
+For each required character:
+		freq['b'] / 1
+		freq['a'] / 1
+		freq['l'] / 2
+		freq['o'] / 2
+		freq['n'] / 1
+The minimum of these values is the answer.
+	Example
+	text = "loonbalxballpoon"
+	Frequencies:
+		b = 2
+		a = 2
+		l = 4
+		o = 4
+		n = 2
+	Possible balloons:
+		b → 2
+		a → 2
+		l → 4/2 = 2
+		o → 4/2 = 2
+		n → 2
+	Answer:
+		2
+	Approach
+1.	Count frequencies of all characters.
+2.	Compute:
+			freq['b']
+			freq['a']
+			freq['l'] / 2
+			freq['o'] / 2
+			freq['n']
+3.	Return the minimum among them.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int maxNumberOfBalloons(string text) {
+        vector<int> freq(26, 0);
+        for(char ch : text) {
+            freq[ch - 'a']++;
+        }
+        return min({
+            freq['b' - 'a'],
+            freq['a' - 'a'],
+            freq['l' - 'a'] / 2,
+            freq['o' - 'a'] / 2,
+            freq['n' - 'a']
+        });
+    }
+};
+	Key Insight
+The word "balloon" contains repeated characters:
+		l appears twice
+		o appears twice
