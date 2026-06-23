@@ -1,0 +1,73 @@
+2026-06-23 | Maximum People Defeated
+
+	Question
+Find the maximum number of people that can be defeated.
+	Key Insight
+If we defeat the first k people, total strength required is:
+		1² + 2² + 3² + ... + k²
+A well-known formula is:
+		1² + 2² + ... + k²
+		=
+		k(k+1)(2k+1) / 6
+So we need the largest k such that:
+		k(k+1)(2k+1)/6 ≤ p
+This is a monotonic condition.
+If k works, every smaller value also works.
+Hence we can use Binary Search.
+	Approach
+1.	Binary search on answer k.
+2.	For a candidate k, compute:
+			sum =
+			k(k+1)(2k+1)/6
+3.	If sum ≤ p:
+			k is possible.
+4.	Otherwise:
+			reduce search space.
+5.	Return the largest valid k.
+	Time Complexity
+	O(log p)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    long long defeated(long long p) {
+        long long low = 0;
+        long long high = 1000000;
+        long long ans = 0;
+        while(low <= high) {
+            long long mid = low + (high - low) / 2;
+            __int128 sum =
+                (__int128)mid *
+                (mid + 1) *
+                (2 * mid + 1) / 6;
+            if(sum <= p) {
+                ans = mid;
+                low = mid + 1;
+            }
+            else {
+                high = mid - 1;
+            }
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+			p = 14
+	Required strengths:
+			1² = 1
+			2² = 4
+			3² = 9
+	Total:
+			1 + 4 + 9 = 14
+	So 3 people can be defeated.
+	Next person:
+			4² = 16
+	not possible.
+	Output:
+			3
+	Key Insight
+	The problem reduces to finding the largest k for which the sum of the first k squares does not exceed p. Since:
+			Σ i² = k(k+1)(2k+1)/6
+	we can efficiently find k using binary search.
