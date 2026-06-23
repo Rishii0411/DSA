@@ -1,0 +1,126 @@
+2026-06-23 | Count ZigZag Arrays
+
+	Question
+Return the number of valid arrays modulo 10^9+7.
+	Key Insight
+For a new element, validity depends only on the previous two elements.
+If we know:
+		prev2 = a
+		prev1 = b
+then while choosing c:
+		b != c
+and
+		not(a < b < c)
+and
+		not(a > b > c)
+So a DP on the last two values naturally appears.
+	State Definition
+		dp[a][b]
+	= number of valid arrays ending with
+		..., a, b
+	where a ≠ b.
+	Transition
+	Try every possible c in [l,r]:
+		b != c
+		and
+		not(a < b < c)
+		and
+		not(a > b > c)
+	then:
+		dp[b][c] += dp[a][b]
+	Base Case
+	Length 1:
+		all values are valid.
+	Length 2:
+		any pair of distinct values is valid.
+	Answer:
+		sum of all states after length n.
+	Naive Complexity
+		O(n * m³)
+	where
+		m = r-l+1
+	This is too slow if m is large.
+	Optimization
+	Observe:
+		a < b
+	implies
+		c ≤ b
+	because
+		a < b < c
+	is forbidden.
+	Similarly:
+		a > b
+	implies
+		c ≥ b
+	because
+		a > b > c
+	is forbidden.
+	So only the relation between the last two values matters.
+	State Compression
+		UP   : previous pair increasing
+		DOWN : previous pair decreasing
+	Let values be compressed into:
+		1...m
+	Define:
+		up[x]
+		=
+		arrays ending at value x
+		where previous step was increasing
+		down[x]
+		=
+		arrays ending at value x
+		where previous step was decreasing
+	Using prefix sums we can transition in O(m).
+	Final Complexity
+		O(n * m)
+	where
+		m = r-l+1
+	Time Complexity
+		O(n * (r-l+1))
+	Space Complexity
+		O(r-l+1)
+	Solution
+class Solution {
+public:
+    static constexpr int MOD = 1000000007;
+
+    int zigZagArrays(int n, int l, int r) {
+
+        int m = r - l + 1;
+
+        if (n == 1)
+            return m;
+
+        vector<long long> dp(m);
+
+        // length = 2
+        for (int i = 0; i < m; i++)
+            dp[i] = i;
+
+        for (int len = 3; len <= n; len++) {
+
+            vector<long long> ndp(m);
+
+            long long pref = 0;
+
+            for (int x = 0; x < m; x++) {
+                ndp[x] = pref;
+                pref = (pref + dp[m - 1 - x]) % MOD;
+            }
+
+            dp.swap(ndp);
+        }
+
+        long long ans = 0;
+
+        for (int x = 0; x < m; x++) {
+            ans = (ans + dp[x]) % MOD;
+        }
+
+        ans = (2 * ans) % MOD;
+
+        return (int)ans;
+    }
+};
+	Key Insight
+	The condition "no three consecutive numbers are strictly increasing or strictly decreasing" means the direction between consecutive elements must alternate. Therefore, instead of remembering the last two values explicitly, we only need to remember whether the last movement was UP or DOWN and the current value. This reduces the problem from a cubic DP to an O(n · (r−l+1)) dynamic programming solution.
