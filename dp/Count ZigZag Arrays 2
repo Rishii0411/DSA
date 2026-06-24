@@ -1,0 +1,125 @@
+2026-06-24 | Count ZigZag Arrays
+
+	Question
+Return the number of valid ZigZag arrays modulo 10^9+7.
+	Key Observation
+For any three consecutive elements:
+		a, b, c
+If:
+		a < b
+then to avoid
+		a < b < c
+we must have
+		c < b
+Similarly, if:
+		a > b
+then to avoid
+		a > b > c
+we must have
+		c > b
+So after an increasing step, the next step must be decreasing.
+After a decreasing step, the next step must be increasing.
+	State Definition
+Let:
+		m = r - l + 1
+Compress values to:
+		0 ... m-1
+Define:
+		up[v]
+	= number of valid arrays ending at value v
+	  whose last movement was increasing
+		down[v]
+	= number of valid arrays ending at value v
+	  whose last movement was decreasing
+	Base Case (Length = 2)
+For every pair:
+		a < b
+	contributes to
+		up[b]
+For every pair:
+		a > b
+	contributes to
+		down[b]
+	Transition
+To create an UP state ending at x:
+		previous movement must be DOWN
+		previous value must be smaller than x
+So:
+		newUp[x]
+		=
+		sum of down[y]
+		for y < x
+To create a DOWN state ending at x:
+		previous movement must be UP
+		previous value must be greater than x
+So:
+		newDown[x]
+		=
+		sum of up[y]
+		for y > x
+Using prefix sums these transitions become O(1) per value.
+	Time Complexity
+		O(n × (r-l+1))
+	Space Complexity
+		O(r-l+1)
+	Solution
+class Solution {
+public:
+    static const int MOD = 1000000007;
+    int zigZagArrays(int n, int l, int r) {
+        int m = r - l + 1;
+        if(n == 1)
+            return m;
+        vector<long long> up(m, 0);
+        vector<long long> down(m, 0);
+        for(int a = 0; a < m; a++) {
+            for(int b = 0; b < m; b++) {
+                if(a == b) continue;
+                if(a < b)
+                    up[b] = (up[b] + 1) % MOD;
+                else
+                    down[b] = (down[b] + 1) % MOD;
+            }
+        }
+        for(int len = 3; len <= n; len++) {
+            vector<long long> prefUp(m + 1, 0);
+            vector<long long> prefDown(m + 1, 0);
+            for(int i = 0; i < m; i++) {
+                prefUp[i + 1] =
+                    (prefUp[i] + up[i]) % MOD;
+                prefDown[i + 1] =
+                    (prefDown[i] + down[i]) % MOD;
+            }
+            vector<long long> newUp(m, 0);
+            vector<long long> newDown(m, 0);
+            for(int x = 0; x < m; x++) {
+                newUp[x] = prefDown[x];
+                newDown[x] =
+                    (prefUp[m] - prefUp[x + 1] + MOD)
+                    % MOD;
+            }
+            up = move(newUp);
+            down = move(newDown);
+        }
+        long long ans = 0;
+        for(int i = 0; i < m; i++) {
+            ans = (ans + up[i] + down[i]) % MOD;
+        }
+        return (int)ans;
+    }
+};
+	Edge Cases
+•	n = 1
+		Every value in [l,r] is valid.
+		Answer = r-l+1
+•	If only one value exists in the range:
+		l = r
+	and n > 1
+		Answer = 0
+	because adjacent elements cannot be equal.
+	Key Insight
+The condition "no three consecutive elements are strictly increasing or strictly decreasing" forces the comparison signs between consecutive elements to alternate:
+		< > < > ...
+	or
+		> < > < ...
+This reduces the problem to tracking only the last value and the last movement direction, enabling an O(n × (r-l+1)) DP solution.
