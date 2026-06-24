@@ -1,0 +1,96 @@
+2026-06-24 | Rat Maze With Multiple Jumps
+
+	Question
+Return the path matrix, or [[-1]] if no path exists.
+	Key Insight
+This is a classic Backtracking problem.
+At every cell:
+		(i,j)
+we can try:
+		jump = 1
+		jump = 2
+		...
+		jump = mat[i][j]
+in increasing order.
+Since the statement prefers:
+		shorter jumps first
+we iterate jump lengths from small to large.
+For each jump:
+		try right first
+		then down
+If a move leads to the destination, stop immediately.
+	Approach
+1.	Create answer matrix initialized with 0.
+2.	Use DFS/Backtracking.
+3.	Mark current cell as part of path.
+4.	If destination reached:
+			return true
+5.	Try jumps:
+			1 to mat[i][j]
+6.	For each jump:
+			right first
+			then down
+7.	If none succeeds:
+			unmark current cell
+			backtrack
+8.	If no path exists:
+			return [[-1]]
+	Time Complexity
+	Exponential in worst case
+	Space Complexity
+	O(n²)
+	Solution
+class Solution {
+public:
+    bool solve(int i,
+               int j,
+               vector<vector<int>>& mat,
+               vector<vector<int>>& path,
+               int n) {
+        if(i == n - 1 && j == n - 1) {
+            path[i][j] = 1;
+            return true;
+        }
+        if(i < 0 || j < 0 ||
+           i >= n || j >= n ||
+           mat[i][j] == 0)
+            return false;
+        path[i][j] = 1;
+        for(int jump = 1;
+            jump <= mat[i][j];
+            jump++) {
+            if(j + jump < n &&
+               solve(i,
+                     j + jump,
+                     mat,
+                     path,
+                     n))
+                return true;
+            if(i + jump < n &&
+               solve(i + jump,
+                     j,
+                     mat,
+                     path,
+                     n))
+                return true;
+        }
+        path[i][j] = 0;
+        return false;
+    }
+    vector<vector<int>> ShortestDistance(
+            vector<vector<int>>& mat) {
+        int n = mat.size();
+        if(mat[0][0] == 0)
+            return {{-1}};
+        vector<vector<int>> path(
+            n,
+            vector<int>(n, 0));
+        if(solve(0, 0, mat, path, n))
+            return path;
+        return {{-1}};
+    }
+};
+	Key Insight
+The problem explicitly specifies the traversal priority:
+		smaller jumps first
+		right before down
