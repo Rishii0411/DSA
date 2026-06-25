@@ -1,0 +1,74 @@
+2026-06-26 | N Digit Numbers with Strictly Increasing Digits
+
+	Question
+Return all n-digit numbers whose digits are strictly increasing.
+	Key Insight
+Since the digits must always increase:
+•	Once we choose a digit, the next digit must be greater than it.
+•	There is no need to try smaller or equal digits.
+This naturally leads to Backtracking.
+	Approach
+1.	Start building the number digit by digit.
+2.	For the first digit, choose from:
+			1 to 9
+		(leading zero is not allowed).
+3.	For every next position:
+			choose digits greater than the previous digit.
+4.	When the constructed number has n digits:
+			store it.
+5.	Because digits are chosen in increasing order, the generated numbers are automatically sorted.
+	Time Complexity
+	O(C(9, n))
+	There are exactly C(9, n) valid numbers.
+	Space Complexity
+	O(n)
+	(recursion stack)
+	Solution
+class Solution {
+public:
+    void solve(int lastDigit,
+               int len,
+               int n,
+               int num,
+               vector<int>& ans) {
+        if(len == n) {
+            ans.push_back(num);
+            return;
+        }
+        for(int d = lastDigit + 1; d <= 9; d++) {
+            solve(d,
+                  len + 1,
+                  n,
+                  num * 10 + d,
+                  ans);
+        }
+    }
+    vector<int> increasingNumbers(int n) {
+        vector<int> ans;
+        if(n == 1)
+            ans.push_back(0);
+        for(int d = 1; d <= 9; d++) {
+            solve(d, 1, n, d, ans);
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+			n = 2
+	Output:
+			12
+			13
+			14
+			15
+			16
+			17
+			18
+			19
+			23
+			24
+			25
+			...
+			89
+	Key Insight
+The strictly increasing condition means every next digit is uniquely determined to be greater than the previous one. Backtracking explores only valid choices, generating exactly all valid numbers without producing any invalid combinations.
