@@ -1,0 +1,60 @@
+2026-06-25 | Count Subarrays Where Target Is the Majority Element
+
+	Question
+Return the number of subarrays in which target is the majority element.
+	Approach
+1.	Convert the array:
+			target → +1
+			others → -1.
+2.	Compute prefix sums.
+3.	A subarray (l...r) has positive sum if:
+			prefix[r+1] > prefix[l]
+4.	For each prefix sum, count how many previous prefix sums are smaller.
+5.	Use a Fenwick Tree (Binary Indexed Tree) to maintain frequencies of prefix sums.
+6.	Since prefix sums can be negative, shift them by an offset before using them as indices.
+	Time Complexity
+	O(n log n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    struct Fenwick {
+        vector<int> bit;
+        Fenwick(int n) : bit(n + 1, 0) {}
+        void update(int idx, int val) {
+            while (idx < bit.size()) {
+                bit[idx] += val;
+                idx += idx & -idx;
+            }
+        }
+        int query(int idx) {
+            int sum = 0;
+            while (idx > 0) {
+                sum += bit[idx];
+                idx -= idx & -idx;
+            }
+            return sum;
+        }
+    };
+    long long countSubarrays(vector<int>& nums, int target) {
+        int n = nums.size();
+        int offset = n + 2;
+        Fenwick ft(2 * n + 5);
+        long long ans = 0;
+        int pref = 0;
+        ft.update(offset, 1); // prefix sum = 0
+        for (int x : nums) {
+            pref += (x == target ? 1 : -1);
+            ans += ft.query(pref + offset - 1);
+            ft.update(pref + offset, 1);
+        }
+        return ans;
+    }
+};
+	Key Insight
+By converting the target to **+1** and every other element to **-1**, the condition
+			target appears more than half the time
+becomes
+			subarray sum > 0.
+So the task reduces to counting pairs of prefix sums where the later prefix sum is greater than the earlier one, which can be done efficiently using a Fenwick Tree in **O(n log n)**.
