@@ -1,0 +1,78 @@
+2026-06-26 | Distinct Subsequences
+
+	Question
+Return the total number of subsequences of s1 that are equal to s2, modulo 10^9 + 7.
+	Key Insight
+At every character of s1, we have two choices:
+		1. Skip the current character.
+		2. If it matches the current character of s2,
+		   use it in the subsequence.
+This naturally leads to Dynamic Programming.
+	State Definition
+		dp[i][j]
+	= Number of ways to form
+		s2[0...j-1]
+	using
+		s1[0...i-1].
+	Base Cases
+•	Empty s2 can always be formed:
+		dp[i][0] = 1
+•	Non-empty s2 cannot be formed from empty s1:
+		dp[0][j] = 0
+	Transition
+If characters match:
+		s1[i-1] == s2[j-1]
+	then
+		dp[i][j]
+		=
+		dp[i-1][j]
+		+
+		dp[i-1][j-1]
+	where
+		dp[i-1][j]
+			→ Skip current character.
+		dp[i-1][j-1]
+			→ Use current character.
+If characters do not match:
+		dp[i][j]
+		=
+		dp[i-1][j]
+	Time Complexity
+	O(n × m)
+	where
+		n = |s1|
+		m = |s2|
+	Space Complexity
+	O(m)
+	using space optimization.
+	Solution
+class Solution {
+public:
+    int distinctSubsequences(string s1, string s2) {
+        const int MOD = 1000000007;
+        int n = s1.size();
+        int m = s2.size();
+        vector<long long> dp(m + 1, 0);
+        dp[0] = 1;
+        for(int i = 1; i <= n; i++) {
+            for(int j = m; j >= 1; j--) {
+                if(s1[i - 1] == s2[j - 1]) {
+                    dp[j] = (dp[j] + dp[j - 1]) % MOD;
+                }
+            }
+        }
+        return dp[m];
+    }
+};
+	Example
+	Input:
+		s1 = "banana"
+		s2 = "ban"
+	Valid subsequences:
+		ban (using first a, first n)
+		ban (using first a, second n)
+		ban (using second a, second n)
+	Output:
+		3
+	Key Insight
+	For every character in `s1`, either ignore it or use it (only if it matches the current character of `s2`). Updating the DP array from right to left ensures that each character of `s1` is used at most once while counting all possible subsequences, giving an O(n × m) time and O(m) space solution.
