@@ -1,0 +1,68 @@
+2026-06-26 | Count Subarrays Where Target Is the Majority Element
+
+	Question
+Return the number of subarrays in which target is the majority element.
+	Approach
+1.	Convert every element of nums:
+			target → +1
+			others → -1.
+2.	Compute the running prefix sum.
+3.	For every prefix sum `pref`, we need the number of previous prefix sums that are smaller than `pref`, because:
+			pref[j] - pref[i] > 0
+			⇔
+			pref[j] > pref[i]
+4.	Since prefix sums can be negative, compress all possible prefix sums into sorted indices.
+5.	Use a Fenwick Tree (Binary Indexed Tree):
+		- Query how many previous prefix sums are smaller.
+		- Insert the current prefix sum.
+6.	The accumulated count is the answer.
+	Time Complexity
+	O(n log n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    struct Fenwick {
+        int n;
+        vector<int> bit;
+        Fenwick(int sz) {
+            n = sz;
+            bit.assign(n + 1, 0);
+        }
+        void update(int idx, int val) {
+            while (idx <= n) {
+                bit[idx] += val;
+                idx += idx & -idx;
+            }
+        }
+        int query(int idx) {
+            int sum = 0;
+            while (idx > 0) {
+                sum += bit[idx];
+                idx -= idx & -idx;
+            }
+            return sum;
+        }
+    };
+    long long countSubarrays(vector<int>& nums, int target) {
+        int n = nums.size();
+        vector<int> pref(n + 1, 0);
+        for (int i = 0; i < n; i++) {
+            pref[i + 1] = pref[i] + (nums[i] == target ? 1 : -1);
+        }
+        vector<int> vals = pref;
+        sort(vals.begin(), vals.end());
+        vals.erase(unique(vals.begin(), vals.end()), vals.end());
+        Fenwick ft(vals.size());
+        long long ans = 0;
+        for (int x : pref) {
+            int idx = lower_bound(vals.begin(), vals.end(), x) - vals.begin() + 1;
+            ans += ft.query(idx - 1);
+            ft.update(idx, 1);
+        }
+        return ans;
+    }
+};
+	Key Insight
+After replacing every occurrence of `target` with `+1` and every other value with `-1`, a subarray has `target` as its majority element exactly when its transformed sum is positive. Therefore, the task reduces to counting pairs of prefix sums where the later prefix sum is greater than the earlier one, which can be done efficiently in **O(n log n)** using a Fenwick Tree after coordinate compression.
