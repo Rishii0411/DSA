@@ -1,0 +1,98 @@
+2026-06-27 | Find the Maximum Number of Elements in Subset
+
+Question
+Return the maximum possible size of such a subset.
+	Key Insight
+Let the starting value be:
+		x
+Then the chain becomes:
+		x
+		x²
+		x⁴
+		x⁸
+		...
+For every value except the center, we need **2 copies**.
+The center needs only **1 copy**.
+So we greedily extend the chain while enough copies exist.
+	Special Case: x = 1
+Since:
+		1² = 1
+all elements are identical.
+If frequency of 1 is:
+		f
+then the largest valid length is:
+•	f, if f is odd.
+•	f-1, if f is even.
+	because only the center can appear once.
+	Approach
+1.	Count the frequency of every number.
+2.	Handle the value 1 separately.
+3.	For every other distinct number x:
+		currentLength = 0
+4.	While x exists:
+		if frequency ≥ 2
+			use two copies
+			length += 2
+			x = x²
+		else
+			use one copy as center
+			length += 1
+			stop
+5.	Keep the maximum length.
+	Time Complexity
+	O(n log log(MaxValue))
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int maximumLength(vector<int>& nums) {
+        unordered_map<long long, int> freq;
+        for (int x : nums)
+            freq[x]++;
+        int ans = 1;
+        if (freq.count(1)) {
+            int f = freq[1];
+            ans = max(ans, (f % 2 == 0) ? f - 1 : f);
+        }
+        for (auto &[start, cnt] : freq) {
+            if (start == 1)
+                continue;
+            long long x = start;
+            int len = 0;
+            while (freq.count(x)) {
+                if (freq[x] >= 2) {
+                    len += 2;
+                    if (x > 1000000000LL / x)
+                        break;
+                    x = x * x;
+                }
+                else {
+                    len += 1;
+                    break;
+                }
+            }
+            if (len % 2 == 0)
+                len--;
+            ans = max(ans, len);
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		nums = [2,2,4,4,16]
+	Frequencies:
+		2 → 2
+		4 → 2
+		16 → 1
+	Chain:
+		2 → 4 → 16
+	Resulting sequence:
+		[2,4,16,4,2]
+	Length:
+		5
+	Output:
+		5
+	Key Insight
+	A valid sequence is built by repeatedly squaring the current value. Every intermediate value must appear at least twice because it occurs on both sides of the center, while the final (center) value needs only one occurrence. Greedily extending this chain gives the maximum possible subset length.
