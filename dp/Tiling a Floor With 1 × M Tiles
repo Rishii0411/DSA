@@ -1,0 +1,90 @@
+2026-06-27 | Tiling a Floor With 1 × M Tiles
+
+	Question
+Return the number of possible tilings modulo 10^9+7.
+	Key Insight
+Let:
+		dp[i]
+	be the number of ways to tile a floor having:
+		i rows
+		and m columns
+	Consider the last row(s).
+	Case 1: Place the last tile horizontally
+	A horizontal tile covers the entire last row.
+	So the remaining floor has:
+		i - 1 rows
+	Ways:
+		dp[i-1]
+	Case 2: Place tiles vertically
+	A vertical tile occupies:
+		m consecutive rows
+	To fill the last m rows, we need one vertical tile in every column.
+	So the remaining floor has:
+		i - m rows
+	Ways:
+		dp[i-m]
+	Recurrence
+	If i < m:
+		dp[i] = 1
+	(only horizontal placement is possible)
+	If i == m:
+		dp[i] = 2
+	(all horizontal or all vertical)
+	If i > m:
+		dp[i] =
+		dp[i-1] + dp[i-m]
+	Approach
+1.	Create a DP array of size n+1.
+2.	Base cases:
+			dp[0] = 1
+			for i < m:
+				dp[i] = 1
+			dp[m] = 2
+3.	For every i > m:
+			dp[i] =
+			dp[i-1] + dp[i-m]
+4.	Return dp[n].
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int tileFloor(int n, int m) {
+        const int MOD = 1000000007;
+        vector<long long> dp(n + 1, 0);
+        dp[0] = 1;
+        for(int i = 1; i <= n; i++) {
+            if(i < m)
+                dp[i] = 1;
+            else if(i == m)
+                dp[i] = 2;
+            else
+                dp[i] = (dp[i - 1] + dp[i - m]) % MOD;
+        }
+        return dp[n];
+    }
+};
+	Example
+	Input:
+		n = 7
+		m = 4
+	DP values:
+		dp[0] = 1
+		dp[1] = 1
+		dp[2] = 1
+		dp[3] = 1
+		dp[4] = 2
+		dp[5] = 3
+		dp[6] = 4
+		dp[7] = 5
+	Output:
+		5
+	Key Insight
+	At the end of the floor, there are only two possibilities:
+	- The last row is covered using horizontal tiles, leaving a floor of size `(i-1) × m`.
+	- The last `m` rows are covered using vertical tiles in every column, leaving a floor of size `(i-m) × m`.
+	This leads directly to the recurrence:
+		dp[i] = dp[i-1] + dp[i-m]
+	which gives an O(n) dynamic programming solution.
