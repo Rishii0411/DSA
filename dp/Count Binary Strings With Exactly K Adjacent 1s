@@ -1,0 +1,116 @@
+2026-06-28 | Count Binary Strings With Exactly K Adjacent 1s
+
+	Question
+Return the count modulo 10^9+7.
+	Key Insight
+While constructing the string from left to right, the current choice depends only on:
+•	Current position.
+•	Number of adjacent 1s formed so far.
+•	Last placed bit.
+So we use DP.
+	State Definition
+		dp[pos][cnt][last]
+	=
+	Number of binary strings of length pos
+	with exactly cnt adjacent 1s formed so far,
+	and whose last bit is:
+		0 or 1.
+	Base Case
+	For the first position:
+		dp[1][0][0] = 1
+		dp[1][0][1] = 1
+	Transition
+	Case 1: Place 0
+	No new adjacent pair is created.
+		dp[pos+1][cnt][0]
+		+= dp[pos][cnt][last]
+	Case 2: Place 1
+	If previous bit was:
+		0
+	then no new adjacent pair.
+		dp[pos+1][cnt][1]
+		+= dp[pos][cnt][0]
+	If previous bit was:
+		1
+	then one new adjacent pair is formed.
+		dp[pos+1][cnt+1][1]
+		+= dp[pos][cnt][1]
+	Approach
+1.	Create a 3D DP table.
+2.	Initialize strings of length 1.
+3.	Extend the string one position at a time.
+4.	Update the DP according to the previous bit.
+5.	The answer is:
+		dp[n][k][0] + dp[n][k][1]
+	Time Complexity
+	O(n × k)
+	Space Complexity
+	O(n × k)
+	Solution
+class Solution {
+public:
+    static const int MOD = 1000000007;
+    int countStrings(int n, int k) {
+        vector<vector<vector<long long>>> dp(
+            n + 1,
+            vector<vector<long long>>(k + 2,
+            vector<long long>(2, 0)));
+        dp[1][0][0] = 1;
+        dp[1][0][1] = 1;
+        for(int pos = 1; pos < n; pos++) {
+            for(int cnt = 0; cnt <= k; cnt++) {
+                dp[pos + 1][cnt][0] =
+                    (dp[pos + 1][cnt][0] +
+                     dp[pos][cnt][0] +
+                     dp[pos][cnt][1]) % MOD;
+                dp[pos + 1][cnt][1] =
+                    (dp[pos + 1][cnt][1] +
+                     dp[pos][cnt][0]) % MOD;
+                if(cnt + 1 <= k) {
+                    dp[pos + 1][cnt + 1][1] =
+                        (dp[pos + 1][cnt + 1][1] +
+                         dp[pos][cnt][1]) % MOD;
+                }
+            }
+        }
+        return (dp[n][k][0] + dp[n][k][1]) % MOD;
+    }
+};
+	Space Optimized Solution
+class Solution {
+public:
+    static const int MOD = 1000000007;
+    int countStrings(int n, int k) {
+        vector<vector<long long>> prev(k + 2, vector<long long>(2, 0));
+        vector<vector<long long>> curr(k + 2, vector<long long>(2, 0));
+        prev[0][0] = 1;
+        prev[0][1] = 1;
+        for(int pos = 1; pos < n; pos++) {
+            for(int cnt = 0; cnt <= k; cnt++) {
+                curr[cnt][0] = curr[cnt][1] = 0;
+            }
+            for(int cnt = 0; cnt <= k; cnt++) {
+                curr[cnt][0] =
+                    (curr[cnt][0] +
+                     prev[cnt][0] +
+                     prev[cnt][1]) % MOD;
+                curr[cnt][1] =
+                    (curr[cnt][1] +
+                     prev[cnt][0]) % MOD;
+                if(cnt + 1 <= k) {
+                    curr[cnt + 1][1] =
+                        (curr[cnt + 1][1] +
+                         prev[cnt][1]) % MOD;
+                }
+            }
+            swap(prev, curr);
+        }
+        return (prev[k][0] + prev[k][1]) % MOD;
+    }
+};
+	Key Insight
+	The only time the number of adjacent `1`s increases is when a `1` is placed immediately after another `1`. Therefore, while building the string, it is sufficient to remember:
+	- the current position,
+	- the number of adjacent `11` pairs formed so far,
+	- the last placed bit.
+	This leads to an efficient dynamic programming solution with **O(n × k)** time complexity.
