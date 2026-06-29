@@ -1,0 +1,101 @@
+2026-06-29 | Maximum Dot Product by Inserting Zeros
+
+	Question
+Return the maximum possible dot product.
+	Key Insight
+We cannot change the order of elements in b.
+For every element of a, we have two choices:
+•	Skip it
+	This means we insert a zero in b at this position.
+•	Match it with the current element of b
+	and move to the next element in both arrays.
+This naturally leads to Dynamic Programming.
+	State Definition
+		dp[i][j]
+	= Maximum dot product using:
+		a[i...n−1]
+	and
+		b[j...m−1]
+	Transition
+	Option 1: Skip a[i]
+		dp[i+1][j]
+	Option 2: Match
+		a[i] × b[j]
+		+
+		dp[i+1][j+1]
+	Take the maximum.
+	Base Cases
+	If all elements of b are matched:
+		dp[i][m] = 0
+	If elements of a finish before b:
+		impossible
+		return −∞
+	Approach
+1.	Create a DP table.
+2.	Process states from the end.
+3.	At each state:
+			skip current element of a
+		or
+			match current elements
+4.	Return dp[0][0].
+	Time Complexity
+	O(n × m)
+	Space Complexity
+	O(n × m)
+	Solution
+class Solution {
+public:
+    int maxDotProduct(int n, int m,
+                      vector<int>& a,
+                      vector<int>& b) {
+        const long long NEG = -(1LL << 60);
+        vector<vector<long long>> dp(
+            n + 1,
+            vector<long long>(m + 1, NEG));
+        for(int i = 0; i <= n; i++)
+            dp[i][m] = 0;
+        for(int i = n - 1; i >= 0; i--) {
+            for(int j = m - 1; j >= 0; j--) {
+                long long skip = dp[i + 1][j];
+                long long take = NEG;
+                if(dp[i + 1][j + 1] != NEG) {
+                    take = 1LL * a[i] * b[j]
+                         + dp[i + 1][j + 1];
+                }
+                dp[i][j] = max(skip, take);
+            }
+        }
+        return dp[0][0];
+    }
+};
+	Space Optimized Solution
+class Solution {
+public:
+    int maxDotProduct(int n, int m,
+                      vector<int>& a,
+                      vector<int>& b) {
+        const long long NEG = -(1LL << 60);
+        vector<long long> next(m + 1, NEG);
+        vector<long long> curr(m + 1, NEG);
+        next[m] = 0;
+        for(int i = n - 1; i >= 0; i--) {
+            curr[m] = 0;
+            for(int j = m - 1; j >= 0; j--) {
+                long long skip = next[j];
+                long long take = NEG;
+                if(next[j + 1] != NEG) {
+                    take = 1LL * a[i] * b[j]
+                         + next[j + 1];
+                }
+                curr[j] = max(skip, take);
+            }
+            swap(curr, next);
+        }
+        return next[0];
+    }
+};
+	Key Insight
+	Each element of `a` either:
+	- gets matched with the current element of `b`, contributing `a[i] × b[j]`, or
+	- is skipped, which is equivalent to inserting a `0` at that position in `b`.
+	Since the order of elements in `b` cannot change, Dynamic Programming over the indices of both arrays gives the optimal solution in **O(n × m)** time.
