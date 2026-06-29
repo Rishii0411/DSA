@@ -1,0 +1,50 @@
+2026-06-29 | Number of Strings That Appear as Substrings in Word
+
+	Question
+Return the total number of strings in patterns that are substrings of word.
+	Key Insight
+Each pattern is checked independently.
+C++ provides the built-in function:
+		word.find(pattern)
+	If it does not return:
+		string::npos
+	then the pattern exists in word.
+	Approach
+1.	Initialize answer = 0.
+2.	Traverse every string in patterns.
+3.	Check:
+			if(word.find(pattern) != string::npos)
+4.	If true, increment the answer.
+5.	Return the answer.
+	Time Complexity
+	O(m × n)
+	where
+		m = number of patterns
+		n = average length involved in substring search
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int numOfStrings(vector<string>& patterns, string word) {
+        int ans = 0;
+        for(string &pattern : patterns) {
+            if(word.find(pattern) != string::npos)
+                ans++;
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		patterns = ["a","abc","bc","d"]
+		word = "abc"
+	Check:
+		"a"   ✓
+		"abc" ✓
+		"bc"  ✓
+		"d"   ✗
+	Output:
+		3
+	Key Insight
+	Since each pattern is checked independently, the simplest and most efficient approach is to use the built-in substring search (`find`) for every pattern and count how many are found in `word`.
