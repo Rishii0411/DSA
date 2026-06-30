@@ -1,0 +1,76 @@
+2026-06-30 | Number of Substrings Containing All Three Characters
+
+	Question
+Return the total number of substrings containing all three characters.
+	Key Insight
+Use a Sliding Window.
+Maintain a window:
+		[left...right]
+and keep the frequency of:
+		a
+		b
+		c
+Whenever the current window contains all three characters:
+		freq[a] > 0
+		freq[b] > 0
+		freq[c] > 0
+then every substring starting at left and ending at:
+		right,
+		right+1,
+		...
+		n-1
+is also valid.
+So we can directly add:
+		n - right
+to the answer.
+Then shrink the window from the left.
+	Approach
+1.	Maintain two pointers:
+			left
+			right
+2.	Expand the window by moving right.
+3.	Update frequencies.
+4.	While all three characters exist:
+			answer += n - right
+			remove s[left]
+			left++
+5.	Return answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int numberOfSubstrings(string s) {
+        vector<int> freq(3, 0);
+        int left = 0;
+        int ans = 0;
+        int n = s.size();
+        for(int right = 0; right < n; right++) {
+            freq[s[right] - 'a']++;
+            while(freq[0] > 0 &&
+                  freq[1] > 0 &&
+                  freq[2] > 0) {
+                ans += n - right;
+                freq[s[left] - 'a']--;
+                left++;
+            }
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		s = "abcabc"
+	Valid substrings include:
+		"abc"
+		"abca"
+		"abcab"
+		"abcabc"
+		"bca"
+		...
+	Output:
+		10
+	Key Insight
+	Once a window contains at least one `'a'`, `'b'`, and `'c'`, extending its right boundary can never make it invalid. Therefore, for every valid window ending at `right`, there are exactly `n - right` valid substrings starting at the current `left`, leading to an O(n) sliding window solution.
