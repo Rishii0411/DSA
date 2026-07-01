@@ -1,0 +1,121 @@
+2026-07-01 | Find the Safest Path in a Grid
+
+	Question
+Return the maximum possible safeness factor.
+	Key Insight
+The problem has two phases.
+Phase 1:
+Compute, for every cell, its minimum Manhattan distance from any thief.
+This can be done using Multi-Source BFS by starting BFS simultaneously from every thief.
+Let:
+		dist[i][j]
+	be the distance of cell (i,j) from its nearest thief.
+Phase 2:
+Suppose we want to know whether a path exists whose every cell has:
+		dist ≥ X
+This is easy to check using a normal BFS.
+If such a path exists for X, then it also exists for every value smaller than X.
+So the answer is monotonic, allowing Binary Search.
+	Approach
+1.	Run Multi-Source BFS from all thief cells to compute the nearest thief distance for every cell.
+2.	Binary search the safeness factor.
+3.	For each candidate value:
+		- Start BFS from (0,0).
+		- Move only to cells having distance ≥ candidate.
+		- If (n−1,n−1) is reachable, the candidate is valid.
+4.	Return the largest valid value.
+	Time Complexity
+	O(n² log n)
+	- Multi-source BFS: O(n²)
+	- Binary Search: O(log n)
+	- BFS for each check: O(n²)
+	Space Complexity
+	O(n²)
+	Solution
+class Solution {
+public:
+    vector<pair<int,int>> dir = {{1,0},{-1,0},{0,1},{0,-1}};
+    bool canReach(vector<vector<int>>& dist, int safe) {
+        int n = dist.size();
+        if(dist[0][0] < safe)
+            return false;
+        queue<pair<int,int>> q;
+        vector<vector<int>> vis(n, vector<int>(n,0));
+        q.push({0,0});
+        vis[0][0] = 1;
+        while(!q.empty()) {
+            auto [x,y] = q.front();
+            q.pop();
+            if(x == n-1 && y == n-1)
+                return true;
+            for(auto &[dx,dy] : dir) {
+                int nx = x + dx;
+                int ny = y + dy;
+                if(nx>=0 && ny>=0 && nx<n && ny<n &&
+                   !vis[nx][ny] &&
+                   dist[nx][ny] >= safe) {
+                    vis[nx][ny] = 1;
+                    q.push({nx,ny});
+                }
+            }
+        }
+        return false;
+    }
+    int maximumSafenessFactor(vector<vector<int>>& grid) {
+        int n = grid.size();
+        vector<vector<int>> dist(n, vector<int>(n,-1));
+        queue<pair<int,int>> q;
+        for(int i=0;i<n;i++) {
+            for(int j=0;j<n;j++) {
+                if(grid[i][j]==1) {
+                    dist[i][j]=0;
+                    q.push({i,j});
+                }
+            }
+        }
+        while(!q.empty()) {
+            auto [x,y]=q.front();
+            q.pop();
+            for(auto &[dx,dy]:dir) {
+                int nx=x+dx;
+                int ny=y+dy;
+                if(nx>=0 && ny>=0 && nx<n && ny<n &&
+                   dist[nx][ny]==-1) {
+                    dist[nx][ny]=dist[x][y]+1;
+                    q.push({nx,ny});
+                }
+            }
+        }
+        int low=0, high=2*n, ans=0;
+        while(low<=high){
+            int mid=(low+high)/2;
+            if(canReach(dist,mid)){
+                ans=mid;
+                low=mid+1;
+            }
+            else{
+                high=mid-1;
+            }
+        }
+        return ans;
+    }
+};
+	Example
+	Input
+		grid =
+		[
+		  [1,0,0],
+		  [0,0,0],
+		  [0,0,1]
+		]
+	Distance from nearest thief
+		[
+		  [0,1,2],
+		  [1,2,1],
+		  [2,1,0]
+		]
+	The best path keeps the minimum distance as large as possible.
+	Output
+		1
+	Key Insight
+	The problem is a classic **maximize the minimum** problem. First, compute each cell's distance from the nearest thief using **Multi-Source BFS**. Then, use **Binary Search** on the answer and verify each candidate with a simple **BFS**, giving an overall complexity of **O(n² log n)**.
