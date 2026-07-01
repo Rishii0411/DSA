@@ -1,0 +1,79 @@
+2026-07-01 | Maximum Subarray Sum with One Deletion
+
+	Question
+Return the maximum possible subarray sum after deleting at most one element.
+	Key Insight
+This is an extension of Kadane's Algorithm.
+For every index, maintain two values:
+		noDelete
+	= Maximum subarray sum ending at current index without deleting any element.
+		oneDelete
+	= Maximum subarray sum ending at current index after deleting exactly one element.
+	Transition
+	Case 1: No deletion used
+	Either:
+		Start a new subarray
+	or
+		Extend the previous one.
+		noDelete =
+		max(arr[i],
+		    noDelete + arr[i])
+	Case 2: One deletion used
+	Two possibilities:
+	•	Delete current element
+			oneDelete = previous noDelete
+	•	Deletion already used earlier
+			Extend current element
+			oneDelete + arr[i]
+	So,
+		oneDelete =
+		max(previous noDelete,
+		    previous oneDelete + arr[i])
+	The answer is the maximum value among all states.
+	Approach
+1.	Initialize:
+			noDelete = arr[0]
+			oneDelete = 0
+2.	Traverse the array.
+3.	Update the two DP states.
+4.	Track the maximum answer.
+5.	Return the answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int maxSumSubarray(vector<int>& arr) {
+        int noDelete = arr[0];
+        int oneDelete = 0;
+        int ans = arr[0];
+        for(int i = 1; i < arr.size(); i++) {
+            int prevNoDelete = noDelete;
+            noDelete = max(arr[i], noDelete + arr[i]);
+            oneDelete = max(prevNoDelete,
+                            oneDelete + arr[i]);
+            ans = max(ans, max(noDelete, oneDelete));
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		arr = [1,-2,0,3]
+	Without deletion:
+		Maximum sum = 3
+	Delete:
+		-2
+	Subarray becomes:
+		[1,0,3]
+	Sum:
+		4
+	Output:
+		4
+	Key Insight
+	At every position, there are only two meaningful states:
+	- Continue without using any deletion.
+	- Continue after having used exactly one deletion (either earlier or by deleting the current element).
+	Maintaining these two states while scanning the array gives the optimal solution in **O(n)** time and **O(1)** extra space.
