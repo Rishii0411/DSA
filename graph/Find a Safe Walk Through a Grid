@@ -1,0 +1,107 @@
+2026-07-03 | Find a Safe Walk Through a Grid
+
+	Question
+Return true if you can reach the destination with positive health, otherwise return false.
+	Key Insight
+This is a shortest-path style problem, but the state is not only the position.
+We also need to know:
+		remaining health
+Instead of storing every possible health value separately, we store only the **maximum remaining health** with which each cell has been reached.
+If we revisit a cell with less or equal remaining health, that path is never better and can be ignored.
+	State
+		(row,
+		 col,
+		 remainingHealth)
+	Transition
+For every neighboring cell:
+	If it is:
+		0
+	then
+		newHealth = health
+	If it is:
+		1
+	then
+		newHealth = health - 1
+	Only continue if:
+		newHealth ≥ 1
+	and
+		newHealth is greater than the best health previously recorded for that cell.
+	Approach
+1.	Compute the initial health after entering (0,0).
+2.	If it becomes zero, return false.
+3.	Run BFS.
+4.	For every move:
+		- Update remaining health.
+		- Ignore invalid moves.
+		- Visit a cell only if arriving with more health than before.
+5.	If destination is reached, return true.
+6.	If BFS finishes, return false.
+	Time Complexity
+	O(m × n)
+	Each cell is processed only when its best remaining health improves.
+	Space Complexity
+	O(m × n)
+	Solution
+class Solution {
+public:
+    bool findSafeWalk(vector<vector<int>>& grid, int health) {
+        int m = grid.size();
+        int n = grid[0].size();
+        int startHealth = health - grid[0][0];
+        if(startHealth < 1)
+            return false;
+        vector<vector<int>> best(m, vector<int>(n, -1));
+        queue<tuple<int,int,int>> q;
+        q.push({0, 0, startHealth});
+        best[0][0] = startHealth;
+        int dr[4] = {-1, 1, 0, 0};
+        int dc[4] = {0, 0, -1, 1};
+        while(!q.empty()) {
+            auto [r, c, h] = q.front();
+            q.pop();
+            if(r == m - 1 && c == n - 1)
+                return true;
+            for(int k = 0; k < 4; k++) {
+                int nr = r + dr[k];
+                int nc = c + dc[k];
+                if(nr < 0 || nr >= m || nc < 0 || nc >= n)
+                    continue;
+                int nh = h - grid[nr][nc];
+                if(nh < 1)
+                    continue;
+                if(nh <= best[nr][nc])
+                    continue;
+                best[nr][nc] = nh;
+                q.push({nr, nc, nh});
+            }
+        }
+        return false;
+    }
+};
+	Example
+	Input:
+		grid =
+		[
+		 [0,1,0],
+		 [0,1,0],
+		 [0,0,0]
+		]
+		health = 2
+	Path:
+		(0,0)
+		↓
+		(1,0)
+		↓
+		(2,0)
+		→
+		(2,1)
+		→
+		(2,2)
+	Unsafe cells visited:
+		0
+	Remaining health:
+		2
+	Output:
+		true
+	Key Insight
+	The same cell may be reached through different paths with different remaining health values. Only the path that reaches a cell with the **maximum remaining health** is worth exploring further. Therefore, we store the best remaining health for every cell and use BFS to efficiently determine whether the destination can be reached with health at least `1`.
