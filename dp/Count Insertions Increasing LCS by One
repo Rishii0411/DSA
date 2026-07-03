@@ -1,0 +1,114 @@
+2026-07-03 | Count Insertions Increasing LCS by One
+
+	Question
+Return the number of valid insertions.
+	Key Insight
+First compute the original LCS.
+Let:
+		L = LCS(s1, s2)
+After inserting one character, the LCS can increase by **at most 1**.
+So we only need to count insertions that make the new LCS equal to:
+		L + 1
+	Forward DP
+Define:
+		pref[i][j]
+	= LCS of
+		s1[0...i-1]
+	and
+		s2[0...j-1]
+	Backward DP
+Define:
+		suff[i][j]
+	= LCS of
+		s1[i...]
+	and
+		s2[j...]
+	Both tables are computed in O(n₁ × n₂).
+	Checking an Insertion
+Suppose we insert character:
+		c
+at position:
+		pos
+If we match this new character with:
+		s2[j]
+then we obtain
+		pref[pos][j]
+		+
+		1
+		+
+		suff[pos][j+1]
+If this equals
+		L + 1
+then inserting character
+		c = s2[j]
+at position
+		pos
+is valid.
+For one insertion position, multiple occurrences of the same character in s2 should be counted only once, so use a boolean array of size 26.
+	Approach
+1.	Compute forward LCS DP.
+2.	Compute backward LCS DP.
+3.	Let
+			L = pref[n1][n2].
+4.	For every insertion position:
+			0 ... n1
+5.	Try matching with every position in s2.
+6.	If
+			pref[pos][j] + 1 + suff[pos][j+1]
+			== L + 1
+		then character
+			s2[j]
+		is a valid insertion.
+7.	Count distinct characters for every insertion position.
+	Time Complexity
+	O(n₁ × n₂)
+	Space Complexity
+	O(n₁ × n₂)
+	Solution
+class Solution {
+public:
+    int countWays(string s1, string s2) {
+        int n = s1.size();
+        int m = s2.size();
+        vector<vector<int>> pref(n + 1, vector<int>(m + 1, 0));
+        vector<vector<int>> suff(n + 1, vector<int>(m + 1, 0));
+        for(int i = 1; i <= n; i++) {
+            for(int j = 1; j <= m; j++) {
+                if(s1[i - 1] == s2[j - 1])
+                    pref[i][j] = pref[i - 1][j - 1] + 1;
+                else
+                    pref[i][j] = max(pref[i - 1][j],
+                                     pref[i][j - 1]);
+            }
+        }
+        for(int i = n - 1; i >= 0; i--) {
+            for(int j = m - 1; j >= 0; j--) {
+                if(s1[i] == s2[j])
+                    suff[i][j] = suff[i + 1][j + 1] + 1;
+                else
+                    suff[i][j] = max(suff[i + 1][j],
+                                     suff[i][j + 1]);
+            }
+        }
+        int L = pref[n][m];
+        int ans = 0;
+        for(int pos = 0; pos <= n; pos++) {
+            vector<bool> used(26, false);
+            for(int j = 0; j < m; j++) {
+                if(pref[pos][j] + 1 + suff[pos][j + 1] == L + 1) {
+                    int ch = s2[j] - 'a';
+                    if(!used[ch]) {
+                        used[ch] = true;
+                        ans++;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+};
+	Key Insight
+	Inserting one character can increase the LCS by **at most one**. By precomputing:
+	- `pref[i][j]` = LCS of the prefixes of `s1` and `s2`
+	- `suff[i][j]` = LCS of the suffixes of `s1` and `s2`
+	we can test every insertion position and every matching character from `s2` in constant time. This yields an overall **O(n₁ × n₂)** dynamic programming solution.
