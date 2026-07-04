@@ -1,0 +1,99 @@
+2026-07-04 | Count Substrings With More 1s Than 0s
+
+Question
+Return the total number of substrings having more 1s than 0s.
+	Key Insight
+Convert the string into numbers:
+		'1' → +1
+		'0' → -1
+Now for any substring:
+		sum = (#1) - (#0)
+The substring has more 1s than 0s if:
+		sum > 0
+Let:
+		pref[i]
+	be the prefix sum up to index i.
+	A substring:
+		(l...r)
+	has positive sum if:
+		pref[r+1] - pref[l] > 0
+	or
+		pref[r+1] > pref[l]
+So for every current prefix sum, we need to count how many previous prefix sums are smaller than it.
+This can be done efficiently using a Fenwick Tree after coordinate compression.
+	Approach
+1.	Convert:
+			'1' → +1
+			'0' → -1
+2.	Compute all prefix sums.
+3.	Coordinate compress the prefix sums.
+4.	Traverse the prefix sums:
+		- Query the Fenwick Tree for the number of previous prefix sums smaller than the current one.
+		- Add this count to the answer.
+		- Insert the current prefix sum into the Fenwick Tree.
+5.	Return the answer.
+	Time Complexity
+	O(n log n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    class Fenwick {
+    public:
+        int n;
+        vector<int> bit;
+        Fenwick(int sz) {
+            n = sz;
+            bit.assign(n + 1, 0);
+        }
+        void update(int idx, int val) {
+            while(idx <= n) {
+                bit[idx] += val;
+                idx += idx & -idx;
+            }
+        }
+        int query(int idx) {
+            int sum = 0;
+            while(idx > 0) {
+                sum += bit[idx];
+                idx -= idx & -idx;
+            }
+            return sum;
+        }
+    };
+    long long countSubstring(string s) {
+        int n = s.size();
+        vector<int> pref(n + 1, 0);
+        for(int i = 0; i < n; i++) {
+            pref[i + 1] = pref[i] + (s[i] == '1' ? 1 : -1);
+        }
+        vector<int> vals = pref;
+        sort(vals.begin(), vals.end());
+        vals.erase(unique(vals.begin(), vals.end()), vals.end());
+        Fenwick ft(vals.size());
+        long long ans = 0;
+        for(int x : pref) {
+            int idx = lower_bound(vals.begin(), vals.end(), x) - vals.begin() + 1;
+            ans += ft.query(idx - 1);
+            ft.update(idx, 1);
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		s = "110"
+	Converted array:
+		[+1,+1,-1]
+	Prefix sums:
+		0 1 2 1
+	Positive-sum substrings:
+		"1"
+		"11"
+		"110"
+		"1"
+	Output:
+		4
+	Key Insight
+	After converting `'1'` to `+1` and `'0'` to `-1`, every substring with more `1`s than `0`s has a **positive sum**. Therefore, the problem reduces to counting pairs of prefix sums where the later prefix sum is greater than the earlier one. A Fenwick Tree with coordinate compression counts these pairs efficiently in **O(n log n)** time.
