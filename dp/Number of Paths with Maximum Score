@@ -1,0 +1,130 @@
+2026-07-05 | Number of Paths with Maximum Score
+
+	Question
+Return:
+		[maximumScore, numberOfMaximumScorePaths]
+	Key Insight
+Instead of moving from:
+		S → E
+we compute DP from:
+		E → S
+because every move from S has a reverse move from E.
+At every cell we maintain two values:
+		score[i][j]
+	= maximum score obtainable from E to this cell.
+		ways[i][j]
+	= number of paths producing that score.
+	State Transition
+A cell can be reached from:
+		Top
+		Left
+		Diagonal
+Among these three predecessors:
+•	Choose the one(s) with the maximum score.
+•	Add their number of ways.
+•	Add the current cell's value (except for E and S).
+	Base Case
+		E
+has
+		score = 0
+		ways = 1
+	Approach
+1.	Create two DP tables:
+			score
+			ways
+2.	Initialize all scores to -1.
+3.	Set:
+			score[0][0] = 0
+			ways[0][0] = 1
+4.	Process the board row by row.
+5.	Ignore blocked cells.
+6.	For every cell:
+			check top, left and diagonal.
+7.	Keep only the largest score.
+8.	If multiple directions give the same score,
+			add their path counts.
+9.	Add the current cell value.
+10.	If destination is unreachable,
+			return [0,0].
+	Time Complexity
+	O(n²)
+	Space Complexity
+	O(n²)
+	Solution
+class Solution {
+public:
+    vector<int> pathsWithMaxScore(vector<string>& board) {
+        const int MOD = 1000000007;
+        int n = board.size();
+        vector<vector<int>> score(n, vector<int>(n, -1));
+        vector<vector<int>> ways(n, vector<int>(n, 0));
+        score[0][0] = 0;
+        ways[0][0] = 1;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                if(board[i][j] == 'X')
+                    continue;
+                if(i == 0 && j == 0)
+                    continue;
+                int best = -1;
+                long long cnt = 0;
+                if(i > 0 && score[i - 1][j] != -1) {
+                    if(score[i - 1][j] > best) {
+                        best = score[i - 1][j];
+                        cnt = ways[i - 1][j];
+                    }
+                    else if(score[i - 1][j] == best) {
+                        cnt = (cnt + ways[i - 1][j]) % MOD;
+                    }
+                }
+                if(j > 0 && score[i][j - 1] != -1) {
+                    if(score[i][j - 1] > best) {
+                        best = score[i][j - 1];
+                        cnt = ways[i][j - 1];
+                    }
+                    else if(score[i][j - 1] == best) {
+                        cnt = (cnt + ways[i][j - 1]) % MOD;
+                    }
+                }
+                if(i > 0 && j > 0 && score[i - 1][j - 1] != -1) {
+                    if(score[i - 1][j - 1] > best) {
+                        best = score[i - 1][j - 1];
+                        cnt = ways[i - 1][j - 1];
+                    }
+                    else if(score[i - 1][j - 1] == best) {
+                        cnt = (cnt + ways[i - 1][j - 1]) % MOD;
+                    }
+                }
+                if(best == -1)
+                    continue;
+                score[i][j] = best;
+                if(board[i][j] != 'S') {
+                    score[i][j] += board[i][j] - '0';
+                }
+                ways[i][j] = cnt % MOD;
+            }
+        }
+        if(score[n - 1][n - 1] == -1)
+            return {0, 0};
+        return {score[n - 1][n - 1],
+                ways[n - 1][n - 1]};
+    }
+};
+	Example
+	Input
+		[
+		 "E23",
+		 "2X2",
+		 "12S"
+		]
+	Maximum score:
+		7
+	Number of maximum-score paths:
+		1
+	Output
+		[7,1]
+	Key Insight
+	For each cell, maintain:
+	- the maximum score obtainable from `E` to that cell, and
+	- the number of ways to achieve that maximum score.
+	When processing a cell, only predecessors (top, left, and diagonal) with the **highest score** contribute to the answer. This dynamic programming approach computes both the maximum score and the number of optimal paths in **O(n²)** time. 
