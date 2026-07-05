@@ -1,0 +1,53 @@
+2026-07-05 | Largest Substring Between Two Equal Characters
+
+	Question
+Return the maximum number of characters between any two identical characters.
+	Key Insight
+For every character, only its **first occurrence** is needed.
+When we encounter the same character again:
+		currentDistance =
+		currentIndex - firstOccurrence - 1
+Update the answer.
+There are only 26 lowercase letters, so an array of size 26 is sufficient.
+	Approach
+1.	Create an array `first` of size 26 and initialize all values to -1.
+2.	Traverse the string.
+3.	If a character appears for the first time:
+			store its index.
+4.	Otherwise:
+			compute the distance between the current index and its first occurrence.
+5.	Update the maximum distance.
+6.	Return the answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int maxLengthBetweenEqualCharacters(string s) {
+        vector<int> first(26, -1);
+        int ans = -1;
+        for(int i = 0; i < s.size(); i++) {
+            int idx = s[i] - 'a';
+            if(first[idx] == -1) {
+                first[idx] = i;
+            } else {
+                ans = max(ans, i - first[idx] - 1);
+            }
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		s = "abca"
+	Occurrences of 'a':
+		first index = 0
+		last index = 3
+	Characters between them:
+		3 - 0 - 1 = 2
+	Output:
+		2
+	Key Insight
+	To maximize the number of characters between two identical letters, always pair the **current occurrence** with the **first occurrence** of that character. Therefore, storing only the first index of each letter is sufficient to solve the problem in **O(n)** time and **O(1)** space.
