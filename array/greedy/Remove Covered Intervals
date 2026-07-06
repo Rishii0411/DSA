@@ -1,0 +1,88 @@
+2026-07-04 | Remove Covered Intervals
+
+	Question
+Return the number of intervals that are not covered by any other interval.
+	Key Insight
+The main challenge is efficiently identifying covered intervals.
+First, sort the intervals by:
+	1.	Start point in increasing order.
+	2.	If two intervals have the same start, sort by end point in decreasing order.
+Why sort the end in decreasing order?
+	Example:
+		[1,4]
+		[1,3]
+	If sorted by increasing end:
+		[1,3]
+		[1,4]
+	we might incorrectly count `[1,3]` before seeing `[1,4]`.
+	Sorting by decreasing end gives:
+		[1,4]
+		[1,3]
+	which correctly identifies `[1,3]` as covered.
+After sorting, keep track of the farthest ending point seen so far.
+If the current interval's end is less than or equal to this maximum end, it is covered.
+Otherwise, it is not covered.
+	Approach
+1.	Sort intervals:
+		- Start ascending.
+		- End descending if starts are equal.
+2.	Initialize:
+			maxEnd = -1
+			answer = 0
+3.	Traverse the sorted intervals.
+4.	If:
+			currentEnd > maxEnd
+		then:
+			- Count this interval.
+			- Update maxEnd.
+5.	Otherwise, the interval is covered.
+6.	Return the count.
+	Time Complexity
+	O(n log n)
+	Sorting dominates the complexity.
+	Space Complexity
+	O(1)
+	(excluding the sorting algorithm)
+	Solution
+class Solution {
+public:
+    int removeCoveredIntervals(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end(),
+            [](const vector<int>& a, const vector<int>& b) {
+                if(a[0] == b[0])
+                    return a[1] > b[1];
+                return a[0] < b[0];
+            });
+        int ans = 0;
+        int maxEnd = -1;
+        for(auto &interval : intervals) {
+            if(interval[1] > maxEnd) {
+                ans++;
+                maxEnd = interval[1];
+            }
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		intervals =
+		[
+			[1,4],
+			[3,6],
+			[2,8]
+		]
+	After sorting:
+		[
+			[1,4],
+			[2,8],
+			[3,6]
+		]
+	Processing:
+		[1,4] → keep
+		[2,8] → keep
+		[3,6] → covered by [2,8]
+	Output:
+		2
+	Key Insight
+	After sorting by **start ascending** and **end descending**, every interval that can cover another appears before it. Therefore, if the current interval's end is less than or equal to the maximum end seen so far, it is covered; otherwise, it must remain. This yields an **O(n log n)** solution.
