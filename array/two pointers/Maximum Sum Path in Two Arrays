@@ -1,0 +1,95 @@
+2026-07-06 | Maximum Sum Path in Two Arrays
+
+	Question
+Return the maximum sum path.
+	Key Insight
+Since both arrays are sorted, we can traverse them simultaneously using two pointers.
+Between two common elements, switching is impossible.
+So, maintain:
+		sumA
+	= sum collected in array a since the last common element.
+		sumB
+	= sum collected in array b since the last common element.
+	When a common element is found:
+	•	Add the larger of the two sums.
+	•	Add the common element once.
+	•	Reset both sums to zero.
+	After finishing the traversal, add the larger of the remaining sums.
+	Approach
+1.	Initialize:
+			i = 0
+			j = 0
+			sumA = 0
+			sumB = 0
+			ans = 0
+2.	Traverse both arrays using two pointers.
+3.	If:
+			a[i] < b[j]
+		add a[i] to sumA.
+4.	If:
+			a[i] > b[j]
+		add b[j] to sumB.
+5.	If:
+			a[i] == b[j]
+		then:
+			- Add max(sumA, sumB) + common element to answer.
+			- Reset both sums.
+			- Move both pointers.
+6.	Add remaining elements of both arrays.
+7.	Add max(sumA, sumB) to the answer.
+8.	Return the answer.
+	Time Complexity
+	O(n + m)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int maxPathSum(vector<int>& a, vector<int>& b) {
+        int i = 0, j = 0;
+        long long sumA = 0, sumB = 0;
+        long long ans = 0;
+        while(i < a.size() && j < b.size()) {
+            if(a[i] < b[j]) {
+                sumA += a[i++];
+            }
+            else if(a[i] > b[j]) {
+                sumB += b[j++];
+            }
+            else {
+                ans += max(sumA, sumB) + a[i];
+                sumA = 0;
+                sumB = 0;
+                i++;
+                j++;
+            }
+        }
+        while(i < a.size())
+            sumA += a[i++];
+        while(j < b.size())
+            sumB += b[j++];
+        ans += max(sumA, sumB);
+        return ans;
+    }
+};
+	Example
+	Input:
+		a = [2,3,7,10,12]
+		b = [1,5,7,8]
+	Processing:
+		Before 7:
+			sumA = 2+3 = 5
+			sumB = 1+5 = 6
+		Take larger:
+			6 + 7 = 13
+		Remaining:
+			sumA = 10+12 = 22
+			sumB = 8 = 8
+		Take larger:
+			22
+	Answer:
+		13 + 22 = 35
+	Output:
+		35
+	Key Insight
+	Between two consecutive common elements, you cannot switch arrays. Therefore, the optimal strategy is to accumulate the sums in both arrays independently and, at each common element, choose the larger accumulated sum, add the common element once, and continue. This greedy two-pointer approach finds the answer in **O(n + m)** time.
