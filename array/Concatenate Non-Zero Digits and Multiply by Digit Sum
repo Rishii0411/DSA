@@ -1,0 +1,49 @@
+2026-07-07 | Concatenate Non-Zero Digits and Multiply by Digit Sum
+
+	Question
+Return the value of:
+		x × digitSum(x)
+	Approach
+1.	Convert `n` to a string.
+2.	Traverse each digit.
+3.	If the digit is not `'0'`:
+		- Append it to `x`.
+		- Add its value to the digit sum.
+4.	If no non-zero digit exists, return `0`.
+5.	Return:
+		x × digitSum
+	Time Complexity
+	O(d)
+	where `d` is the number of digits in `n`.
+	Space Complexity
+	O(d)
+	Solution
+class Solution {
+public:
+    long long specialInteger(int n) {
+        string s = to_string(n);
+        long long x = 0;
+        long long sum = 0;
+        for(char ch : s) {
+            if(ch != '0') {
+                int digit = ch - '0';
+                x = x * 10 + digit;
+                sum += digit;
+            }
+        }
+        return x * sum;
+    }
+};
+	Example
+	Input:
+		n = 102304
+	Non-zero digits:
+		1234
+	Sum of digits:
+		1 + 2 + 3 + 4 = 10
+	Result:
+		1234 × 10 = 12340
+	Output:
+		12340
+	Key Insight
+	Process the digits exactly once. While constructing the new number `x`, simultaneously compute the sum of its digits. This allows the answer to be computed in a single linear scan of the digits.
