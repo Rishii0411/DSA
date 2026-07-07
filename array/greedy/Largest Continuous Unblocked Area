@@ -1,0 +1,84 @@
+2026-07-07 | Largest Continuous Unblocked Area
+
+	Question
+Return the maximum continuous unblocked area.
+	Key Insight
+A blocked row splits the grid horizontally.
+A blocked column splits the grid vertically.
+So we only need to find:
+	- The maximum number of consecutive unblocked rows.
+	- The maximum number of consecutive unblocked columns.
+The answer is simply:
+		maxRows × maxCols
+To find the maximum consecutive rows:
+•	Store all blocked row indices.
+•	Add virtual boundaries:
+		0
+		n + 1
+•	Sort them.
+•	The gap between two consecutive blocked rows is:
+		blocked[i] - blocked[i-1] - 1
+	This is the number of consecutive unblocked rows.
+Do the same for columns.
+	Approach
+1.	Store all blocked rows and blocked columns separately.
+2.	Add boundary values:
+			0 and n+1 for rows.
+			0 and m+1 for columns.
+3.	Sort both arrays.
+4.	Find the maximum gap between consecutive blocked rows.
+5.	Find the maximum gap between consecutive blocked columns.
+6.	Return:
+			maxRowGap × maxColGap
+	Time Complexity
+	O(k log k)
+	where `k` is the number of blocked cells.
+	Space Complexity
+	O(k)
+	Solution
+class Solution {
+public:
+    int largestArea(int n, int m, vector<vector<int>>& arr) {
+        vector<int> rows, cols;
+        rows.push_back(0);
+        rows.push_back(n + 1);
+        cols.push_back(0);
+        cols.push_back(m + 1);
+        for(auto &cell : arr) {
+            rows.push_back(cell[0]);
+            cols.push_back(cell[1]);
+        }
+        sort(rows.begin(), rows.end());
+        sort(cols.begin(), cols.end());
+        int maxRows = 0;
+        int maxCols = 0;
+        for(int i = 1; i < rows.size(); i++) {
+            maxRows = max(maxRows, rows[i] - rows[i - 1] - 1);
+        }
+        for(int i = 1; i < cols.size(); i++) {
+            maxCols = max(maxCols, cols[i] - cols[i - 1] - 1);
+        }
+        return maxRows * maxCols;
+    }
+};
+	Example
+	Input:
+		n = 8
+		m = 8
+		arr = [[3,8],[8,6]]
+	Blocked rows:
+		0 3 8 9
+	Row gaps:
+		2, 4, 0
+	Largest unblocked rows:
+		4
+	Blocked columns:
+		0 6 8 9
+	Column gaps:
+		5, 1, 0
+	Largest unblocked columns:
+		5
+	Answer:
+		4 × 5 = 20
+	Key Insight
+	Blocked rows and columns act as barriers that divide the grid into independent rectangular regions. Therefore, the largest continuous unblocked area is obtained by multiplying the maximum number of consecutive unblocked rows by the maximum number of consecutive unblocked columns. Sorting the blocked indices and finding the largest gaps gives the answer efficiently in **O(k log k)** time.
