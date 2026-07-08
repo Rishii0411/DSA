@@ -1,0 +1,108 @@
+2026-07-08 | Signal Towers Reachable by Both Stations
+
+Question
+Return the number of towers from which a signal can reach both Station P and Station Q.
+	Key Insight
+Directly checking every cell would require running a DFS/BFS from every tower, leading to O((nm)²).
+Instead, reverse the process.
+Instead of checking:
+		Cell → Station
+start from each station and move in the reverse direction.
+If a signal normally moves from:
+		A → B
+	when
+		height(B) ≤ height(A)
+then in reverse traversal we can move from:
+		B → A
+	when
+		height(A) ≥ height(B)
+So during reverse DFS/BFS, we move only to neighboring cells with greater than or equal signal strength.
+	Run two traversals:
+•	From all cells on the top and left boundaries (Station P).
+•	From all cells on the bottom and right boundaries (Station Q).
+Any cell visited in both traversals can reach both stations.
+	Approach
+1.	Create two visited matrices:
+			reachP
+			reachQ
+2.	Run DFS/BFS from:
+			- Top row
+			- Left column
+		to fill reachP.
+3.	Run DFS/BFS from:
+			- Bottom row
+			- Right column
+		to fill reachQ.
+4.	Count cells where:
+			reachP[i][j] && reachQ[i][j]
+5.	Return the count.
+	Time Complexity
+	O(n × m)
+	Each cell is visited at most once in each traversal.
+	Space Complexity
+	O(n × m)
+	Solution
+class Solution {
+public:
+    int n, m;
+    int dr[4] = {-1, 1, 0, 0};
+    int dc[4] = {0, 0, -1, 1};
+    void dfs(int r, int c,
+             vector<vector<int>>& mat,
+             vector<vector<bool>>& vis) {
+        vis[r][c] = true;
+        for(int k = 0; k < 4; k++) {
+            int nr = r + dr[k];
+            int nc = c + dc[k];
+            if(nr < 0 || nr >= n || nc < 0 || nc >= m)
+                continue;
+            if(vis[nr][nc])
+                continue;
+            if(mat[nr][nc] >= mat[r][c]) {
+                dfs(nr, nc, mat, vis);
+            }
+        }
+    }
+    int countCells(vector<vector<int>>& mat) {
+        n = mat.size();
+        m = mat[0].size();
+        vector<vector<bool>> reachP(n, vector<bool>(m, false));
+        vector<vector<bool>> reachQ(n, vector<bool>(m, false));
+        for(int i = 0; i < n; i++) {
+            if(!reachP[i][0])
+                dfs(i, 0, mat, reachP);
+            if(!reachQ[i][m - 1])
+                dfs(i, m - 1, mat, reachQ);
+        }
+        for(int j = 0; j < m; j++) {
+            if(!reachP[0][j])
+                dfs(0, j, mat, reachP);
+            if(!reachQ[n - 1][j])
+                dfs(n - 1, j, mat, reachQ);
+        }
+        int ans = 0;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                if(reachP[i][j] && reachQ[i][j])
+                    ans++;
+            }
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		mat =
+		[
+		  [1,2,2,3],
+		  [3,2,3,4],
+		  [2,4,5,3],
+		  [6,7,1,4]
+		]
+	Run reverse DFS from:
+		Top + Left → reachP
+		Bottom + Right → reachQ
+	The cells visited in both traversals are counted.
+	Output:
+		Number of towers that can reach both stations.
+	Key Insight
