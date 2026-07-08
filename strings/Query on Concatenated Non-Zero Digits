@@ -1,0 +1,119 @@
+2026-07-08 | Query on Concatenated Non-Zero Digits
+
+	Question
+For each query, compute:
+		x × digitSum(x)
+	where x is formed by concatenating the non-zero digits of the queried substring.
+	Key Insight
+For every query we need two things:
+	1. Sum of non-zero digits.
+	2. Value of the concatenated number.
+The digit sum can be answered using a prefix sum.
+The number x can also be built incrementally.
+Suppose the non-zero digits are:
+		d₁ d₂ d₃ ...
+Then
+		x =
+		(((d₁)*10+d₂)*10+d₃)...
+While preprocessing the string, maintain:
+		prefNum[i]
+	= concatenated non-zero digits till index i (mod MOD)
+and
+		prefCnt[i]
+	= number of non-zero digits till i.
+Also precompute:
+		pow10[i] = 10ⁱ mod MOD
+For a query:
+		[l,r]
+	let
+		k = number of non-zero digits before l.
+	The concatenated value inside the range is obtained by removing the prefix contribution:
+		x =
+		prefNum[r+1]
+		-
+		prefNum[l] × 10^(digits in range)
+	modulo MOD.
+	The digit sum is simply obtained from prefix sums.
+	Approach
+1.	Precompute:
+		- Prefix digit sums.
+		- Prefix count of non-zero digits.
+		- Prefix concatenated number.
+		- Powers of 10.
+2.	For every query:
+		- Find the digit sum using prefix sums.
+		- Find the number of non-zero digits.
+		- Compute the concatenated value using the prefix formula.
+		- Multiply both values modulo MOD.
+3.	Return all answers.
+	Time Complexity
+	Preprocessing:
+		O(n)
+	Each query:
+		O(1)
+	Overall:
+		O(n + q)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    static const int MOD = 1000000007;
+    vector<int> solveQueries(string s, vector<vector<int>>& queries) {
+        int n = s.size();
+        vector<long long> prefSum(n + 1, 0);
+        vector<long long> prefNum(n + 1, 0);
+        vector<int> prefCnt(n + 1, 0);
+        vector<long long> pow10(n + 1, 1);
+        for(int i = 1; i <= n; i++)
+            pow10[i] = (pow10[i - 1] * 10) % MOD;
+        for(int i = 0; i < n; i++) {
+            prefSum[i + 1] = prefSum[i];
+            prefNum[i + 1] = prefNum[i];
+            prefCnt[i + 1] = prefCnt[i];
+            if(s[i] != '0') {
+                int d = s[i] - '0';
+                prefSum[i + 1] += d;
+                prefCnt[i + 1]++;
+                prefNum[i + 1] =
+                    (prefNum[i] * 10 + d) % MOD;
+            }
+        }
+        vector<int> ans;
+        for(auto &q : queries) {
+            int l = q[0];
+            int r = q[1];
+            long long sum =
+                prefSum[r + 1] - prefSum[l];
+            int cnt =
+                prefCnt[r + 1] - prefCnt[l];
+            long long x =
+                (prefNum[r + 1]
+                - prefNum[l] * pow10[cnt] % MOD
+                + MOD) % MOD;
+            ans.push_back((x * sum) % MOD);
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		s = "102304"
+		query = [1,5]
+	Substring:
+		"02304"
+	Non-zero digits:
+		234
+	x:
+		234
+	Sum:
+		2+3+4=9
+	Answer:
+		234×9=2106
+	Key Insight
+	Instead of rebuilding the concatenated number for every query, preprocess:
+	- the prefix sum of non-zero digits,
+	- the count of non-zero digits,
+	- the concatenated value modulo `10^9+7`,
+	- and powers of `10`.
+	This allows each query to compute both the concatenated number and its digit sum in **O(1)** time, resulting in an overall complexity of **O(n + q)**.
