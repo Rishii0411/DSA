@@ -1,0 +1,94 @@
+2026-07-09 | Checking Existence of Edge Length Limited Paths
+
+	Question
+Return a boolean array where each element indicates whether the corresponding pair of nodes is connected.
+	Key Insight
+Since `nums` is already sorted, we do **not** need to compare every pair of nodes.
+If:
+		nums[i+1] - nums[i] ≤ maxDiff
+then nodes `i` and `i+1` are directly connected.
+If this condition fails, no node on the left can connect to any node on the right because the array is sorted and all farther differences will be even larger.
+Therefore, each connected component is formed by consecutive indices.
+We simply union every adjacent pair satisfying the condition.
+Then each query becomes a simple check of whether the two nodes belong to the same component.
+	Approach
+1.	Initialize a Disjoint Set Union (DSU) for all nodes.
+2.	Traverse adjacent pairs:
+			if nums[i+1] - nums[i] ≤ maxDiff,
+			union(i, i+1).
+3.	For each query:
+			if find(u) == find(v),
+			answer = true,
+			else false.
+4.	Return the answer array.
+	Time Complexity
+	O(n + q · α(n))
+	where:
+	- `n` is the number of nodes.
+	- `q` is the number of queries.
+	- `α(n)` is the inverse Ackermann function (almost constant).
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    class DSU {
+    public:
+        vector<int> parent, rank;
+        DSU(int n) {
+            parent.resize(n);
+            rank.assign(n, 0);
+            for(int i = 0; i < n; i++)
+                parent[i] = i;
+        }
+        int find(int x) {
+            if(parent[x] == x)
+                return x;
+            return parent[x] = find(parent[x]);
+        }
+        void unite(int x, int y) {
+            x = find(x);
+            y = find(y);
+            if(x == y)
+                return;
+            if(rank[x] < rank[y])
+                swap(x, y);
+            parent[y] = x;
+            if(rank[x] == rank[y])
+                rank[x]++;
+        }
+    };
+    vector<bool> pathExistenceQueries(int n,
+                                      vector<int>& nums,
+                                      int maxDiff,
+                                      vector<vector<int>>& queries) {
+        DSU dsu(n);
+        for(int i = 0; i < n - 1; i++) {
+            if(nums[i + 1] - nums[i] <= maxDiff)
+                dsu.unite(i, i + 1);
+        }
+        vector<bool> ans;
+        for(auto &q : queries) {
+            ans.push_back(dsu.find(q[0]) == dsu.find(q[1]));
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		nums = [1,2,4,7,8]
+		maxDiff = 2
+		queries = [[0,2],[1,3],[3,4]]
+	Connections:
+		1 ↔ 2
+		2 ↔ 4
+		7 ↔ 8
+	Components:
+		{0,1,2}
+		{3,4}
+	Answers:
+		true
+		false
+		true
+	Key Insight
+	Because the array is sorted, if two consecutive values differ by more than `maxDiff`, no edge can connect any element on the left to any element on the right. Thus, connected components are formed by consecutive indices, and unioning only adjacent valid pairs is sufficient. Each query is then answered in nearly constant time using **Union-Find (DSU)**.
