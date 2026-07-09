@@ -1,0 +1,66 @@
+2026-07-09 | Count Pairs Whose Sum is Divisible by K
+
+	Question
+Return the total number of pairs whose sum is divisible by `k`.
+	Key Insight
+For every element, compute its remainder when divided by `k`:
+		rem = arr[i] % k
+	For two numbers to have a sum divisible by `k`:
+		(rem1 + rem2) % k == 0
+	If the current remainder is:
+		rem
+	then the required remainder is:
+		(k - rem) % k
+	While traversing the array:
+	•	Maintain the frequency of previously seen remainders.
+	•	For each element, add the frequency of its complementary remainder to the answer.
+	•	Then store the current remainder.
+	Approach
+1.	Create a frequency array of size `k` initialized to 0.
+2.	Traverse the array.
+3.	Compute:
+			rem = arr[i] % k
+		If negative values are allowed, use:
+			rem = ((arr[i] % k) + k) % k
+4.	Find the complementary remainder:
+			need = (k - rem) % k
+5.	Add:
+			freq[need]
+		to the answer.
+6.	Increment:
+			freq[rem]
+7.	Return the answer.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(k)
+	Solution
+class Solution {
+public:
+    long long countKdivPairs(vector<int>& arr, int k) {
+        vector<long long> freq(k, 0);
+        long long ans = 0;
+        for(int x : arr) {
+            int rem = ((x % k) + k) % k;
+            int need = (k - rem) % k;
+            ans += freq[need];
+            freq[rem]++;
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		arr = [2, 2, 1, 7, 5, 3]
+		k = 4
+	Remainders:
+		2, 2, 1, 3, 1, 3
+	Pairs:
+		(2,2)
+		(1,3)
+		(1,3)
+		...
+	Output:
+		5
+	Key Insight
+	If an element has remainder `r`, it can form a valid pair only with an element whose remainder is `(k - r) % k`. By maintaining the frequencies of previously seen remainders, every valid pair is counted exactly once, resulting in an **O(n)** time solution.
