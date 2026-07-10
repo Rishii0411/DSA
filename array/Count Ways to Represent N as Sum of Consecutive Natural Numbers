@@ -1,0 +1,75 @@
+2026-07-10 | Count Ways to Represent N as Sum of Consecutive Natural Numbers
+
+	Question
+Return the number of ways to represent `n` as the sum of two or more consecutive natural numbers.
+	Key Insight
+Suppose:
+		n = x + (x+1) + ... + (x+k-1)
+where:
+		k = number of consecutive terms
+		x = first term
+The sum becomes:
+		n = k(2x + k - 1) / 2
+Rearranging:
+		2n = k(2x + k - 1)
+For a valid sequence:
+	- `k` must divide `2n`.
+	- The computed `x` must be a positive integer.
+	From the equation:
+		x = (2n/k - k + 1) / 2
+	So for every possible length `k`, we simply check whether:
+	1. `2n` is divisible by `k`.
+	2. `x` is a positive integer.
+	The maximum possible value of `k` satisfies:
+		k(k+1)/2 ≤ n
+	Therefore, checking up to `√(2n)` is sufficient.
+	Approach
+1.	Compute:
+			twoN = 2 × n
+2.	Try every possible length:
+			k = 2, 3, ...
+		while
+			k(k+1)/2 ≤ n
+3.	If:
+			twoN % k == 0
+		compute:
+			x = (twoN/k - k + 1)
+4.	If:
+			x > 0
+		and
+			x is even
+		then one valid representation exists.
+5.	Return the total count.
+	Time Complexity
+	O(√n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int countConsecutive(long long n) {
+        long long twoN = 2 * n;
+        int ans = 0;
+        for(long long k = 2; k * (k + 1) / 2 <= n; k++) {
+            if(twoN % k != 0)
+                continue;
+            long long t = twoN / k - k + 1;
+            if(t > 0 && t % 2 == 0)
+                ans++;
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		n = 15
+	Valid representations:
+		7 + 8
+		4 + 5 + 6
+		1 + 2 + 3 + 4 + 5
+	Output:
+		3
+	Key Insight
+	If a sequence has `k` consecutive numbers, its first term is:
+		x = (2n/k - k + 1) / 2
+	So we only need to try all feasible sequence lengths `k` (up to `O(√n)`) and check whether `x` is a positive integer. This gives an efficient **O(√n)** solution.
