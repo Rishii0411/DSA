@@ -1,0 +1,83 @@
+2026-07-10 | Minimum Distance Between Nodes in Threshold Graph
+
+	Question
+Return the shortest distance for every query.
+	Key Insight
+The graph depends only on the values in `nums`.
+First, sort the nodes by their values.
+Let:
+		val[0] ≤ val[1] ≤ ...
+For every position, compute the **furthest position** that can be reached in one edge.
+If:
+		val[j] - val[i] ≤ maxDiff
+	then node `i` can directly connect to every position between `i` and `j`.
+Now, for a query, suppose the sorted positions are:
+		L ≤ R
+	Start from `L` and repeatedly jump to the furthest reachable position.
+If at any point we cannot move forward, then no path exists.
+Since every jump is as far as possible, it gives the minimum number of edges.
+	Approach
+1.	Sort the nodes by value.
+2.	Store the position of every original index in the sorted order.
+3.	Using two pointers, compute:
+			farthest[i]
+		= farthest sorted index reachable from `i` in one edge.
+4.	For each query:
+		- Convert both nodes to their sorted positions.
+		- Greedily jump using `farthest`.
+		- Count the number of jumps.
+		- If stuck before reaching the destination, return `-1`.
+	Time Complexity
+	Preprocessing:
+		O(n log n)
+	Each Query:
+		O(n)
+	Overall:
+		O(n log n + q · n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<int> minimumDistanceQueries(int n,
+                                       vector<int>& nums,
+                                       int maxDiff,
+                                       vector<vector<int>>& queries) {
+        vector<pair<int,int>> order;
+        for(int i = 0; i < n; i++)
+            order.push_back({nums[i], i});
+        sort(order.begin(), order.end());
+        vector<int> pos(n);
+        for(int i = 0; i < n; i++)
+            pos[order[i].second] = i;
+        vector<int> farthest(n);
+        int r = 0;
+        for(int l = 0; l < n; l++) {
+            while(r + 1 < n &&
+                  order[r + 1].first - order[l].first <= maxDiff)
+                r++;
+            farthest[l] = r;
+        }
+        vector<int> ans;
+        for(auto &q : queries) {
+            int u = pos[q[0]];
+            int v = pos[q[1]];
+            if(u > v)
+                swap(u, v);
+            int steps = 0;
+            int cur = u;
+            while(cur < v) {
+                if(farthest[cur] == cur) {
+                    steps = -1;
+                    break;
+                }
+                cur = farthest[cur];
+                steps++;
+            }
+            ans.push_back(steps);
+        }
+        return ans;
+    }
+};
+	Key Insight
+	After sorting the nodes by their values, every node is directly connected to a **continuous range** of nodes in the sorted order. Therefore, the shortest path is obtained by always jumping to the **furthest reachable position** in one move. If at some point no forward jump is possible, the two nodes belong to different connected components, so the answer is `-1`.
