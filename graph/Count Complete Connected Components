@@ -1,0 +1,109 @@
+2026-07-11 | Count Complete Connected Components
+
+	Question
+Return the number of connected components that are complete.
+	Key Insight
+For every connected component:
+	- Let the number of vertices be:
+			nodes
+	- Let the number of edges be:
+			edges
+	A complete graph with `nodes` vertices must contain exactly:
+			nodes × (nodes - 1) / 2
+	edges.
+So for each connected component:
+	- Find the number of vertices.
+	- Count the total degree of all vertices.
+	- Since every edge contributes to the degree of two vertices:
+			edges = degreeSum / 2
+	If:
+			edges == nodes × (nodes - 1) / 2
+	then this component is complete.
+	Approach
+1.	Build the adjacency list.
+2.	Maintain a visited array.
+3.	For every unvisited node:
+		- Run DFS/BFS.
+		- Count:
+				number of vertices.
+				sum of degrees.
+4.	Compute:
+			edgeCount = degreeSum / 2
+5.	If:
+			edgeCount ==
+			nodes × (nodes - 1) / 2
+		increment the answer.
+6.	Return the answer.
+	Time Complexity
+	O(n + m)
+	where:
+		- `n` = number of vertices
+		- `m` = number of edges
+	Space Complexity
+	O(n + m)
+	Solution
+class Solution {
+public:
+    void dfs(int node,
+             vector<vector<int>>& graph,
+             vector<bool>& vis,
+             int& nodes,
+             int& degreeSum) {
+        vis[node] = true;
+        nodes++;
+        degreeSum += graph[node].size();
+        for(int nei : graph[node]) {
+            if(!vis[nei])
+                dfs(nei, graph, vis, nodes, degreeSum);
+        }
+    }
+    int countCompleteComponents(int n, vector<vector<int>>& edges) {
+        vector<vector<int>> graph(n);
+        for(auto &e : edges) {
+            graph[e[0]].push_back(e[1]);
+            graph[e[1]].push_back(e[0]);
+        }
+        vector<bool> vis(n, false);
+        int ans = 0;
+        for(int i = 0; i < n; i++) {
+            if(vis[i])
+                continue;
+            int nodes = 0;
+            int degreeSum = 0;
+            dfs(i, graph, vis, nodes, degreeSum);
+            int edgeCount = degreeSum / 2;
+            if(edgeCount == nodes * (nodes - 1) / 2)
+                ans++;
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		n = 6
+		edges =
+		[
+		 [0,1],
+		 [0,2],
+		 [1,2],
+		 [3,4]
+		]
+	Connected Components:
+		{0,1,2}
+			Nodes = 3
+			Edges = 3
+			Complete ✓
+		{3,4}
+			Nodes = 2
+			Edges = 1
+			Complete ✓
+		{5}
+			Nodes = 1
+			Edges = 0
+			Complete ✓
+	Output:
+		3
+	Key Insight
+	A connected component with `k` vertices is complete **if and only if** it contains exactly:
+		k × (k − 1) / 2
+	edges. By performing one DFS/BFS per component to count its vertices and edges, we can determine whether it is complete in **O(n + m)** time.
