@@ -1,0 +1,95 @@
+2026-07-11 | Longest Possible Route in a Matrix
+
+	Question
+Return the length of the longest simple path from the source to the destination.
+	Key Insight
+This is **not** a shortest path problem.
+We must explore **every possible simple path** because a longer path may exist even after reaching the destination through a shorter route.
+This naturally leads to Backtracking (DFS).
+At every cell:
+	- Mark it as visited.
+	- Explore all four directions.
+	- Unmark it before returning (backtracking).
+	The longest valid path among all choices is the answer.
+	Approach
+1.	If the source or destination is blocked, return -1.
+2.	Run DFS from the source.
+3.	If the current cell is the destination, return 0.
+4.	Mark the current cell as visited.
+5.	Try moving in all four directions.
+6.	For every valid move:
+			pathLength = 1 + DFS(nextCell)
+7.	Take the maximum among all valid paths.
+8.	Before returning, unmark the current cell.
+9.	If no path reaches the destination, return -1.
+	Time Complexity
+	Exponential in the worst case
+	This is expected because the longest simple path problem is NP-hard.
+	Space Complexity
+	O(n × m)
+	for the visited matrix and recursion stack.
+	Solution
+class Solution {
+public:
+    int n, m;
+    int dr[4] = {-1, 1, 0, 0};
+    int dc[4] = {0, 0, -1, 1};
+    int dfs(int r,
+            int c,
+            int xd,
+            int yd,
+            vector<vector<int>>& mat,
+            vector<vector<bool>>& vis) {
+        if(r == xd && c == yd)
+            return 0;
+        vis[r][c] = true;
+        int best = -1;
+        for(int k = 0; k < 4; k++) {
+            int nr = r + dr[k];
+            int nc = c + dc[k];
+            if(nr < 0 || nr >= n || nc < 0 || nc >= m)
+                continue;
+            if(mat[nr][nc] == 0 || vis[nr][nc])
+                continue;
+            int len = dfs(nr, nc, xd, yd, mat, vis);
+            if(len != -1)
+                best = max(best, len + 1);
+        }
+        vis[r][c] = false;
+        return best;
+    }
+    int longestPath(vector<vector<int>>& mat,
+                    int xs,
+                    int ys,
+                    int xd,
+                    int yd) {
+        n = mat.size();
+        m = mat[0].size();
+        if(mat[xs][ys] == 0 || mat[xd][yd] == 0)
+            return -1;
+        vector<vector<bool>> vis(n, vector<bool>(m, false));
+        return dfs(xs, ys, xd, yd, mat, vis);
+    }
+};
+	Example
+	Input:
+		mat =
+		[
+		  [1,1,1],
+		  [1,0,1],
+		  [1,1,1]
+		]
+		source = (0,0)
+		destination = (2,2)
+	A longest valid path is:
+		(0,0)
+		→ (1,0)
+		→ (2,0)
+		→ (2,1)
+		→ (2,2)
+	Length:
+		4
+	Output:
+		4
+	Key Insight
+	Since each cell can be visited **at most once**, the problem asks for the **longest simple path**, not the shortest path. Dynamic programming or BFS cannot solve this because revisiting states depends on the set of visited cells. Backtracking (DFS with marking and unmarking visited cells) explores all possible simple paths and returns the maximum valid length.
