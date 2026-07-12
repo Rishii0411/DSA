@@ -1,0 +1,61 @@
+2026-07-12 | Rank Transform of an Array
+
+	Question
+Return the array after replacing every element with its rank.
+	Key Insight
+The rank depends only on the **sorted order of distinct elements**.
+Example:
+		arr = [40,10,20,30]
+	Distinct sorted elements:
+		10 20 30 40
+	Ranks:
+		10 → 1
+		20 → 2
+		30 → 3
+		40 → 4
+	Now simply replace each element using this mapping.
+	Approach
+1.	Copy the original array.
+2.	Sort the copied array.
+3.	Traverse the sorted array and assign ranks only to distinct elements.
+4.	Store the mapping:
+			value → rank
+5.	Traverse the original array and replace every element with its rank.
+6.	Return the modified array.
+	Time Complexity
+	O(n log n)
+	Sorting dominates the complexity.
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<int> arrayRankTransform(vector<int>& arr) {
+        vector<int> temp = arr;
+        sort(temp.begin(), temp.end());
+        unordered_map<int, int> rank;
+        int r = 1;
+        for(int x : temp) {
+            if(!rank.count(x))
+                rank[x] = r++;
+        }
+        for(int i = 0; i < arr.size(); i++) {
+            arr[i] = rank[arr[i]];
+        }
+        return arr;
+    }
+};
+	Example
+	Input:
+		arr = [40,10,20,30]
+	Sorted distinct elements:
+		10 20 30 40
+	Rank mapping:
+		10 → 1
+		20 → 2
+		30 → 3
+		40 → 4
+	Output:
+		[4,1,2,3]
+	Key Insight
+	The rank of an element depends only on its position among the **distinct sorted values**. By sorting a copy of the array and assigning ranks only when a new value is encountered, we can replace every element with its minimum possible rank in **O(n log n)** time.
