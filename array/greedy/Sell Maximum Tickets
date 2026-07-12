@@ -1,0 +1,66 @@
+2026-07-12 | Sell Maximum Tickets
+
+Question
+Return the maximum revenue modulo 10^9 + 7.
+	Key Insight
+At every step, the best choice is to sell a ticket from the seller having the **maximum remaining tickets**, because that ticket has the highest possible price.
+After selling one ticket:
+		x → x - 1
+the seller is still available if tickets remain.
+A Max Heap (Priority Queue) efficiently gives the seller with the highest current ticket count.
+	Approach
+1.	Insert every seller's ticket count into a max heap.
+2.	Repeat `k` times:
+		- Extract the maximum value.
+		- Add it to the answer.
+		- Decrease it by 1.
+		- If it is still positive, insert it back into the heap.
+3.	Return the answer modulo `10^9 + 7`.
+	Time Complexity
+	O((n + k) log n)
+	- Building the heap: O(n)
+	- Each of the `k` sales performs one pop and at most one push.
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int maxRevenue(vector<int>& arr, int k) {
+        const int MOD = 1000000007;
+        priority_queue<int> pq;
+        for(int x : arr) {
+            if(x > 0)
+                pq.push(x);
+        }
+        long long ans = 0;
+        while(k-- && !pq.empty()) {
+            int cur = pq.top();
+            pq.pop();
+            ans = (ans + cur) % MOD;
+            if(cur > 1)
+                pq.push(cur - 1);
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		arr = [2, 5]
+		k = 4
+	Process:
+		Sell from 5 → Earn 5
+		Remaining:
+			[2,4]
+		Sell from 4 → Earn 4
+		Remaining:
+			[2,3]
+		Sell from 3 → Earn 3
+		Remaining:
+			[2,2]
+		Sell from 2 → Earn 2
+	Total:
+		5 + 4 + 3 + 2 = 14
+	Output:
+		14
+	Key Insight
+	To maximize the revenue, always sell the ticket with the highest current price. Since a seller's ticket price decreases by exactly `1` after each sale, repeatedly selecting the seller with the maximum remaining tickets is optimal. A max heap supports this greedy strategy efficiently in **O((n + k) log n)** time.
