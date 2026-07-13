@@ -1,0 +1,71 @@
+2026-07-13 | Sequential Digits
+
+	Question
+Return a sorted list of all sequential digit numbers in the range `[low, high]`.
+	Key Insight
+There are very few sequential digit numbers.
+The longest possible sequential number is:
+		123456789
+	So instead of checking every number between `low` and `high`, directly generate all possible sequential numbers.
+	Start with the string:
+		"123456789"
+	For every possible length from 2 to 9:
+	- Extract every substring of that length.
+	- Convert it to an integer.
+	- If it lies within the range, add it to the answer.
+	Since the total number of generated numbers is:
+		8 + 7 + 6 + ... + 1 = 36
+	this approach is extremely efficient.
+	Approach
+1.	Create the string:
+			"123456789"
+2.	For every length from 2 to 9:
+			- Generate every substring of that length.
+			- Convert it into an integer.
+3.	If:
+			low ≤ number ≤ high
+		add it to the answer.
+4.	Sort the answer (or generate in increasing order).
+5.	Return the answer.
+	Time Complexity
+	O(1)
+	Only 36 numbers are generated regardless of the input range.
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    vector<int> sequentialDigits(int low, int high) {
+        string digits = "123456789";
+        vector<int> ans;
+        for(int len = 2; len <= 9; len++) {
+            for(int i = 0; i + len <= 9; i++) {
+                int num = stoi(digits.substr(i, len));
+                if(num >= low && num <= high)
+                    ans.push_back(num);
+            }
+        }
+        sort(ans.begin(), ans.end());
+        return ans;
+    }
+};
+	Example
+	Input:
+		low = 100
+		high = 300
+	Generated sequential numbers:
+		12
+		23
+		34
+		...
+		123
+		234
+		345
+		...
+	Numbers within the range:
+		123
+		234
+	Output:
+		[123, 234]
+	Key Insight
+	There are only **36 possible sequential-digit numbers** (all substrings of `"123456789"` with lengths 2 to 9). Generating these candidates directly and selecting those within the given range is much more efficient than checking every number between `low` and `high`, resulting in **O(1)** time.
