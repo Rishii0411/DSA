@@ -1,0 +1,77 @@
+2026-07-13 | Minimum Operations to Restore the Array
+
+	Question
+Return the minimum number of operations modulo `10^9 + 7`.
+	Key Insight
+A permutation is made up of **disjoint cycles**.
+Each cycle rotates independently.
+If a cycle has length:
+		L
+then all elements in that cycle return to their original positions after exactly:
+		L
+operations.
+For multiple cycles, every cycle must complete an integer number of rotations at the same time.
+Hence, the answer is:
+		LCM of all cycle lengths
+	Approach
+1.	Maintain a visited array.
+2.	Traverse every index.
+3.	If it is not visited:
+		- Perform DFS (or iterative traversal).
+		- Count the length of the current cycle.
+4.	Update the answer as:
+			ans = LCM(ans, cycleLength)
+5.	To avoid overflow:
+			LCM(a, b) = a / GCD(a, b) × b
+6.	Return the answer modulo `10^9 + 7`.
+	Note
+	The modulo is applied only to the final answer. While computing the LCM, use a sufficiently large integer type (or big integer if required by the constraints).
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    static const int MOD = 1000000007;
+    long long gcd(long long a, long long b) {
+        while(b) {
+            long long t = a % b;
+            a = b;
+            b = t;
+        }
+        return a;
+    }
+    int minOperations(vector<int>& b) {
+        int n = b.size();
+        vector<bool> vis(n, false);
+        long long lcm = 1;
+        for(int i = 0; i < n; i++) {
+            if(vis[i])
+                continue;
+            int len = 0;
+            int cur = i;
+            while(!vis[cur]) {
+                vis[cur] = true;
+                cur = b[cur] - 1;
+                len++;
+            }
+            lcm = (lcm / gcd(lcm, len)) * len;
+        }
+        return lcm % MOD;
+    }
+};
+	Example
+	Input:
+		b = [2,3,1,5,4]
+	Cycles:
+		(1 → 2 → 3 → 1)
+		Length = 3
+		(4 → 5 → 4)
+		Length = 2
+	Minimum operations:
+		LCM(3,2) = 6
+	Output:
+		6
+	Key Insight
+	Each permutation cycle returns to its initial configuration after a number of operations equal to its **cycle length**. Since all cycles must return simultaneously, the required number of operations is the **Least Common Multiple (LCM)** of all cycle lengths. Finding the cycle lengths with DFS/iteration and computing their LCM solves the problem in **O(n)** time.
