@@ -1,0 +1,72 @@
+2026-07-14 | Smallest Value That Never Becomes Negative
+
+Question
+Return the minimum initial value `x`.
+	Key Insight
+The update rule is always:
+		x = 2 * x - arr[i]
+If we know an initial value `x`, we can simulate the entire process.
+If at any point:
+		x < 0
+then this initial value is invalid.
+If an initial value works, then every larger value also works because increasing the starting value only increases all future values.
+This monotonic property allows Binary Search on the answer.
+	Approach
+1.	Write a function `check(x)`:
+		- Traverse the array.
+		- Update:
+				x = 2 * x - arr[i]
+		- If x becomes negative, return false.
+		- Otherwise return true.
+2.	Binary search the minimum valid `x`.
+3.	Return the smallest value that passes the simulation.
+	Time Complexity
+	O(n log M)
+	where `M` is the search range for the answer.
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    bool check(long long x, vector<int>& arr) {
+        for(int val : arr) {
+            x = 2LL * x - val;
+            if(x < 0)
+                return false;
+        }
+        return true;
+    }
+    long long minInitialValue(vector<int>& arr) {
+        long long low = 0;
+        long long high = 1;
+        while(!check(high, arr))
+            high *= 2;
+        while(low < high) {
+            long long mid = low + (high - low) / 2;
+            if(check(mid, arr))
+                high = mid;
+            else
+                low = mid + 1;
+        }
+        return low;
+    }
+};
+	Example
+	Input:
+		arr = [4, 6]
+	Try:
+		x = 3
+	Process:
+		x = 2×3 − 4 = 2
+		x = 2×2 − 6 = -2
+	Invalid.
+	Try:
+		x = 4
+	Process:
+		x = 2×4 − 4 = 4
+		x = 2×4 − 6 = 2
+	Never becomes negative.
+	Output:
+		4
+	Key Insight
+	The process is completely determined by the initial value `x`. Since every larger starting value also remains valid whenever a smaller valid value does, the answer is monotonic. This makes **Binary Search** over the initial value combined with a simple simulation the optimal solution.
