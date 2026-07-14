@@ -1,0 +1,106 @@
+2026-07-14 | Find the Number of Subsequences With Equal GCD
+
+	Question
+Return the total number of valid pairs modulo `10^9 + 7`.
+	Key Insight
+Brute force is impossible.
+Each element has three choices, giving:
+		3ⁿ
+possible assignments.
+Instead, observe that while processing the array, the only important information is:
+		Current index
+		GCD of first subsequence
+		GCD of second subsequence
+These three values completely determine the future.
+	So define the DP state as:
+		dp(index, gcd1, gcd2)
+	where:
+		gcd1 = current GCD of subsequence 1
+		gcd2 = current GCD of subsequence 2
+Initially:
+		gcd1 = 0
+		gcd2 = 0
+Here, GCD(0, x) = x, which naturally handles the first chosen element.
+	Transitions
+For every element nums[i], there are exactly three choices.
+1.	Skip the element
+		dp(i+1, gcd1, gcd2)
+2.	Put it into seq1
+		dp(i+1,
+		   gcd(gcd1, nums[i]),
+		   gcd2)
+3.	Put it into seq2
+		dp(i+1,
+		   gcd1,
+		   gcd(gcd2, nums[i]))
+	Base Case
+When all elements are processed:
+		if gcd1 == gcd2
+		   and gcd1 != 0
+		return 1
+	else
+		return 0
+The condition `gcd1 != 0` ensures both subsequences are non-empty.
+	Approach
+1.	Start recursion from:
+			index = 0
+			gcd1 = 0
+			gcd2 = 0
+2.	For each element:
+		- Skip it.
+		- Put it in seq1.
+		- Put it in seq2.
+3.	Memoize every state.
+4.	Return the answer modulo `10^9 + 7`.
+	Time Complexity
+	O(n × G²)
+	where:
+		G = maximum value in `nums`
+	The number of distinct GCD values is limited, so the DP state space is manageable.
+	Space Complexity
+	O(n × G²)
+	Solution
+class Solution {
+public:
+    static const int MOD = 1000000007;
+    int memo[205][201][201];
+    int solve(int idx, int g1, int g2, vector<int>& nums) {
+        if(idx == nums.size())
+            return (g1 == g2 && g1 != 0);
+        if(memo[idx][g1][g2] != -1)
+            return memo[idx][g1][g2];
+        long long ans = 0;
+        ans += solve(idx + 1, g1, g2, nums);
+        ans += solve(idx + 1,
+                     gcd(g1, nums[idx]),
+                     g2,
+                     nums);
+        ans += solve(idx + 1,
+                     g1,
+                     gcd(g2, nums[idx]),
+                     nums);
+        return memo[idx][g1][g2] = ans % MOD;
+    }
+    int subsequencePairCount(vector<int>& nums) {
+        memset(memo, -1, sizeof(memo));
+        return solve(0, 0, 0, nums);
+    }
+};
+	Example
+	Input:
+		nums = [2,4]
+	Valid assignment:
+		seq1 = [2]
+		seq2 = [2]
+	is impossible because subsequences must be disjoint.
+	Another example:
+		nums = [2,2]
+	Choose:
+		first 2 → seq1
+		second 2 → seq2
+	GCDs:
+		2 and 2
+	Output:
+		1
+	Key Insight
+	Every element has exactly **three choices** (skip, place in the first subsequence, or place in the second subsequence). The only information that affects future decisions is the current index and the GCDs of the two subsequences. Therefore, a memoized DP on the state `(index, gcd1, gcd2)` efficiently counts all valid disjoint subsequence pairs.
