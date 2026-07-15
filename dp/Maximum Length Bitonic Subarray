@@ -1,0 +1,84 @@
+2026-07-15 | Maximum Length Bitonic Subarray
+
+	Question
+Return the maximum length of a bitonic subarray.
+	Key Insight
+A bitonic subarray has two parts:
+	- Non-decreasing part ending at index `i`.
+	- Non-increasing part starting from index `i`.
+If we know both lengths for every index, then treating index `i` as the peak gives:
+		length =
+		inc[i] + dec[i] - 1
+The `-1` avoids counting the peak twice.
+	DP Arrays
+	inc[i]
+	= Length of the longest non-decreasing subarray ending at `i`.
+	If:
+		arr[i] >= arr[i-1]
+	then
+		inc[i] = inc[i-1] + 1
+	else
+		inc[i] = 1
+	dec[i]
+	= Length of the longest non-increasing subarray starting at `i`.
+	If:
+		arr[i] >= arr[i+1]
+	then
+		dec[i] = dec[i+1] + 1
+	else
+		dec[i] = 1
+	Finally,
+		answer =
+		max(inc[i] + dec[i] - 1)
+	Approach
+1.	Create an array `inc`.
+2.	Traverse from left to right to compute the longest non-decreasing subarray ending at every index.
+3.	Create an array `dec`.
+4.	Traverse from right to left to compute the longest non-increasing subarray starting at every index.
+5.	For every index, compute:
+			inc[i] + dec[i] - 1
+6.	Return the maximum value.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int maxBitonicSubarray(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> inc(n, 1);
+        vector<int> dec(n, 1);
+        for(int i = 1; i < n; i++) {
+            if(arr[i] >= arr[i - 1])
+                inc[i] = inc[i - 1] + 1;
+        }
+        for(int i = n - 2; i >= 0; i--) {
+            if(arr[i] >= arr[i + 1])
+                dec[i] = dec[i + 1] + 1;
+        }
+        int ans = 1;
+        for(int i = 0; i < n; i++) {
+            ans = max(ans, inc[i] + dec[i] - 1);
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		arr = [12, 4, 78, 90, 45, 23]
+	inc:
+		1 1 2 3 1 1
+	dec:
+		2 1 4 3 2 1
+	Maximum:
+		at index 3
+		3 + 3 - 1 = 5
+	Longest bitonic subarray:
+		4 78 90 45 23
+	Output:
+		5
+	Key Insight
+	Every bitonic subarray has a unique peak. By precomputing the length of the longest **non-decreasing** subarray ending at each index and the longest **non-increasing** subarray starting from each index, we can treat every index as the peak and compute the bitonic length as:
+		inc[i] + dec[i] - 1
+	This gives an optimal **O(n)** solution.
