@@ -1,0 +1,90 @@
+2026-07-14 | Count N-Digit Numbers with Given Digit Sum
+
+	Question
+Return the total number of `n`-digit numbers whose digit sum equals `sum`. If no such number exists, return `-1`.
+	Key Insight
+This is a classic Digit DP problem.
+Define:
+		dp[pos][remainingSum]
+	where
+		pos = current digit being chosen
+		remainingSum = digit sum still needed
+	The answer depends only on these two values.
+	Transition
+	For the first digit:
+		Try digits:
+			1...9
+	For the remaining digits:
+		Try digits:
+			0...9
+	If the chosen digit is:
+			d
+	then move to
+			dp(pos+1,
+			   remainingSum-d)
+	Base Case
+	If all digits are chosen:
+		if remainingSum == 0
+			return 1
+		else
+			return 0
+	Memoization avoids recomputing states.
+	Approach
+1.	Check impossible cases:
+			- sum < 1
+			- sum > 9 × n
+2.	Create DP:
+			dp[position][remainingSum]
+3.	Recursively choose each digit.
+4.	The first digit ranges from 1 to 9.
+5.	Other digits range from 0 to 9.
+6.	Return the total count.
+7.	If the answer is 0, return -1.
+	Time Complexity
+	O(n × sum × 10)
+	Space Complexity
+	O(n × sum)
+	Solution
+class Solution {
+public:
+    vector<vector<long long>> dp;
+    long long solve(int pos, int rem, int n) {
+        if(pos == n)
+            return (rem == 0);
+        if(rem < 0)
+            return 0;
+        if(dp[pos][rem] != -1)
+            return dp[pos][rem];
+        long long ans = 0;
+        int start = (pos == 0) ? 1 : 0;
+        for(int d = start; d <= 9; d++) {
+            ans += solve(pos + 1, rem - d, n);
+        }
+        return dp[pos][rem] = ans;
+    }
+    long long countWays(int n, int sum) {
+        if(sum < 1 || sum > 9 * n)
+            return -1;
+        dp.assign(n + 1, vector<long long>(sum + 1, -1));
+        long long ans = solve(0, sum, n);
+        return (ans == 0) ? -1 : ans;
+    }
+};
+	Example
+	Input:
+		n = 2
+		sum = 4
+	Valid numbers:
+		13
+		22
+		31
+		40
+	Count:
+		4
+	Output:
+		4
+	Key Insight
+	At every position, only two pieces of information matter:
+	- the current digit position, and
+	- the remaining digit sum.
+	This forms the DP state `dp[position][remainingSum]`. By trying all valid digits (1–9 for the first position and 0–9 thereafter) and memoizing the results, we obtain an **O(n × sum × 10)** solution.
