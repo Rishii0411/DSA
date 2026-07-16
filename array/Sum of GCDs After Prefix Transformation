@@ -1,0 +1,81 @@
+2026-07-16 | Sum of GCDs After Prefix Transformation
+
+	Question
+Return the sum of the GCDs of all formed pairs.
+	Key Insight
+The problem has three independent steps.
+Step 1:
+Build the `prefixGcd` array.
+For every position:
+		prefixMax = max(prefixMax, nums[i])
+		prefixGcd[i] = gcd(nums[i], prefixMax)
+Step 2:
+Sort the array.
+Step 3:
+Use two pointers:
+		left = 0
+		right = n - 1
+For every pair:
+		answer += gcd(prefixGcd[left], prefixGcd[right])
+Then move:
+		left++
+		right--
+If one element remains in the middle (odd length), ignore it.
+	Approach
+1.	Traverse the array and maintain the running maximum.
+2.	Compute the GCD of each element with the running maximum.
+3.	Store these values in `prefixGcd`.
+4.	Sort `prefixGcd`.
+5.	Initialize two pointers:
+			left = 0
+			right = n - 1
+6.	While `left < right`:
+			- Compute the GCD of the pair.
+			- Add it to the answer.
+			- Move both pointers.
+7.	Return the final sum.
+	Time Complexity
+	O(n log n)
+	- Building `prefixGcd`: O(n)
+	- Sorting: O(n log n)
+	- Pairing: O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    long long pairGcdSum(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> prefixGcd(n);
+        int prefixMax = 0;
+        for(int i = 0; i < n; i++) {
+            prefixMax = max(prefixMax, nums[i]);
+            prefixGcd[i] = gcd(nums[i], prefixMax);
+        }
+        sort(prefixGcd.begin(), prefixGcd.end());
+        long long ans = 0;
+        int left = 0;
+        int right = n - 1;
+        while(left < right) {
+            ans += gcd(prefixGcd[left], prefixGcd[right]);
+            left++;
+            right--;
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		nums = [6, 10, 15, 12]
+	Construct `prefixGcd`:
+		prefixMax = [6, 10, 15, 15]
+		prefixGcd = [6, 10, 15, 3]
+	After sorting:
+		[3, 6, 10, 15]
+	Pairs:
+		(3, 15) → gcd = 3
+		(6, 10) → gcd = 2
+	Answer:
+		3 + 2 = 5
+	Key Insight
+	Once the `prefixGcd` array is built, the remaining operations are straightforward: sort the array, pair the smallest and largest remaining elements using two pointers, compute the GCD for each pair, and accumulate the result. The overall complexity is dominated by sorting, giving an **O(n log n)** solution.
