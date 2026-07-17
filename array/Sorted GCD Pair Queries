@@ -1,0 +1,101 @@
+2026-07-17 | Sorted GCD Pair Queries
+
+	Question
+Return the GCD value at every queried index in the sorted list of all pair GCDs.
+	Key Insight
+Instead of generating all pairs, count how many pairs have each possible GCD.
+Step 1
+Let
+		freq[x]
+be the number of occurrences of value `x` in `nums`.
+Step 2
+For every divisor `g`, count how many numbers are divisible by `g`.
+		cnt[g]
+Step 3
+The number of pairs whose GCD is a multiple of `g` is:
+		C(cnt[g], 2)
+However, this includes pairs whose GCD is `2g`, `3g`, etc.
+So use Inclusion-Exclusion from larger divisors downwards.
+		exact[g] =
+		C(cnt[g],2)
+		− exact[2g]
+		− exact[3g]
+		− ...
+Now
+		exact[g]
+is exactly the number of pairs whose GCD equals `g`.
+Step 4
+Build a prefix count.
+		prefix[g]
+= number of pairs having GCD ≤ g.
+For every query index:
+		k
+Binary search on the prefix array to find the smallest GCD whose cumulative count exceeds `k`.
+That GCD is the answer.
+	Approach
+1.	Find the maximum element in `nums`.
+2.	Build the frequency array.
+3.	For every divisor:
+			count how many numbers are divisible by it.
+4.	Using Inclusion-Exclusion, compute the number of pairs with each exact GCD.
+5.	Build the prefix counts.
+6.	For every query:
+			binary search the prefix array.
+7.	Return all answers.
+	Time Complexity
+	O(M log M + Q log M)
+	where
+		M = maximum value in nums
+		Q = number of queries
+	Space Complexity
+	O(M)
+	Solution
+class Solution {
+public:
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        int mx = *max_element(nums.begin(), nums.end());
+        vector<long long> freq(mx + 1, 0);
+        for(int x : nums)
+            freq[x]++;
+        vector<long long> cnt(mx + 1, 0);
+        for(int g = 1; g <= mx; g++) {
+            for(int j = g; j <= mx; j += g)
+                cnt[g] += freq[j];
+        }
+        vector<long long> exact(mx + 1, 0);
+        for(int g = mx; g >= 1; g--) {
+            exact[g] = cnt[g] * (cnt[g] - 1) / 2;
+            for(int j = 2 * g; j <= mx; j += g)
+                exact[g] -= exact[j];
+        }
+        vector<long long> prefix(mx + 1, 0);
+        for(int g = 1; g <= mx; g++)
+            prefix[g] = prefix[g - 1] + exact[g];
+        vector<int> ans;
+        for(long long k : queries) {
+            int g = lower_bound(prefix.begin() + 1,
+                                prefix.end(),
+                                k + 1) - prefix.begin();
+            ans.push_back(g);
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+		nums = [2,4,6]
+		queries = [0,1,2]
+	All pairs:
+		(2,4) → 2
+		(2,6) → 2
+		(4,6) → 2
+	Sorted GCD list:
+		[2,2,2]
+	Answers:
+		query 0 → 2
+		query 1 → 2
+		query 2 → 2
+	Output:
+		[2,2,2]
+	Key Insight
+	Instead of computing the GCD for every pair, count how many pairs have each possible GCD. Using divisor frequency counting and inclusion-exclusion (similar to a sieve), compute `exact[g]`, the number of pairs whose GCD is exactly `g`. A prefix sum over these counts allows each query to be answered with a binary search in **O(log M)** time, where `M` is the maximum value in `nums`.
