@@ -1,0 +1,44 @@
+2026-07-18 | Find Greatest Common Divisor of Array
+
+	Question
+Return the greatest common divisor of the minimum and maximum elements in the array.
+	Key Insight
+The problem only requires the GCD of the smallest and largest elements.
+So the solution is straightforward:
+	1. Find the minimum element.
+	2. Find the maximum element.
+	3. Compute their GCD using the Euclidean Algorithm.
+The Euclidean Algorithm is based on:
+		gcd(a, b) = gcd(b, a % b)
+and continues until `b` becomes `0`.
+	Approach
+1.	Traverse the array to find the minimum element.
+2.	Traverse the array (or use `max_element`) to find the maximum element.
+3.	Compute the GCD of these two values using the Euclidean Algorithm (or the built-in `gcd` function).
+4.	Return the computed GCD.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(1)
+	Solution
+class Solution {
+public:
+    int findGCD(vector<int>& nums) {
+        int mn = *min_element(nums.begin(), nums.end());
+        int mx = *max_element(nums.begin(), nums.end());
+        return gcd(mn, mx);
+    }
+};
+	Example
+	Input:
+		nums = [2, 5, 6, 9, 10]
+	Smallest element:
+		2
+	Largest element:
+		10
+	GCD:
+		gcd(2, 10) = 2
+	Output:
+		2
+	Key Insight
+	The answer depends only on the **minimum** and **maximum** elements of the array. After finding these two values in **O(n)** time, the **Euclidean Algorithm** computes their GCD efficiently, resulting in an overall **O(n)** solution with **O(1)** extra space.
