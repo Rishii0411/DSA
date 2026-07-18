@@ -1,0 +1,113 @@
+2026-07-18 | Number of Ways to Cut a Matrix into K Pieces
+
+	Question
+Return the number of different ways to divide the matrix into `k` valid pieces.
+	Key Insight
+The remaining matrix after every cut is always a suffix rectangle.
+Therefore, a DP state can be represented by:
+		dp(r, c, cuts)
+	where
+		r = starting row of the remaining matrix
+		c = starting column of the remaining matrix
+		cuts = number of pieces still needed
+	Before trying any cut, we must quickly know whether a rectangle contains at least one `1`.
+	This is done using a 2D suffix sum.
+	Suffix Sum
+	Let
+		suf[i][j]
+	denote the number of `1`s in the rectangle
+		(i, j) → (n−1, m−1)
+	It is computed as:
+		suf[i][j] =
+		matrix[i][j]
+		+ suf[i+1][j]
+		+ suf[i][j+1]
+		− suf[i+1][j+1]
+	Now,
+		suf[r][c] > 0
+	means the current rectangle contains at least one `1`.
+	A horizontal cut after row `nr` is valid only if the upper piece has at least one `1`.
+	This can be checked by:
+		suf[r][c] - suf[nr][c] > 0
+	A vertical cut after column `nc` is valid only if the left piece has at least one `1`.
+	This can be checked by:
+		suf[r][c] - suf[r][nc] > 0
+	Approach
+1.	Build a 2D suffix sum array storing the number of `1`s in every suffix rectangle.
+2.	Define the DP state:
+			dp(row, col, piecesLeft)
+3.	If the current rectangle has no `1`, return 0.
+4.	If only one piece is required, return 1 because the rectangle already contains at least one `1`.
+5.	Try every possible horizontal cut.
+			Proceed only if the upper part contains at least one `1`.
+6.	Try every possible vertical cut.
+			Proceed only if the left part contains at least one `1`.
+7.	Memoize every state to avoid recomputation.
+8.	Return the result modulo `10^9 + 7`.
+	Time Complexity
+	O(k × n × m × (n + m))
+	Space Complexity
+	O(k × n × m)
+	Solution
+class Solution {
+public:
+    static const int MOD = 1e9 + 7;
+    int n, m;
+    vector<vector<int>> suf;
+    vector<vector<vector<int>>> dp;
+    int solve(int r, int c, int pieces) {
+        if(suf[r][c] == 0)
+            return 0;
+        if(pieces == 1)
+            return 1;
+        if(dp[r][c][pieces] != -1)
+            return dp[r][c][pieces];
+        long long ans = 0;
+        // Horizontal cuts
+        for(int nr = r + 1; nr < n; nr++) {
+            if(suf[r][c] - suf[nr][c] > 0) {
+                ans += solve(nr, c, pieces - 1);
+                ans %= MOD;
+            }
+        }
+        // Vertical cuts
+        for(int nc = c + 1; nc < m; nc++) {
+            if(suf[r][c] - suf[r][nc] > 0) {
+                ans += solve(r, nc, pieces - 1);
+                ans %= MOD;
+            }
+        }
+        return dp[r][c][pieces] = ans;
+    }
+    int ways(vector<vector<int>>& matrix, int k) {
+        n = matrix.size();
+        m = matrix[0].size();
+        suf.assign(n + 1, vector<int>(m + 1, 0));
+        for(int i = n - 1; i >= 0; i--) {
+            for(int j = m - 1; j >= 0; j--) {
+                suf[i][j] = matrix[i][j]
+                          + suf[i + 1][j]
+                          + suf[i][j + 1]
+                          - suf[i + 1][j + 1];
+            }
+        }
+        dp.assign(n, vector<vector<int>>(m, vector<int>(k + 1, -1)));
+        return solve(0, 0, k);
+    }
+};
+	Example
+	Input:
+		matrix =
+		1 0 1
+		1 1 0
+		0 1 1
+		k = 3
+	The algorithm:
+		- Computes the suffix sums.
+		- Tries every valid horizontal and vertical cut.
+		- Recursively cuts only the remaining bottom/right portion.
+		- Counts every valid sequence of cuts.
+	Output:
+		(Number of valid ways)
+	Key Insight
+	Since each cut leaves only the **bottom** or **right** portion available for further cuts, every recursive state is uniquely identified by the **top-left corner** of the remaining rectangle and the number of pieces still required. A **2D suffix sum** allows checking in **O(1)** whether a submatrix contains at least one `1`, making the overall solution efficient with memoized DP.
