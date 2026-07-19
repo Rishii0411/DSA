@@ -1,0 +1,94 @@
+2026-07-19 | Smallest Subsequence of Distinct Characters
+
+	Question
+Return the lexicographically smallest subsequence containing every distinct character of `s` exactly once.
+	Key Insight
+This is a classic **Monotonic Stack + Greedy** problem.
+We maintain:
+	- lastIndex[ch]
+		Stores the last occurrence of every character.
+	- visited[ch]
+		Indicates whether the character is already present in the answer.
+	- stack
+		Stores the current answer.
+	While processing each character:
+	1.	If it is already in the stack, skip it.
+	2.	Otherwise, while:
+			- the stack is not empty,
+			- the current character is smaller than the top character,
+			- and the top character appears again later,
+	   pop the top character.
+	3.	Push the current character into the stack.
+This greedy strategy ensures the answer is lexicographically smallest.
+	Approach
+1.	Store the last occurrence index of every character.
+2.	Initialize:
+			- a stack
+			- a visited array.
+3.	Traverse the string.
+4.	If the current character is already used, continue.
+5.	Otherwise, while the stack top is larger than the current character and appears again later:
+			- remove it from the stack.
+			- mark it as unused.
+6.	Push the current character and mark it as used.
+7.	Build the answer from the stack.
+	Time Complexity
+	O(n)
+	Each character is pushed and popped at most once.
+	Space Complexity
+	O(26)
+	Only the stack and two arrays of size 26 are used.
+	Solution
+class Solution {
+public:
+    string smallestSubsequence(string s) {
+        vector<int> last(26);
+        for(int i = 0; i < s.size(); i++)
+            last[s[i] - 'a'] = i;
+        vector<bool> vis(26, false);
+        stack<char> st;
+        for(int i = 0; i < s.size(); i++) {
+            char ch = s[i];
+            if(vis[ch - 'a'])
+                continue;
+            while(!st.empty() &&
+                  st.top() > ch &&
+                  last[st.top() - 'a'] > i) {
+                vis[st.top() - 'a'] = false;
+                st.pop();
+            }
+            st.push(ch);
+            vis[ch - 'a'] = true;
+        }
+        string ans;
+        while(!st.empty()) {
+            ans += st.top();
+            st.pop();
+        }
+        reverse(ans.begin(), ans.end());
+        return ans;
+    }
+};
+	Example
+	Input:
+			s = "cbacdcbc"
+	Last occurrence:
+			c → 7
+			b → 6
+			a → 2
+			d → 4
+	Processing:
+			c → push
+			b → pop c, push b
+			a → pop b, push a
+			c → push
+			d → push
+			c → already used
+			b → push
+			c → already used
+	Result:
+			"acdb"
+	Output:
+			"acdb"
+	Key Insight
+	The stack always maintains the current lexicographically smallest subsequence. Whenever a smaller character is encountered, larger characters at the top of the stack are removed only if they appear again later in the string. Since every character is pushed and popped at most once, the algorithm runs in **O(n)** time with **O(26)** extra space.
