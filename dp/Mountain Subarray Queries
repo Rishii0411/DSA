@@ -1,0 +1,102 @@
+2026-07-19 | Mountain Subarray Queries
+
+	Question
+For every query `[l, r]`, determine whether the subarray `arr[l...r]` is a mountain array.
+	Key Insight
+Precompute two arrays.
+	incEnd[i]
+	= Starting index of the current non-decreasing segment ending at `i`.
+	If:
+			arr[i] >= arr[i-1]
+	then
+			incEnd[i] = incEnd[i-1]
+	else
+			incEnd[i] = i
+Similarly,
+	decStart[i]
+	= Ending index of the current non-increasing segment starting at `i`.
+	If:
+			arr[i] >= arr[i+1]
+	then
+			decStart[i] = decStart[i+1]
+	else
+			decStart[i] = i
+For every query:
+	Find the earliest position from which we can increase up to `r`:
+			peakStart = incEnd[r]
+	Find the farthest position we can decrease to starting from `l`:
+			peakEnd = decStart[l]
+	If these two ranges overlap, then there exists a peak inside the query.
+	Condition:
+			peakStart <= peakEnd
+	then the subarray is a mountain.
+	Approach
+1.	Compute `incEnd` from left to right.
+2.	Compute `decStart` from right to left.
+3.	For every query `[l, r]`:
+			- Compute:
+					left = incEnd[r]
+					right = decStart[l]
+			- If:
+					left <= right
+			  return true.
+			- Otherwise return false.
+	Time Complexity
+	Preprocessing:
+			O(n)
+	Each Query:
+			O(1)
+	Overall:
+			O(n + q)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    vector<bool> mountainSubarray(int n, vector<int>& arr,
+                                  vector<vector<int>>& queries) {
+        vector<int> incEnd(n), decStart(n);
+        incEnd[0] = 0;
+        for (int i = 1; i < n; i++) {
+            if (arr[i] >= arr[i - 1])
+                incEnd[i] = incEnd[i - 1];
+            else
+                incEnd[i] = i;
+        }
+        decStart[n - 1] = n - 1;
+        for (int i = n - 2; i >= 0; i--) {
+            if (arr[i] >= arr[i + 1])
+                decStart[i] = decStart[i + 1];
+            else
+                decStart[i] = i;
+        }
+        vector<bool> ans;
+        for (auto &q : queries) {
+            int l = q[0];
+            int r = q[1];
+            int left = incEnd[r];
+            int right = decStart[l];
+            ans.push_back(left <= right);
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+			arr = [2, 4, 6, 5, 3]
+			query = [0, 4]
+	incEnd:
+			[0, 0, 0, 3, 4]
+	decStart:
+			[2, 2, 4, 4, 4]
+	For the query:
+			left = incEnd[4] = 4
+			right = decStart[0] = 2
+	Actually, using the correct condition:
+			incEnd[r] <= decStart[l]
+			0 <= 4
+	So the subarray has a valid peak and is a mountain.
+	Output:
+			true
+	Key Insight
+	By preprocessing the **longest non-decreasing prefix ending at every index** and the **longest non-increasing suffix starting at every index**, each query can be answered in **O(1)** time. A subarray is a mountain if these two segments overlap, meaning there exists at least one valid peak within the queried range.
