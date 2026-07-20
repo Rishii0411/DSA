@@ -1,0 +1,81 @@
+2026-07-20 | Shift 2D Grid
+
+	Question
+Return the grid after applying the shift operation exactly `k` times.
+	Key Insight
+Treat the 2D matrix as a single 1D array of size:
+		total = m × n
+	Mapping between 2D and 1D:
+		index = row × n + col
+	After one shift:
+		newIndex = index + 1
+	After `k` shifts:
+		newIndex = (index + k) % total
+	Convert the new 1D index back to 2D:
+		newRow = newIndex / n
+		newCol = newIndex % n
+	This places every element directly in its final position without simulating each shift.
+	Approach
+1.	Find the dimensions `m` and `n`.
+2.	Compute:
+			total = m × n
+3.	Reduce unnecessary shifts:
+			k = k % total
+4.	Create an answer matrix of the same size.
+5.	For every element:
+			- Convert its position to a 1D index.
+			- Compute the new index after `k` shifts.
+			- Convert the new index back to `(row, col)`.
+			- Store the element in its new position.
+6.	Return the resulting matrix.
+	Time Complexity
+	O(m × n)
+	Space Complexity
+	O(m × n)
+	Solution
+class Solution {
+public:
+    vector<vector<int>> shiftGrid(vector<vector<int>>& grid, int k) {
+        int m = grid.size();
+        int n = grid[0].size();
+        int total = m * n;
+        k %= total;
+        vector<vector<int>> ans(m, vector<int>(n));
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                int index = i * n + j;
+                int newIndex = (index + k) % total;
+                int newRow = newIndex / n;
+                int newCol = newIndex % n;
+                ans[newRow][newCol] = grid[i][j];
+            }
+        }
+        return ans;
+    }
+};
+	Example
+	Input:
+			grid =
+			[
+			  [1,2,3],
+			  [4,5,6],
+			  [7,8,9]
+			]
+			k = 1
+	Flattened array:
+			[1,2,3,4,5,6,7,8,9]
+	After one shift:
+			[9,1,2,3,4,5,6,7,8]
+	Converted back to matrix:
+			[
+			  [9,1,2],
+			  [3,4,5],
+			  [6,7,8]
+			]
+	Output:
+			[
+			  [9,1,2],
+			  [3,4,5],
+			  [6,7,8]
+			]
+	Key Insight
