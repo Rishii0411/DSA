@@ -1,0 +1,100 @@
+2026-07-20 | Shortest Unique Prefix for Every String
+
+	Question
+Return an array where each element is the shortest unique prefix corresponding to each string in the input array.
+	Key Insight
+A **Trie (Prefix Tree)** is the ideal data structure for this problem.
+While inserting each word into the Trie:
+	- Every node stores:
+			count = number of words passing through that node.
+After all words are inserted:
+	- Traverse each word again.
+	- Build its prefix one character at a time.
+	- As soon as a node with:
+			count == 1
+	  is reached, the current prefix is unique.
+	This works because only one word passes through that Trie node.
+	Approach
+1.	Create a Trie node containing:
+			- 26 child pointers.
+			- A frequency counter.
+2.	Insert every word into the Trie.
+			- Move character by character.
+			- Create nodes if needed.
+			- Increment the frequency of every visited node.
+3.	For every word:
+			- Traverse the Trie again.
+			- Append characters to the answer.
+			- Stop when the node frequency becomes 1.
+4.	Store the obtained prefix.
+5.	Return all prefixes.
+	Time Complexity
+	O(N × L)
+	where
+		N = number of strings
+		L = average string length
+	Space Complexity
+	O(N × L)
+	Solution
+class Solution {
+public:
+    struct TrieNode {
+        TrieNode* child[26];
+        int cnt;
+        TrieNode() {
+            cnt = 0;
+            for(int i = 0; i < 26; i++)
+                child[i] = nullptr;
+        }
+    };
+    TrieNode* root = new TrieNode();
+    void insert(string &word) {
+        TrieNode* node = root;
+        for(char ch : word) {
+            int idx = ch - 'a';
+            if(node->child[idx] == nullptr)
+                node->child[idx] = new TrieNode();
+            node = node->child[idx];
+            node->cnt++;
+        }
+    }
+    string getPrefix(string &word) {
+        TrieNode* node = root;
+        string prefix;
+        for(char ch : word) {
+            int idx = ch - 'a';
+            node = node->child[idx];
+            prefix += ch;
+            if(node->cnt == 1)
+                break;
+        }
+        return prefix;
+    }
+    vector<string> findPrefixes(vector<string>& arr) {
+        for(string &word : arr)
+            insert(word);
+        vector<string> ans;
+        for(string &word : arr)
+            ans.push_back(getPrefix(word));
+        return ans;
+    }
+};
+	Example
+	Input:
+			arr = ["zebra", "dog", "duck", "dove"]
+	Trie Frequencies:
+			z → 1
+			d → 3
+			do → 2
+			dog → 1
+			du → 1
+			dov → 1
+	Unique Prefixes:
+			zebra → "z"
+			dog → "dog"
+			duck → "du"
+			dove → "dov"
+	Output:
+			["z", "dog", "du", "dov"]
+	Key Insight
+	A Trie stores all strings while maintaining how many words pass through each node. The first node on a word's path whose frequency becomes **1** marks the point where that word becomes distinguishable from every other word. Thus, the shortest unique prefix for each string can be found efficiently in **O(N × L)** time, where `L` is the average string length.
