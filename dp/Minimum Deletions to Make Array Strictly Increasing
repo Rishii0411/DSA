@@ -1,0 +1,69 @@
+2026-07-22 | Minimum Deletions to Make Array Strictly Increasing
+
+	Question
+Return the minimum number of deletions required so that the remaining elements form a strictly increasing sequence.
+	Key Insight
+If:
+		LIS = length of the Longest Increasing Subsequence
+then all LIS elements can be kept, and every other element must be removed.
+Therefore,
+		Minimum Deletions = n − LIS
+So the problem reduces to finding the length of the LIS.
+We use the efficient **O(n log n)** LIS algorithm.
+Maintain a vector:
+		lis
+where:
+		lis[i]
+stores the smallest possible ending value of an increasing subsequence of length `i + 1`.
+For every element:
+	- If it is larger than all elements in `lis`, append it.
+	- Otherwise, replace the first element in `lis` that is greater than or equal to it using `lower_bound`.
+The size of `lis` at the end is the LIS length.
+	Approach
+1.	Create an empty vector `lis`.
+2.	Traverse every element in the array.
+3.	Find its position using `lower_bound`.
+4.	If no suitable position exists:
+			append the element.
+5.	Otherwise:
+			replace the element at that position.
+6.	The length of `lis` is the LIS length.
+7.	Return:
+			n − LIS
+	Time Complexity
+	O(n log n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    int minDeletions(vector<int>& arr) {
+        vector<int> lis;
+        for(int x : arr) {
+            auto it = lower_bound(lis.begin(), lis.end(), x);
+            if(it == lis.end())
+                lis.push_back(x);
+            else
+                *it = x;
+        }
+        return arr.size() - lis.size();
+    }
+};
+	Example
+	Input:
+			arr = [5, 3, 4, 8, 6, 7]
+	LIS construction:
+			5
+			3
+			3 4
+			3 4 8
+			3 4 6
+			3 4 6 7
+	LIS length:
+			4
+	Minimum deletions:
+			6 − 4 = 2
+	Output:
+			2
+	Key Insight
+	The minimum deletions are obtained by keeping the **Longest Increasing Subsequence** intact, since it is already strictly increasing and preserves the original order. Every element outside the LIS must be removed. Using the patience sorting technique with `lower_bound`, the LIS length is computed in **O(n log n)** time, giving an overall **O(n log n)** solution.
