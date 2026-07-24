@@ -1,0 +1,65 @@
+2026-07-24 | Check if an Array is a Valid Preorder Traversal of BST
+
+	Question
+Return `true` if the given array can represent the preorder traversal of a BST; otherwise, return `false`.
+	Key Insight
+	In a BST:
+	- Every node in the left subtree is smaller than the root.
+	- Every node in the right subtree is greater than the root.
+	During preorder traversal, once we move to the right subtree of a node, we can never encounter a smaller value belonging to its left subtree again.
+	We maintain:
+			- A stack storing ancestors.
+			- A variable `lowerBound` representing the minimum value allowed for the current node.
+	Processing each value:
+	- If the current value is smaller than `lowerBound`, the preorder is invalid.
+	- While the stack is not empty and the current value is greater than the stack's top:
+			- Pop the stack.
+			- Update `lowerBound` to the popped value.
+	- Push the current value onto the stack.
+	If the traversal finishes without violating the `lowerBound`, the preorder is valid.
+	Approach
+1.	Initialize an empty stack.
+2.	Set `lowerBound` to negative infinity.
+3.	Traverse every element in the preorder array.
+4.	If the current value is less than `lowerBound`, return `false`.
+5.	While the stack is not empty and the current value is greater than the stack's top:
+			- Update `lowerBound`.
+			- Pop the stack.
+6.	Push the current value into the stack.
+7.	If all elements are processed successfully, return `true`.
+	Time Complexity
+	O(n)
+	Space Complexity
+	O(n)
+	Solution
+class Solution {
+public:
+    bool canRepresentBST(vector<int> &arr) {
+        stack<int> st;
+        int lowerBound = INT_MIN;
+        for(int val : arr) {
+            if(val < lowerBound)
+                return false;
+            while(!st.empty() && val > st.top()) {
+                lowerBound = st.top();
+                st.pop();
+            }
+            st.push(val);
+        }
+        return true;
+    }
+};
+	Example
+	Input:
+			arr = [40, 30, 35, 80, 100]
+	Processing:
+			40 → push
+			30 → push
+			35 → pop 30, lowerBound = 30
+			80 → pop 40, lowerBound = 40
+			100 → push
+	No violation occurs.
+	Output:
+			true
+	Key Insight
+	The stack keeps track of the path from the root to the current node, while `lowerBound` ensures that once we enter the right subtree of a node, we never encounter a smaller value afterward. Every element is pushed and popped at most once, resulting in an optimal **O(n)** time solution.
