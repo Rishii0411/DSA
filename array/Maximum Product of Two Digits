@@ -1,0 +1,98 @@
+2026-07-25 | Maximum Product of Two Digits
+
+		Question
+	Return the maximum product that can be obtained by multiplying any two digits of `n`.
+
+		Key Insight
+		The maximum product is always obtained by the **two largest digits** in the number.
+
+		So, while extracting the digits, keep track of:
+
+				firstMax  → largest digit
+
+				secondMax → second largest digit
+
+		If the largest digit appears more than once, both `firstMax` and `secondMax` will become that digit.
+
+		The answer is simply:
+
+				firstMax × secondMax
+
+		Approach
+	1.	Initialize:
+				- `firstMax = -1`
+				- `secondMax = -1`
+
+	2.	Extract each digit using:
+				- `digit = n % 10`
+				- `n /= 10`
+
+	3.	Update the two largest digits:
+				- If the current digit is greater than or equal to `firstMax`,
+				  shift `firstMax` to `secondMax` and update `firstMax`.
+				- Otherwise, if it is greater than `secondMax`,
+				  update `secondMax`.
+
+	4.	Return:
+
+				firstMax * secondMax
+
+		Time Complexity
+		O(d)
+
+		where `d` is the number of digits in `n`.
+
+		Space Complexity
+		O(1)
+
+		Solution
+```cpp id="v2r8nm"
+class Solution {
+public:
+    int maxProduct(int n) {
+
+        int firstMax = -1;
+        int secondMax = -1;
+
+        while(n > 0) {
+            int digit = n % 10;
+            n /= 10;
+
+            if(digit >= firstMax) {
+                secondMax = firstMax;
+                firstMax = digit;
+            }
+            else if(digit > secondMax) {
+                secondMax = digit;
+            }
+        }
+
+        return firstMax * secondMax;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				n = 58392
+
+		Digits:
+
+				5, 8, 3, 9, 2
+
+		Two largest digits:
+
+				9 and 8
+
+		Product:
+
+				9 × 8 = 72
+
+		Output:
+
+				72
+
+		Key Insight
+		Since the product increases with larger digits, the optimal answer is always obtained by multiplying the two largest digits in the number. By tracking these two values during a single scan of the digits, the solution runs in **O(d)** time and **O(1)** extra space.
