@@ -1,0 +1,108 @@
+2026-07-26 | Sort Nodes at Each Level of a Complete Binary Tree
+
+		Question
+	Return a 2D array where each row contains the sorted values of one level of the complete binary tree.
+
+		Key Insight
+		A complete binary tree stored in level order has a simple property:
+
+		- Level `0` contains `1` node.
+		- Level `1` contains `2` nodes.
+		- Level `2` contains `4` nodes.
+		- In general, each level has at most twice the nodes of the previous level.
+
+		We can process the array sequentially:
+
+		- Start with `1` node for the first level.
+		- Collect the next `levelSize` elements.
+		- Sort them.
+		- Double `levelSize` for the next level.
+
+		Approach
+	1.	Initialize:
+				- `idx = 0`
+				- `levelSize = 1`
+
+	2.	While there are elements remaining:
+				- Collect up to `levelSize` elements.
+				- Store them in a temporary vector.
+
+	3.	Sort the temporary vector.
+
+	4.	Add it to the answer.
+
+	5.	Double `levelSize` for the next level.
+
+	6.	Repeat until all elements are processed.
+
+		Time Complexity
+		O(n log n)
+
+		Space Complexity
+		O(n)
+
+		Solution
+```cpp id="q5k9hp"
+class Solution {
+public:
+    vector<vector<int>> levelWiseSorted(vector<int>& arr) {
+
+        vector<vector<int>> ans;
+
+        int n = arr.size();
+        int idx = 0;
+        int levelSize = 1;
+
+        while(idx < n) {
+
+            vector<int> level;
+
+            for(int i = 0; i < levelSize && idx < n; i++) {
+                level.push_back(arr[idx]);
+                idx++;
+            }
+
+            sort(level.begin(), level.end());
+
+            ans.push_back(level);
+
+            levelSize *= 2;
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [7, 6, 5, 4, 3, 2, 1]
+
+		Levels:
+
+				Level 0 : [7]
+
+				Level 1 : [6, 5]
+
+				Level 2 : [4, 3, 2, 1]
+
+		After sorting:
+
+				Level 0 : [7]
+
+				Level 1 : [5, 6]
+
+				Level 2 : [1, 2, 3, 4]
+
+		Output:
+
+				[
+				  [7],
+				  [5,6],
+				  [1,2,3,4]
+				]
+
+		Key Insight
+		Since the array already stores the tree in **level order**, there is no need to construct the binary tree. We simply process the array level by level using the expected number of nodes at each level (`1, 2, 4, ...`), sort each level independently, and append it to the result.
