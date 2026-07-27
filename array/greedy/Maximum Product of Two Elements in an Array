@@ -1,0 +1,87 @@
+2026-07-27 | Maximum Product of Two Elements in an Array
+
+		Question
+	Return the maximum value of:
+
+				(nums[i] - 1) × (nums[j] - 1)
+
+		for any two distinct indices.
+
+		Key Insight
+		If:
+
+				a ≥ b ≥ all other elements
+
+		then:
+
+				(a - 1) × (b - 1)
+
+		is always the maximum possible product.
+
+		So, we only need to find the largest and second largest numbers in one traversal.
+
+		Approach
+	1.	Maintain two variables:
+				- `firstMax` → largest element.
+				- `secondMax` → second largest element.
+
+	2.	Traverse the array once and update these two values.
+
+	3.	Return:
+
+				(firstMax - 1) × (secondMax - 1)
+
+		Time Complexity
+		O(n)
+
+		Space Complexity
+		O(1)
+
+		Solution
+```cpp id="v8q5mk"
+class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+
+        int firstMax = INT_MIN;
+        int secondMax = INT_MIN;
+
+        for(int x : nums) {
+            if(x >= firstMax) {
+                secondMax = firstMax;
+                firstMax = x;
+            }
+            else if(x > secondMax) {
+                secondMax = x;
+            }
+        }
+
+        return (firstMax - 1) * (secondMax - 1);
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [3, 4, 5, 2]
+
+		Largest two numbers:
+
+				5 and 4
+
+		Result:
+
+				(5 - 1) × (4 - 1)
+
+				= 4 × 3
+
+				= 12
+
+		Output:
+
+				12
+
+		Key Insight
+		Subtracting `1` from every candidate does not change their relative ordering. Therefore, the optimal pair is always the **two largest elements** in the array. Tracking these two values in a single pass gives an **O(n)** time and **O(1)** space solution.
