@@ -1,0 +1,110 @@
+2026-07-28 | Shortest Path in Graph with Edge Weights 1 and 2
+
+		Question
+	Given the graph, source vertex `src`, and destination vertex `dest`, return the shortest distance from `src` to `dest`. If no path exists, return `-1`.
+
+		Key Insight
+		Normally, weighted graphs require **Dijkstra's Algorithm**.
+
+		However, because the edge weights are restricted to **1 and 2**, we can process vertices efficiently using a deque:
+
+		- If the edge weight is `1`, push the next node to the **front** of the deque.
+		- If the edge weight is `2`, push it to the **back**.
+
+		This processes shorter paths earlier while maintaining the correct shortest distances.
+
+		Approach
+	1.	Build an adjacency list from the given edges.
+
+	2.	Initialize the distance of every vertex as infinity.
+
+	3.	Set the source distance to `0` and insert it into the deque.
+
+	4.	While the deque is not empty:
+			- Remove the front vertex.
+			- Traverse all its adjacent vertices.
+			- If a shorter distance is found:
+				- Update the distance.
+				- Push to the front if weight is `1`.
+				- Push to the back if weight is `2`.
+
+	5.	After traversal:
+			- Return the distance of `dest`.
+			- If it remains infinity, return `-1`.
+
+		Time Complexity
+		O(V + E)
+
+		Space Complexity
+		O(V + E)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int shortestPath(int V, vector<vector<int>>& edges, int src, int dest) {
+
+        vector<vector<pair<int, int>>> adj(V);
+
+        for (auto &e : edges) {
+            int u = e[0], v = e[1], w = e[2];
+            adj[u].push_back({v, w});
+            adj[v].push_back({u, w});
+        }
+
+        const int INF = 1e9;
+        vector<int> dist(V, INF);
+        deque<int> dq;
+
+        dist[src] = 0;
+        dq.push_front(src);
+
+        while (!dq.empty()) {
+            int u = dq.front();
+            dq.pop_front();
+
+            for (auto &[v, w] : adj[u]) {
+                if (dist[u] + w < dist[v]) {
+                    dist[v] = dist[u] + w;
+
+                    if (w == 1)
+                        dq.push_front(v);
+                    else
+                        dq.push_back(v);
+                }
+            }
+        }
+
+        return (dist[dest] == INF) ? -1 : dist[dest];
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				V = 4
+
+				edges = [
+				  [0,1,1],
+				  [1,2,2],
+				  [0,2,2],
+				  [2,3,1]
+				]
+
+				src = 0
+
+				dest = 3
+
+		Possible paths:
+
+				0 → 2 → 3 = 2 + 1 = 3
+
+				0 → 1 → 2 → 3 = 1 + 2 + 1 = 4
+
+		Output:
+
+				3
+
+		Key Insight
