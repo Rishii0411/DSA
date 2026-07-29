@@ -1,0 +1,82 @@
+2026-07-29 | Minimum Number of Consecutive Subsets
+
+		Question
+	Return the minimum number of subsets such that every subset consists of consecutive integers.
+
+		Key Insight
+		After sorting the array:
+
+		- If two adjacent numbers differ by `1`, they can belong to the same subset.
+		- If the difference is greater than `1`, the consecutive sequence breaks, and we must start a new subset.
+
+		Thus, the answer is simply:
+
+		- Start with one subset.
+		- Count how many times the gap between adjacent sorted elements is greater than `1`.
+
+		Approach
+	1.	Sort the array.
+
+	2.	Initialize the answer as `1` (if the array is non-empty).
+
+	3.	Traverse the sorted array:
+			- If `arr[i] != arr[i-1] + 1`, start a new subset.
+
+	4.	Return the total number of subsets.
+
+		Time Complexity
+		O(n log n)
+
+		(Sorting dominates the complexity.)
+
+		Space Complexity
+		O(1)
+
+		(Ignoring the space used by the sorting algorithm.)
+
+		Solution
+```cpp id="m8r4kp"
+class Solution {
+public:
+    int minSubsets(vector<int>& arr) {
+
+        int n = arr.size();
+        if (n == 0)
+            return 0;
+
+        sort(arr.begin(), arr.end());
+
+        int subsets = 1;
+
+        for (int i = 1; i < n; i++) {
+            if (arr[i] != arr[i - 1] + 1)
+                subsets++;
+        }
+
+        return subsets;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [8, 6, 1, 3, 2, 7]
+
+		After sorting:
+
+				[1, 2, 3, 6, 7, 8]
+
+		Subsets:
+
+				{1, 2, 3}
+
+				{6, 7, 8}
+
+		Output:
+
+				2
+
+		Key Insight
+		Sorting places all numbers in order. Every time there is a gap greater than `1`, the current consecutive sequence ends and a new subset must begin. Therefore, counting such gaps directly gives the minimum number of consecutive subsets.
