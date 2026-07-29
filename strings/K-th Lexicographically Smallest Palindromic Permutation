@@ -1,0 +1,148 @@
+2026-07-29 | K-th Lexicographically Smallest Palindromic Permutation
+
+		Question
+	Return the `k`-th lexicographically smallest palindromic permutation of `s`.
+
+		Key Insight
+		A palindrome has the form:
+
+				Left Half + Middle Character + Reverse(Left Half)
+
+		Instead of generating every palindrome, we build the left half character by character.
+
+		For every possible character:
+
+		- Temporarily place it.
+		- Count how many valid permutations can be formed using the remaining characters.
+		- If this count is at least `k`, keep this character.
+		- Otherwise, skip all those permutations by subtracting the count from `k` and try the next character.
+
+		The number of distinct permutations of the remaining half is:
+
+				total! / (f1! × f2! × ...)
+
+		where `fi` are the remaining character frequencies.
+
+		This greedy selection directly constructs the required palindrome.
+
+		Approach
+	1.	Count the frequency of every character.
+
+	2.	Extract:
+			- Half frequencies (`freq / 2`).
+			- Middle character (odd frequency, if any).
+
+	3.	Precompute factorials.
+
+	4.	Repeatedly choose the smallest possible character:
+			- Temporarily decrease its frequency.
+			- Compute the number of permutations of the remaining half.
+			- If this number is at least `k`, keep the character.
+			- Otherwise restore it, subtract the count from `k`, and continue.
+
+	5.	If at any point `k` exceeds the total remaining permutations, return an empty string.
+
+	6.	Mirror the constructed left half to obtain the final palindrome.
+
+		Time Complexity
+		O(n × 26)
+
+		Space Complexity
+		O(n)
+
+		Solution
+```cpp id="w5n7hc"
+class Solution {
+public:
+    using ull = unsigned long long;
+
+    ull countWays(vector<int>& cnt, vector<ull>& fact) {
+        int total = 0;
+        for (int x : cnt) total += x;
+
+        ull ways = fact[total];
+        for (int x : cnt)
+            ways /= fact[x];
+
+        return ways;
+    }
+
+    string kthPalindrome(string s, int k) {
+
+        vector<int> freq(26, 0);
+
+        for (char c : s)
+            freq[c - 'a']++;
+
+        vector<int> half(26, 0);
+        string mid = "";
+
+        int halfLen = 0;
+
+        for (int i = 0; i < 26; i++) {
+            half[i] = freq[i] / 2;
+            halfLen += half[i];
+
+            if (freq[i] % 2)
+                mid = char('a' + i);
+        }
+
+        vector<ull> fact(halfLen + 1, 1);
+
+        for (int i = 1; i <= halfLen; i++)
+            fact[i] = fact[i - 1] * i;
+
+        if (countWays(half, fact) < (ull)k)
+            return "";
+
+        string left = "";
+
+        for (int pos = 0; pos < halfLen; pos++) {
+
+            for (int c = 0; c < 26; c++) {
+
+                if (half[c] == 0)
+                    continue;
+
+                half[c]--;
+
+                ull ways = countWays(half, fact);
+
+                if (ways >= (ull)k) {
+                    left.push_back(char('a' + c));
+                    break;
+                }
+
+                k -= ways;
+                half[c]++;
+            }
+        }
+
+        string right = left;
+        reverse(right.begin(), right.end());
+
+        return left + mid + right;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s = "aabb"
+
+				k = 2
+
+		Distinct palindromes:
+
+				1. abba
+
+				2. baab
+
+		Output:
+
+				"baab"
+
+		Key Insight
+		A palindrome is uniquely determined by its **left half**. By counting how many permutations begin with each possible character, we can greedily choose the correct character at every position and directly construct the **k-th lexicographically smallest palindrome** without generating all palindromic permutations.
