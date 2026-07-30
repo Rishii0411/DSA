@@ -1,0 +1,78 @@
+2026-07-30 | Minimum Number of Pushes to Type Word II
+
+		Question
+	Return the minimum number of key presses needed after optimally remapping the keypad.
+
+		Key Insight
+		Since every character appears exactly once in `word`, all letters have the same frequency.
+
+		To minimize the total pushes:
+
+		- The first **8 letters** should occupy the first position on the 8 keys → **1 push each**.
+		- The next **8 letters** occupy the second position → **2 pushes each**.
+		- The next **8 letters** occupy the third position → **3 pushes each**.
+		- Remaining letters occupy the fourth position → **4 pushes each**.
+
+		Thus, if a letter is the `i-th` assigned letter (0-indexed), its cost is:
+
+				(i / 8) + 1
+
+		Approach
+	1.	Let `n` be the number of distinct letters.
+
+	2.	Iterate through all letters.
+
+	3.	For each position `i`, add:
+
+				(i / 8) + 1
+
+	4.	Return the total.
+
+		Time Complexity
+		O(n)
+
+		Space Complexity
+		O(1)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int minimumPushes(string word) {
+
+        int n = word.size();
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            ans += (i / 8) + 1;
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				word = "abcdefghij"
+
+		Assignments:
+
+				a-h → 1 push each
+
+				i-j → 2 pushes each
+
+		Total pushes:
+
+				8 × 1 + 2 × 2
+
+				= 12
+
+		Output:
+
+				12
+
+		Key Insight
+		Because all letters are **distinct**, every letter contributes equally. The optimal strategy is simply to fill the **8 keypad keys level by level**, assigning the first eight letters a cost of **1**, the next eight a cost of **2**, and so on. This greedy assignment gives the minimum total number of pushes in **O(n)** time.
