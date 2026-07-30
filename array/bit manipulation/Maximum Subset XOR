@@ -1,0 +1,106 @@
+2026-07-30 | Maximum Subset XOR
+
+		Question
+	Return the maximum XOR obtainable by selecting any subset of the given array.
+
+		Key Insight
+		This problem is solved using a **Linear Basis (XOR Basis)**.
+
+		A linear basis stores a set of independent numbers such that:
+
+		- Every XOR combination of the original numbers can be formed using the basis.
+		- The basis size is at most **32** (for 32-bit integers).
+
+		Construction:
+
+		- Process every number.
+		- Try to eliminate its highest set bit using the existing basis.
+		- If it cannot be eliminated completely, insert it into the basis.
+
+		After building the basis, greedily XOR the basis elements with the answer whenever it increases the value.
+
+		Approach
+	1.	Create a basis array of size `32` initialized to `0`.
+
+	2.	For every number:
+			- From the highest bit to the lowest:
+				- If the current bit is not set, continue.
+				- If no basis element exists for this bit, insert the number.
+				- Otherwise, XOR it with the existing basis element.
+
+	3.	After constructing the basis:
+			- Start with answer = `0`.
+			- Traverse basis from highest bit to lowest.
+			- XOR with a basis element whenever it increases the answer.
+
+	4.	Return the final answer.
+
+		Time Complexity
+		O(32 × n)
+
+		Space Complexity
+		O(32)
+
+		Solution
+```cpp id="f3k8zw"
+class Solution {
+public:
+    int maxSubsetXOR(vector<int> &arr) {
+
+        vector<int> basis(32, 0);
+
+        for (int x : arr) {
+            int num = x;
+
+            for (int bit = 31; bit >= 0; bit--) {
+
+                if (((num >> bit) & 1) == 0)
+                    continue;
+
+                if (basis[bit] == 0) {
+                    basis[bit] = num;
+                    break;
+                }
+
+                num ^= basis[bit];
+            }
+        }
+
+        int ans = 0;
+
+        for (int bit = 31; bit >= 0; bit--) {
+            if ((ans ^ basis[bit]) > ans)
+                ans ^= basis[bit];
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [2, 4, 5]
+
+		Binary:
+
+				2 = 010
+
+				4 = 100
+
+				5 = 101
+
+		Maximum XOR:
+
+				2 ⊕ 4 ⊕ 5
+
+				= 3
+
+		Output:
+
+				3
+
+		Key Insight
+		A **Linear Basis** keeps only the XOR-independent numbers while preserving every possible subset XOR. Once the basis is built, greedily combining basis elements from the highest bit to the lowest produces the **maximum subset XOR** in **O(32 × n)** time with only **O(32)** extra space.
