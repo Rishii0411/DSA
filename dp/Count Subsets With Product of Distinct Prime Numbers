@@ -1,0 +1,206 @@
+2026-07-31 | Count Subsets With Product of Distinct Prime Numbers
+
+		Question
+	Given an array `arr[]`, count the number of subsets whose product contains each prime factor at most once.
+
+	Return the answer modulo **10^9 + 7**.
+
+		Key Insight
+		The primes up to 30 are:
+
+				2, 3, 5, 7, 11, 13, 17, 19, 23, 29
+
+		There are only **10 primes**, so we can represent the set of used primes using a **10-bit mask**.
+
+		For every number:
+
+		- If it contains any repeated prime factor
+				(e.g. 4 = 2², 8 = 2³, 12 = 2²×3)
+
+		  then it can never be part of a valid subset.
+
+		- Otherwise compute its prime mask.
+
+		Example:
+
+				6 = 2 × 3
+
+				mask = (1<<0) | (1<<1)
+
+		Now perform DP.
+
+		dp[mask]
+
+		= number of ways to obtain exactly this set of used primes.
+
+		Transition:
+
+		For every valid number:
+
+				if ((mask & numMask) == 0)
+
+		then
+
+				newMask = mask | numMask
+
+		update
+
+				dp[newMask]
+
+		Special handling of 1:
+
+		- 1 has no prime factors.
+		- It can be freely included or excluded.
+		- If there are `cnt1` ones, multiply the final answer by
+
+				2^cnt1
+
+		because every valid subset may choose any combination of ones.
+
+		Approach
+	1.	Count the frequency of every number from 1 to 30.
+
+	2.	Precompute the prime mask for every valid number.
+			- Skip numbers having squared prime factors.
+
+	3.	Create DP over all `2^10` masks.
+
+	4.	Initialize:
+
+				dp[0] = 1
+
+	5.	Process every valid value according to its frequency.
+
+	6.	Update DP in reverse mask order.
+
+	7.	Sum all masks except mask 0.
+
+	8.	Multiply the answer by
+
+				2^(count of ones)
+
+	9.	Return the answer modulo `1e9+7`.
+
+		Time Complexity
+		O(30 × 2^10)
+
+		≈ O(30000)
+
+		Space Complexity
+		O(2^10)
+
+		Solution
+```cpp
+class Solution {
+public:
+    static const int MOD = 1e9 + 7;
+
+    int numberOfGoodSubsets(vector<int>& nums) {
+
+        vector<int> freq(31, 0);
+
+        for (int x : nums)
+            freq[x]++;
+
+        vector<int> primes = {2,3,5,7,11,13,17,19,23,29};
+
+        vector<int> mask(31, -1);
+
+        for (int x = 2; x <= 30; x++) {
+
+            int t = x;
+            int m = 0;
+            bool ok = true;
+
+            for (int i = 0; i < 10; i++) {
+
+                int p = primes[i];
+                int cnt = 0;
+
+                while (t % p == 0) {
+                    cnt++;
+                    t /= p;
+                }
+
+                if (cnt > 1) {
+                    ok = false;
+                    break;
+                }
+
+                if (cnt == 1)
+                    m |= (1 << i);
+            }
+
+            if (ok)
+                mask[x] = m;
+        }
+
+        vector<long long> dp(1 << 10, 0);
+        dp[0] = 1;
+
+        for (int x = 2; x <= 30; x++) {
+
+            if (freq[x] == 0 || mask[x] == -1)
+                continue;
+
+            for (int s = (1 << 10) - 1; s >= 0; s--) {
+
+                if ((s & mask[x]) == 0) {
+
+                    dp[s | mask[x]] =
+                        (dp[s | mask[x]] + dp[s] * freq[x]) % MOD;
+                }
+            }
+        }
+
+        long long ans = 0;
+
+        for (int s = 1; s < (1 << 10); s++)
+            ans = (ans + dp[s]) % MOD;
+
+        long long mul = 1;
+
+        for (int i = 0; i < freq[1]; i++)
+            mul = (mul * 2) % MOD;
+
+        ans = (ans * mul) % MOD;
+
+        return (int)ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [1,2,3,4]
+
+		Valid numbers:
+
+				2 → mask(2)
+
+				3 → mask(3)
+
+				4 → invalid (contains 2²)
+
+		Valid subsets:
+
+				[2]
+
+				[3]
+
+				[2,3]
+
+				[1,2]
+
+				[1,3]
+
+				[1,2,3]
+
+		Output:
+
+				6
+
+		Key Insight
+		Since every value is at most **30**, there are only **10 possible prime factors**. Representing used prime factors as a **10-bit mask** allows us to perform an efficient bitmask DP. Numbers containing repeated prime factors are discarded, while the value `1` is handled separately because it contributes no prime factors and can be freely included in any valid subset. This yields an efficient **O(30 × 2¹⁰)** solution. 
