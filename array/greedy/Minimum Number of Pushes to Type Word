@@ -1,0 +1,121 @@
+2026-07-31 | Minimum Number of Pushes to Type Word
+
+		Question
+	Return the minimum number of key presses required to type the given word after optimally remapping the keypad.
+
+		Key Insight
+		Unlike the version where all letters are distinct, here letters may repeat.
+
+		So every character does **not** contribute equally.
+
+		We first count the frequency of every letter.
+
+		Then:
+
+		- Sort the frequencies in **descending order**.
+		- The most frequent 8 letters get cost **1**.
+		- The next 8 letters get cost **2**.
+		- The next 8 letters get cost **3**.
+		- The remaining letters get cost **4**.
+
+		If a frequency is placed at position `i` after sorting, its cost is
+
+				(i / 8) + 1
+
+		The contribution is
+
+				frequency × cost
+
+		This greedy assignment minimizes the total pushes.
+
+		Approach
+	1.	Count the frequency of each letter.
+
+	2.	Store all non-zero frequencies.
+
+	3.	Sort the frequencies in descending order.
+
+	4.	Traverse the sorted frequencies.
+
+	5.	The cost for the `i-th` frequency is
+
+				(i / 8) + 1
+
+	6.	Add
+
+				frequency × cost
+
+		to the answer.
+
+	7.	Return the final answer.
+
+		Time Complexity
+		O(n + 26 log 26)
+
+		≈ O(n)
+
+		Space Complexity
+		O(26)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int minimumPushes(string word) {
+
+        vector<int> freq(26, 0);
+
+        for(char ch : word)
+            freq[ch - 'a']++;
+
+        sort(freq.begin(), freq.end(), greater<int>());
+
+        int ans = 0;
+
+        for(int i = 0; i < 26; i++) {
+
+            if(freq[i] == 0)
+                break;
+
+            ans += freq[i] * ((i / 8) + 1);
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				word = "abcabcddd"
+
+		Frequencies:
+
+				d → 3
+
+				a → 2
+
+				b → 2
+
+				c → 2
+
+		Sorted frequencies:
+
+				3, 2, 2, 2
+
+		All four letters fit in the first level of the keypad.
+
+		Cost:
+
+				3 × 1 + 2 × 1 + 2 × 1 + 2 × 1
+
+				= 9
+
+		Output:
+
+				9
+
+		Key Insight
+		To minimize the total number of key presses, assign the **most frequent letters** to positions requiring the **fewest pushes**. Since there are only **8 keys**, the first 8 most frequent letters cost **1** push each, the next 8 cost **2** pushes each, and so on. This greedy strategy is optimal and runs in **O(n)** time.
