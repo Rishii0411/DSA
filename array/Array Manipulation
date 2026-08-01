@@ -1,0 +1,115 @@
+2026-08-01 | Array Manipulation
+	
+		Question
+	After performing all the range increment operations, return the maximum value present in the array.
+
+		Key Insight
+		Instead of updating every index in a range:
+
+				l ... r
+
+		we only modify two positions.
+
+		For an update:
+
+				add k to [l, r]
+
+		do:
+
+				diff[l] += k
+
+				diff[r + 1] -= k   (if r + 1 < n)
+
+		After processing all operations, compute the prefix sum of the difference array.
+
+		The prefix sum reconstructs the final array.
+
+		While computing it, keep track of the maximum value.
+
+		Approach
+	1.	Create a difference array of size `n + 1` initialized to `0`.
+
+	2.	For every query:
+				- Add `k` at index `l`.
+				- Subtract `k` at index `r + 1` if it exists.
+
+	3.	Traverse the difference array while computing the prefix sum.
+
+	4.	The running prefix sum gives the actual value of each element.
+
+	5.	Update the maximum value during traversal.
+
+	6.	Return the maximum.
+
+		Time Complexity
+		O(n + q)
+
+		where `q` is the number of operations.
+
+		Space Complexity
+		O(n)
+
+		Solution
+```cpp id="2bb5p1"
+class Solution {
+public:
+    long long maxValue(int n, vector<vector<int>>& queries) {
+
+        vector<long long> diff(n + 1, 0);
+
+        for (auto &q : queries) {
+            int l = q[0];
+            int r = q[1];
+            int k = q[2];
+
+            diff[l] += k;
+
+            if (r + 1 < n)
+                diff[r + 1] -= k;
+        }
+
+        long long curr = 0;
+        long long ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            curr += diff[i];
+            ans = max(ans, curr);
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				n = 5
+
+				Operations:
+
+				[1,3,2]
+
+				[2,4,3]
+
+				[0,2,1]
+
+		Difference array after updates:
+
+				[1,2,3,-1,-2,-3]
+
+		Prefix sum (final array):
+
+				[1,3,6,5,3]
+
+		Maximum value:
+
+				6
+
+		Output:
+
+				6
+
+		Key Insight
+		A **Difference Array** allows each range update to be performed in **O(1)** by updating only the start and end boundaries. A final prefix sum reconstructs the array, and the maximum value can be found during this traversal, giving an overall **O(n + q)** solution.
