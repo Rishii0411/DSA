@@ -1,0 +1,157 @@
+2026-08-02 | Count Arrays with Divisible Adjacent Elements
+
+		Question
+	Return the total number of arrays satisfying the divisibility condition.
+
+		Key Insight
+		Let
+
+				dp[len][x]
+
+		represent the number of valid arrays of length `len` ending with value `x`.
+
+		Base case:
+
+				dp[1][x] = 1
+
+		because any single element forms a valid array.
+
+		Transition:
+
+		If the current value is `x`, the previous value can be any number `y` such that
+
+				y divides x
+
+		or
+
+				x divides y
+
+		So,
+
+				dp[len][x] += dp[len-1][y]
+
+		for every valid `y`.
+
+		To make this efficient, precompute for every number `x` all numbers that satisfy the divisibility condition.
+
+		Approach
+	1.	Precompute the valid previous values for every number from `1` to `m`.
+			- Add all divisors.
+			- Add all multiples.
+
+	2.	Create a DP table:
+				dp[length][value]
+
+	3.	Initialize:
+
+				dp[1][value] = 1
+
+	4.	For every length from `2` to `n`:
+				- For every ending value:
+						- Add contributions from all compatible previous values.
+
+	5.	Sum all values of
+
+				dp[n][value]
+
+	6.	Return the answer modulo `10^9 + 7`.
+
+		Time Complexity
+		O(n × m × log m)
+
+		(The average number of divisors and multiples per value is about `O(log m)`.)
+
+		Space Complexity
+		O(n × m)
+
+		Space can be optimized to `O(m)` by keeping only the previous row.
+
+		Solution
+```cpp
+class Solution {
+public:
+    const int MOD = 1e9 + 7;
+
+    int countArrays(int n, int m) {
+
+        vector<vector<int>> adj(m + 1);
+
+        for (int i = 1; i <= m; i++) {
+
+            // Divisors
+            for (int d = 1; d * d <= i; d++) {
+                if (i % d == 0) {
+                    adj[i].push_back(d);
+
+                    if (d != i / d)
+                        adj[i].push_back(i / d);
+                }
+            }
+
+            // Multiples
+            for (int j = 2 * i; j <= m; j += i)
+                adj[i].push_back(j);
+        }
+
+        vector<long long> prev(m + 1, 1), curr(m + 1);
+
+        for (int len = 2; len <= n; len++) {
+
+            fill(curr.begin(), curr.end(), 0);
+
+            for (int x = 1; x <= m; x++) {
+
+                for (int y : adj[x]) {
+                    curr[x] = (curr[x] + prev[y]) % MOD;
+                }
+            }
+
+            swap(prev, curr);
+        }
+
+        long long ans = 0;
+
+        for (int x = 1; x <= m; x++)
+            ans = (ans + prev[x]) % MOD;
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				n = 2
+
+				m = 3
+
+		Possible arrays:
+
+				[1,1]
+
+				[1,2]
+
+				[1,3]
+
+				[2,1]
+
+				[2,2]
+
+				[3,1]
+
+				[3,3]
+
+		Invalid:
+
+				[2,3]
+
+				[3,2]
+
+		Output:
+
+				7
+
+		Key Insight
+		View each number from `1` to `m` as a node in a graph, where an edge exists between two numbers if one divides the other. The problem then becomes counting paths of length `n` in this graph. Dynamic Programming efficiently counts these paths by extending arrays one element at a time using only valid divisibility transitions.
