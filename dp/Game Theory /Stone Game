@@ -1,0 +1,86 @@
+2026-08-02 | Stone Game
+
+		Question
+	Return `true` if Alice wins the game; otherwise return `false`.
+
+		Key Insight
+		Although this problem can be solved using Dynamic Programming, there is an important observation.
+
+		Because:
+		- The number of piles is even.
+		- Alice moves first.
+		- Alice can choose either all piles at even indices or all piles at odd indices.
+
+		Before the game starts, Alice compares:
+
+				Sum of even-indexed piles
+
+		and
+
+				Sum of odd-indexed piles
+
+		She commits to the larger-sum parity.
+
+		On every turn, one end belongs to an even index and the other to an odd index in the original array. By choosing appropriately, Alice can always ensure she keeps taking piles from her chosen parity.
+
+		Since the total number of stones is odd, the sums of the two parities cannot be equal. Therefore, one parity has a strictly larger total, and Alice can always secure it.
+
+		Hence, Alice always wins.
+
+		Approach
+	1.	Observe that Alice can force taking all piles from either the even indices or the odd indices.
+
+	2.	Choose the parity with the larger total.
+
+	3.	Because the total number of stones is odd, one parity must have a strictly larger sum.
+
+	4.	Therefore, Alice always wins.
+
+	5.	Return `true`.
+
+		Time Complexity
+		O(1)
+
+		Space Complexity
+		O(1)
+
+		Solution
+```cpp id="h2x6wp"
+class Solution {
+public:
+    bool stoneGame(vector<int>& piles) {
+        return true;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				piles = [5, 3, 4, 5]
+
+		Even-indexed piles:
+
+				5 + 4 = 9
+
+		Odd-indexed piles:
+
+				3 + 5 = 8
+
+		Alice chooses the even-indexed parity and can always force taking those piles.
+
+		Alice's score:
+
+				9
+
+		Bob's score:
+
+				8
+
+		Output:
+
+				true
+
+		Key Insight
+		The special constraints (**even number of piles**, **odd total number of stones**, and **optimal play**) guarantee that Alice can always force herself to take either all even-indexed piles or all odd-indexed piles. Since one of these two groups must have a strictly larger total, Alice is guaranteed to win. Therefore, the answer is always **`true`**.
