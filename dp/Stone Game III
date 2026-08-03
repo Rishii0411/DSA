@@ -1,0 +1,129 @@
+2026-08-03 | Stone Game III
+
+Question
+	Return the winner assuming both players always make the best possible moves.
+
+		Key Insight
+		Instead of storing the scores of Alice and Bob separately, define:
+
+				dp[i]
+
+		as the **maximum score difference**
+
+				(Current Player's Score − Opponent's Score)
+
+		that the current player can achieve starting from index `i`.
+
+		If the current player takes:
+
+		- One stone:
+
+				stoneValue[i] − dp[i+1]
+
+		- Two stones:
+
+				stoneValue[i] + stoneValue[i+1] − dp[i+2]
+
+		- Three stones:
+
+				stoneValue[i] + stoneValue[i+1] + stoneValue[i+2] − dp[i+3]
+
+		The player chooses the option giving the maximum difference.
+
+		Finally,
+
+		- `dp[0] > 0` → Alice wins.
+		- `dp[0] < 0` → Bob wins.
+		- `dp[0] == 0` → Tie.
+
+		Approach
+	1.	Create a DP array of size `n + 1`.
+
+	2.	Base case:
+
+				dp[n] = 0
+
+		No stones remain.
+
+	3.	Process indices from right to left.
+
+	4.	For every position:
+				- Try taking 1, 2, and 3 stones.
+				- Compute the resulting score difference.
+				- Store the maximum.
+
+	5.	Use `dp[0]` to determine the winner.
+
+		Time Complexity
+		O(n)
+
+		Each index considers at most three moves.
+
+		Space Complexity
+		O(n)
+
+		Solution
+```cpp id="x5v8ra"
+class Solution {
+public:
+    string stoneGameIII(vector<int>& stoneValue) {
+
+        int n = stoneValue.size();
+
+        vector<int> dp(n + 1, 0);
+
+        for(int i = n - 1; i >= 0; i--) {
+
+            dp[i] = INT_MIN;
+
+            int take = 0;
+
+            for(int k = 0; k < 3 && i + k < n; k++) {
+
+                take += stoneValue[i + k];
+
+                dp[i] = max(dp[i], take - dp[i + k + 1]);
+            }
+        }
+
+        if(dp[0] > 0)
+            return "Alice";
+
+        if(dp[0] < 0)
+            return "Bob";
+
+        return "Tie";
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				stoneValue = [1,2,3,7]
+
+		DP computation:
+
+				dp[4] = 0
+
+				dp[3] = 7
+
+				dp[2] = max(3-7, 10-0) = 10
+
+				dp[1] = max(2-10, 5-7, 12-0) = 12
+
+				dp[0] = max(1-12, 3-10, 6-7) = -1
+
+		Since:
+
+				dp[0] < 0
+
+		Bob can achieve a higher final score.
+
+		Output:
+
+				"Bob"
+
+		Key Insight
+		The DP stores the **maximum score difference** the current player can obtain over the opponent from every starting position. At each index, the player tries taking **1, 2, or 3 stones** and subtracts the opponent's best possible response. This minimax formulation leads to an optimal **O(n)** dynamic programming solution.
