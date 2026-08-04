@@ -1,0 +1,139 @@
+2026-08-04 | Count Pairs with Absolute Difference Less Than K
+
+		Question
+	Return the total number of pairs whose absolute difference is strictly less than `k`.
+
+		Key Insight
+		First sort the array.
+
+		After sorting:
+
+				arr[0] ≤ arr[1] ≤ ... ≤ arr[n-1]
+
+		The absolute difference becomes:
+
+				arr[right] - arr[left]
+
+		because the array is sorted.
+
+		Use two pointers:
+
+		- `left` points to the beginning of the current window.
+		- `right` expands the window.
+
+		If
+
+				arr[right] - arr[left] < k
+
+		then every element between `left` and `right-1` also forms a valid pair with `right`.
+
+		So we add:
+
+				right - left
+
+		pairs.
+
+		If the difference becomes greater than or equal to `k`, move `left` forward until the condition is satisfied again.
+
+		Approach
+	1.	Sort the array.
+
+	2.	Initialize:
+				- `left = 0`
+				- `answer = 0`
+
+	3.	Traverse the array using `right` from `0` to `n-1`.
+
+	4.	While
+
+				arr[right] - arr[left] >= k
+
+			move `left` forward.
+
+	5.	Now every index from
+
+				left ... right-1
+
+			forms a valid pair with `right`.
+
+	6.	Add
+
+				right - left
+
+			to the answer.
+
+	7.	Return the final count.
+
+		Time Complexity
+		O(n log n)
+
+		(Sorting dominates.)
+
+		Space Complexity
+		O(1)
+
+		(Ignoring the space used by the sorting algorithm.)
+
+		Solution
+```cpp
+class Solution {
+public:
+    long long countPairs(vector<int>& arr, int k) {
+
+        sort(arr.begin(), arr.end());
+
+        int n = arr.size();
+        int left = 0;
+        long long ans = 0;
+
+        for (int right = 0; right < n; right++) {
+
+            while (arr[right] - arr[left] >= k)
+                left++;
+
+            ans += (right - left);
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [1, 5, 3, 4, 2]
+
+				k = 3
+
+		After sorting:
+
+				[1, 2, 3, 4, 5]
+
+		Valid pairs:
+
+				(1,2)
+
+				(1,3)
+
+				(2,3)
+
+				(2,4)
+
+				(3,4)
+
+				(3,5)
+
+				(4,5)
+
+		Total:
+
+				7
+
+		Output:
+
+				7
+
+		Key Insight
+		Sorting converts the absolute difference condition into a simple subtraction. The **two-pointer** technique maintains the smallest valid window, and for each `right` pointer, all elements between `left` and `right - 1` automatically form valid pairs. This reduces the counting process to **O(n)** after sorting, giving an overall complexity of **O(n log n)**.
