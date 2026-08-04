@@ -1,0 +1,100 @@
+2026-08-04 | Find All Missing Numbers in a Range
+
+		Question
+	Return all missing integers in sorted order. If no numbers are missing, return an empty array.
+
+		Key Insight
+		Sort the array first.
+
+		After sorting:
+
+				nums[0] < nums[1] < ... < nums[n-1]
+
+		If the difference between two consecutive numbers is greater than `1`, then all integers between them are missing.
+
+		For example:
+
+				5 8
+
+		Missing numbers are:
+
+				6, 7
+
+		Simply traverse adjacent pairs and add all missing values.
+
+		Approach
+	1.	Sort the array.
+
+	2.	Create an empty answer array.
+
+	3.	Traverse adjacent elements.
+
+	4.	If
+
+				nums[i] - nums[i-1] > 1
+
+			then insert every integer from
+
+				nums[i-1] + 1
+
+			to
+
+				nums[i] - 1
+
+		into the answer.
+
+	5.	Return the answer.
+
+		Time Complexity
+		O(n log n + m)
+
+		where:
+		- `n` = size of the array.
+		- `m` = number of missing integers returned.
+
+		Space Complexity
+		O(1)
+
+		(Ignoring the output array.)
+
+		Solution
+```cpp
+class Solution {
+public:
+    vector<int> missingInteger(vector<int>& nums) {
+
+        sort(nums.begin(), nums.end());
+
+        vector<int> ans;
+
+        for (int i = 1; i < nums.size(); i++) {
+
+            for (int x = nums[i - 1] + 1; x < nums[i]; x++)
+                ans.push_back(x);
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [3, 7, 1, 2, 8]
+
+		After sorting:
+
+				[1, 2, 3, 7, 8]
+
+		Missing numbers:
+
+				4, 5, 6
+
+		Output:
+
+				[4, 5, 6]
+
+		Key Insight
+		Once the array is sorted, every gap between two consecutive numbers directly represents the missing integers in the original continuous range. Scanning these gaps and adding the missing values produces the answer efficiently.
