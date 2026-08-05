@@ -1,0 +1,133 @@
+2026-08-05 | Count of Range Sum Subarrays
+
+		Question
+	Return the number of subarrays whose sum lies in the inclusive range `[l, r]`.
+
+		Key Insight
+		Let
+
+				pre[i]
+
+		be the prefix sum of the first `i` elements.
+
+		The sum of subarray
+
+				arr[i...j]
+
+		is
+
+				pre[j + 1] - pre[i]
+
+		So for every prefix sum `pre[j + 1]`, we need to count previous prefix sums satisfying
+
+				l ≤ pre[j + 1] - pre[i] ≤ r
+
+		Rearranging,
+
+				pre[j + 1] - r ≤ pre[i] ≤ pre[j + 1] - l
+
+		During Merge Sort, both halves are sorted.
+
+		For every prefix sum in the left half, use two pointers to count how many prefix sums in the right half satisfy this condition.
+
+		This counts all valid subarrays crossing the midpoint.
+
+		Approach
+	1.	Compute the prefix sum array.
+
+	2.	Apply Merge Sort on the prefix sums.
+
+	3.	During the merge step:
+				- Maintain two pointers.
+				- Count prefix sums whose difference lies in `[l, r]`.
+
+	4.	Merge the two sorted halves.
+
+	5.	Return the accumulated count.
+
+		Time Complexity
+		O(n log n)
+
+		Space Complexity
+		O(n)
+
+		Solution
+```cpp
+class Solution {
+public:
+    long long lower, upper;
+
+    long long mergeSort(vector<long long>& pre, int left, int right) {
+        if (right - left <= 1)
+            return 0;
+
+        int mid = (left + right) / 2;
+
+        long long cnt = mergeSort(pre, left, mid) +
+                        mergeSort(pre, mid, right);
+
+        int low = mid, high = mid;
+
+        for (int i = left; i < mid; i++) {
+
+            while (low < right && pre[low] - pre[i] < lower)
+                low++;
+
+            while (high < right && pre[high] - pre[i] <= upper)
+                high++;
+
+            cnt += (high - low);
+        }
+
+        inplace_merge(pre.begin() + left,
+                      pre.begin() + mid,
+                      pre.begin() + right);
+
+        return cnt;
+    }
+
+    long long countSubarrays(vector<int>& arr, int l, int r) {
+
+        lower = l;
+        upper = r;
+
+        int n = arr.size();
+
+        vector<long long> pre(n + 1, 0);
+
+        for (int i = 0; i < n; i++)
+            pre[i + 1] = pre[i] + arr[i];
+
+        return mergeSort(pre, 0, n + 1);
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [-2, 5, -1]
+
+				l = -2
+
+				r = 2
+
+		Prefix sums:
+
+				[0, -2, 3, 2]
+
+		Valid subarrays:
+
+				[-2]
+
+				[-1]
+
+				[-2, 5, -1]
+
+		Output:
+
+				3
+
+		Key Insight
+		Using **prefix sums**, every subarray sum becomes the difference of two prefix sums. During **merge sort**, the left and right halves are already sorted, allowing two pointers to efficiently count how many prefix-sum pairs produce a difference within `[l, r]`. This reduces the complexity from **O(n²)** to **O(n log n)**.
