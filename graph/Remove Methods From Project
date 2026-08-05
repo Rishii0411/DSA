@@ -1,0 +1,139 @@
+2026-08-05 | Remove Methods From Project
+
+		Question
+	Return the list of remaining methods after removing the suspicious methods. If removal is not possible, return all methods.
+
+		Key Insight
+		The solution has two steps.
+
+		Step 1:
+		Find every suspicious method by performing a DFS/BFS starting from `k`.
+
+		Step 2:
+		Check every invocation.
+
+		If there exists an edge
+
+				u → v
+
+		where
+
+				u is NOT suspicious
+
+		and
+
+				v IS suspicious
+
+		then some safe method depends on a suspicious one.
+
+		In this case, removal is impossible.
+
+		Otherwise, simply remove all suspicious methods.
+
+		Approach
+	1.	Build the directed graph.
+
+	2.	Run DFS (or BFS) from method `k` to mark all suspicious methods.
+
+	3.	Traverse all invocation edges.
+				- If an edge goes from a non-suspicious method to a suspicious method,
+				  return all methods.
+
+	4.	Otherwise, collect every non-suspicious method.
+
+	5.	Return the remaining methods.
+
+		Time Complexity
+		O(n + m)
+
+		where `m` is the number of invocations.
+
+		Space Complexity
+		O(n + m)
+
+		Solution
+```cpp
+class Solution {
+public:
+    void dfs(int u, vector<vector<int>>& adj, vector<int>& vis) {
+        vis[u] = 1;
+
+        for (int v : adj[u]) {
+            if (!vis[v])
+                dfs(v, adj, vis);
+        }
+    }
+
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+
+        vector<vector<int>> adj(n);
+
+        for (auto &e : invocations)
+            adj[e[0]].push_back(e[1]);
+
+        vector<int> suspicious(n, 0);
+
+        dfs(k, adj, suspicious);
+
+        for (auto &e : invocations) {
+            int u = e[0];
+            int v = e[1];
+
+            if (!suspicious[u] && suspicious[v]) {
+                vector<int> all;
+                for (int i = 0; i < n; i++)
+                    all.push_back(i);
+                return all;
+            }
+        }
+
+        vector<int> ans;
+
+        for (int i = 0; i < n; i++) {
+            if (!suspicious[i])
+                ans.push_back(i);
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				n = 5
+
+				k = 1
+
+				invocations =
+				[
+				  [1,2],
+				  [2,3],
+				  [0,2],
+				  [3,4]
+				]
+
+		Suspicious methods:
+
+				1, 2, 3, 4
+
+		But there is an invocation:
+
+				0 → 2
+
+		where
+
+				0 is outside
+
+				2 is suspicious
+
+		So the suspicious group cannot be removed.
+
+		Output:
+
+				[0,1,2,3,4]
+
+		Key Insight
+		First, identify all methods reachable from the buggy method `k`; these form the suspicious group. The group can be removed **only if no invocation enters it from outside**. Therefore, after marking all suspicious methods, a single scan of the invocation list is enough to determine whether removal is possible, yielding an **O(n + m)** solution.
