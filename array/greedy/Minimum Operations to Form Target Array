@@ -1,0 +1,154 @@
+2026-08-06 | Minimum Operations to Form Target Array
+
+		Question
+	Return the minimum number of operations required to obtain the target array.
+
+		Key Insight
+		Instead of building the array from `0`, think **in reverse**.
+
+		Start from the target array and reduce it to all zeros.
+
+		Reverse operations become:
+
+		- If an element is odd, it must have come from an increment operation.
+				So subtract `1`.
+
+		- If every element is even, they must have come from one doubling operation.
+				So divide every element by `2`.
+
+		Observations:
+
+		- Every set bit (`1`) in the binary representation of all numbers corresponds to one increment operation.
+
+		- Every binary shift corresponds to one doubling operation.
+
+		So,
+
+				Answer =
+				(total number of set bits in all numbers)
+				+
+				(maximum number of bits among all numbers - 1)
+
+		where
+
+				maximum number of bits - 1
+
+		is the number of global doubling operations.
+
+		Approach
+	1.	Initialize:
+				- `increments = 0`
+				- `maxBits = 0`
+
+	2.	For every number:
+				- Count its set bits.
+				- Add them to `increments`.
+				- Compute its bit length.
+				- Update `maxBits`.
+
+	3.	If all numbers are zero, return `0`.
+
+	4.	The answer is:
+
+				increments + maxBits - 1
+
+		Time Complexity
+		O(n × log(MaxValue))
+
+		Space Complexity
+		O(1)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int minOperations(vector<int>& arr) {
+
+        int increments = 0;
+        int maxBits = 0;
+
+        for (int x : arr) {
+
+            increments += __builtin_popcount(x);
+
+            int bits = 0;
+            int temp = x;
+
+            while (temp) {
+                bits++;
+                temp >>= 1;
+            }
+
+            maxBits = max(maxBits, bits);
+        }
+
+        if (maxBits == 0)
+            return 0;
+
+        return increments + maxBits - 1;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [2, 3]
+
+		Binary:
+
+				2 = 10
+
+				3 = 11
+
+		Set bits:
+
+				1 + 2 = 3
+
+		Maximum bit length:
+
+				2
+
+		Doubling operations:
+
+				2 - 1 = 1
+
+		Answer:
+
+				3 + 1 = 4
+
+		Output:
+
+				4
+
+		Explanation
+
+		One optimal sequence is:
+
+				[0,0]
+
+				→ increment second element
+
+				[0,1]
+
+				→ double all
+
+				[0,2]
+
+				→ increment first element
+
+				[1,2]
+
+				→ increment first element
+
+				[2,3]
+
+		Key Insight
+		Every **set bit** in the target array requires one individual increment operation, while every binary level (except the least significant one) requires one global doubling operation. Therefore, the minimum number of operations is:
+
+				(total set bits in all elements)
+				+
+				(maximum bit length − 1)
+
+		which gives an optimal **O(n log(MaxValue))** solution.
