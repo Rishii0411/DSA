@@ -1,0 +1,299 @@
+2026-08-07 | Smallest Zero-Free Number With Digit Product Divisible by T
+
+
+		Question
+	Return the lexicographically smallest zero-free number greater than or equal to `num` whose digit product is divisible by `t`.
+
+		Key Insight
+		The product of digits `1` to `9` can only contribute the prime factors:
+
+				2, 3, 5, 7
+
+		If `t` contains any prime factor other than
+
+				2, 3, 5, 7
+
+		then it is impossible to form such a product.
+
+		Next,
+
+		- Factorize `t` into
+
+				2^a × 3^b × 5^c × 7^d
+
+		- Build the answer digit by digit.
+
+		At every position:
+
+		- Try the smallest possible digit.
+		- Update the remaining required prime exponents.
+		- Check whether the remaining positions can still satisfy those requirements.
+		- If yes, continue.
+		- Otherwise, try the next digit.
+
+		If no solution exists with the current length, try numbers of length `n+1`, `n+2`, ...
+
+		This is a classic **Digit DP + Greedy Backtracking** problem.
+
+		Approach
+	1.	Factorize `t`.
+
+	2.	If any prime factor greater than `7` remains, return `"-1"`.
+
+	3.	Process the digits from left to right.
+
+	4.	At each position:
+				- Respect the lower bound (`>= num`) while still matching the prefix.
+				- Try digits `1` to `9` in increasing order.
+				- Reduce the required prime exponents contributed by that digit.
+				- Verify that the remaining positions can still satisfy the remaining exponents.
+				- Recurse.
+
+	5.	If no answer of the same length exists, construct the smallest valid answer of a longer length.
+
+	6.	Return the constructed number.
+
+		Time Complexity
+		Polynomial in the number of digits and the required prime exponents due to memoization.
+
+		Space Complexity
+		O(number of DP states)
+
+		Solution
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+ public:
+  string smallestNumber(string num, long long t) {
+    const auto [primeCount, isDivisible] = getPrimeCount(t);
+    if (!isDivisible)
+      return "-1";
+
+    const unordered_map<int, int> factorCount = getFactorCount(primeCount);
+    if (sumValues(factorCount) > (int)num.length())
+      return construct(factorCount);
+
+    unordered_map<int, int> primeCountPrefix = getPrimeCount(num);
+
+    int firstZeroIndex;
+    auto it = num.find('0');
+    if (it == string::npos) {
+      firstZeroIndex = num.length();
+      if (isSubset(primeCount, primeCountPrefix))
+        return num;
+    } else {
+      firstZeroIndex = (int)it;
+    }
+
+    for (int i = (int)num.length() - 1; i >= 0; --i) {
+      int d = num[i] - '0';
+
+      primeCountPrefix =
+          subtract(primeCountPrefix, kFactorCounts.at(d));
+
+      int spaceAfterThisDigit = (int)num.length() - 1 - i;
+
+      if (i > firstZeroIndex)
+        continue;
+
+      for (int biggerDigit = d + 1; biggerDigit <= 9; ++biggerDigit) {
+        auto factorsAfterReplacement =
+            getFactorCount(subtract(
+                subtract(primeCount, primeCountPrefix),
+                kFactorCounts.at(biggerDigit)));
+
+        if (sumValues(factorsAfterReplacement) <= spaceAfterThisDigit) {
+          int fillOnes =
+              spaceAfterThisDigit - sumValues(factorsAfterReplacement);
+
+          return num.substr(0, i) +
+                 to_string(biggerDigit) +
+                 string(fillOnes, '1') +
+                 construct(factorsAfterReplacement);
+        }
+      }
+    }
+
+    auto factorsAfterExtension = getFactorCount(primeCount);
+
+    return string(
+               (int)num.length() + 1 -
+                   sumValues(factorsAfterExtension),
+               '1') +
+           construct(factorsAfterExtension);
+  }
+
+ private:
+  inline static const unordered_map<int, unordered_map<int, int>>
+      kFactorCounts = {
+          {0, {}},
+          {1, {}},
+          {2, {{2, 1}}},
+          {3, {{3, 1}}},
+          {4, {{2, 2}}},
+          {5, {{5, 1}}},
+          {6, {{2, 1}, {3, 1}}},
+          {7, {{7, 1}}},
+          {8, {{2, 3}}},
+          {9, {{3, 2}}},
+      };
+
+  pair<unordered_map<int, int>, bool> getPrimeCount(long long t) {
+    unordered_map<int, int> count{
+        {2, 0},
+        {3, 0},
+        {5, 0},
+        {7, 0},
+    };
+
+    for (int prime : {2, 3, 5, 7}) {
+      while (t % prime == 0) {
+        t /= prime;
+        ++count[prime];
+      }
+    }
+
+    return {count, t == 1};
+  }
+
+  unordered_map<int, int> getPrimeCount(const string& num) {
+    unordered_map<int, int> count{
+        {2, 0},
+        {3, 0},
+        {5, 0},
+        {7, 0},
+    };
+
+    for (char c : num)
+      for (auto [prime, freq] : kFactorCounts.at(c - '0'))
+        count[prime] += freq;
+
+    return count;
+  }
+
+  unordered_map<int, int> getFactorCount(
+      const unordered_map<int, int>& count) {
+    unordered_map<int, int> res;
+
+    int count8 = count.at(2) / 3;
+    int remaining2 = count.at(2) % 3;
+
+    int count9 = count.at(3) / 2;
+    int count3 = count.at(3) % 2;
+
+    int count4 = remaining2 / 2;
+    int count2 = remaining2 % 2;
+
+    int count6 = 0;
+
+    if (count2 == 1 && count3 == 1) {
+      count2 = 0;
+      count3 = 0;
+      count6 = 1;
+    }
+
+    if (count3 == 1 && count4 == 1) {
+      count2 = 1;
+      count6 = 1;
+      count3 = 0;
+      count4 = 0;
+    }
+
+    res[2] = count2;
+    res[3] = count3;
+    res[4] = count4;
+    res[5] = count.at(5);
+    res[6] = count6;
+    res[7] = count.at(7);
+    res[8] = count8;
+    res[9] = count9;
+
+    return res;
+  }
+
+  string construct(const unordered_map<int, int>& factors) {
+    string res;
+
+    for (int digit = 2; digit <= 9; ++digit)
+      res += string(factors.at(digit), char('0' + digit));
+
+    return res;
+  }
+
+  bool isSubset(const unordered_map<int, int>& a,
+                const unordered_map<int, int>& b) {
+    for (auto [key, value] : a)
+      if (b.at(key) < value)
+        return false;
+
+    return true;
+  }
+
+  unordered_map<int, int> subtract(
+      unordered_map<int, int> a,
+      const unordered_map<int, int>& b) {
+    for (auto [key, value] : b)
+      a[key] = max(0, a[key] - value);
+
+    return a;
+  }
+
+  int sumValues(const unordered_map<int, int>& mp) {
+    int sum = 0;
+    for (auto [_, val] : mp)
+      sum += val;
+    return sum;
+  }
+};
+```
+
+		Example
+
+		Input:
+
+				num = "123"
+
+				t = 12
+
+		Prime factorization:
+
+				12 = 2² × 3
+
+		The smallest zero-free number ≥ 123 whose digit product is divisible by 12 is:
+
+				126
+
+		Product:
+
+				1 × 2 × 6 = 12
+
+		Output:
+
+				"126"
+
+		Example
+
+		Input:
+
+				num = "98"
+
+				t = 11
+
+		Since digit products can only contain prime factors
+
+				2, 3, 5, 7
+
+		and
+
+				11
+
+		cannot be formed,
+
+		Output:
+
+				"-1"
+
+		Key Insight
+		The difficulty is satisfying **both** constraints simultaneously: the number must be **at least `num`** and its digit product must contain the required prime factors. By factorizing `t` into exponents of **2, 3, 5, and 7** and using **Digit DP with greedy construction**, we always choose the smallest feasible digit while ensuring the remaining positions can still satisfy the outstanding prime-factor requirements. This yields the lexicographically smallest valid zero-free number.
