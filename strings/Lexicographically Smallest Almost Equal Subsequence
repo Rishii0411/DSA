@@ -1,0 +1,188 @@
+2026-08-08 | Lexicographically Smallest Almost Equal Subsequence
+
+		Question
+	- Return the lexicographically smallest valid sequence of indices.
+	- If no valid sequence exists, return an empty array.
+
+		Key Insight
+	- We construct the answer from left to right.
+
+	- To make the index sequence lexicographically smallest, at every position we should choose the earliest possible index.
+
+	- The only difficulty is deciding when we can safely use our one allowed mismatch.
+
+	- We first build a `last` array.
+
+	- `last[j]` stores the latest index in `word1` from which we can match `word2[j...m-1]` exactly.
+
+	- We calculate this by scanning both strings from right to left.
+
+	- Now, while scanning `word1` from left to right:
+
+		1. If `word1[i] == word2[j]`, we can safely choose `i`.
+
+		2. If they are different, we can use our one mismatch only if the rest of `word2` can still be matched.
+
+	- Suppose we want to use `i` as the mismatch for `word2[j]`.
+
+	- Then we need to match:
+
+				word2[j + 1 ... m - 1]
+
+	  after index `i`.
+
+	- If `j` is the last character, there is nothing left to match, so the mismatch is always valid.
+
+	- Otherwise, `last[j + 1]` tells us the latest position from which the remaining suffix can be matched.
+
+	- Therefore, the mismatch is safe when:
+
+				i < last[j + 1]
+
+	- Choosing the earliest valid index at every step guarantees the lexicographically smallest index sequence.
+
+		Approach
+	1. Let:
+	
+				n = word1.length()
+				m = word2.length()
+
+	2. Create:
+
+				last[m]
+
+	3. Scan `word1` and `word2` from right to left.
+	- Whenever the current characters match, store the index in `last`.
+
+	4. Scan `word1` from left to right with pointer `j` for `word2`.
+
+	5. For every index `i`:
+	- If `word1[i] == word2[j]`, select `i`.
+	- Otherwise, if the mismatch has not been used and the remaining suffix is feasible, select `i` as the mismatch.
+
+	6. Continue until all `m` characters of `word2` have been selected.
+
+	7. If `m` characters cannot be selected, return an empty vector.
+
+		Time Complexity
+	- O(n + m)
+
+	- Each string is scanned only a constant number of times.
+
+		Space Complexity
+	- O(m)
+
+		Solution
+```cpp
+class Solution {
+public:
+    vector<int> validSequence(string word1, string word2) {
+        int n = word1.size();
+        int m = word2.size();
+
+        vector<int> last(m, -1);
+
+        // last[j] = latest index in word1 from which
+        // word2[j...] can be matched exactly.
+        int i = n - 1;
+        int j = m - 1;
+
+        while (i >= 0 && j >= 0) {
+            if (word1[i] == word2[j]) {
+                last[j] = i;
+                j--;
+            }
+            i--;
+        }
+
+        vector<int> ans;
+        bool usedMismatch = false;
+
+        j = 0;
+
+        for (i = 0; i < n && j < m; i++) {
+
+            // Exact match: taking the earliest one is always
+            // best for the lexicographical order of indices.
+            if (word1[i] == word2[j]) {
+                ans.push_back(i);
+                j++;
+            }
+            // Use the one allowed mismatch.
+            else if (!usedMismatch &&
+                     (j == m - 1 || i < last[j + 1])) {
+
+                ans.push_back(i);
+                usedMismatch = true;
+                j++;
+            }
+        }
+
+        if (j != m)
+            return {};
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				word1 = "vbcca"
+				word2 = "abc"
+
+		We need three indices.
+
+		At index `0`:
+
+				word1[0] = 'v'
+				word2[0] = 'a'
+
+		They do not match, but we can use the one allowed mismatch.
+
+		So:
+
+				ans = [0]
+
+		Now we need `"bc"` after index `0`.
+
+		We can select:
+
+				word1[1] = 'b'
+				word1[2] = 'c'
+
+		Therefore:
+
+				ans = [0, 1, 2]
+
+		The selected string is:
+
+				"vbc"
+
+		which can be changed at the first position to become:
+
+				"abc"
+
+		So the answer is:
+
+				[0, 1, 2]
+
+		Why the Greedy Choice Works
+	- Suppose several indices can be used for the current character.
+
+	- Since the answer itself is an array of indices, choosing the smaller index makes the answer lexicographically smaller.
+
+	- Therefore, we always try the earliest possible index.
+
+	- The only time an early index cannot be selected is when using it would make the remaining characters impossible to match.
+
+	- The `last[]` array lets us detect exactly this situation.
+
+		Key Insight
+	- The problem is not asking for the lexicographically smallest resulting string. It asks for the **lexicographically smallest sequence of indices**.
+
+	- Therefore, the correct strategy is to greedily choose the earliest possible index and use the single mismatch only when the remaining suffix can still be matched.
+
+	- The suffix information in `last[]` makes this check possible in **O(1)** for each index, giving an overall **O(n + m)** solution.
