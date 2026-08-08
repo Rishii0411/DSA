@@ -1,0 +1,159 @@
+2026-08-08 | Minimum Operations to Connect the Graph
+
+		Question
+	- Find the minimum number of operations required to make the graph connected.
+	- Return `-1` if it is impossible.
+
+		Approach
+	1. A connected graph with `n` vertices requires at least `n - 1` edges.
+	- Therefore, if:
+	
+				m < n - 1
+	
+	  return `-1`.
+
+	2. Find the number of connected components in the current graph.
+
+	3. Suppose there are `components` connected components.
+	- To make them all connected, we need to connect these components together.
+	- Connecting `components` components requires exactly:
+	
+				components - 1
+	
+	  new connections.
+
+	4. Because we are allowed to remove existing edges and place them anywhere, the extra edges can be used to connect the separate components.
+
+	5. Therefore, the answer is:
+	
+				components - 1
+
+	6. DSU is useful here because every edge can be processed in almost constant time, and at the end we can count how many different parents exist.
+
+		Time Complexity
+	- O(m α(n)), where `α(n)` is the inverse Ackermann function and is practically constant.
+
+		Space Complexity
+	- O(n)
+
+		Solution
+```cpp
+class Solution {
+public:
+    vector<int> parent, rankv;
+
+    int find(int x) {
+        if (parent[x] == x)
+            return x;
+
+        return parent[x] = find(parent[x]);
+    }
+
+    void unite(int a, int b) {
+        a = find(a);
+        b = find(b);
+
+        if (a == b)
+            return;
+
+        if (rankv[a] < rankv[b])
+            swap(a, b);
+
+        parent[b] = a;
+
+        if (rankv[a] == rankv[b])
+            rankv[a]++;
+    }
+
+    int makeConnected(int n, vector<vector<int>>& edges) {
+
+        int m = edges.size();
+
+        // At least n - 1 edges are required.
+        if (m < n - 1)
+            return -1;
+
+        parent.resize(n);
+        rankv.assign(n, 0);
+
+        for (int i = 0; i < n; i++)
+            parent[i] = i;
+
+        // Build connected components.
+        for (auto &edge : edges) {
+            unite(edge[0], edge[1]);
+        }
+
+        int components = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (find(i) == i)
+                components++;
+        }
+
+        // Need one operation to connect each additional component.
+        return components - 1;
+    }
+};
+```
+
+		Example
+
+		Input:
+		
+				n = 4
+		
+				edges = [[0,1], [0,2], [1,2]]
+
+		There are two components:
+
+				{0,1,2}
+
+				{3}
+
+		We need one operation to move one extra edge and connect vertex `3`.
+
+		Output:
+
+				1
+
+		Another Example
+
+		Input:
+
+				n = 6
+
+				edges = [[0,1], [0,2], [3,4], [3,5]]
+
+		There are three components:
+
+				{0,1,2}
+
+				{3,4,5}
+
+				{ } 
+
+		Actually, with 6 vertices these edges form two components:
+
+				{0,1,2}
+
+				{3,4,5}
+
+		So:
+
+				components = 2
+
+				answer = 2 - 1 = 1
+
+		One edge can be removed from one component and added between the two components.
+
+		Key Insight
+	- The number of connected components determines how many operations are needed.
+	- If there are `C` components, we need exactly `C - 1` operations to connect them.
+	- But there must be at least `n - 1` edges in total. Therefore:
+
+				if m < n - 1 → -1
+
+				otherwise → components - 1
+
+	- DSU efficiently finds the connected components and gives an overall near-linear solution.
