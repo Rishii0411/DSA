@@ -1,0 +1,215 @@
+2026-08-09 | Stone Game II
+	
+		Question
+	- Return the maximum number of stones Alice can obtain when both players play optimally.
+
+		Key Insight
+	- The important part is that the number of piles a player can take depends on `M`, and `M` can increase after every move.
+
+	- Define:
+
+				dp(i, M)
+
+	  as the maximum number of stones the current player can obtain starting from index `i` when the current value of `M` is `M`.
+
+	- Suppose the current player takes `X` piles.
+
+	- The player receives:
+
+				prefix/suffix sum of those X piles
+
+	- Then the opponent starts from:
+
+				i + X
+
+	  with:
+
+				max(M, X)
+
+	- Therefore, the current player's result is:
+
+				takenStones + remainingStones - opponentBest
+
+	- We can make this simpler using a suffix sum.
+
+	- Let:
+
+				suffix[i]
+
+	  represent the total number of stones from index `i` to the end.
+
+	- If the current player takes `X` piles, the remaining total is:
+
+				suffix[i + X]
+
+	- If the opponent can obtain `dp(i + X, max(M, X))`, then the current player obtains:
+
+				suffix[i] - dp(i + X, max(M, X))
+
+	- Therefore:
+
+				dp(i, M)
+				= max(
+				    suffix[i] - dp(i + X, max(M, X))
+				  )
+
+	  for every valid `X` from `1` to `2M`.
+
+	- There is also an important optimization:
+
+	- If:
+
+				2M >= n - i
+
+	  then the current player can take every remaining pile.
+
+	- In that case:
+
+				dp(i, M) = suffix[i]
+
+		Approach
+	1. Build a suffix-sum array.
+	- `suffix[i]` stores the total number of stones from `i` to the end.
+
+	2. Define a memoized function:
+
+				solve(i, M)
+
+	  which returns the maximum stones the current player can obtain from this state.
+
+	3. If all remaining piles can be taken:
+
+				i + 2M >= n
+
+	  return `suffix[i]`.
+
+	4. Otherwise, try every:
+
+				X = 1 ... 2M
+
+	5. For every choice:
+	
+				current = suffix[i] -
+				          solve(i + X, max(M, X))
+
+	6. Take the maximum of all choices.
+
+	7. Start with:
+
+				solve(0, 1)
+
+		Time Complexity
+	- O(n³) in the straightforward memoized formulation.
+
+	- There are O(n²) possible `(i, M)` states, and each state can try O(n) choices.
+
+		Space Complexity
+	- O(n²) for the memoization table and O(n) for suffix sums.
+
+		Solution
+```cpp id="q2m8zx"
+class Solution {
+public:
+    int n;
+    vector<int> suffix;
+    vector<vector<int>> dp;
+
+    int solve(int i, int M) {
+
+        if (i >= n)
+            return 0;
+
+        // Can take all remaining piles.
+        if (i + 2 * M >= n)
+            return suffix[i];
+
+        if (dp[i][M] != -1)
+            return dp[i][M];
+
+        int best = 0;
+
+        for (int X = 1; X <= 2 * M; X++) {
+
+            if (i + X > n)
+                break;
+
+            int opponent = solve(i + X, max(M, X));
+
+            int current = suffix[i] - opponent;
+
+            best = max(best, current);
+        }
+
+        return dp[i][M] = best;
+    }
+
+    int stoneGameII(vector<int>& piles) {
+
+        n = piles.size();
+
+        suffix.assign(n + 1, 0);
+
+        for (int i = n - 1; i >= 0; i--)
+            suffix[i] = suffix[i + 1] + piles[i];
+
+        dp.assign(n, vector<int>(n + 1, -1));
+
+        return solve(0, 1);
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				piles = [2, 7, 9, 4, 4]
+
+		Initially:
+
+				M = 1
+
+		Alice can take either:
+
+				X = 1
+
+		or
+
+				X = 2
+
+		Suppose Alice takes 1 pile:
+
+				Alice gets 2
+
+		Then Bob gets to play with:
+
+				M = max(1, 1) = 1
+
+		If Alice takes 2 piles:
+
+				Alice gets 2 + 7 = 9
+
+		Then:
+
+				M = max(1, 2) = 2
+
+		The DP evaluates all such possibilities while also assuming Bob makes the best possible response.
+
+		The maximum Alice can guarantee is:
+
+				10
+
+		Output:
+
+				10
+
+		Key Insight
+	- This is a **minimax DP** problem because every move affects both the current player's score and the opponent's future choices.
+
+	- `solve(i, M)` represents the best score the current player can obtain from the remaining piles.
+
+	- Using suffix sums lets us calculate the current player's score as:
+
+				total remaining stones - opponent's best score
+
+	- Memoization prevents recomputing the same `(i, M)` state, making the solution practical for the usual constraints of Stone Game II.
