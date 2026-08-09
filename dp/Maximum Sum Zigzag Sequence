@@ -1,0 +1,156 @@
+2026-08-09 | Maximum Sum Zigzag Sequence
+
+		Question
+	- Find the maximum possible sum of a zigzag sequence from the top row to the bottom row.
+
+		Key Insight
+	- Let:
+
+				dp[j]
+
+	  represent the maximum sum of a valid sequence ending at column `j` in the current row.
+
+	- For the first row:
+
+				dp[j] = mat[0][j]
+
+	- For every next row `i`, if we choose column `j`, the previous row must use some column `k` where:
+
+				k != j
+
+	- Therefore:
+
+				newDp[j] = mat[i][j] + max(dp[k])
+
+	  where `k != j`.
+
+	- The important optimization is that we do not need to check every `k` for every `j`.
+
+	- Find the **largest** and **second-largest** values in the previous `dp` row.
+
+	- For the current column `j`:
+	- If `j` is different from the column containing the largest value, use the largest value.
+	- Otherwise, use the second-largest value.
+
+	- This reduces every row from `O(n²)` to `O(n)`.
+
+		Approach
+	1. Initialize `dp[j]` with the values of the first row.
+
+	2. For every following row:
+	- Find the largest value in `dp` and its column.
+	- Find the second-largest value in `dp`.
+	- For every column `j`:
+		- If `j` is not the column of the maximum, use the maximum.
+		- Otherwise, use the second maximum.
+		- Add `mat[i][j]`.
+
+	3. Replace `dp` with the newly calculated values.
+
+	4. After processing the last row, the answer is the maximum value in `dp`.
+
+		Time Complexity
+	- O(n²)
+
+	- There are `n` rows, and each row is processed in `O(n)` time.
+
+		Space Complexity
+	- O(n)
+
+		Solution
+```cpp
+class Solution {
+public:
+    long long maxZigzagSum(vector<vector<int>>& mat) {
+        int n = mat.size();
+
+        vector<long long> dp(n);
+
+        // First row: choose any column.
+        for (int j = 0; j < n; j++)
+            dp[j] = mat[0][j];
+
+        for (int i = 1; i < n; i++) {
+
+            long long mx1 = LLONG_MIN;
+            long long mx2 = LLONG_MIN;
+            int idx1 = -1;
+
+            // Find largest and second-largest values.
+            for (int j = 0; j < n; j++) {
+                if (dp[j] > mx1) {
+                    mx2 = mx1;
+                    mx1 = dp[j];
+                    idx1 = j;
+                }
+                else if (dp[j] > mx2) {
+                    mx2 = dp[j];
+                }
+            }
+
+            vector<long long> newDp(n);
+
+            for (int j = 0; j < n; j++) {
+
+                long long bestPrevious;
+
+                if (j != idx1)
+                    bestPrevious = mx1;
+                else
+                    bestPrevious = mx2;
+
+                newDp[j] = mat[i][j] + bestPrevious;
+            }
+
+            dp = newDp;
+        }
+
+        return *max_element(dp.begin(), dp.end());
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				mat = [
+					[1, 2, 3],
+					[4, 5, 6],
+					[7, 8, 9]
+				]
+
+		One optimal sequence is:
+
+				3 → 5 → 9
+
+		Columns:
+
+				2 → 1 → 2
+
+		No two consecutive elements use the same column.
+
+		Sum:
+
+				3 + 5 + 9 = 17
+
+		Another valid sequence is:
+
+				2 → 6 → 8
+
+		Sum:
+
+				16
+
+		So the maximum is:
+
+				17
+
+		Output:
+
+				17
+
+		Key Insight
+	- The restriction only depends on the **previous row's column**, so we only need to remember the best sum ending at each column.
+	- For each new column, the best previous value is simply the largest `dp` value whose column is different.
+	- Keeping the largest and second-largest values lets us find that value in `O(1)` per cell.
