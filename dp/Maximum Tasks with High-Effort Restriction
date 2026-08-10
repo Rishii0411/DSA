@@ -1,0 +1,134 @@
+2026-08-10 | Maximum Tasks with High-Effort Restriction
+
+		Question
+	- Return the maximum total number of tasks that can be completed over all days.
+
+		Key Insight
+	- The important restriction is that a high-effort task depends only on what happened on the previous day.
+	- We can therefore use two DP states.
+
+	- `free`:
+		Maximum tasks obtained so far when the previous day had no task, so a high-effort task is allowed today.
+
+	- `busy`:
+		Maximum tasks obtained so far when the previous day had a task, so a high-effort task is not allowed today.
+
+	- For each day `i`:
+
+	- If we perform no task:
+	
+				newFree = max(free, busy)
+
+	- If we perform a low-effort task:
+	
+				newBusy = max(free, busy) + l[i]
+
+	- If we perform a high-effort task:
+	- It is allowed only when the previous day was free:
+	
+				newBusy = max(newBusy, free + h[i])
+
+	- Initially, before day `0`, we can consider the previous day as free:
+
+				free = 0
+
+				busy = -infinity
+
+	- This automatically allows a high-effort task on the first day.
+
+		Approach
+	1. Initialize `free = 0` and `busy = -INF`.
+
+	2. For each day:
+		- Calculate the best result if we leave today with no task.
+		- Calculate the best result if we perform a low-effort task.
+		- Calculate the best result if we perform a high-effort task.
+		- Update the two states.
+
+	3. At the end, either state can represent the optimal schedule.
+
+	4. Return:
+
+				max(free, busy)
+
+		Time Complexity
+	- O(n)
+
+		Space Complexity
+	- O(1)
+
+		Solution
+```cpp
+class Solution {
+public:
+    long long maxTasks(vector<int>& h, vector<int>& l) {
+        int n = h.size();
+
+        const long long NEG = -(1LL << 60);
+
+        // Previous day had no task.
+        long long free = 0;
+
+        // Previous day had a task.
+        long long busy = NEG;
+
+        for (int i = 0; i < n; i++) {
+
+            long long best = max(free, busy);
+
+            // Perform no task today.
+            long long newFree = best;
+
+            // Perform a low-effort task today.
+            long long newBusy = best + l[i];
+
+            // Perform a high-effort task today.
+            // This is allowed only if yesterday had no task.
+            newBusy = max(newBusy, free + h[i]);
+
+            free = newFree;
+            busy = newBusy;
+        }
+
+        return max(free, busy);
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				h = [5, 10, 20]
+				l = [3, 4, 2]
+
+		One optimal choice can be:
+
+				Day 0 → High effort = 5
+				Day 1 → Low effort  = 4
+				Day 2 → No task
+
+		Total:
+
+				5 + 4 = 9
+
+		Another possibility:
+
+				Day 0 → Low effort = 3
+				Day 1 → No task
+				Day 2 → High effort = 20
+
+		Total:
+
+				3 + 20 = 23
+
+		So the optimal answer is:
+
+				23
+
+		Key Insight
+	- We do not need to remember the entire previous schedule.
+	- We only need to know whether the **previous day was a task day or a no-task day**.
+	- That gives us just two states, making the solution both simple and efficient:
+
+				O(n) time and O(1) space.
