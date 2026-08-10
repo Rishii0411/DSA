@@ -1,0 +1,138 @@
+2026-08-10 | Stone Game IV
+	
+		Question
+	- Return `true` if Alice wins and `false` if Bob wins.
+
+		Key Insight
+	- Let `dp[i]` represent whether the current player can win when there are exactly `i` stones remaining.
+
+	- From `i` stones, we can remove any square:
+
+				1, 4, 9, 16, ...
+
+	  as long as the square is at most `i`.
+
+	- After removing `x²` stones, the opponent faces:
+
+				i - x²
+
+	  stones.
+
+	- Therefore, the current player wins if there is **at least one** move that leaves the opponent in a losing state:
+
+				dp[i] = true
+
+	  if there exists a square `x² <= i` such that:
+
+				dp[i - x²] == false
+
+	- The base case is:
+
+				dp[0] = false
+
+	  because a player with zero stones cannot make a move and therefore loses.
+
+		Approach
+	1. Create a boolean DP array from `0` to `n`.
+
+	2. Set:
+
+				dp[0] = false
+
+	3. For every `i` from `1` to `n`:
+		- Try every perfect square `j*j <= i`.
+		- If `dp[i - j*j]` is false, then the current player can make that move and force a win.
+		- Mark `dp[i] = true` and stop checking further squares.
+
+	4. Return `dp[n]`.
+
+		Time Complexity
+	- O(n√n)
+
+	- For each of the `n` states, we may check up to `√n` perfect squares.
+
+		Space Complexity
+	- O(n)
+
+		Solution
+```cpp id="m8q3vz"
+class Solution {
+public:
+    bool winnerSquareGame(int n) {
+
+        vector<bool> dp(n + 1, false);
+
+        for (int i = 1; i <= n; i++) {
+
+            for (int j = 1; j * j <= i; j++) {
+
+                int square = j * j;
+
+                if (!dp[i - square]) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+
+        return dp[n];
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				n = 5
+
+		For `5`, Alice can remove `1`:
+
+				5 → 4
+
+		Then Bob faces `4`.
+
+		From `4`, Bob can remove `4`:
+
+				4 → 0
+
+		Alice then has no move and loses.
+
+		So Alice should not choose `1`.
+
+		The DP evaluates all possible square-number moves and determines that:
+
+				dp[5] = false
+
+		Output:
+
+				false
+
+		Another Example
+
+		Input:
+
+				n = 1
+
+		Alice can remove:
+
+				1 = 1²
+
+		The pile becomes empty, so Bob cannot move.
+
+		Output:
+
+				true
+
+		Key Insight
+	- This is a classic **winning-state / losing-state DP**.
+	- A position is winning if we can move to at least one losing position.
+	- A position is losing if every possible move gives the opponent a winning position.
+	- Because the only legal moves are perfect squares, we simply test all squares up to `n`.
+
+	- The recurrence is:
+
+				dp[i] = true
+				if any dp[i - square] == false
+
+	- This gives an **O(n√n)** solution.
