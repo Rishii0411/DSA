@@ -1,0 +1,186 @@
+2026-08-12 | Count Valid Paths and Maximum Adventure
+
+		Question
+	- Return:
+
+				[totalPaths, maxAdventure]
+
+	- `totalPaths` must be returned modulo `10^9 + 7`.
+
+		Key Insight
+	- Since we can only move **right or down**, there are no cycles. This makes the problem a natural **Dynamic Programming on a grid** problem.
+
+	- For every cell `(i, j)`, maintain two pieces of information:
+
+				ways[i][j]
+
+	  = number of valid ways to reach `(i, j)`.
+
+				best[i][j]
+
+	  = maximum Adventure possible among all valid paths reaching `(i, j)`.
+
+	- The value of the current cell is added when we enter it.
+
+	- To reach `(i, j)`, we can only come from:
+
+				(i - 1, j)   // from above
+
+	  or
+
+				(i, j - 1)   // from left
+
+	- But we must also check whether the previous cell allows that movement.
+
+	- For example, if we want to move from `(i, j-1)` to `(i, j)`, then `grid[i][j-1]` must be either `1` or `3`.
+
+	- Similarly, moving from `(i-1, j)` to `(i, j)` is possible only when `grid[i-1][j]` is `2` or `3`.
+
+		Approach
+	1. Initialize:
+
+				ways[0][0] = 1
+
+				best[0][0] = grid[0][0]
+
+	2. Traverse the grid row by row.
+
+	3. For every cell `(i, j)`, consider the cell above:
+		- If the above cell allows moving Down (`2` or `3`), it can contribute to the current cell.
+
+	4. Consider the cell on the left:
+		- If the left cell allows moving Right (`1` or `3`), it can contribute to the current cell.
+
+	5. For every valid incoming transition:
+		- Add the number of ways.
+		- For the maximum Adventure, take the larger previous Adventure and add the current cell's value.
+
+	6. The final answer comes from `(n-1, n-1)`.
+
+		Time Complexity
+	- O(n²)
+
+	- Every cell is processed once and has at most two incoming transitions.
+
+		Space Complexity
+	- O(n²)
+
+	- We store both the number of paths and the maximum Adventure for every cell.
+
+		Solution
+```cpp id="7m4q2k"
+class Solution {
+public:
+    vector<int> findPaths(vector<vector<int>>& grid) {
+
+        const long long MOD = 1000000007LL;
+
+        int n = grid.size();
+
+        vector<vector<long long>> ways(
+            n, vector<long long>(n, 0)
+        );
+
+        vector<vector<long long>> best(
+            n, vector<long long>(n, LLONG_MIN)
+        );
+
+        ways[0][0] = 1;
+        best[0][0] = grid[0][0];
+
+        for (int i = 0; i < n; i++) {
+
+            for (int j = 0; j < n; j++) {
+
+                if (i == 0 && j == 0)
+                    continue;
+
+                // Come from the cell above.
+                if (i > 0 &&
+                    (grid[i - 1][j] == 2 ||
+                     grid[i - 1][j] == 3) &&
+                    ways[i - 1][j] > 0) {
+
+                    ways[i][j] =
+                        (ways[i][j] + ways[i - 1][j]) % MOD;
+
+                    best[i][j] = max(
+                        best[i][j],
+                        best[i - 1][j] + grid[i][j]
+                    );
+                }
+
+                // Come from the cell on the left.
+                if (j > 0 &&
+                    (grid[i][j - 1] == 1 ||
+                     grid[i][j - 1] == 3) &&
+                    ways[i][j - 1] > 0) {
+
+                    ways[i][j] =
+                        (ways[i][j] + ways[i][j - 1]) % MOD;
+
+                    best[i][j] = max(
+                        best[i][j],
+                        best[i][j - 1] + grid[i][j]
+                    );
+                }
+            }
+        }
+
+        if (ways[n - 1][n - 1] == 0)
+            return {0, 0};
+
+        return {
+            (int)ways[n - 1][n - 1],
+            (int)best[n - 1][n - 1]
+        };
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				grid =
+				[
+					[3, 1],
+					[2, 3]
+				]
+
+		There are two possible paths:
+
+		Path 1:
+
+				(0,0) → (0,1) → (1,1)
+
+		Values:
+
+				3 + 1 + 3 = 7
+
+		Path 2:
+
+				(0,0) → (1,0) → (1,1)
+
+		Values:
+
+				3 + 2 + 3 = 8
+
+		Both paths are valid because the starting cell contains `3`.
+
+		Therefore:
+
+				totalPaths = 2
+
+				maxAdventure = 8
+
+		Output:
+
+				[2, 8]
+
+		Key Insight
+	- The movement rules depend only on the **cell we are leaving**, so every valid path can be built from its previous cell.
+	- `ways[i][j]` counts all possible ways to reach a cell.
+	- `best[i][j]` keeps the largest Adventure among those ways.
+	- Since every move goes either right or down, the graph is acyclic and a simple row-by-row DP is sufficient.
+	- The final cell directly gives both required answers.
