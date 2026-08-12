@@ -1,0 +1,92 @@
+2026-08-12 | Longest Good Subarray
+
+		Question
+	- Return the length of the longest good subarray of `nums`.
+
+		Approach
+	1. Maintain a sliding window `[left, right]`.
+
+	2. Use a hash map `freq` to store the frequency of every element currently inside the window.
+
+	3. Move `right` from left to right and increase:
+
+				freq[nums[right]]
+
+	4. If the frequency of `nums[right]` becomes greater than `k`, the current window is invalid.
+
+	5. Move `left` forward and decrease frequencies until the window becomes valid again.
+
+	6. At every valid window, update:
+
+				answer = max(answer, right - left + 1)
+
+	7. Since both pointers only move forward, every element is processed at most twice.
+
+		Time Complexity
+	- O(n) average time.
+
+	- Each element enters and leaves the sliding window at most once.
+
+		Space Complexity
+	- O(n) in the worst case for the frequency map.
+
+		Solution
+```cpp id="6x3qvk"
+class Solution {
+public:
+    int maxSubarrayLength(vector<int>& nums, int k) {
+
+        unordered_map<int, int> freq;
+
+        int left = 0;
+        int ans = 0;
+
+        for (int right = 0; right < nums.size(); right++) {
+
+            freq[nums[right]]++;
+
+            while (freq[nums[right]] > k) {
+                freq[nums[left]]--;
+                left++;
+            }
+
+            ans = max(ans, right - left + 1);
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [1, 2, 1, 2, 3, 1, 2]
+
+				k = 2
+
+		Consider the window:
+
+				[1, 2, 1, 2]
+
+		Frequencies are:
+
+				1 → 2
+
+				2 → 2
+
+		So it is good, and its length is `4`.
+
+		When we add `3`, the window is still good.
+
+		When another `1` causes its frequency to become `3`, the window becomes invalid.
+
+		We move `left` forward until the frequency of `1` becomes at most `2`.
+
+		The largest valid window is maintained throughout the process.
+
+		Key Insight
+	- The sliding window always represents a good subarray.
+	- When an element exceeds frequency `k`, we shrink the window from the left until that element's frequency becomes valid again.
+	- Because `left` and `right` only move forward, the solution runs in **O(n)** average time instead of checking all possible subarrays.
