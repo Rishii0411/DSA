@@ -1,0 +1,275 @@
+2026-08-13 | Longest Repeating Character Substring After Queries
+
+		Question
+	- For every query, update:
+
+				s[queryIndices[i]] = queryCharacters[i]
+
+	- Then return the length of the longest substring containing only the same character.
+
+		Key Insight
+	- For every segment of the string, we store four pieces of information:
+
+				leftChar
+				rightChar
+				prefix
+				suffix
+				best
+
+	- `leftChar`:
+	  Character at the left boundary of the segment.
+
+	- `rightChar`:
+	  Character at the right boundary.
+
+	- `prefix`:
+	  Length of the longest prefix containing the same character.
+
+	- `suffix`:
+	  Length of the longest suffix containing the same character.
+
+	- `best`:
+	  Longest repeating-character substring anywhere inside the segment.
+
+	- When combining two adjacent segments `A` and `B`, most values are simply taken from the corresponding child.
+
+	- The interesting case is when:
+
+				A.rightChar == B.leftChar
+
+	  Then the suffix of `A` and prefix of `B` can be joined.
+
+	- Therefore:
+
+				best =
+				max(A.best,
+				    B.best,
+				    A.suffix + B.prefix)
+
+	- The prefix can also extend across the boundary if the entire left segment consists of the same character.
+
+	- Similarly, the suffix can extend if the entire right segment consists of the same character.
+
+		Approach
+	1. Build a segment tree over the original string.
+
+	2. Each leaf represents one character.
+
+	3. For every internal node, merge the information from its left and right children.
+
+	4. For each query:
+		- Update the corresponding leaf.
+		- Recalculate all affected ancestors.
+		- The root now represents the entire string.
+		- `root.best` is the answer for that query.
+
+	5. Because only one character changes per query, each update requires `O(log n)` nodes to be recalculated.
+
+		Time Complexity
+	- Building the tree: `O(n)`.
+	- Each query: `O(log n)`.
+	- For `k` queries:
+
+				O(n + k log n)
+
+		Space Complexity
+	- O(n)
+
+		Solution
+```cpp
+class Solution {
+public:
+    struct Node {
+        char leftChar = 0;
+        char rightChar = 0;
+        int len = 0;
+        int prefix = 0;
+        int suffix = 0;
+        int best = 0;
+    };
+
+    vector<Node> tree;
+    string s;
+
+    Node merge(Node a, Node b) {
+        if (a.len == 0)
+            return b;
+
+        if (b.len == 0)
+            return a;
+
+        Node res;
+
+        res.len = a.len + b.len;
+        res.leftChar = a.leftChar;
+        res.rightChar = b.rightChar;
+
+        res.prefix = a.prefix;
+        res.suffix = b.suffix;
+
+        // If the whole left segment has one character
+        // and it matches the beginning of the right segment.
+        if (a.prefix == a.len && a.rightChar == b.leftChar)
+            res.prefix = a.len + b.prefix;
+
+        // If the whole right segment has one character
+        // and it matches the end of the left segment.
+        if (b.suffix == b.len && a.rightChar == b.leftChar)
+            res.suffix = b.len + a.suffix;
+
+        res.best = max(a.best, b.best);
+
+        // Join suffix of left segment with prefix of right segment.
+        if (a.rightChar == b.leftChar)
+            res.best = max(res.best, a.suffix + b.prefix);
+
+        return res;
+    }
+
+    void build(int node, int l, int r) {
+        if (l == r) {
+            tree[node].len = 1;
+            tree[node].leftChar = s[l];
+            tree[node].rightChar = s[l];
+            tree[node].prefix = 1;
+            tree[node].suffix = 1;
+            tree[node].best = 1;
+            return;
+        }
+
+        int mid = l + (r - l) / 2;
+
+        build(node * 2, l, mid);
+        build(node * 2 + 1, mid + 1, r);
+
+        tree[node] = merge(
+            tree[node * 2],
+            tree[node * 2 + 1]
+        );
+    }
+
+    void update(int node, int l, int r, int pos, char c) {
+        if (l == r) {
+            tree[node].leftChar = c;
+            tree[node].rightChar = c;
+            tree[node].prefix = 1;
+            tree[node].suffix = 1;
+            tree[node].best = 1;
+            return;
+        }
+
+        int mid = l + (r - l) / 2;
+
+        if (pos <= mid)
+            update(node * 2, l, mid, pos, c);
+        else
+            update(node * 2 + 1, mid + 1, r, pos, c);
+
+        tree[node] = merge(
+            tree[node * 2],
+            tree[node * 2 + 1]
+        );
+    }
+
+    vector<int> longestRepeating(
+        string s,
+        string queryCharacters,
+        vector<int>& queryIndices
+    ) {
+        this->s = s;
+
+        int n = s.size();
+
+        tree.resize(4 * n + 5);
+
+        build(1, 0, n - 1);
+
+        vector<int> answer;
+
+        for (int i = 0; i < queryIndices.size(); i++) {
+
+            int pos = queryIndices[i];
+            char c = queryCharacters[i];
+
+            update(1, 0, n - 1, pos, c);
+
+            answer.push_back(tree[1].best);
+        }
+
+        return answer;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s = "babacc"
+
+				queryCharacters = "bcb"
+
+				queryIndices = [1, 3, 3]
+
+		Initial string:
+
+				"babacc"
+
+		Query 1:
+		
+				index = 1
+				character = 'b'
+
+		String becomes:
+
+				"bbbacc"
+
+		Longest repeating substring:
+
+				"bbb"
+
+		Answer:
+
+				3
+
+		Query 2:
+
+				index = 3
+				character = 'c'
+
+		String becomes:
+
+				"bbbccc"
+
+		Longest repeating substring:
+
+				"bbb" or "ccc"
+
+		Answer:
+
+				3
+
+		Query 3:
+
+				index = 3
+				character = 'b'
+
+		String becomes:
+
+				"bbbc bc"
+
+		The segment tree updates only the path from the changed position to the root and recalculates the maximum.
+
+		Key Insight
+	- A normal scan would take `O(n)` after every update.
+	- The Segment Tree stores enough information about every interval to combine two neighboring intervals in `O(1)`.
+	- When a character changes, only `O(log n)` segments are affected.
+	- Therefore, all queries can be processed in:
+
+				O(n + k log n)
+
+	  instead of:
+
+				O(nk)
+
+	- The crucial information is the segment's **prefix length, suffix length, best length, and boundary characters**, which is enough to correctly handle repeating sequences crossing the boundary between two segments.
