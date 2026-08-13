@@ -1,0 +1,191 @@
+2026-08-13 | Longest Distance in a Weighted DAG
+
+		Question
+	- Return an array `dist` where:
+		- `dist[i]` is the longest distance from `src` to vertex `i`.
+		- `dist[i] = INT_MIN` if vertex `i` is unreachable.
+
+		Key Insight
+	- In a DAG, once we process vertices in topological order, every predecessor of a vertex has already been processed.
+
+	- Define:
+
+				dist[v]
+
+	  as the longest distance from `src` to vertex `v`.
+
+	- Initially:
+
+				dist[src] = 0
+
+	  and every other distance is:
+
+				INT_MIN
+
+	- For an edge:
+
+				u -> v with weight w
+
+	  if `u` is reachable, we can try to improve `v` using:
+
+				dist[v] = max(dist[v], dist[u] + w)
+
+	- The important point is that we use `max` instead of `min`, because this problem asks for the **longest** path.
+
+		Approach
+	1. Build an adjacency list containing:
+	
+				u -> {v, w}
+
+	2. Perform a topological sort using DFS or Kahn's algorithm.
+
+	3. Initialize all distances to `INT_MIN`.
+
+	4. Set:
+
+				dist[src] = 0
+
+	5. Traverse vertices in topological order.
+
+	6. For every outgoing edge `u -> v`:
+		- If `u` is unreachable, ignore it.
+		- Otherwise update:
+
+				dist[v] = max(dist[v], dist[u] + w)
+
+	7. Return the distance array.
+
+		Time Complexity
+	- O(V + E)
+
+	- Topological sorting takes `O(V + E)`.
+	- Every edge is relaxed exactly once.
+
+		Space Complexity
+	- O(V + E)
+
+	- Adjacency list, topological ordering, and distance array.
+
+		Solution
+```cpp id="4q7m2x"
+class Solution {
+public:
+    vector<int> longestPath(int V, vector<vector<int>>& edges, int src) {
+
+        vector<vector<pair<int, int>>> adj(V);
+        vector<int> indegree(V, 0);
+
+        // Build graph and calculate indegrees.
+        for (auto &edge : edges) {
+            int u = edge[0];
+            int v = edge[1];
+            int w = edge[2];
+
+            adj[u].push_back({v, w});
+            indegree[v]++;
+        }
+
+        // Topological sorting using Kahn's algorithm.
+        queue<int> q;
+
+        for (int i = 0; i < V; i++) {
+            if (indegree[i] == 0)
+                q.push(i);
+        }
+
+        vector<int> topo;
+
+        while (!q.empty()) {
+
+            int u = q.front();
+            q.pop();
+
+            topo.push_back(u);
+
+            for (auto &[v, w] : adj[u]) {
+
+                indegree[v]--;
+
+                if (indegree[v] == 0)
+                    q.push(v);
+            }
+        }
+
+        // Initialize distances.
+        vector<int> dist(V, INT_MIN);
+
+        dist[src] = 0;
+
+        // Relax edges in topological order.
+        for (int u : topo) {
+
+            if (dist[u] == INT_MIN)
+                continue;
+
+            for (auto &[v, w] : adj[u]) {
+
+                dist[v] = max(
+                    dist[v],
+                    dist[u] + w
+                );
+            }
+        }
+
+        return dist;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				V = 6
+
+				edges =
+				[
+					[0,1,5],
+					[0,2,3],
+					[1,3,6],
+					[2,3,4],
+					[3,4,2],
+					[4,5,1]
+				]
+
+				src = 0
+
+		Possible paths to vertex `3`:
+
+				0 → 1 → 3
+
+		Distance:
+
+				5 + 6 = 11
+
+		and:
+
+				0 → 2 → 3
+
+		Distance:
+
+				3 + 4 = 7
+
+		So:
+
+				dist[3] = 11
+
+		Continuing:
+
+				dist[4] = 11 + 2 = 13
+
+				dist[5] = 13 + 1 = 14
+
+		Therefore:
+
+				dist = [0, 5, 3, 11, 13, 14]
+
+		Key Insight
+	- The DAG property is what makes the problem easy to solve efficiently.
+	- In a general graph, finding the longest path is difficult because cycles can make the path arbitrarily long.
+	- In a DAG, a topological ordering guarantees that when we process a vertex, all possible paths leading into it have already been considered.
+	- Therefore, simply performing **maximum relaxation along edges in topological order** gives the longest distance to every reachable vertex in **O(V + E)** time.
