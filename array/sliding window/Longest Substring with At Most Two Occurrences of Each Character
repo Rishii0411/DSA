@@ -1,0 +1,97 @@
+2026-08-14 | Longest Substring with At Most Two Occurrences of Each Character
+
+		Question
+	- Return the maximum length of a substring such that every character occurs at most twice.
+
+		Approach
+	1. Maintain a window `[left, right]`.
+
+	2. Use a frequency array `freq[26]` because the string contains lowercase English letters.
+
+	3. Move `right` from left to right.
+	- Increment the frequency of `s[right]`.
+
+	4. If the frequency of the newly added character becomes greater than `2`, the window is invalid.
+
+	5. Move `left` forward while the frequency of that character is greater than `2`.
+
+	6. For every valid window, calculate:
+
+				right - left + 1
+
+	7. Keep the maximum length encountered.
+
+		Time Complexity
+	- O(n)
+
+	- Each character is added to the window once and removed at most once.
+
+		Space Complexity
+	- O(1)
+
+	- The frequency array always contains only 26 entries.
+
+		Solution
+```cpp id="5k8v2p"
+class Solution {
+public:
+    int maximumLengthSubstring(string s) {
+
+        vector<int> freq(26, 0);
+
+        int left = 0;
+        int ans = 0;
+
+        for (int right = 0; right < s.size(); right++) {
+
+            int idx = s[right] - 'a';
+            freq[idx]++;
+
+            while (freq[idx] > 2) {
+                freq[s[left] - 'a']--;
+                left++;
+            }
+
+            ans = max(ans, right - left + 1);
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s = "bcbbbc"
+
+		Start with an empty window.
+
+		As we expand:
+
+				"b"       → valid
+				"bc"      → valid
+				"bcb"     → valid
+				"bcbb"    → valid
+
+		Now adding another `b` gives:
+
+				"bcbbb"
+
+		Frequency of `b` becomes `3`, so this window is invalid.
+
+		Move `left` forward until `b` appears at most twice again.
+
+		The longest valid substring has length:
+
+				4
+
+		Output:
+
+				4
+
+		Key Insight
+	- The condition "every character occurs at most twice" can be maintained locally while expanding the window.
+	- Whenever a character reaches frequency `3`, we shrink from the left until its frequency becomes `2`.
+	- Because both pointers only move forward, every element is processed a constant number of times, giving an optimal **O(n)** solution.
