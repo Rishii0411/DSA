@@ -1,0 +1,175 @@
+2026-08-14 | Check Whether X Can Be Formed from Numbers Written on the Paper
+
+		Question
+	- Return `true` if some subset of the numbers written by the children has sum exactly `x`.
+	- Otherwise, return `false`.
+
+		Key Insight
+	- First, generate the numbers written by the children.
+
+	- Let `written[i]` be the number written by child `i`.
+
+	- Maintain:
+
+				total = sum of all numbers written so far
+
+	- For child `i`:
+
+				written[i] = total + arr[i]
+
+	- Then update:
+
+				total += written[i]
+
+	- After generating all values, the problem becomes a standard **0/1 Subset Sum** problem:
+
+				Can we choose some written values whose sum is exactly x?
+
+	- Let:
+
+				dp[j] = true
+
+	  if a subset of the processed numbers can form sum `j`.
+
+	- Initially:
+
+				dp[0] = true
+
+	  because choosing no numbers gives sum `0`.
+
+	- For every generated value `v`, update the DP backwards:
+
+				for j = x down to v:
+				    dp[j] |= dp[j-v]
+
+	- We iterate backwards so that the same generated number cannot be used more than once.
+
+		Approach
+	1. Set:
+
+				total = s
+
+	2. For every child:
+		- Calculate the number they write:
+
+				value = total + arr[i]
+
+		- Store this value.
+		- Add it to `total`.
+
+	3. If `x` is larger than the sum of all generated values, return `false`.
+
+	4. Create a boolean subset-sum DP array of size `x + 1`.
+
+	5. Set:
+
+				dp[0] = true
+
+	6. Process every generated value.
+		- Traverse possible sums from `x` down to the value.
+		- Mark `dp[j]` if `dp[j-value]` was possible.
+
+	7. Return `dp[x]`.
+
+		Time Complexity
+	- Generating the values takes `O(n)`.
+	- Subset-sum takes `O(n × x)`.
+
+				O(n × x)
+
+		Space Complexity
+	- O(x)
+
+		Solution
+```cpp id="4p7xkm"
+class Solution {
+public:
+    bool canFormX(vector<int>& arr, long long s, int x) {
+
+        int n = arr.size();
+
+        vector<long long> written;
+        written.reserve(n);
+
+        long long total = s;
+
+        for (int i = 0; i < n; i++) {
+
+            long long value = total + arr[i];
+
+            written.push_back(value);
+
+            total += value;
+
+            // Once the total becomes greater than x,
+            // later generated values will also be positive
+            // and therefore cannot help form x.
+            if (total > x)
+                break;
+        }
+
+        vector<bool> dp(x + 1, false);
+        dp[0] = true;
+
+        for (long long value : written) {
+
+            if (value > x)
+                continue;
+
+            for (int sum = x; sum >= value; sum--) {
+                dp[sum] = dp[sum] ||
+                          dp[sum - (int)value];
+            }
+        }
+
+        return dp[x];
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s = 1
+				arr = [2, 3, 1]
+				x = 9
+
+		First child writes:
+
+				1 + 2 = 3
+
+		Total written so far:
+
+				3
+
+		Second child writes:
+
+				3 + 3 = 6
+
+		Total written so far:
+
+				3 + 6 = 9
+
+		Third child writes:
+
+				9 + 1 = 10
+
+		So the generated values are:
+
+				[3, 6, 10]
+
+		We can form `9` using:
+
+				3 + 6 = 9
+
+		Therefore:
+
+				true
+
+		Key Insight
+	- There are two separate parts to the problem:
+		1. Generate the values written by the children using the running sum.
+		2. Treat those generated values as items in a **0/1 subset-sum DP**.
+
+	- The important DP detail is iterating the sum **from right to left**, because each number written on the paper can be selected at most once.
