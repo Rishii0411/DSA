@@ -1,0 +1,140 @@
+2026-08-15 | Longest Subsequence With Non-Zero XOR
+
+		Question
+	- Return the length of the longest subsequence whose XOR value is non-zero.
+
+		Approach
+	1. Compute the XOR of all elements in the array.
+
+	2. There are two cases:
+
+		Case 1: Total XOR is non-zero
+
+	- If:
+
+				nums[0] ^ nums[1] ^ ... ^ nums[n-1] != 0
+
+	  then choosing the complete array gives a valid subsequence.
+
+	  The maximum possible length is:
+
+				n
+
+		Case 2: Total XOR is zero
+
+	- If the XOR of all elements is zero, the whole array is not valid.
+
+	- Removing one element `x` changes the XOR to:
+
+				0 ^ x = x
+
+	- Therefore, if there exists any non-zero element, removing one element creates a subsequence with non-zero XOR.
+
+	  Maximum length:
+
+				n - 1
+
+	- If all elements are zero, every possible subsequence has XOR zero.
+
+	  Answer:
+
+				0
+
+		Time Complexity
+	- O(n)
+
+	- We only need one traversal of the array.
+
+		Space Complexity
+	- O(1)
+
+		Solution
+```cpp id="x7p9md"
+class Solution {
+public:
+    int longestSubsequence(vector<int>& nums) {
+
+        int n = nums.size();
+
+        int xorValue = 0;
+        bool hasNonZero = false;
+
+        for (int x : nums) {
+            xorValue ^= x;
+
+            if (x != 0)
+                hasNonZero = true;
+        }
+
+        // Whole array has non-zero XOR.
+        if (xorValue != 0)
+            return n;
+
+        // Every element is zero.
+        if (!hasNonZero)
+            return 0;
+
+        // Remove one non-zero element.
+        return n - 1;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [1, 2, 3]
+
+		Total XOR:
+
+				1 ^ 2 ^ 3 = 0
+
+		The complete array is invalid.
+
+		Remove `3`:
+
+				1 ^ 2 = 3
+
+		XOR is now non-zero.
+
+		Length:
+
+				3 - 1 = 2
+
+		Output:
+
+				2
+
+		Example
+
+		Input:
+
+				nums = [1, 2, 4]
+
+		Total XOR:
+
+				1 ^ 2 ^ 4 = 7
+
+		The entire array works.
+
+		Output:
+
+				3
+
+		Key Insight
+	- XOR has the property:
+
+				0 ^ x = x
+
+	- If the XOR of the whole array is already non-zero, the longest valid subsequence is the whole array.
+	- If the XOR is zero, removing any non-zero element makes the XOR non-zero.
+	- Only the case where all elements are zero has no valid subsequence.
+
+	- Therefore the answer is:
+
+				n                  if total XOR != 0
+
+				n - 1              if total XOR == 0 and some element != 0
+
+				0                  if all elements are 0
