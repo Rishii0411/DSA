@@ -1,0 +1,168 @@
+2026-08-17 | Minimum Dice Throws in Snakes and Ladders
+
+		Question
+	- Return the minimum number of dice throws needed to reach cell `n*n`.
+	- If the final cell cannot be reached, return `-1`.
+
+		Key Insight
+	- Treat every board cell as a graph node.
+	- From cell `u`, there can be up to six possible moves:
+
+				u + 1
+				u + 2
+				...
+				u + 6
+
+	- After landing on a cell, if it is the starting point of a snake or ladder, we immediately move to its destination.
+
+	- Therefore, the actual next cell is:
+
+				next = jump[landingCell]
+
+	  if a snake or ladder starts there.
+
+	- BFS is perfect because:
+		- Every dice throw costs exactly `1`.
+		- BFS visits positions in increasing number of throws.
+		- The first time we reach `n*n`, we have found the minimum number of throws.
+
+		Approach
+	1. Create a `jump` array of size `n*n + 1`.
+	- Initially:
+
+				jump[i] = i
+
+	- For every ladder pair `[start, end]`, set:
+
+				jump[start] = end
+
+	- For every snake pair `[start, end]`, set:
+
+				jump[start] = end
+
+	2. Create a queue for BFS.
+
+	3. Start from cell `1` with distance `0`.
+
+	4. For every current cell:
+		- Try moves from `1` through `6`.
+		- Ignore positions greater than `n*n`.
+		- Apply the snake or ladder immediately.
+		- If the resulting cell has not been visited, add it to the queue with distance `currentDistance + 1`.
+
+	5. When `n*n` is reached, return its distance.
+
+	6. If BFS finishes without reaching `n*n`, return `-1`.
+
+		Time Complexity
+	- O(n²)
+
+	- There are `n²` cells and at most 6 transitions from each cell.
+
+		Space Complexity
+	- O(n²)
+
+	- For the jump array, visited array, and BFS queue.
+
+		Solution
+```cpp
+class Solution {
+public:
+    int minThrow(int N, vector<int>& arr, vector<int>& ladders,
+                 vector<int>& snakes) {
+        
+        int total = N * N;
+
+        vector<int> jump(total + 1);
+
+        for (int i = 1; i <= total; i++)
+            jump[i] = i;
+
+        // Store ladders.
+        for (int i = 0; i + 1 < ladders.size(); i += 2) {
+            int start = ladders[i];
+            int end = ladders[i + 1];
+
+            jump[start] = end;
+        }
+
+        // Store snakes.
+        for (int i = 0; i + 1 < snakes.size(); i += 2) {
+            int start = snakes[i];
+            int end = snakes[i + 1];
+
+            jump[start] = end;
+        }
+
+        vector<int> dist(total + 1, -1);
+
+        queue<int> q;
+
+        dist[1] = 0;
+        q.push(1);
+
+        while (!q.empty()) {
+
+            int current = q.front();
+            q.pop();
+
+            if (current == total)
+                return dist[current];
+
+            for (int dice = 1; dice <= 6; dice++) {
+
+                int landing = current + dice;
+
+                if (landing > total)
+                    continue;
+
+                int next = jump[landing];
+
+                if (dist[next] == -1) {
+                    dist[next] = dist[current] + 1;
+                    q.push(next);
+                }
+            }
+        }
+
+        return -1;
+    }
+};
+```
+
+		Important Note
+	- The exact function signature can vary depending on the platform.
+	- The core idea remains the same: build a mapping for snakes and ladders and then run BFS over the cells.
+
+		Example
+
+		Suppose:
+
+				n = 3
+
+		There are `9` cells.
+
+		If:
+
+				ladder: 2 → 8
+
+		then from cell `1`, Alice can choose a throw of `1`:
+
+				1 → 2
+
+		But because `2` starts a ladder, she immediately moves:
+
+				2 → 8
+
+		From `8`, she can throw `1`:
+
+				8 → 9
+
+		So the answer is:
+
+				2
+
+		Key Insight
+	- The important part is to treat a snake or ladder as an **automatic transition**.
+	- BFS considers every possible dice result from the current cell and applies that transition immediately.
+	- Because every dice throw has equal cost, the first time BFS reaches `n*n` is guaranteed to be the minimum number of throws.
