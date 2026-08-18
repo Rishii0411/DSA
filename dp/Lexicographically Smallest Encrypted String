@@ -1,0 +1,217 @@
+2026-08-18 | Lexicographically Smallest Encrypted String
+
+		Question
+	- Return the lexicographically smallest encoded string that decodes to `s`.
+
+		Key Insight
+	- Look at the **last operation** used to create `s`.
+
+	- There are only two possibilities.
+
+	1. The last operation was adding a character.
+
+	- Then the last character of `s` was added normally.
+	- Therefore, before that operation, the decoded string was:
+
+				s[0 ... n-2]
+
+	- So one possible encoding is:
+
+				best(s[0 ... n-2]) + s[n-1]
+
+	2. The last operation was `*`.
+
+	- A `*` duplicates the entire current string.
+	- Therefore, `s` must consist of two identical halves:
+
+				s = t + t
+
+	- In that case, we could first create `t` and then use `*`:
+
+				best(t) + "*"
+
+	- These are the only possible ways to produce `s`.
+
+	- So we recursively compute:
+
+				best(s) =
+				min(
+				    best(s without last character) + last character,
+				    best(first half) + "*"
+				)
+
+	  whenever `s` consists of two equal halves.
+
+	- Since `*` is lexicographically smaller than every lowercase English letter, the duplication option can often produce the smaller encrypted string, but we must still compare the complete strings because the prefixes may have different lengths.
+
+		Approach
+	1. Let `solve(len)` represent the lexicographically smallest encoding that produces `s[0...len-1]`.
+
+	2. The first possibility is always:
+
+				solve(len - 1) + s[len - 1]
+
+	3. If `len` is even, check whether:
+
+				s[0 ... len/2-1]
+				
+	  is equal to:
+
+				s[len/2 ... len-1]
+
+	4. If they are equal, let `half = len / 2`.
+
+	5. We can create the first half and then use `*`:
+
+				solve(half) + "*"
+
+	6. Compare the two possible encoded strings and keep the lexicographically smaller one.
+
+	7. The base case is:
+
+				solve(0) = ""
+
+		Time Complexity
+	- With direct string construction and comparison, the worst-case complexity is O(n²).
+
+	- This is because there are O(n) prefix states and the constructed strings can have O(n) length.
+
+		Space Complexity
+	- O(n²) in the worst case for storing the DP strings.
+
+		Solution
+```cpp
+class Solution {
+public:
+    string s;
+    vector<string> dp;
+    vector<bool> done;
+
+    bool isDouble(int len) {
+        if (len % 2 != 0)
+            return false;
+
+        int half = len / 2;
+
+        for (int i = 0; i < half; i++) {
+            if (s[i] != s[i + half])
+                return false;
+        }
+
+        return true;
+    }
+
+    string solve(int len) {
+        if (len == 0)
+            return "";
+
+        if (done[len])
+            return dp[len];
+
+        done[len] = true;
+
+        // Option 1: Add the last character normally.
+        string ans = solve(len - 1) + s[len - 1];
+
+        // Option 2: If the string is two identical halves,
+        // create one half and use '*'.
+        if (isDouble(len)) {
+            int half = len / 2;
+
+            string candidate = solve(half) + '*';
+
+            if (candidate < ans)
+                ans = candidate;
+        }
+
+        return dp[len] = ans;
+    }
+
+    string getSmallestEncrypted(string str) {
+        s = str;
+
+        int n = s.size();
+
+        dp.resize(n + 1);
+        done.assign(n + 1, false);
+
+        return solve(n);
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s = "abab"
+
+		The string consists of two identical halves:
+
+				"ab" + "ab"
+
+		So we can create `"ab"` and then use `*`:
+
+				"ab*"
+
+		Decoding:
+
+				'a' → "a"
+				'b' → "ab"
+				'*' → "abab"
+
+		Thus:
+
+				"ab*" → "abab"
+
+		The normal encoding would be:
+
+				"abab"
+
+		Since:
+
+				"ab*" < "abab"
+
+		the answer is:
+
+				"ab*"
+
+		Example 2
+
+		Input:
+
+				s = "abc"
+
+		There are no two identical halves.
+
+		So the only possible construction is to append characters:
+
+				"a"
+				"ab"
+				"abc"
+
+		Therefore:
+
+				"abc"
+
+		is the answer.
+
+		Key Insight
+	- The most important observation is to reason about the **last operation**.
+	- The last operation is either:
+		- Appending the final character, or
+		- Duplicating the entire current string using `*`.
+
+	- A `*` can therefore be used only when the target prefix is made of two identical halves.
+
+	- This gives the recurrence:
+
+				best(s) =
+				min(
+				    best(s[0...n-2]) + s[n-1],
+				    best(s[0...n/2-1]) + "*"
+				)
+
+	  whenever the two halves are equal.
+
+	- By evaluating these possibilities for every prefix, we obtain the lexicographically smallest valid encrypted string.
