@@ -1,0 +1,168 @@
+2026-08-18 | Largest Almost Missing Integer
+
+		Question
+	- Return the largest integer that appears in exactly one subarray of size `k`.
+
+		Key Insight
+	- Instead of explicitly constructing every window, consider the positions where a particular value `x` occurs.
+
+	- Suppose `x` occurs at position `p`.
+
+	- A length-`k` window containing position `p` can start at any position:
+
+				p - k + 1 <= start <= p
+
+	- But the window must also stay inside the array, so the valid starting positions are:
+
+				max(0, p-k+1)
+				...
+				min(p, n-k)
+
+	- Thus, every occurrence of `x` covers an interval of possible window starting positions.
+
+	- If multiple occurrences of `x` are present, their intervals may overlap.
+
+	- We need the number of **distinct window starting positions** covered by all these intervals.
+
+	- If exactly one starting position is covered, then `x` appears in exactly one length-`k` subarray.
+
+	- We can group the positions of every value, sort them naturally by scanning `nums`, and merge their intervals.
+
+		Approach
+	1. Store the positions of every distinct value in a hash map.
+
+	2. For each value `x`, process its occurrence positions from left to right.
+
+	3. For every position `p`, calculate the interval of possible starting positions:
+
+				L = max(0, p-k+1)
+				R = min(p, n-k)
+
+	4. Merge overlapping intervals and count the number of distinct starting positions covered.
+
+	5. If the total number of covered starting positions is exactly `1`, then `x` is almost missing.
+
+	6. Keep the maximum such `x`.
+
+	7. Return `-1` if no value qualifies.
+
+		Time Complexity
+	- O(n) average with an `unordered_map`, because positions are collected in their natural sorted order and each occurrence is processed once.
+
+		Space Complexity
+	- O(n)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int largestAlmostMissing(vector<int>& nums, int k) {
+        int n = nums.size();
+
+        unordered_map<int, vector<int>> positions;
+
+        // Store positions of every value.
+        for (int i = 0; i < n; i++) {
+            positions[nums[i]].push_back(i);
+        }
+
+        int answer = -1;
+
+        for (auto& [x, pos] : positions) {
+
+            long long covered = 0;
+
+            int currentL = -1;
+            int currentR = -1;
+
+            for (int p : pos) {
+
+                int L = max(0, p - k + 1);
+                int R = min(p, n - k);
+
+                // This occurrence cannot belong to any
+                // length-k subarray.
+                if (L > R)
+                    continue;
+
+                if (currentL == -1) {
+                    currentL = L;
+                    currentR = R;
+                }
+                else if (L <= currentR + 1) {
+                    // Intervals overlap or touch.
+                    currentR = max(currentR, R);
+                }
+                else {
+                    // Finish the previous interval.
+                    covered += currentR - currentL + 1;
+
+                    currentL = L;
+                    currentR = R;
+                }
+
+                // More than one window is already enough
+                // to know that x is not almost missing.
+                if (covered > 1)
+                    break;
+            }
+
+            if (currentL != -1 && covered <= 1) {
+                covered += currentR - currentL + 1;
+            }
+
+            if (covered == 1) {
+                answer = max(answer, x);
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [3, 4, 3, 5]
+				k = 2
+
+		The length-2 subarrays are:
+
+				[3, 4]
+				[4, 3]
+				[3, 5]
+
+		For `5`:
+
+				[3, 5]
+
+		contains `5`, and no other length-2 subarray contains it.
+
+		So `5` is almost missing.
+
+		For `4`:
+
+				[3, 4]
+				[4, 3]
+
+		There are two subarrays containing `4`, so `4` is not almost missing.
+
+		For `3`:
+
+				[3, 4]
+				[4, 3]
+				[3, 5]
+
+		There are three such subarrays.
+
+		Therefore the answer is:
+
+				5
+
+		Key Insight
+	- The tricky part is that we count **subarrays**, not occurrences.
+	- If `x` appears twice inside the same length-`k` window, that window still contributes only `1`.
+	- By converting every occurrence into the interval of window-start positions that can contain it, the problem becomes finding the size of the union of those intervals.
+	- A value is almost missing exactly when that union contains **one starting position**.
