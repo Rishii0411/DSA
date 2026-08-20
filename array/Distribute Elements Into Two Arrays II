@@ -1,0 +1,115 @@
+2026-08-20 | Distribute Elements Into Two Arrays II
+
+		Question
+	- Return the resulting array after performing all `n` operations.
+
+		Approach
+	1. Create two vectors:
+	
+				arr1
+				arr2
+
+	2. Put `nums[0]` into `arr1`.
+
+	3. Put `nums[1]` into `arr2`.
+
+	4. Starting from index `2`, process every element:
+		- If:
+
+				arr1.back() > arr2.back()
+
+		  append the current element to `arr1`.
+
+		- Otherwise append it to `arr2`.
+
+	5. After all elements have been distributed, append all elements of `arr2` after all elements of `arr1`.
+
+	6. Return the resulting vector.
+
+		Time Complexity
+	- O(n)
+
+	- Every element is processed exactly once.
+
+		Space Complexity
+	- O(n)
+
+	- We store the two arrays and the final result.
+
+		Solution
+```cpp
+class Solution {
+public:
+    vector<int> resultArray(vector<int>& nums) {
+
+        vector<int> arr1;
+        vector<int> arr2;
+
+        arr1.push_back(nums[0]);
+        arr2.push_back(nums[1]);
+
+        for (int i = 2; i < nums.size(); i++) {
+
+            if (arr1.back() > arr2.back())
+                arr1.push_back(nums[i]);
+            else
+                arr2.push_back(nums[i]);
+        }
+
+        vector<int> result;
+
+        for (int x : arr1)
+            result.push_back(x);
+
+        for (int x : arr2)
+            result.push_back(x);
+
+        return result;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [5, 4, 3, 8]
+
+		First operation:
+
+				arr1 = [5]
+
+		Second operation:
+
+				arr2 = [4]
+
+		For `3`:
+
+				5 > 4
+
+		So `3` goes into `arr1`:
+
+				arr1 = [5, 3]
+
+		For `8`:
+
+				3 > 4 is false
+
+		So `8` goes into `arr2`:
+
+				arr2 = [4, 8]
+
+		Finally concatenate:
+
+				arr1 + arr2
+
+				[5, 3, 4, 8]
+
+		Output:
+
+				[5, 3, 4, 8]
+
+		Key Insight
+	- No sorting or complicated data structure is needed.
+	- The decision at each step depends only on the **last elements** of the two arrays.
+	- Therefore, `back()` gives exactly the information needed, and a simple greedy simulation solves the problem in `O(n)` time.
