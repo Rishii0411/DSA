@@ -1,0 +1,295 @@
+2026-08-21 | K-th Smallest Amount From Single-Denomination Coins
+	
+		Question
+	- Return the `k`-th smallest amount that is divisible by at least one value in `coins`.
+
+		Key Insight
+	- We can use **binary search on the answer**.
+
+	- Suppose we want to know how many valid amounts are `<= x`.
+
+	- For a denomination `d`, there are:
+
+				floor(x / d)
+
+	  multiples of `d` up to `x`.
+
+	- But simply adding these counts would double-count numbers that are divisible by multiple denominations.
+
+	- For example, with:
+
+				coins = [3, 5]
+
+	  the number `15` is counted once for `3` and once for `5`.
+
+	- We therefore use the **Inclusion-Exclusion Principle**.
+
+	- For every non-empty subset of denominations, calculate its LCM.
+
+	- If the subset has an odd number of elements, add:
+
+				x / LCM
+
+	- If it has an even number of elements, subtract:
+
+				x / LCM
+
+	- This gives the number of distinct amounts `<= x` that can be formed.
+
+	- Then binary search for the smallest `x` such that:
+
+				count(x) >= k
+
+	- That `x` is exactly the k-th smallest amount.
+
+		Approach
+	1. Remove duplicate denominations because duplicate coins do not create new amounts.
+
+	2. Binary search the answer between:
+
+				1
+
+	  and:
+
+				min(coins) * k
+
+	  because the smallest denomination alone can produce at least `k` valid amounts by taking its first `k` multiples.
+
+	3. For a candidate `mid`, calculate how many valid amounts are `<= mid`.
+
+	4. Use inclusion-exclusion over all subsets of `coins`.
+
+	5. For each subset:
+		- Compute its LCM.
+		- Count its multiples using:
+
+				mid / lcm
+
+		- Add or subtract according to the number of selected denominations.
+
+	6. If the count is at least `k`, `mid` may be the answer, so move the right boundary left.
+
+	7. Otherwise, move the left boundary right.
+
+	8. Return the final binary-search value.
+
+		Time Complexity
+	- Let `m` be the number of distinct denominations.
+
+	- Inclusion-exclusion examines:
+
+				2^m - 1
+
+	  subsets for each binary-search step.
+
+	- Therefore:
+
+				O(2^m × m × log(min(coins) × k))
+
+	  where the extra `m` accounts for building the LCM of a subset.
+
+	- This approach is suitable when the number of coin denominations is small, which is necessary for subset-based inclusion-exclusion.
+
+		Space Complexity
+	- O(m)
+
+	- We use arrays for the denominations and recursion/iteration state.
+
+		Solution
+```cpp
+class Solution {
+public:
+    using int64 = long long;
+    using i128 = __int128_t;
+
+    long long gcdLL(long long a, long long b) {
+        while (b) {
+            long long t = a % b;
+            a = b;
+            b = t;
+        }
+        return a;
+    }
+
+    long long lcmLimit(long long a, long long b, long long limit) {
+        long long g = gcdLL(a, b);
+
+        i128 value = (i128)(a / g) * b;
+
+        if (value > limit)
+            return limit + 1;
+
+        return (long long)value;
+    }
+
+    long long countAtMost(long long x,
+                          vector<long long>& coins,
+                          long long k) {
+
+        int m = coins.size();
+        long long count = 0;
+
+        // Inclusion-exclusion over all non-empty subsets.
+        for (int mask = 1; mask < (1 << m); mask++) {
+
+            long long lcm = 1;
+            int bits = 0;
+            bool tooLarge = false;
+
+            for (int i = 0; i < m; i++) {
+
+                if (mask & (1 << i)) {
+
+                    bits++;
+
+                    lcm = lcmLimit(
+                        lcm,
+                        coins[i],
+                        x
+                    );
+
+                    if (lcm > x) {
+                        tooLarge = true;
+                        break;
+                    }
+                }
+            }
+
+            if (tooLarge)
+                continue;
+
+            long long ways = x / lcm;
+
+            if (bits & 1)
+                count += ways;
+            else
+                count -= ways;
+
+            // We only care whether the count has
+            // reached k.
+            if (count >= k)
+                return k;
+        }
+
+        return count;
+    }
+
+    long long findKthSmallest(vector<int>& coins, long long k) {
+
+        sort(coins.begin(), coins.end());
+        coins.erase(
+            unique(coins.begin(), coins.end()),
+            coins.end()
+        );
+
+        vector<long long> c;
+
+        for (int x : coins)
+            c.push_back(x);
+
+        long long low = 1;
+
+        long long high =
+            (long long)c[0] * k;
+
+        while (low < high) {
+
+            long long mid =
+                low + (high - low) / 2;
+
+            if (countAtMost(mid, c, k) >= k)
+                high = mid;
+            else
+                low = mid + 1;
+        }
+
+        return low;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				coins = [3, 5]
+				k = 5
+
+		The distinct amounts are:
+
+				3, 5, 6, 9, 10, 12, 15, ...
+
+		So the 5th smallest amount is:
+
+				10
+
+		Using `x = 10`:
+
+		Multiples of `3`:
+
+				3, 6, 9
+
+		Count:
+
+				10 / 3 = 3
+
+		Multiples of `5`:
+
+				5, 10
+
+		Count:
+
+				10 / 5 = 2
+
+		But `15` is not within the range, so there is no overlap here.
+
+		Therefore:
+
+				count(10) = 3 + 2 = 5
+
+		Thus the answer is:
+
+				10
+
+		Example With Overlap
+
+		Input:
+
+				coins = [2, 3]
+				k = 4
+
+		Possible amounts:
+
+				2, 3, 4, 6, 8, 9, 10, ...
+
+		The 4th smallest is:
+
+				6
+
+		For `x = 6`:
+
+				multiples of 2 = 3
+				multiples of 3 = 2
+
+		But `6` was counted twice.
+
+		Their LCM is:
+
+				lcm(2, 3) = 6
+
+		So inclusion-exclusion gives:
+
+				3 + 2 - 1 = 4
+
+		Therefore `6` is the 4th smallest amount.
+
+		Key Insight
+	- Every achievable amount is simply a multiple of at least one denomination.
+	- So the problem becomes:
+
+				Find the k-th smallest number divisible
+				by at least one coin denomination.
+
+	- `count(x)` tells us how many such numbers are `<= x`.
+	- Inclusion-exclusion prevents duplicate counting of numbers divisible by multiple denominations.
+	- Because `count(x)` is monotonic — as `x` increases, the count never decreases — we can binary-search the smallest `x` for which the count reaches `k`.
