@@ -1,0 +1,176 @@
+2026-08-21 | Minimum Moves to Transform One String Into Another
+
+		Question
+	- Find the minimum number of front-insertion operations required to transform `s1` into `s2`.
+
+		Key Insight
+	- The operation changes the position of one character by moving it to the front.
+	- Therefore, the characters that we **do not move** keep their relative order.
+	- So, we want to keep the longest possible suffix of `s1` that already appears as a subsequence of `s2`.
+	- However, because we can only move characters to the front, the characters that remain untouched must form a **suffix of `s1`**.
+
+	- Therefore, start from the end of both strings and try to match characters.
+
+	- Suppose:
+
+				s1 = "abcde"
+				s2 = "ceabd"
+
+	- Starting from the end:
+
+				s1: ... d e
+				s2: ... b d
+
+	  `d` matches, so keep it.
+
+	- Now compare the previous characters. If they match, keep them too.
+	- Every character of `s1` that cannot be included in this matching suffix must be moved to the front.
+
+	- Thus:
+
+				answer = n - lengthOfKeptSuffix
+
+	- Before doing this, we must make sure `s1` and `s2` contain exactly the same characters with the same frequencies. Otherwise transformation is impossible.
+
+		Approach
+	1. If `s1.length() != s2.length()`, return `-1`.
+
+	2. Count the frequency of every character in both strings.
+
+	3. If the frequency counts differ, return `-1`.
+
+	4. Set:
+
+				i = s1.length() - 1
+				j = s2.length() - 1
+
+	5. Move from right to left:
+		- If `s1[i] == s2[j]`, this character can remain untouched.
+		- Decrease both `i` and `j`.
+		- Otherwise, `s1[i]` must be moved to the front, so only decrease `i`.
+
+	6. When `j < 0`, all characters needed for `s2` have been matched.
+
+	7. The number of characters that had to be moved is the answer.
+
+	- Equivalently, if `matched` characters form the longest suffix of `s1` that can remain in place:
+
+				answer = n - matched
+
+		Time Complexity
+	- O(n)
+
+	- We perform a frequency check and one right-to-left traversal.
+
+		Space Complexity
+	- O(1)
+
+	- For lowercase English letters, only 26 frequency counters are needed.
+
+		Solution
+```cpp
+class Solution {
+public:
+    int minMoves(string s1, string s2) {
+
+        int n = s1.size();
+
+        if (n != s2.size())
+            return -1;
+
+        vector<int> freq1(26, 0);
+        vector<int> freq2(26, 0);
+
+        for (char c : s1)
+            freq1[c - 'a']++;
+
+        for (char c : s2)
+            freq2[c - 'a']++;
+
+        if (freq1 != freq2)
+            return -1;
+
+        int i = n - 1;
+        int j = n - 1;
+        int matched = 0;
+
+        while (i >= 0 && j >= 0) {
+
+            if (s1[i] == s2[j]) {
+                matched++;
+                i--;
+                j--;
+            }
+            else {
+                i--;
+            }
+        }
+
+        return n - matched;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s1 = "abcd"
+				s2 = "dabc"
+
+		Starting from the end:
+
+				s1 = a b c d
+				s2 = d a b c
+
+		Compare from right:
+
+				d != c
+				c == c
+				b == b
+				a == a
+
+		So the suffix `"abc"` can remain in its relative order.
+
+		Only `d` needs to be moved to the front:
+
+				"abcd"
+				 ↓ move d
+				"dabc"
+
+		Therefore:
+
+				answer = 1
+
+		Output:
+
+				1
+
+		Another Example
+
+		Input:
+
+				s1 = "abc"
+				s2 = "cab"
+
+		From the end:
+
+				c != b
+				b == b
+				a == a
+
+		We can keep `"ab"` and move `c` to the front:
+
+				"abc"
+				 ↓
+				"cab"
+
+		So the answer is:
+
+				1
+
+		Key Insight
+	- Moving a character to the front can disturb its original position, but it does **not** disturb the relative order of characters that are never moved.
+	- Therefore, the optimal strategy is to keep the longest possible suffix of `s1` that can match a suffix of `s2` when scanning from right to left.
+	- Every remaining character must be moved to the front.
+- The frequency check is essential because the operation only rearranges characters; it can never add or remove a character.
