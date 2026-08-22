@@ -1,0 +1,207 @@
+2026-08-22 | Count Turns Between Two Nodes
+
+		Question
+	- Return the number of turns required to travel from node `p` to node `q`.
+	- If there are no turns in the path, return `-1`.
+
+		Key Insight
+	- The path between two nodes always goes through their **Lowest Common Ancestor (LCA)**.
+	- So the path can be divided into two parts:
+		- `p -> LCA`
+		- `LCA -> q`
+
+	- A convenient way to solve the problem is to explicitly build the directions along the path from `p` to `q`.
+
+	- For example, suppose the path is:
+
+				p -> left -> right -> right -> left -> q
+
+	  The directions are:
+
+				L R R L
+
+	  Turns occur at:
+
+				L -> R
+				R -> L
+
+	  So the number of turns is `2`.
+
+	- We can find the LCA and then determine the direction sequence from the LCA to each node.
+
+		Approach
+	1. Find the LCA of `p` and `q`.
+
+	2. Find the direction sequence from the LCA to `p`.
+		- Add `'L'` when moving to the left child.
+		- Add `'R'` when moving to the right child.
+
+	3. Find the direction sequence from the LCA to `q`.
+
+	4. The path from `p` back to the LCA uses the reverse of the first path.
+		- Notice that reversing a direction does not change `L` into `R`.
+		- A left edge is still a left edge when considering the direction sequence for turns.
+
+	5. Therefore, combine:
+	
+				reverse(pathFromLcaToP)
+				+
+				pathFromLcaToQ
+
+	6. Count adjacent pairs where the directions differ.
+
+	7. If the count is `0`, return `-1`.
+	- Otherwise return the count.
+
+		Time Complexity
+	- O(n)
+
+	- Finding the LCA and the two paths each take at most `O(n)`.
+
+		Space Complexity
+	- O(h)
+
+	- The stored paths and recursion stack require space proportional to the tree height.
+
+		Solution
+```cpp id="q3m7xp"
+class Solution {
+public:
+    Node* findLCA(Node* root, int p, int q) {
+
+        if (root == nullptr)
+            return nullptr;
+
+        if (root->data == p || root->data == q)
+            return root;
+
+        Node* left = findLCA(root->left, p, q);
+        Node* right = findLCA(root->right, p, q);
+
+        if (left && right)
+            return root;
+
+        return left ? left : right;
+    }
+
+    bool getPath(Node* root, int target, string& path) {
+
+        if (root == nullptr)
+            return false;
+
+        if (root->data == target)
+            return true;
+
+        path.push_back('L');
+
+        if (getPath(root->left, target, path))
+            return true;
+
+        path.pop_back();
+
+        path.push_back('R');
+
+        if (getPath(root->right, target, path))
+            return true;
+
+        path.pop_back();
+
+        return false;
+    }
+
+    int NumberOFTurns(Node* root, int p, int q) {
+
+        Node* lca = findLCA(root, p, q);
+
+        if (lca == nullptr)
+            return -1;
+
+        string pathP, pathQ;
+
+        getPath(lca, p, pathP);
+        getPath(lca, q, pathQ);
+
+        // Path from p to LCA.
+        reverse(pathP.begin(), pathP.end());
+
+        string path = pathP + pathQ;
+
+        int turns = 0;
+
+        for (int i = 1; i < path.size(); i++) {
+            if (path[i] != path[i - 1])
+                turns++;
+        }
+
+        return turns == 0 ? -1 : turns;
+    }
+};
+```
+
+		Example
+
+		Consider the tree:
+
+			             1
+			            / \
+			           2   3
+			          /     \
+			         4       5
+			          \
+			           6
+
+		Let:
+
+				p = 6
+				q = 3
+
+		The path is:
+
+				6 -> 4 -> 2 -> 1 -> 3
+
+		The directions are:
+
+				L, L, L, R
+
+		There is only one direction change:
+
+				L -> R
+
+		So:
+
+				turns = 1
+
+		Output:
+
+				1
+
+		Example With No Turn
+
+		If `p` and `q` lie on the same straight downward path:
+
+				1
+				|
+				2
+				|
+				3
+				|
+				4
+
+		The directions are all the same:
+
+				L, L, L
+
+		There is no direction change.
+
+		Therefore:
+
+				-1
+
+		Key Insight
+	- The most important part is separating the path at the **LCA**.
+	- Once we know the sequence of left/right edges along the complete path, counting turns is simply counting adjacent changes:
+
+				L -> R
+				R -> L
+
+	- If there is no such change, the path is completely straight, so the required answer is `-1`.
