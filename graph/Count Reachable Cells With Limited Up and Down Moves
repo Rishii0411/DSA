@@ -1,0 +1,243 @@
+2026-08-24 | Count Reachable Cells With Limited Up and Down Moves
+
+		Question
+	- Return the number of distinct empty cells that Geek can visit from `(r, c)`.
+	- If `(r, c)` itself is an obstacle, return `0`.
+
+		Key Insight
+	- Consider every cell as a graph node.
+	- Moving vertically changes the number of up/down moves:
+		- Up → costs `1` upward move.
+		- Down → costs `1` downward move.
+		- Left/Right → costs `0` for both.
+	- A standard BFS can find reachability, but we need to keep track of **two different costs**.
+	- Because every vertical move changes the row by exactly one, there is an important relationship between the number of upward and downward moves.
+
+	- Let the starting row be `r`, and suppose we reach row `x`.
+
+	- If:
+		- `U` = number of upward moves.
+		- `D` = number of downward moves.
+
+	  Then:
+
+				x = r - U + D
+
+	  Therefore:
+
+				U - D = r - x
+
+	- So once we know one of `U` or `D`, the other is determined.
+
+	- We can use **0-1 BFS**, where:
+		- Moving up has cost `1`.
+		- Moving down has cost `0`.
+		- Left/right also have cost `0`.
+
+	- Let `upCost[x][y]` be the minimum number of upward moves needed to reach `(x, y)`.
+
+	- After finding the minimum upward cost `U`, the corresponding minimum number of downward moves needed is:
+
+				D = U + x - r
+
+	- Therefore, a cell is reachable if:
+
+				U <= u
+
+	  and:
+
+				D <= d
+
+	- This works because minimizing upward moves first gives the smallest possible upward count for that cell, and the row relationship determines the associated downward count.
+
+		Approach
+	1. If `mat[r][c] == '#'`, return `0`.
+
+	2. Create a distance matrix:
+
+				dist[i][j]
+
+	  representing the minimum number of upward moves required to reach `(i, j)`.
+
+	3. Start with:
+
+				dist[r][c] = 0
+
+	4. Use a deque for 0-1 BFS.
+		- Moving up has cost `1`, so put the new cell at the back.
+		- Moving down, left, or right has cost `0`, so put the new cell at the front.
+
+	5. After 0-1 BFS, examine every reachable empty cell `(i, j)`.
+
+	6. Let:
+
+				up = dist[i][j]
+
+	7. Calculate the required downward moves:
+
+				down = up + i - r
+
+	8. The cell can be visited if:
+
+				up <= u
+				down <= d
+
+	9. Count every cell satisfying both conditions.
+
+		Time Complexity
+	- There are `n × m` cells and every cell has at most four edges.
+
+				O(n × m)
+
+		Space Complexity
+	- O(n × m)
+
+	- We store the distance matrix and the deque.
+
+		Solution
+```cpp
+class Solution {
+public:
+    int numberOfCells(
+        vector<vector<char>>& mat,
+        int r,
+        int c,
+        int u,
+        int d
+    ) {
+        int n = mat.size();
+        int m = mat[0].size();
+
+        if (mat[r][c] == '#')
+            return 0;
+
+        const int INF = 1e9;
+
+        vector<vector<int>> dist(
+            n,
+            vector<int>(m, INF)
+        );
+
+        deque<pair<int, int>> dq;
+
+        dist[r][c] = 0;
+        dq.push_front({r, c});
+
+        int dr[] = {-1, 1, 0, 0};
+        int dc[] = {0, 0, -1, 1};
+
+        while (!dq.empty()) {
+
+            auto [x, y] = dq.front();
+            dq.pop_front();
+
+            for (int dir = 0; dir < 4; dir++) {
+
+                int nx = x + dr[dir];
+                int ny = y + dc[dir];
+
+                if (nx < 0 || nx >= n ||
+                    ny < 0 || ny >= m ||
+                    mat[nx][ny] == '#')
+                    continue;
+
+                // Moving up costs 1.
+                int cost = (nx < x) ? 1 : 0;
+
+                if (dist[x][y] + cost < dist[nx][ny]) {
+
+                    dist[nx][ny] =
+                        dist[x][y] + cost;
+
+                    if (cost == 0)
+                        dq.push_front({nx, ny});
+                    else
+                        dq.push_back({nx, ny});
+                }
+            }
+        }
+
+        int answer = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+
+                if (mat[i][j] == '#' ||
+                    dist[i][j] == INF)
+                    continue;
+
+                int up = dist[i][j];
+
+                // From:
+                // i = r - up + down
+                //
+                // therefore:
+                // down = up + i - r
+                int down = up + i - r;
+
+                if (up <= u && down <= d)
+                    answer++;
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+		Example
+
+		Consider:
+
+				mat =
+				[
+					".#.",
+					"...",
+					"..."
+				]
+
+		Start:
+
+				r = 2, c = 1
+
+		Suppose:
+
+				u = 1
+				d = 2
+
+		Geek can move left and right freely, while vertical moves are restricted.
+
+		For a cell in row `1`, reaching it requires at least one upward move:
+
+				up = 1
+
+		For a cell in row `2`:
+
+				up = 0
+				down = 0
+
+		For a cell in row `0`, at least two upward moves would be necessary, so it violates:
+
+				up <= 1
+
+		Thus only the cells satisfying both movement limits are counted.
+
+		Key Insight
+	- The clever part is avoiding a state such as `(cell, upMoves, downMoves)`, which could become very large.
+	- Because every upward/downward move changes the row by exactly one:
+
+				row = startRow - up + down
+
+	  the two quantities are mathematically related.
+	- We therefore only need to minimize one of them, the number of upward moves.
+	- A **0-1 BFS** efficiently finds the minimum upward moves to every cell.
+	- Once `up` is known, the required downward moves are:
+
+				down = up + currentRow - startRow
+
+	- Finally, we count cells satisfying both:
+
+				up <= u
+				down <= d
+
+	- This gives an `O(n × m)` solution.
