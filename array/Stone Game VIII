@@ -1,0 +1,220 @@
+2026-08-24 | Stone Game VIII
+
+		Question
+	- Return the optimal score difference between Alice and Bob.
+
+		Key Insight
+	- Define prefix sums:
+
+				prefix[i] =
+				stones[0] + stones[1] + ... + stones[i]
+
+	- If the first `i + 1` stones are combined, the new stone has value `prefix[i]`.
+
+	- Because every move must remove at least two stones, the first useful prefix is:
+
+				prefix[1]
+
+	- After a move creates `prefix[i]`, the remaining row is:
+
+				[prefix[i], stones[i+1], stones[i+2], ...]
+
+	- From this point, the game depends only on which later prefix is chosen next.
+
+	- We can define a DP state based on the best score difference obtainable when the current leftmost stone represents a prefix sum.
+
+	- There is a particularly useful recurrence:
+
+				dp[i] =
+				max(
+				    prefix[i] - dp[i+1],
+				    dp[i+1]
+				)
+
+	  with the appropriate interpretation of the state.
+
+	- This can be simplified into a suffix maximum recurrence.
+
+	- Let `best` represent the maximum score difference obtainable from the current state.
+
+	- Process prefix sums from right to left:
+
+				best = max(best, prefix[i] - best)
+
+	- More precisely, the standard optimized recurrence is:
+
+				dp[n-1] = prefix[n-1]
+
+				dp[i] = max(
+				    dp[i+1],
+				    prefix[i] - dp[i+1]
+				)
+
+	  for `i` from `n-2` down to `1`.
+
+	- The answer is `dp[1]`.
+
+	- This works because once a player chooses a prefix ending at `i`, the opponent gets exactly the remaining game represented by `dp[i+1]`, so the current player's contribution is `prefix[i]` minus the opponent's optimal advantage.
+
+		Approach
+	1. Build the prefix sum array.
+
+	2. Only prefixes ending at index `1` or later are valid because at least two stones must be removed.
+
+	3. Start from the largest prefix:
+
+				dp = prefix[n-1]
+
+	4. Move from `n-2` down to `1`.
+
+	5. At each index `i`, there are two possibilities:
+		- Keep the previously computed optimal strategy.
+		- Choose prefix `i`, gaining `prefix[i]` and giving the opponent the state represented by `dp`.
+
+	6. Therefore:
+
+				dp = max(dp, prefix[i] - dp)
+
+	7. After processing all possible prefixes, `dp` is the optimal score difference for Alice.
+
+		Time Complexity
+	- O(n)
+
+	- Prefix sums and the DP are both linear.
+
+		Space Complexity
+	- O(n) if we store all prefix sums.
+	- We can also optimize the DP to O(1) extra space beyond the prefix sums.
+
+		Solution
+```cpp id="qv8n3a"
+class Solution {
+public:
+    long long stoneGameVIII(vector<int>& stones) {
+
+        int n = stones.size();
+
+        vector<long long> prefix(n);
+
+        prefix[0] = stones[0];
+
+        for (int i = 1; i < n; i++) {
+            prefix[i] =
+                prefix[i - 1] + stones[i];
+        }
+
+        long long dp = prefix[n - 1];
+
+        for (int i = n - 2; i >= 1; i--) {
+
+            dp = max(
+                dp,
+                prefix[i] - dp
+            );
+        }
+
+        return dp;
+    }
+};
+```
+
+		Example 1
+
+		Input:
+
+				stones = [-1, 2, -3, 4, -5]
+
+		Prefix sums:
+
+				[-1, 1, -2, 2, -3]
+
+		Start with:
+
+				dp = -3
+
+		At `i = 3`:
+
+				dp = max(-3, 2 - (-3))
+				   = 5
+
+		At `i = 2`:
+
+				dp = max(5, -2 - 5)
+				   = 5
+
+		At `i = 1`:
+
+				dp = max(5, 1 - 5)
+				   = 5
+
+		Therefore:
+
+				answer = 5
+
+		This matches the optimal strategy where Alice first combines the first four stones:
+
+				-1 + 2 - 3 + 4 = 2
+
+		and Bob then combines:
+
+				2 + (-5) = -3
+
+		So:
+
+				Alice - Bob
+				= 2 - (-3)
+				= 5
+
+		Example 2
+
+		Input:
+
+				stones = [7, -6, 5, 10, 5, -2, -6]
+
+		Total prefix sum:
+
+				13
+
+		The optimal strategy is for Alice to combine all seven stones immediately.
+
+		Her score is:
+
+				13
+
+		Bob gets no move.
+
+		Therefore:
+
+				answer = 13
+
+		Example 3
+
+		Input:
+
+				stones = [-10, -12]
+
+		The only possible move is to combine both stones:
+
+				-10 + (-12) = -22
+
+		Alice gets:
+
+				-22
+
+		Bob gets:
+
+				0
+
+		Therefore:
+
+				answer = -22
+
+		Key Insight
+	- Although the game appears to have many possible sequences of merging stones, every move effectively creates a **prefix sum** of the original array.
+	- Once prefix sums are calculated, the game becomes a one-dimensional minimax DP.
+	- The recurrence:
+
+				dp = max(dp, prefix[i] - dp)
+
+	  captures the fact that the current player gains `prefix[i]`, while the opponent can subsequently obtain an advantage represented by `dp`.
+	- Thus the entire game can be solved in **O(n)** time, which is necessary for `n` up to `10^5`.
