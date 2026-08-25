@@ -1,0 +1,101 @@
+2026-08-25 | Smallest Missing Positive Multiple of k
+
+		Question
+	- Return the smallest positive multiple of `k` that is missing from `nums`.
+
+		Approach
+	1. Put every element of `nums` into an `unordered_set`.
+	- This lets us check whether a number exists in approximately `O(1)` time.
+
+	2. Start with:
+
+				multiple = k
+
+	3. Check whether `multiple` exists in the set.
+
+	4. If it exists, move to the next multiple:
+
+				multiple += k
+
+	5. Continue until we find a multiple that does not exist.
+
+	6. Return that missing multiple.
+
+	- We do not need to sort `nums`.
+	- We also do not need to check numbers that are not multiples of `k`.
+
+		Time Complexity
+	- Building the set takes `O(n)` average time.
+	- If the first `m` multiples are present, we perform `m` lookups.
+
+				O(n + m)
+
+	- Under the usual constraints, this is efficient.
+
+		Space Complexity
+	- O(n) for the hash set.
+
+		Solution
+```cpp
+class Solution {
+public:
+    int missingMultiple(vector<int>& nums, int k) {
+
+        unordered_set<int> st;
+
+        for (int x : nums) {
+            st.insert(x);
+        }
+
+        int multiple = k;
+
+        while (st.count(multiple)) {
+            multiple += k;
+        }
+
+        return multiple;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [2, 4, 6, 10]
+				k = 2
+
+		Positive multiples of `2` are:
+
+				2, 4, 6, 8, 10, ...
+
+		Check them in order:
+
+				2 → present
+				4 → present
+				6 → present
+				8 → missing
+
+		Therefore:
+
+				answer = 8
+
+		Another Example
+
+		Input:
+
+				nums = [1, 3, 5, 7]
+				k = 2
+
+		Positive multiples of `2` are:
+
+				2, 4, 6, 8, ...
+
+		`2` is already missing, so we immediately return:
+
+				2
+
+		Key Insight
+	- We only care about positive multiples of `k`.
+	- Starting from the smallest possible multiple, `k`, and checking upward guarantees that the first missing one is the smallest missing multiple.
+	- A hash set makes each existence check fast, giving a simple and efficient solution.
