@@ -1,0 +1,196 @@
+2026-08-26 | Lexicographically Smallest Shortest Beautiful Substring
+
+		Question
+	- Find the lexicographically smallest substring having the minimum possible length and containing exactly `k` ones.
+
+		Approach
+	1. Use a sliding window with two pointers.
+
+	2. Maintain:
+		- `left` → beginning of the current window.
+		- `ones` → number of `1`s inside the current window.
+		- `bestLen` → length of the shortest beautiful substring found so far.
+		- `answer` → lexicographically smallest substring among those with `bestLen`.
+
+	3. Expand the window by moving `right` from left to right.
+
+	4. Whenever `s[right] == '1'`, increment `ones`.
+
+	5. When `ones == k`, the current window is beautiful.
+
+	6. Now shrink the window from the left as much as possible while keeping exactly `k` ones.
+	- This is important because we want the shortest possible substring.
+
+	7. After shrinking, the current window is the shortest beautiful substring ending at `right`.
+
+	8. Compare its length with `bestLen`.
+	- If it is smaller, replace `answer`.
+	- If it has the same length, take the lexicographically smaller one.
+
+	9. Continue scanning the entire string because another window of the same minimum length may be lexicographically smaller.
+
+	10. If `ones` never reaches `k`, no beautiful substring exists, so return `""`.
+
+		Time Complexity
+	- O(n) for finding all candidate windows.
+	- Comparing candidate strings can take O(n) in the worst case.
+
+	- With direct substring comparison, the worst-case complexity is O(n²).
+	- For typical constraints, this sliding-window approach is straightforward and efficient.
+
+		Space Complexity
+	- O(n) for storing the answer substring.
+
+		Solution
+```cpp
+class Solution {
+public:
+    string shortestBeautifulSubstring(string s, int k) {
+
+        int n = s.size();
+
+        int left = 0;
+        int ones = 0;
+
+        int bestLen = INT_MAX;
+        string answer = "";
+
+        for (int right = 0; right < n; right++) {
+
+            if (s[right] == '1')
+                ones++;
+
+            // We have exactly k ones.
+            if (ones == k) {
+
+                // Remove leading zeros as much as possible.
+                while (left <= right && s[left] == '0') {
+                    left++;
+                }
+
+                int len = right - left + 1;
+                string current = s.substr(left, len);
+
+                if (len < bestLen) {
+                    bestLen = len;
+                    answer = current;
+                }
+                else if (len == bestLen &&
+                         (answer.empty() || current < answer)) {
+                    answer = current;
+                }
+            }
+
+            // If we have more than k ones, move left
+            // until the window contains at most k ones.
+            while (ones > k) {
+                if (s[left] == '1')
+                    ones++;
+
+                left++;
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+		Important Correction
+
+	- In the shrinking loop above, when removing a character from the left, if that character is `1`, we must **decrease** `ones`, not increase it.
+
+	- The corrected implementation is:
+
+```cpp
+class Solution {
+public:
+    string shortestBeautifulSubstring(string s, int k) {
+
+        int n = s.size();
+
+        int left = 0;
+        int ones = 0;
+
+        int bestLen = INT_MAX;
+        string answer = "";
+
+        for (int right = 0; right < n; right++) {
+
+            if (s[right] == '1')
+                ones++;
+
+            while (ones > k) {
+                if (s[left] == '1')
+                    ones--;
+
+                left++;
+            }
+
+            if (ones == k) {
+
+                // Remove unnecessary leading zeros.
+                int temp = left;
+
+                while (temp <= right && s[temp] == '0')
+                    temp++;
+
+                int len = right - temp + 1;
+
+                if (len < bestLen) {
+                    bestLen = len;
+                    answer = s.substr(temp, len);
+                }
+                else if (len == bestLen) {
+
+                    string current =
+                        s.substr(temp, len);
+
+                    if (current < answer)
+                        answer = current;
+                }
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s = "100011001"
+				k = 2
+
+		We need exactly two `1`s.
+
+		Some beautiful substrings include:
+
+				"100011"
+				"110"
+				"1001"
+
+		The shortest length is `3`.
+
+		The length-3 candidates containing exactly two `1`s are compared lexicographically.
+
+		For example:
+
+				"110"
+				"101"
+
+		Between them:
+
+				"101" < "110"
+
+		So the lexicographically smaller candidate would be selected.
+
+		Key Insight
+	- There are two separate goals:
+		1. Minimize the substring length.
+		2. Among equal-length candidates, minimize the lexicographical order.
+	- The sliding window handles the first requirement efficiently by shrinking whenever the window has exactly `k` ones.
+	- Once the minimum length is known, comparing equal-length candidates gives the lexicographically smallest answer.
+- The most important detail is that a window with exactly `k` ones should be shrunk from the left over leading zeros, because those zeros do not affect the number of ones but make the substring longer. 
