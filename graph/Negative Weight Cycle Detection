@@ -1,0 +1,160 @@
+2026-08-26 | Negative Weight Cycle Detection
+
+		Question
+	- Return `true` if the graph contains a negative-weight cycle.
+	- Otherwise, return `false`.
+
+		Approach
+	1. Use the Bellman-Ford algorithm.
+	- Normally, Bellman-Ford calculates shortest paths from one source.
+	- It has another useful property: if a distance can still be improved after `V - 1` complete relaxation rounds, then a negative-weight cycle exists.
+
+	2. Because the negative cycle can be anywhere in the graph, including a disconnected component, initialize the distance of every vertex to `0`.
+	- This is equivalent to adding a virtual source connected to every vertex with an edge of weight `0`.
+
+	3. Relax every edge `V - 1` times.
+
+	4. For an edge `[u, v, w]`, try:
+
+				dist[v] = min(dist[v], dist[u] + w)
+
+	5. After those `V - 1` rounds, make one additional pass over all edges.
+
+	6. If any edge can still relax:
+
+				dist[u] + w < dist[v]
+
+	  then a negative-weight cycle exists.
+
+	7. Otherwise, there is no negative-weight cycle.
+
+		Why Does the Extra Relaxation Detect a Negative Cycle?
+	- Without a negative cycle, the shortest simple path can contain at most `V - 1` edges.
+	- Therefore, after `V - 1` rounds, all shortest distances have been finalized.
+	- If another relaxation is possible, some path can still be made smaller.
+	- That can only happen because we can go around a cycle and continue decreasing the distance.
+	- Since the distance decreases, the total weight of that cycle must be negative.
+
+		Time Complexity
+	- There are `V - 1` relaxation rounds.
+	- Each round examines all `E` edges.
+
+				O(V × E)
+
+		Space Complexity
+	- The distance array requires:
+
+				O(V)
+
+		Solution
+```cpp
+class Solution {
+public:
+    bool isNegativeWeightCycle(
+        int V,
+        vector<vector<int>>& edges
+    ) {
+        // Start every vertex at 0 so that negative
+        // cycles in disconnected components are also detected.
+        vector<long long> dist(V, 0);
+
+        // Relax all edges V - 1 times.
+        for (int i = 0; i < V - 1; i++) {
+
+            bool changed = false;
+
+            for (auto& edge : edges) {
+
+                int u = edge[0];
+                int v = edge[1];
+                int w = edge[2];
+
+                if (dist[u] + w < dist[v]) {
+                    dist[v] = dist[u] + w;
+                    changed = true;
+                }
+            }
+
+            // If nothing changed, no further improvement is possible.
+            if (!changed)
+                break;
+        }
+
+        // One more relaxation.
+        // If an update is still possible, there is
+        // a negative-weight cycle.
+        for (auto& edge : edges) {
+
+            int u = edge[0];
+            int v = edge[1];
+            int w = edge[2];
+
+            if (dist[u] + w < dist[v])
+                return true;
+        }
+
+        return false;
+    }
+};
+```
+
+		Example
+
+		Consider:
+
+				V = 3
+
+				edges =
+				[
+					[0, 1, 1],
+					[1, 2, -3],
+					[2, 0, 1]
+				]
+
+		The graph contains the cycle:
+
+				0 -> 1 -> 2 -> 0
+
+		Its total weight is:
+
+				1 + (-3) + 1 = -1
+
+		Since the cycle has negative total weight, travelling around it repeatedly keeps reducing the total distance.
+
+		Therefore the answer is:
+
+				true
+
+		Example Without a Negative Cycle
+
+		Consider:
+
+				V = 3
+
+				edges =
+				[
+					[0, 1, 2],
+					[1, 2, 3],
+					[2, 0, 1]
+				]
+
+		The cycle has total weight:
+
+				2 + 3 + 1 = 6
+
+		The cycle is positive, so repeatedly traversing it cannot decrease the distance.
+
+		No additional relaxation is possible after `V - 1` rounds.
+
+		Therefore:
+
+				false
+
+		Key Insight
+	- Bellman-Ford is especially useful here because it can handle **negative edge weights**.
+	- Initializing every `dist[i]` to `0` is important when we want to detect a negative cycle anywhere in the graph rather than only in the component containing a particular source.
+	- The decisive test is the extra relaxation after `V - 1` rounds:
+
+				if (dist[u] + w < dist[v])
+
+	  If this is still possible, the graph contains a negative-weight cycle.
