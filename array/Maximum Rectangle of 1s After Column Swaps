@@ -1,0 +1,190 @@
+2026-08-27 | Maximum Rectangle of 1s After Column Swaps
+
+		Question
+	- Return the maximum area of an all-`1` rectangle that can be obtained after freely swapping columns.
+
+		Key Insight
+	- For every column, calculate its current consecutive number of `1`s ending at each row.
+	- For example, if a column looks like:
+
+				1
+				1
+				0
+				1
+				1
+				1
+
+	  then its heights are:
+
+				1
+				2
+				0
+				1
+				2
+				3
+
+	- At a particular row, suppose the column heights are:
+
+				[2, 4, 1, 3, 4]
+
+	- Since columns can be freely swapped, we can arrange these heights in descending order:
+
+				[4, 4, 3, 2, 1]
+
+	- If we choose the first `w` columns, the rectangle height is the smallest height among those columns.
+	- After sorting, that smallest height is simply the height at position `w`.
+
+	- Therefore, for every row:
+		1. Calculate the height of consecutive `1`s for every column.
+		2. Sort the heights in descending order.
+		3. For each position `j`, calculate:
+
+				area = height[j] * (j + 1)
+
+		4. Take the maximum.
+
+	- This works because all columns participating in the rectangle can be moved next to each other.
+
+		Approach
+	1. Maintain an array `height` of size `m`.
+	- `height[j]` represents the number of consecutive `1`s ending at the current row in column `j`.
+
+	2. For every row:
+		- If `mat[i][j] == 1`:
+
+				height[j]++
+
+		- Otherwise:
+
+				height[j] = 0
+
+	3. Make a copy of the heights for the current row and sort it in descending order.
+
+	4. For every column position `j`:
+		- We can use the first `j + 1` columns after rearranging.
+		- The minimum height among them is `height[j]`.
+		- Therefore:
+
+				area = height[j] * (j + 1)
+
+	5. Update the maximum area.
+
+	6. Return the maximum area found.
+
+		Time Complexity
+	- Updating heights for all rows takes:
+
+				O(n × m)
+
+	- Sorting the `m` heights for every row takes:
+
+				O(n × m log m)
+
+	- Therefore, the total complexity is:
+
+				O(n × m log m)
+
+		Space Complexity
+	- O(m)
+
+	- We only need the height array and a temporary array for sorting.
+
+		Solution
+```cpp id="z6j7hc"
+class Solution {
+public:
+    int maxArea(vector<vector<int>>& mat) {
+
+        int n = mat.size();
+        int m = mat[0].size();
+
+        vector<int> height(m, 0);
+
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+
+            // Update consecutive heights.
+            for (int j = 0; j < m; j++) {
+
+                if (mat[i][j] == 1)
+                    height[j]++;
+                else
+                    height[j] = 0;
+            }
+
+            // Columns can be rearranged freely.
+            vector<int> sortedHeight = height;
+
+            sort(
+                sortedHeight.begin(),
+                sortedHeight.end(),
+                greater<int>()
+            );
+
+            // Try every possible rectangle width.
+            for (int j = 0; j < m; j++) {
+
+                int width = j + 1;
+                int h = sortedHeight[j];
+
+                int area = h * width;
+
+                ans = max(ans, area);
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Consider:
+
+				mat =
+				[
+					[0, 1, 1, 0],
+					[1, 1, 1, 1],
+					[1, 1, 1, 1]
+				]
+
+		After processing the second row, the consecutive heights are:
+
+				[1, 2, 2, 1]
+
+		After sorting:
+
+				[2, 2, 1, 1]
+
+		For width `1`:
+
+				area = 2 × 1 = 2
+
+		For width `2`:
+
+				area = 2 × 2 = 4
+
+		For width `3`:
+
+				area = 1 × 3 = 3
+
+		For width `4`:
+
+				area = 1 × 4 = 4
+
+		So the best rectangle at this row has area `4`.
+
+		Key Insight
+	- Normally, a rectangle of `1`s requires its columns to already be adjacent.
+	- Here, we can swap columns freely.
+	- Therefore, columns with similar or large consecutive heights can always be brought together.
+	- After sorting the heights for a row, choosing the first `w` columns gives a rectangle whose height is the smallest of those `w` heights.
+	- Thus we simply maximize:
+
+				height[j] × (j + 1)
+
+	  over every row and every `j`.
+
+	- This turns what looks like a complicated column-rearrangement problem into a simple **histogram + sorting** problem.
