@@ -1,0 +1,242 @@
+2026-08-27 | Lexicographically Smallest Permutation Greater Than Target
+
+		Question
+	- Return the lexicographically smallest permutation of `s` that is strictly greater than `target`.
+	- If no such permutation exists, return `""`.
+
+		Key Insight
+	- Suppose we are constructing the answer from left to right.
+	- As long as we can use the same character as `target[i]`, we should do so.
+	- This keeps our answer as small as possible.
+
+	- However, at some position `i`, we may decide to make the answer strictly greater.
+	- There are two important choices:
+		- Use the same character as `target[i]` and continue.
+		- Use the smallest available character greater than `target[i]`.
+
+	- Once we choose a character greater than `target[i]`, the prefix is already larger than `target`.
+	- Therefore, the remaining characters should simply be arranged in ascending order.
+
+	- There is one subtle point:
+	- Sometimes choosing the same character as `target[i]` may eventually lead to a dead end.
+	- In that case, we need to backtrack to an earlier position and increase that position instead.
+
+	- We can avoid expensive permutation generation by maintaining the frequency of each of the 26 letters.
+
+		Approach
+	1. Count the frequency of every character in `s`.
+
+	2. Start at the first position of `target`.
+
+	3. At position `i`, first try to use exactly `target[i]`.
+	- If that character is available, temporarily use it and continue.
+
+	4. If we reach a position where we cannot continue, or if we reach the end while the constructed string is equal to `target`, we need to backtrack.
+
+	5. During backtracking:
+	- Restore the character used at the current position.
+	- Look for the smallest available character strictly greater than `target[i]`.
+
+	6. If such a character exists:
+	- Put it at position `i`.
+	- Put all remaining characters in sorted order.
+	- This is the smallest possible answer for that prefix.
+
+	7. If no greater character exists at this position, continue backtracking to the previous position.
+
+	8. If we backtrack past the first position, no valid permutation exists.
+
+		Time Complexity
+	- There are only 26 lowercase letters.
+	- We process at most `n` positions, and at each position inspect at most 26 characters.
+
+				O(26 × n)
+
+	- Since 26 is constant:
+
+				O(n)
+
+		Space Complexity
+	- O(n) for the resulting string.
+
+		Solution
+```cpp id="g7m2qd"
+class Solution {
+public:
+    string lexicographicallySmallestGreater(
+        string s,
+        string target
+    ) {
+        int n = s.size();
+
+        vector<int> freq(26, 0);
+
+        for (char c : s)
+            freq[c - 'a']++;
+
+        string ans(n, ' ');
+
+        for (int i = 0; i < n; i++) {
+
+            int need = target[i] - 'a';
+
+            // Try to keep the prefix equal to target.
+            if (freq[need] > 0) {
+
+                ans[i] = target[i];
+                freq[need]--;
+
+                continue;
+            }
+
+            // We cannot continue with equality.
+            // Backtrack to find a position that can
+            // be made strictly larger.
+            for (int j = i; j >= 0; j--) {
+
+                if (j < i) {
+                    freq[ans[j] - 'a']++;
+                }
+
+                int currentNeed =
+                    target[j] - 'a';
+
+                // Find the smallest available character
+                // strictly greater than target[j].
+                int greater = -1;
+
+                for (int c = currentNeed + 1;
+                     c < 26;
+                     c++) {
+
+                    if (freq[c] > 0) {
+                        greater = c;
+                        break;
+                    }
+                }
+
+                if (greater != -1) {
+
+                    ans[j] = char('a' + greater);
+                    freq[greater]--;
+
+                    // Fill the remaining positions
+                    // with the smallest possible characters.
+                    int pos = j + 1;
+
+                    for (int c = 0; c < 26; c++) {
+                        while (freq[c] > 0) {
+                            ans[pos++] =
+                                char('a' + c);
+                            freq[c]--;
+                        }
+                    }
+
+                    return ans;
+                }
+
+                // If we reach here, this position cannot
+                // be made greater, so continue backtracking.
+            }
+
+            return "";
+        }
+
+        // We used exactly the same characters as target,
+        // so the result is not strictly greater.
+        // Backtrack from the final position.
+        for (int i = n - 1; i >= 0; i--) {
+
+            freq[ans[i] - 'a']++;
+
+            int need = target[i] - 'a';
+
+            for (int c = need + 1; c < 26; c++) {
+
+                if (freq[c] > 0) {
+
+                    string result = ans.substr(0, i);
+
+                    result += char('a' + c);
+                    freq[c]--;
+
+                    for (int x = 0; x < 26; x++) {
+                        while (freq[x] > 0) {
+                            result += char('a' + x);
+                            freq[x]--;
+                        }
+                    }
+
+                    return result;
+                }
+            }
+        }
+
+        return "";
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s = "abbc"
+				target = "abca"
+
+		We need the smallest permutation of `"abbc"` that is greater than `"abca"`.
+
+		Try matching from the beginning:
+
+				target = a b c a
+				s      = a b b c
+
+		We can match:
+
+				a
+				b
+
+		At the third position, target requires:
+
+				c
+
+		We have `c`, so we use it.
+
+		Now the remaining character is `b`, while target's final character is `a`.
+
+		Therefore:
+
+				"abcb" > "abca"
+
+		There is no smaller valid permutation, so the answer is:
+
+				"abcb"
+
+		Another Example
+
+		Input:
+
+				s = "abc"
+				target = "cba"
+
+		All permutations are:
+
+				abc
+				acb
+				bac
+				bca
+				cab
+				cba
+
+		None is strictly greater than `"cba"`.
+
+		Therefore:
+
+				""
+
+		Key Insight
+	- The best answer should stay equal to `target` for as long as possible.
+	- When equality can no longer lead to a valid answer, we backtrack and increase the **rightmost possible position**.
+	- At that position, we choose the smallest available character greater than the target character.
+	- Once the prefix is greater, sorting all remaining characters in ascending order gives the lexicographically smallest possible suffix.
+- Frequency counting is enough because there are only 26 possible lowercase letters, so we never need to generate permutations explicitly.
