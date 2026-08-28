@@ -1,0 +1,124 @@
+2026-08-28 | Minimum Cost With No Same Adjacent Choice
+
+		Question
+	- Find the minimum total cost of selecting one choice from every row such that adjacent rows never use the same choice.
+
+		Approach
+	1. Use dynamic programming.
+	- For each row, maintain three values:
+		- `dp[0]` = minimum cost when option `0` is selected in the current row.
+		- `dp[1]` = minimum cost when option `1` is selected.
+		- `dp[2]` = minimum cost when option `2` is selected.
+
+	2. For the first row, there is no previous choice, so:
+
+				dp[0] = mat[0][0]
+				dp[1] = mat[0][1]
+				dp[2] = mat[0][2]
+
+	3. For every subsequent row, if we choose option `0`, the previous row must have used option `1` or `2`.
+
+				newDp[0] = mat[i][0] + min(dp[1], dp[2])
+
+	4. Similarly:
+
+				newDp[1] = mat[i][1] + min(dp[0], dp[2])
+
+				newDp[2] = mat[i][2] + min(dp[0], dp[1])
+
+	5. Replace the old DP values with the new values.
+
+	6. After processing the final row, the answer is the minimum of the three DP values.
+
+		Time Complexity
+	- Each row requires constant work because there are exactly three choices.
+
+				O(n)
+
+		Space Complexity
+	- We only keep the previous row's three DP values.
+
+				O(1)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int minCost(vector<vector<int>>& mat) {
+
+        int n = mat.size();
+
+        int dp0 = mat[0][0];
+        int dp1 = mat[0][1];
+        int dp2 = mat[0][2];
+
+        for (int i = 1; i < n; i++) {
+
+            int newDp0 =
+                mat[i][0] + min(dp1, dp2);
+
+            int newDp1 =
+                mat[i][1] + min(dp0, dp2);
+
+            int newDp2 =
+                mat[i][2] + min(dp0, dp1);
+
+            dp0 = newDp0;
+            dp1 = newDp1;
+            dp2 = newDp2;
+        }
+
+        return min({dp0, dp1, dp2});
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				mat = [
+					[1, 2, 3],
+					[4, 8, 2],
+					[1, 5, 3]
+				]
+
+		First row:
+
+				dp = [1, 2, 3]
+
+		Second row:
+
+				newDp[0] = 4 + min(2, 3) = 6
+				newDp[1] = 8 + min(1, 3) = 9
+				newDp[2] = 2 + min(1, 2) = 3
+
+		So:
+
+				dp = [6, 9, 3]
+
+		Third row:
+
+				newDp[0] = 1 + min(9, 3) = 4
+				newDp[1] = 5 + min(6, 3) = 8
+				newDp[2] = 3 + min(6, 9) = 9
+
+		So:
+
+				dp = [4, 8, 9]
+
+		Therefore:
+
+				answer = min(4, 8, 9)
+				       = 4
+
+		Key Insight
+	- At each row, the only thing that matters from the previous row is **which choice was selected**.
+	- If we select choice `j` in the current row, we simply choose the cheaper of the other two choices from the previous row.
+	- This gives the recurrence:
+
+				newDp[0] = mat[i][0] + min(dp[1], dp[2])
+				newDp[1] = mat[i][1] + min(dp[0], dp[2])
+				newDp[2] = mat[i][2] + min(dp[0], dp[1])
+
+	- Since there are only three choices, the solution runs in **O(n)** time and **O(1)** extra space.
