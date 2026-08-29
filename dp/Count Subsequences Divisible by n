@@ -1,0 +1,173 @@
+2026-08-30 | Count Subsequences Divisible by n
+
+		Question
+	- Return the number of non-empty subsequences of `s` whose numeric value is divisible by `n`.
+	- Return the answer modulo `1e9 + 7`.
+
+		Approach
+	1. Create a DP array:
+
+				dp[r]
+
+	  where `dp[r]` represents the number of non-empty subsequences processed so far whose value has remainder `r` when divided by `n`.
+
+	2. Initially there are no non-empty subsequences:
+
+				dp[r] = 0
+
+	  for every remainder.
+
+	3. Process the string one digit at a time.
+
+	4. Suppose the current digit is `d`.
+
+	5. Every existing subsequence with remainder `r` can append `d`.
+
+	- If the old number is `x`, the new number is:
+
+				x * 10 + d
+
+	- Therefore its new remainder is:
+
+				(r * 10 + d) % n
+
+	6. The current digit can also form a new subsequence by itself.
+	- Its remainder is:
+
+				d % n
+
+	7. We must use a separate `next` array.
+	- Otherwise, while processing the current digit, newly created subsequences could be used again with the same digit, which would incorrectly allow the same index to be selected multiple times.
+
+	8. After processing the digit:
+
+				dp = next
+
+	9. At the end, `dp[0]` contains the number of non-empty subsequences divisible by `n`.
+
+		Time Complexity
+	- For every digit, we process all `n` possible remainders.
+
+				O(s.length() × n)
+
+		Space Complexity
+	- We store two DP arrays of size `n`.
+
+				O(n)
+
+		Solution
+```cpp
+class Solution {
+public:
+    static const int MOD = 1000000007;
+
+    int countSubsequences(string s, int n) {
+
+        vector<long long> dp(n, 0);
+
+        for (char ch : s) {
+
+            int digit = ch - '0';
+
+            // Subsequences that do not use this digit
+            // remain unchanged.
+            vector<long long> next = dp;
+
+            // The current digit alone forms a new subsequence.
+            int rem = digit % n;
+
+            next[rem]++;
+            if (next[rem] >= MOD)
+                next[rem] -= MOD;
+
+            // Append the current digit to every
+            // previously existing subsequence.
+            for (int r = 0; r < n; r++) {
+
+                if (dp[r] == 0)
+                    continue;
+
+                int newRem =
+                    (r * 10LL + digit) % n;
+
+                next[newRem] += dp[r];
+
+                if (next[newRem] >= MOD)
+                    next[newRem] -= MOD;
+            }
+
+            dp.swap(next);
+        }
+
+        return dp[0];
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s = "123"
+				n = 3
+
+		All non-empty subsequences are:
+
+				"1"
+				"2"
+				"3"
+				"12"
+				"13"
+				"23"
+				"123"
+
+		Their values divisible by `3` are:
+
+				3
+				12
+				123
+
+		So the answer is:
+
+				3
+
+		Why Does the Remainder Formula Work?
+
+		- Suppose a subsequence currently represents a number whose remainder is `r`.
+		- Append digit `d`.
+
+		For example, if the current number is `12` and we append `3`:
+
+				12 * 10 + 3 = 123
+
+		Instead of storing `12`, we only need its remainder.
+
+		If:
+
+				12 % n = r
+
+		then:
+
+				123 % n
+				= (12 * 10 + 3) % n
+				= (r * 10 + 3) % n
+
+		Therefore we can process even extremely long numeric strings without ever creating the actual subsequence numbers.
+
+		Key Insight
+	- The DP state only needs the remainder:
+
+				dp[r] = number of subsequences with remainder r
+
+	- For every digit, there are two choices:
+		- Skip it.
+		- Take it.
+
+	- Taking it changes the remainder using:
+
+				(r * 10 + digit) % n
+
+	- The digit itself starts a new subsequence.
+	- Finally, remainder `0` represents exactly the subsequences whose numeric value is divisible by `n`.
+
+	- This gives a clean `O(length(s) × n)` dynamic programming solution.
