@@ -1,0 +1,189 @@
+2026-08-29 | Lexicographically Smallest Array by Limit-Limited Swaps
+
+		Question
+	- Return the lexicographically smallest array obtainable using any number of allowed swaps.
+
+		Approach
+	1. Create pairs:
+
+				(value, originalIndex)
+
+	2. Sort these pairs by `value`.
+
+	3. Traverse the sorted values and divide them into groups.
+	- If two consecutive sorted values satisfy:
+
+				value[i] - value[i - 1] <= limit
+
+	  they belong to the same group.
+
+	- Otherwise, there is a gap that cannot be crossed, so start a new group.
+
+	4. For each group:
+	- Collect all original indices belonging to the group.
+	- Sort those indices.
+	- The group's values are already sorted because we obtained them from the globally sorted array.
+
+	5. Put the smallest value in the group at the smallest original index, the second-smallest value at the second-smallest index, and so on.
+
+	6. This produces the lexicographically smallest arrangement because at every position, we place the smallest value that can legally reach that position.
+
+		Why Can We Rearrange Everything Inside One Group?
+	- Suppose sorted values in a group are:
+
+				2, 4, 5, 7
+
+	  with `limit = 3`.
+
+	- Although `2` and `7` cannot be swapped directly because:
+
+				|2 - 7| = 5 > 3
+
+	  there are intermediate values:
+
+				2 -> 5 -> 7
+
+	  and similarly the values can be moved through the group.
+	- Thus the entire group is connected through valid swaps.
+	- Once a group is identified, its values can be freely rearranged among its original positions.
+
+		Time Complexity
+	- Sorting the `n` value-index pairs:
+
+				O(n log n)
+
+	- Sorting the indices inside all groups together costs at most:
+
+				O(n log n)
+
+	- Therefore the total complexity is:
+
+				O(n log n)
+
+		Space Complexity
+	- O(n)
+
+	- We store the value-index pairs and the resulting array.
+
+		Solution
+```cpp id="r5v8ka"
+class Solution {
+public:
+    vector<int> lexicographicallySmallestArray(
+        vector<int>& nums,
+        int limit
+    ) {
+        int n = nums.size();
+
+        vector<pair<int, int>> a;
+
+        for (int i = 0; i < n; i++) {
+            a.push_back({nums[i], i});
+        }
+
+        // Sort by value.
+        sort(a.begin(), a.end());
+
+        vector<int> ans(n);
+
+        int start = 0;
+
+        while (start < n) {
+
+            int end = start;
+
+            // Find all values belonging to this group.
+            while (end + 1 < n &&
+                   a[end + 1].first - a[end].first <= limit) {
+                end++;
+            }
+
+            // Collect original indices.
+            vector<int> indices;
+
+            for (int i = start; i <= end; i++) {
+                indices.push_back(a[i].second);
+            }
+
+            // Smallest values should go to the smallest indices.
+            sort(indices.begin(), indices.end());
+
+            for (int i = start; i <= end; i++) {
+                ans[indices[i - start]] = a[i].first;
+            }
+
+            start = end + 1;
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [1, 5, 3, 9, 8]
+				limit = 2
+
+		Sort the values:
+
+				1, 3, 5, 8, 9
+
+		Check consecutive differences:
+
+				3 - 1 = 2  → same group
+				5 - 3 = 2  → same group
+				8 - 5 = 3  → new group
+				9 - 8 = 1  → same group
+
+		So the groups are:
+
+				[1, 3, 5]
+				[8, 9]
+
+		The first group originally occurs at indices:
+
+				0, 1, 2
+
+		So we can place:
+
+				1 at index 0
+				3 at index 1
+				5 at index 2
+
+		The second group occurs at:
+
+				3, 4
+
+		So we place:
+
+				8 at index 3
+				9 at index 4
+
+		The resulting array is:
+
+				[1, 3, 5, 8, 9]
+
+		Why Is This Lexicographically Smallest?
+
+		- Consider the first position.
+		- We should place the smallest value that can reach it.
+		- If two values belong to different groups, they can never cross the gap between those groups.
+		- Therefore, we can optimize each group independently.
+		- Inside a group, putting its sorted values into its sorted original positions gives the smallest possible value at every position.
+
+		Key Insight
+	- The crucial trick is to **sort the values first**.
+	- A difference greater than `limit` between two consecutive sorted values creates a permanent barrier.
+	- Values on opposite sides of such a barrier can never be exchanged, even indirectly.
+	- Values within the same connected group can be rearranged freely.
+	- Therefore:
+	
+				1. Sort `(value, index)` pairs.
+				2. Split them whenever consecutive values differ by more than `limit`.
+				3. Sort the original indices within each group.
+				4. Assign the group's sorted values to those sorted indices.
+
+	- This gives the lexicographically smallest reachable array in `O(n log n)` time.
