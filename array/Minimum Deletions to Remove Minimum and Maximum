@@ -1,0 +1,147 @@
+2026-08-30 | Minimum Deletions to Remove Minimum and Maximum
+
+		Question
+	- Return the minimum number of deletions required to remove both the minimum and maximum elements.
+
+		Approach
+	1. Find the indices of the minimum and maximum elements.
+
+	2. Let:
+	
+				left = min(minIndex, maxIndex)
+				right = max(minIndex, maxIndex)
+
+	  So `left` is the position of the first special element and `right` is the position of the second.
+
+	3. There are three possible strategies.
+
+	4. Remove both elements from the **front**.
+	- We need to delete everything up to `right`.
+
+				cost = right + 1
+
+	5. Remove both elements from the **back**.
+	- We need to delete everything from `right` to the end.
+
+				cost = n - right
+
+	6. Remove the first element from the front and the second from the back.
+	- Delete the first `left + 1` elements from the front.
+	- Delete the remaining elements after `right` from the back.
+
+				cost = (left + 1) + (n - right)
+
+	7. Take the minimum of these three possibilities.
+
+	8. We do not need to consider removing `left` from the back and `right` from the front separately because `left` is the earlier position and `right` is the later position.
+
+		Time Complexity
+	- Finding the minimum and maximum indices takes:
+
+				O(n)
+
+	- Calculating the three possibilities takes:
+
+				O(1)
+
+	- Total:
+
+				O(n)
+
+		Space Complexity
+	- O(1)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int minimumDeletions(vector<int>& nums) {
+
+        int n = nums.size();
+
+        int minIndex = 0;
+        int maxIndex = 0;
+
+        for (int i = 1; i < n; i++) {
+
+            if (nums[i] < nums[minIndex])
+                minIndex = i;
+
+            if (nums[i] > nums[maxIndex])
+                maxIndex = i;
+        }
+
+        int left = min(minIndex, maxIndex);
+        int right = max(minIndex, maxIndex);
+
+        // Remove both from the front.
+        int fromFront = right + 1;
+
+        // Remove both from the back.
+        int fromBack = n - left;
+
+        // Remove one from each side.
+        int fromBoth =
+            (left + 1) + (n - right);
+
+        return min({
+            fromFront,
+            fromBack,
+            fromBoth
+        });
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [2, 10, 7, 5, 4, 1, 8]
+
+		The minimum is:
+
+				1
+
+		at index `5`.
+
+		The maximum is:
+
+				10
+
+		at index `1`.
+
+		So:
+
+				left = 1
+				right = 5
+
+		Option 1: Both from the front
+
+				right + 1
+				= 5 + 1
+				= 6
+
+		Option 2: Both from the back
+
+				n - left
+				= 7 - 1
+				= 6
+
+		Option 3: One from each side
+
+				(left + 1) + (n - right)
+				= 2 + 2
+				= 4
+
+		Therefore:
+
+				answer = 4
+
+		Key Insight
+	- Once we know the positions of the minimum and maximum, there are only **three meaningful strategies**:
+		1. Remove both from the front.
+		2. Remove both from the back.
+		3. Remove one from the front and the other from the back.
+	- We calculate all three costs and take the smallest.
+	- This avoids simulating deletions and gives a simple `O(n)` greedy solution.
