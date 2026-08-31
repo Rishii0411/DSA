@@ -1,0 +1,192 @@
+2026-08-31 | Minimum Cost to Obtain Exactly n Characters
+
+		Question
+	- Given `n`, insertion cost `i`, deletion cost `d`, and doubling cost `c`, find the minimum cost to obtain exactly `n` characters.
+
+		Approach
+	1. Define:
+
+				dp[x] = minimum cost to obtain exactly x characters.
+
+	2. Initially:
+
+				dp[0] = 0
+
+	  because the screen starts empty.
+
+	3. From a state with `x` characters, we have three possible operations.
+
+	4. Insert one character:
+
+				x -> x + 1
+
+	  with cost `i`.
+
+	  Therefore:
+
+				dp[x + 1] =
+				min(dp[x + 1], dp[x] + i)
+
+	5. Delete one character:
+
+				x -> x - 1
+
+	  with cost `d`.
+
+	  Therefore, when `x > 0`:
+
+				dp[x - 1] =
+				min(dp[x - 1], dp[x] + d)
+
+	6. Double the string:
+
+				x -> 2x
+
+	  with cost `c`.
+
+	  If `2x <= n`, we can directly transition to `2x`.
+
+	7. If `2x > n`, we can still perform the copy-paste operation and then delete the extra characters.
+	- The final cost would be:
+
+				dp[x] + c + (2x - n) * d
+
+	8. However, there is an important simplification.
+	- To reach a particular length, we can process states from `0` to `n`.
+	- For doubling:
+		- If `2x <= n`, update `dp[2x]`.
+		- If `2x > n`, directly consider the cost of doubling and deleting the excess.
+
+	9. We don't actually need to use deletion as a normal DP transition while moving forward because deleting below the current length cannot help achieve a new larger length more cheaply than considering the useful construction path.
+	- The only useful role of deletion is after an overshooting doubling operation.
+
+	10. For each length `x`, compare:
+		- Reaching `x + 1` by insertion.
+		- Reaching `2x` by doubling.
+		- Overshooting and deleting extra characters.
+
+		Time Complexity
+	- We process every length from `0` to `n`.
+	- Each state has constant-time transitions.
+
+				O(n)
+
+		Space Complexity
+	- We store the DP value for each length.
+
+				O(n)
+
+		Solution
+```cpp id="7qk2ma"
+class Solution {
+public:
+    long long minCost(int n, int i, int d, int c) {
+
+        const long long INF = 1e18;
+
+        vector<long long> dp(n + 1, INF);
+
+        dp[0] = 0;
+
+        for (int len = 0; len <= n; len++) {
+
+            if (dp[len] == INF)
+                continue;
+
+            // Insert one character.
+            if (len < n) {
+                dp[len + 1] =
+                    min(dp[len + 1],
+                        dp[len] + i);
+            }
+
+            // Copy and paste.
+            if (len > 0) {
+
+                if (2 * len <= n) {
+
+                    dp[2 * len] =
+                        min(dp[2 * len],
+                            dp[len] + c);
+
+                } else {
+
+                    // Double first, then delete
+                    // the extra characters.
+                    long long cost =
+                        dp[len] +
+                        c +
+                        1LL * (2 * len - n) * d;
+
+                    dp[n] =
+                        min(dp[n], cost);
+                }
+            }
+        }
+
+        return dp[n];
+    }
+};
+```
+
+		Example
+
+		Suppose:
+
+				n = 10
+				i = 3
+				d = 2
+				c = 5
+
+		One possible strategy is:
+
+				0 -> 1 -> 2 -> 4 -> 8
+
+		Cost:
+
+				3 + 3 + 5 + 5
+				= 16
+
+		From `8`, we need `2` more characters.
+
+		We could insert them:
+
+				8 -> 9 -> 10
+
+		Additional cost:
+
+				3 + 3 = 6
+
+		Total:
+
+				22
+
+		Another possibility is to double from `8`:
+
+				8 -> 16
+
+		This costs `5`, but now we have `6` extra characters.
+
+		Delete those six characters:
+
+				6 × 2 = 12
+
+		So this route costs:
+
+				5 + 12 = 17
+
+		The DP compares both possibilities automatically and chooses the cheaper one.
+
+		Key Insight
+	- The number of characters on the screen is the only state we need.
+	- For every length `x`, we consider:
+		- Add one character.
+		- Double the current string.
+		- If doubling goes beyond `n`, delete the excess characters.
+	- Therefore:
+
+				dp[x] = minimum cost to reach x characters
+
+	- Since every state has only a constant number of transitions, the solution runs in `O(n)` time.
+
+	- The use of `long long` is important because the total cost can exceed the range of a normal `int`.
