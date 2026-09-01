@@ -1,0 +1,238 @@
+2026-09-01 | Count Palindromic Strings With Each Character Used At Most Twice
+
+		Question
+	- Given `n` and `k`, count the number of palindromic strings of length at most `n` such that:
+		- Every character belongs to the first `k` lowercase letters.
+		- No character occurs more than twice.
+	- Return the answer modulo `10^9 + 7`.
+
+		Key Insight
+	- Consider a palindrome of length `L`.
+
+		Case 1: Even length
+
+	- Let:
+
+				L = 2m
+
+	- The palindrome looks like:
+
+				first half + reverse(first half)
+
+	- Every character in the first half appears exactly twice in the complete palindrome.
+	- Therefore, the `m` characters in the first half must all be **distinct**.
+
+	- We need to choose and arrange `m` distinct characters from `k` characters.
+
+	- The number of possibilities is:
+
+				k × (k - 1) × ... × (k - m + 1)
+
+	- This is the permutation:
+
+				P(k, m) = k! / (k - m)!
+
+	- This is possible only when:
+
+				m <= k
+
+		Case 2: Odd length
+
+	- Let:
+
+				L = 2m + 1
+
+	- There are `m` pairs plus one middle character.
+
+	- The `m` characters used in the pairs must be distinct.
+	- The middle character must be different from all paired characters; otherwise that character would occur three times.
+
+	- Therefore:
+		- Choose and arrange `m` distinct characters for the first half.
+		- Choose one of the remaining `k - m` characters for the middle.
+
+	- Number of possibilities:
+
+				P(k, m) × (k - m)
+
+	- This simplifies to:
+
+				P(k, m + 1)
+
+	- So both even and odd lengths can be handled using permutations.
+
+		Approach
+	1. A palindrome with length `2m` corresponds to choosing `m` distinct characters for its first half.
+
+	2. Number of such palindromes:
+
+				P(k, m)
+
+	3. A palindrome with length `2m + 1` corresponds to choosing `m + 1` distinct characters:
+		- First `m` are used as pairs.
+		- The remaining one becomes the middle character.
+
+	4. Therefore:
+
+				count(2m) = P(k, m)
+
+				count(2m + 1) = P(k, m + 1)
+
+	5. We only need lengths up to `n`.
+
+	6. For every `m`, add the corresponding number of palindromes.
+
+	7. The empty string has length `0`, but the problem normally counts strings, and an empty string is a palindrome. If the intended definition includes the empty string, it should be added separately.
+	- For the usual interpretation of this problem, we count **non-empty strings**, so we start from length `1`.
+
+	8. We can calculate permutations incrementally:
+
+				P(k, 0) = 1
+
+				P(k, m) =
+				    P(k, m - 1) × (k - m + 1)
+
+	9. Once `m > k`, no valid palindrome of either corresponding length exists.
+
+		Time Complexity
+	- We need to process at most `min(n, 2k + 1)` relevant lengths.
+
+				O(min(n, k))
+
+		Space Complexity
+	- O(1)
+
+		Solution
+```cpp id="q8m4xz"
+class Solution {
+public:
+    static const long long MOD = 1000000007LL;
+
+    int countPalindromicStrings(int n, int k) {
+
+        long long ans = 0;
+
+        // perm = P(k, m)
+        long long perm = 1;
+
+        // m represents the number of paired characters.
+        for (int m = 0; m <= k; m++) {
+
+            // Even length = 2 * m
+            if (m >= 1 && 2 * m <= n) {
+                ans = (ans + perm) % MOD;
+            }
+
+            // Odd length = 2 * m + 1
+            if (2 * m + 1 <= n && m < k) {
+
+                long long oddCount =
+                    perm * (k - m) % MOD;
+
+                ans = (ans + oddCount) % MOD;
+            }
+
+            // Prepare P(k, m + 1)
+            if (m < k) {
+                perm =
+                    perm * (k - m) % MOD;
+            }
+        }
+
+        return (int)ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				n = 3
+				k = 2
+
+		The alphabet is:
+
+				{a, b}
+
+		Length `1`:
+
+				a
+				b
+
+		Count:
+
+				2
+
+		Length `2`:
+
+				aa
+				bb
+				ab is not a palindrome
+				ba is not a palindrome
+
+		Count:
+
+				2
+
+		Length `3`:
+
+				aba
+				bab
+
+		Count:
+
+				2
+
+		Total:
+
+				2 + 2 + 2 = 6
+
+		So the answer is:
+
+				6
+
+		Another Example
+
+		Suppose:
+
+				n = 4
+				k = 3
+
+		Length `1`:
+
+				P(3, 1) = 3
+
+		Length `2`:
+
+				P(3, 1) = 3
+
+		Length `3`:
+
+				P(3, 2) = 6
+
+		Length `4`:
+
+				P(3, 2) = 6
+
+		Total:
+
+				3 + 3 + 6 + 6 = 18
+
+		Key Insight
+	- Because every character can appear **at most twice**, a palindrome can use each character in only one of two ways:
+		- Twice, as a symmetric pair.
+		- Once, as the unique middle character.
+	- Consequently, all characters appearing in the first half must be distinct.
+	- For length `2m`, the answer is:
+
+				P(k, m)
+
+	- For length `2m + 1`, the answer is:
+
+				P(k, m) × (k - m)
+				= P(k, m + 1)
+
+	- We sum these values for every length from `1` through `n`.
+
+	- Notice that once the required number of distinct characters exceeds `k`, no longer palindrome is possible.
