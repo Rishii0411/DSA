@@ -1,0 +1,339 @@
+2026-09-01 | Minimum Moves to Collect All Litter
+
+		Question
+	- Return the minimum number of moves required to collect all `L` cells.
+	- Return `-1` if all litter cannot be collected.
+
+		Key Insight
+	- A normal BFS is not enough because reaching the same cell with different amounts of remaining energy can lead to different future possibilities.
+	- Also, we need to remember **which litter items have already been collected**.
+	- Therefore, a BFS state needs three pieces of information:
+
+				(row, column, energy, mask)
+
+	- `mask` is a bitmask representing collected litter.
+	- If there are `k` litter cells:
+		- Bit `0` represents the first litter.
+		- Bit `1` represents the second litter.
+		- And so on.
+
+	- For example, with 3 litter cells:
+
+				mask = 101
+
+	  means litter `0` and litter `2` have been collected.
+
+	- Since every move has the same cost (`1`), BFS guarantees that the first time we reach a state containing all litter, we have used the minimum number of moves.
+
+		Handling Energy
+	- Suppose the current energy is `e`.
+	- Moving to a neighboring cell costs `1`, so the new energy is:
+
+				e - 1
+
+	- If the new cell is `R` and the resulting energy is `0`, the reset immediately restores it to:
+
+				energy
+
+	- More generally, whenever we enter an `R` cell, we can set the energy back to the maximum capacity because the reset area restores energy to full capacity.
+
+	- A state with more remaining energy is always at least as useful as the same position, same litter mask, and less remaining energy.
+	- We can therefore store the maximum remaining energy seen for each:
+
+				(row, column, mask)
+
+	  state.
+
+	- If we reach the same state again with energy less than or equal to the already recorded energy, there is no benefit in exploring it.
+
+		Approach
+	1. Number all litter cells from `0` to `k - 1`.
+
+	2. Find the starting position `S`.
+
+	3. If there are no litter cells, the answer is immediately `0`.
+
+	4. Create a BFS queue.
+
+	5. Initially insert:
+
+				(startRow, startCol, energy, 0)
+
+	  where the mask is `0` because no litter has been collected yet.
+
+	6. For every BFS state, try all four directions:
+		- Up
+		- Down
+		- Left
+		- Right
+
+	7. Ignore moves that:
+		- Go outside the grid.
+		- Enter an obstacle `X`.
+		- Cannot be made because the current energy is `0`.
+
+	8. Decrease energy by `1` after making a move.
+
+	9. If the new cell is `R`, reset the energy to the maximum capacity.
+
+	10. If the new cell contains litter, set its corresponding bit in the mask.
+
+	11. If:
+
+				mask == (1 << k) - 1
+
+	  then every litter item has been collected, so return the current BFS distance.
+
+	12. To avoid repeatedly exploring useless states, maintain:
+
+				best[row][col][mask]
+
+	  containing the maximum amount of energy with which this state has previously been reached.
+
+	13. If the new energy is not greater than the stored value, skip the state.
+
+	14. Otherwise, update the value and push the state into the BFS queue.
+
+		Time Complexity
+	- Let:
+		- `m × n` be the number of grid cells.
+		- `k` be the number of litter cells.
+		- `E` be the maximum energy.
+
+	- There are at most:
+
+				m × n × 2^k
+
+	  position/mask combinations.
+
+	- For each combination, we may have up to `E` different energy levels.
+
+	- Therefore the worst-case complexity is:
+
+				O(m × n × 2^k × E)
+
+	- Each state examines only 4 neighbors.
+
+		Space Complexity
+	- The visited/best-energy structure requires:
+
+				O(m × n × 2^k)
+
+	- The BFS queue can also contain that many states.
+
+		Solution
+```cpp
+class Solution {
+public:
+    struct State {
+        int r;
+        int c;
+        int energy;
+        int mask;
+        int dist;
+    };
+
+    int minMoves(vector<string>& classroom, int energy) {
+
+        int m = classroom.size();
+        int n = classroom[0].size();
+
+        int sr = -1, sc = -1;
+
+        vector<vector<int>> litterId(
+            m,
+            vector<int>(n, -1)
+        );
+
+        int litterCount = 0;
+
+        // Find start and number the litter cells.
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+
+                if (classroom[i][j] == 'S') {
+                    sr = i;
+                    sc = j;
+                }
+
+                if (classroom[i][j] == 'L') {
+                    litterId[i][j] = litterCount++;
+                }
+            }
+        }
+
+        // No litter needs to be collected.
+        if (litterCount == 0)
+            return 0;
+
+        int totalMask = (1 << litterCount) - 1;
+
+        /*
+            best[r][c][mask] =
+            maximum remaining energy with which
+            this state has been reached.
+        */
+        vector<vector<vector<int>>> best(
+            m,
+            vector<vector<int>>(
+                n,
+                vector<int>(1 << litterCount, -1)
+            )
+        );
+
+        queue<State> q;
+
+        best[sr][sc][0] = energy;
+
+        q.push({
+            sr,
+            sc,
+            energy,
+            0,
+            0
+        });
+
+        int dr[] = {-1, 1, 0, 0};
+        int dc[] = {0, 0, -1, 1};
+
+        while (!q.empty()) {
+
+            State cur = q.front();
+            q.pop();
+
+            for (int dir = 0; dir < 4; dir++) {
+
+                int nr = cur.r + dr[dir];
+                int nc = cur.c + dc[dir];
+
+                // Outside the grid.
+                if (nr < 0 || nr >= m ||
+                    nc < 0 || nc >= n)
+                    continue;
+
+                // Cannot move through obstacles.
+                if (classroom[nr][nc] == 'X')
+                    continue;
+
+                // Need one unit of energy to make a move.
+                if (cur.energy == 0)
+                    continue;
+
+                int newEnergy = cur.energy - 1;
+
+                // Reset area restores energy to full capacity.
+                if (classroom[nr][nc] == 'R') {
+                    newEnergy = energy;
+                }
+
+                int newMask = cur.mask;
+
+                // Collect litter if present.
+                if (classroom[nr][nc] == 'L') {
+
+                    int id = litterId[nr][nc];
+
+                    newMask |= (1 << id);
+                }
+
+                int newDist = cur.dist + 1;
+
+                // All litter has been collected.
+                if (newMask == totalMask)
+                    return newDist;
+
+                /*
+                    If we have already reached the same
+                    position and mask with at least as much
+                    energy, this state cannot provide a
+                    better result.
+                */
+                if (newEnergy <=
+                    best[nr][nc][newMask]) {
+                    continue;
+                }
+
+                best[nr][nc][newMask] = newEnergy;
+
+                q.push({
+                    nr,
+                    nc,
+                    newEnergy,
+                    newMask,
+                    newDist
+                });
+            }
+        }
+
+        return -1;
+    }
+};
+```
+
+		Example
+
+		Suppose the grid is:
+
+				S . L
+				. X .
+				R . L
+
+		And:
+
+				energy = 3
+
+		There are two litter cells.
+
+		Initially:
+
+				position = S
+				energy = 3
+				mask = 00
+
+		When we reach the first litter:
+
+				mask = 01
+
+		When we eventually reach the second litter:
+
+				mask = 11
+
+		Because:
+
+				11 == (1 << 2) - 1
+
+		all litter has been collected, and BFS returns the number of moves taken to reach that state.
+
+		Why BFS Gives the Minimum
+
+		- Every movement costs exactly `1`.
+		- Therefore, all states reached after `d` moves are processed before states reached after `d + 1` moves.
+		- The first state that has collected every litter must therefore have the smallest possible number of moves.
+
+		Why We Need the Bitmask
+
+		- Imagine reaching the same cell twice.
+	- The first time we may have collected:
+
+				L0
+
+	- The second time we may have collected:
+
+				L0, L1
+
+	- These two situations are completely different because the second state is much closer to finishing the task.
+	- So position alone cannot describe the state.
+	- The bitmask records exactly which litter has already been collected.
+
+		Key Insight
+	- The complete state is:
+
+				(row, column, remainingEnergy, collectedMask)
+
+	- BFS handles the **minimum number of moves**.
+	- The bitmask handles the **set of collected litter**.
+	- The energy value handles the **limited movement range**.
+	- Reset cells restore the energy and allow the search to continue through longer routes.
+	- The `best` array avoids exploring a state when we have already reached the same position with the same collected litter and **more remaining energy**.
+
+	- This combination gives a standard and effective **BFS + bitmask state compression** solution for this problem.
