@@ -1,0 +1,119 @@
+2026-09-02 | Count Customers Without a Computer
+
+		Question
+	- Given `n` computers and the event string `s`, return the number of customers who could not get a computer when they arrived.
+
+		Approach
+	1. Maintain a set of customers who are currently using a computer.
+
+	2. Traverse the string from left to right.
+
+	3. For each character:
+	- If it is appearing for the first time:
+		- This customer is arriving.
+		- If fewer than `n` customers are currently using computers, assign a computer.
+		- Otherwise, this customer is rejected.
+
+	4. If the character has appeared before:
+	- This is the customer's departure.
+	- If that customer was actually using a computer, remove them from the active set.
+	- If the customer was rejected, they never occupied a computer, so nothing needs to be freed.
+
+	5. Keep a separate set of customers who were rejected so their second occurrence can be identified correctly.
+
+	6. The number of rejected customers is the answer.
+
+		Time Complexity
+	- We process every event once.
+
+				O(|s|)
+
+		Space Complexity
+	- At most one entry per distinct customer.
+
+				O(|s|)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int countCustomers(int n, string s) {
+
+        unordered_set<char> active;
+        unordered_set<char> rejected;
+
+        int ans = 0;
+
+        for (char ch : s) {
+
+            // First occurrence: customer arrives.
+            if (active.find(ch) == active.end() &&
+                rejected.find(ch) == rejected.end()) {
+
+                if ((int)active.size() < n) {
+                    active.insert(ch);
+                } else {
+                    rejected.insert(ch);
+                    ans++;
+                }
+            }
+            else {
+                // Second occurrence: customer leaves.
+                if (active.find(ch) != active.end()) {
+                    active.erase(ch);
+                }
+                else if (rejected.find(ch) != rejected.end()) {
+                    rejected.erase(ch);
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				n = 2
+				s = "ABBAJ"
+
+		Events:
+
+				A arrives -> computer available -> assigned
+				B arrives -> computer available -> assigned
+				B leaves  -> B's computer becomes free
+				A leaves  -> A's computer becomes free
+				J arrives -> computer available -> assigned
+
+		No customer is rejected.
+
+				answer = 0
+
+		Another Example
+
+		Input:
+
+				n = 1
+				s = "ABBA"
+
+		Events:
+
+				A arrives -> assigned
+				B arrives -> no computer -> rejected
+				B leaves  -> B never had a computer
+				A leaves  -> computer becomes free
+
+		Therefore:
+
+				answer = 1
+
+		Key Insight
+	- The tricky part is that a rejected customer's second occurrence must **not** free a computer.
+	- So we track two groups:
+		- `active` = customers currently occupying computers.
+		- `rejected` = customers who arrived when all computers were occupied.
+	- Whenever a customer leaves, only a customer in `active` releases a computer.
+- This lets us simulate the events in a single pass.
