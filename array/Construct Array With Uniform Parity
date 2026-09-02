@@ -1,0 +1,164 @@
+2026-09-02 | Construct Array With Uniform Parity
+
+		Question
+	- Return `true` if it is possible to make all elements of `nums2` either odd or all even.
+	- Otherwise return `false`.
+
+		Key Insight
+	- There are only two parity classes: odd and even.
+	- Consider an element `nums1[i]`.
+
+	- If we keep it, its parity stays unchanged.
+	- If we subtract another element:
+
+				nums1[i] - nums1[j]
+
+	  then:
+		- same parity minus same parity = even
+		- different parity minus parity = odd
+
+	- Because the elements are distinct, if there are at least two elements with the same parity, we can make those positions even by subtracting another element of the same parity.
+
+	- More importantly, we can make **every element even** if we can find another element with the same parity for every position.
+	- This requires that no parity group contains exactly one element.
+
+	- For making every element odd:
+	- An element can become odd only by subtracting an element of the opposite parity.
+	- Therefore, for every position, there must be at least one element of the opposite parity available.
+	- If there are elements of both parities and each element can choose a different index when necessary, this can be achieved.
+
+	- Since `nums1` contains distinct integers, the only problematic cases are when all elements have the same parity.
+
+	- If all numbers have the same parity:
+		- We can keep them unchanged, so `nums2` already has uniform parity.
+	- If both parities exist:
+		- We can make every element even by subtracting another element of the same parity when such an element exists.
+		- If one parity occurs only once, that unique element can be kept while the other elements can be adjusted, but the resulting parity must match the target parity.
+
+	- A simpler complete condition is to check whether the array already has uniform parity, or whether both parity groups contain enough elements to construct a uniform result.
+
+		Approach
+	1. Count the number of odd elements.
+
+	2. Let:
+
+				odd = number of odd elements
+				even = n - odd
+
+	3. If:
+
+				odd == 0
+
+	  all elements are already even.
+
+	  Return `true`.
+
+	4. If:
+
+				even == 0
+
+	  all elements are already odd.
+
+	  Return `true`.
+
+	5. If both parities exist, try to make every element odd.
+	- For every even element, subtract any odd element.
+	- For every odd element, subtract any even element.
+	- Since both parity types exist, this is possible.
+
+	6. Therefore, if both parity types exist, return `true`.
+
+	7. In fact, the answer is always `true` for any non-empty array under these operations.
+
+		Time Complexity
+	- We only need one pass to count the parities.
+
+				O(n)
+
+		Space Complexity
+	- O(1)
+
+		Solution
+```cpp id="p7x4mn"
+class Solution {
+public:
+    bool canMakeParity(vector<int>& nums1) {
+
+        int n = nums1.size();
+
+        // With one element, we can simply keep it.
+        if (n == 1)
+            return true;
+
+        int odd = 0;
+
+        for (int x : nums1) {
+            if (x & 1)
+                odd++;
+        }
+
+        int even = n - odd;
+
+        // All elements already have the same parity.
+        if (odd == 0 || even == 0)
+            return true;
+
+        // Both parities exist.
+        // We can make every element odd by subtracting
+        // an element of the opposite parity.
+        return true;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums1 = [2, 4, 7]
+
+		Parities are:
+
+				2 -> even
+				4 -> even
+				7 -> odd
+
+		We can construct:
+
+				2 - 7 = -5  -> odd
+				4 - 7 = -3  -> odd
+				7 - 2 = 5   -> odd
+
+		So:
+
+				nums2 = [-5, -3, 5]
+
+		Every element is odd.
+
+		Therefore:
+
+				true
+
+		Another Example
+
+		Input:
+
+				nums1 = [2, 4, 6]
+
+		All elements are already even.
+
+		We can simply choose:
+
+				nums2 = [2, 4, 6]
+
+		So the answer is:
+
+				true
+
+		Key Insight
+	- The operation `nums1[i] - nums1[j]` lets us control parity:
+		- Same parity operands produce an even result.
+		- Different parity operands produce an odd result.
+	- If all elements already have the same parity, we simply keep them.
+	- If both odd and even values exist, every element can subtract an element of the opposite parity and become odd.
+	- Therefore, under the stated rules, **the answer is always `true`**.
