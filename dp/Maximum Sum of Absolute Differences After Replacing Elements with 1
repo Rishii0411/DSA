@@ -1,0 +1,118 @@
+2026-09-03 | Maximum Sum of Absolute Differences After Replacing Elements with 1
+
+		Question
+	- Given an integer array `arr[]`, you are allowed to replace any elements with `1`.
+	- Find the maximum possible value of:
+
+				|a[0] - a[1]| + |a[1] - a[2]| + ... + |a[n-2] - a[n-1]|
+
+		Approach
+	1. Each position has only two possible final values:
+	- `arr[i]`
+	- `1`
+
+	2. Therefore, this can be viewed as a DP where we keep the best answer for each possible value chosen at the current position.
+
+	3. Let:
+	- `keep` = maximum sum up to the current position when the current element remains `arr[i]`.
+	- `one` = maximum sum up to the current position when the current element is replaced by `1`.
+
+	4. Suppose the previous element is `arr[i-1]`.
+	- If the current element stays as `arr[i]`:
+		- Previous could be `arr[i-1]` or `1`.
+		- So:
+		
+				newKeep = max(
+				    keep + |arr[i] - arr[i-1]|,
+				    one + |arr[i] - 1|
+				)
+
+	5. If the current element becomes `1`:
+	- Previous could again be either `arr[i-1]` or `1`.
+	- Therefore:
+		
+				newOne = max(
+				    keep + |1 - arr[i-1]|,
+				    one + |1 - 1|
+				)
+
+	6. Since `|1 - 1| = 0`, we simply take the maximum of these two possibilities.
+
+	7. At the end, the answer is:
+
+				max(keep, one)
+
+	8. We only need the previous two DP values, so the space can be reduced to `O(1)`.
+
+		Time Complexity
+	- Each element is processed once.
+
+				O(n)
+
+		Space Complexity
+	- Only four variables are maintained.
+
+				O(1)
+
+		Solution
+```cpp
+class Solution {
+public:
+    long long maxSum(vector<int>& arr) {
+        int n = arr.size();
+
+        long long keep = 0;
+        long long one = 0;
+
+        for (int i = 1; i < n; i++) {
+            long long newKeep = max(
+                keep + abs(arr[i] - arr[i - 1]),
+                one + abs(arr[i] - 1)
+            );
+
+            long long newOne = max(
+                keep + abs(1 - arr[i - 1]),
+                one
+            );
+
+            keep = newKeep;
+            one = newOne;
+        }
+
+        return max(keep, one);
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [1, 3, 2]
+
+		Option 1: Keep everything
+
+				|1-3| + |3-2|
+				= 2 + 1
+				= 3
+
+		Option 2: Replace `3` with `1`
+
+				|1-1| + |1-2|
+				= 0 + 1
+				= 1
+
+		Option 3: Replace `2` with `1`
+
+				|1-3| + |3-1|
+				= 2 + 2
+				= 4
+
+		So the maximum answer is:
+
+				4
+
+		Key Insight
+	- Every element has only two possible final values: its original value or `1`.
+	- We only need to know which of these two values was chosen for the previous element.
+	- This gives a simple two-state DP and reduces the problem to `O(n)` time and `O(1)` space.
