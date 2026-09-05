@@ -1,0 +1,105 @@
+2026-09-05 | Longest Subsequence With Adjacent Difference One
+
+		Question
+	- Given `arr[]` with `n` elements, find the length of the longest subsequence such that the absolute difference between every pair of adjacent elements is exactly `1`.
+
+		Key Insight
+	- Suppose the current element is `x`.
+	- A previous element in the subsequence must be either:
+		
+				x - 1
+				x + 1
+
+	- Let `dp[x]` represent the longest valid subsequence ending with value `x` among the elements processed so far.
+	- When we encounter `x`:
+		
+				dp[x] = max(dp[x], 1 + max(dp[x-1], dp[x+1]))
+
+	- This works because only the value of the previous element matters, not the entire subsequence.
+
+		Approach
+	1. Create a hash map `dp`.
+
+	2. Traverse the array from left to right.
+
+	3. For every value `x`:
+	- Look at the best subsequence ending in `x - 1`.
+	- Look at the best subsequence ending in `x + 1`.
+
+	4. Extend the longer one by adding `x`.
+
+	5. If neither exists, start a new subsequence of length `1`.
+
+	6. Store the result in `dp[x]`.
+
+	7. Keep track of the maximum length seen so far.
+
+		Time Complexity
+	- Each element requires constant-time hash-map operations on average.
+
+				O(n)
+
+		Space Complexity
+	- The hash map can contain up to `n` distinct values.
+
+				O(n)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int longestSubsequence(vector<int>& arr) {
+        unordered_map<int, int> dp;
+        int ans = 0;
+
+        for (int x : arr) {
+            int best = 1;
+
+            if (dp.count(x - 1))
+                best = max(best, dp[x - 1] + 1);
+
+            if (dp.count(x + 1))
+                best = max(best, dp[x + 1] + 1);
+
+            dp[x] = max(dp[x], best);
+            ans = max(ans, dp[x]);
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [10, 12, 11, 13, 12, 11]
+
+		Process the elements:
+
+				10 -> length 1
+				12 -> length 1
+				11 -> can follow 10 or 12 -> length 2
+				13 -> can follow 12 -> length 2
+				12 -> can follow 11 -> length 3
+				11 -> can follow 12 -> length 4
+
+		One longest subsequence is:
+
+				[10, 11, 12, 11]
+
+		Every adjacent difference is `1`:
+
+				|10 - 11| = 1
+				|11 - 12| = 1
+				|12 - 11| = 1
+
+		Therefore:
+
+				answer = 4
+
+		Key Insight
+	- At every element `x`, the only possible preceding values are `x-1` and `x+1`.
+	- Keeping the best subsequence length for each ending value lets us extend the answer immediately.
+	- This reduces the usual `O(n²)` subsequence DP to `O(n)` average time using a hash map.
