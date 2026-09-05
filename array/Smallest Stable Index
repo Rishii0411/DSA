@@ -1,0 +1,120 @@
+2026-09-05 | Smallest Stable Index
+
+		Question
+	- Given `nums` and `k`, find the smallest index `i` such that:
+
+				max(nums[0..i]) - min(nums[i..n-1]) <= k
+
+	- Return `-1` if no such index exists.
+
+		Key Insight
+	- Calculating the maximum and minimum separately for every index would take `O(n²)`.
+	- We can avoid this by precomputing the suffix minimum.
+	- While scanning from left to right, maintain the prefix maximum.
+	- Then for every index:
+
+				instability = prefixMax - suffixMin[i]
+
+	- The first index where `instability <= k` is the answer.
+
+		Approach
+	1. Create a `suffixMin` array.
+
+	2. Set:
+
+				suffixMin[n-1] = nums[n-1]
+
+	3. Traverse from right to left and calculate:
+
+				suffixMin[i] = min(nums[i], suffixMin[i+1])
+
+	4. Now traverse the array from left to right.
+
+	5. Maintain `prefixMax`, which stores the maximum value from index `0` to the current index.
+
+	6. At each index `i`, calculate:
+
+				score = prefixMax - suffixMin[i]
+
+	7. If `score <= k`, return `i` immediately because we are scanning from the smallest index.
+
+	8. If the loop finishes without finding a stable index, return `-1`.
+
+		Time Complexity
+	- Building the suffix minimum takes `O(n)`.
+	- Finding the first stable index takes `O(n)`.
+
+				O(n)
+
+		Space Complexity
+	- The `suffixMin` array uses `O(n)` extra space.
+
+				O(n)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int smallestStableIndex(vector<int>& nums, int k) {
+        int n = nums.size();
+
+        vector<int> suffixMin(n);
+
+        suffixMin[n - 1] = nums[n - 1];
+
+        for (int i = n - 2; i >= 0; i--) {
+            suffixMin[i] = min(nums[i], suffixMin[i + 1]);
+        }
+
+        int prefixMax = INT_MIN;
+
+        for (int i = 0; i < n; i++) {
+            prefixMax = max(prefixMax, nums[i]);
+
+            int score = prefixMax - suffixMin[i];
+
+            if (score <= k)
+                return i;
+        }
+
+        return -1;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				nums = [3, 1, 4, 2]
+				k = 2
+
+		Suffix minimum:
+
+				index:      0  1  2  3
+				suffixMin:  1  1  2  2
+
+		Now scan from left to right.
+
+		For `i = 0`:
+
+				prefixMax = 3
+				suffixMin[0] = 1
+
+				score = 3 - 1 = 2
+
+		Since:
+
+				2 <= 2
+
+		index `0` is stable.
+
+		Therefore:
+
+				answer = 0
+
+		Key Insight
+	- Use a suffix minimum to instantly know `min(nums[i..n-1])`.
+	- Maintain a running prefix maximum to know `max(nums[0..i])`.
+	- This gives the instability score in `O(1)` for each index.
+	- Because we scan from left to right, the first index satisfying the condition is automatically the smallest stable index.
