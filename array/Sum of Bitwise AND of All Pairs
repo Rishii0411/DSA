@@ -1,0 +1,130 @@
+2026-09-06 | Sum of Bitwise AND of All Pairs
+
+		Question
+	- Given an integer array `arr[]`, calculate:
+
+				sum(arr[i] & arr[j])
+
+	- for all pairs satisfying `i < j`.
+
+		Key Insight
+	- A bit is set in `arr[i] & arr[j]` only when that bit is set in both elements.
+	- Suppose a particular bit is set in `cnt` elements.
+	- Any two of those `cnt` elements will have this bit set in their AND.
+	- The number of such pairs is:
+
+				cnt * (cnt - 1) / 2
+
+	- If the bit position is `b`, its value is `2^b`.
+	- Therefore, its total contribution is:
+
+				cnt * (cnt - 1) / 2 * 2^b
+
+	- We calculate this for every bit and add the contributions.
+
+		Approach
+	1. Find the number of bits that need to be considered. For normal non-negative integers, 31 bits are enough for `int`.
+
+	2. For each bit position `b`:
+	- Count how many elements in `arr` have this bit set.
+
+	3. If `cnt` elements have the bit set, there are:
+
+				cnt * (cnt - 1) / 2
+
+		pairs containing this bit in their AND.
+
+	4. Multiply this pair count by the value of the bit:
+
+				1LL << b
+
+	5. Add the result to the answer.
+
+	6. After processing all bits, return the total.
+
+		Time Complexity
+	- We check at most 31 bits for each of the `n` elements.
+
+				O(31n) = O(n)
+
+		Space Complexity
+	- Only a few variables are required.
+
+				O(1)
+
+		Solution
+```cpp
+class Solution {
+public:
+    long long sumOfAND(vector<int>& arr) {
+        int n = arr.size();
+        long long ans = 0;
+
+        for (int bit = 0; bit < 31; bit++) {
+            long long cnt = 0;
+
+            for (int x : arr) {
+                if (x & (1 << bit))
+                    cnt++;
+            }
+
+            long long pairs = cnt * (cnt - 1) / 2;
+
+            ans += pairs * (1LL << bit);
+        }
+
+        return ans;
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				arr = [5, 6, 7]
+
+		Binary representation:
+
+				5 = 101
+				6 = 110
+				7 = 111
+
+		Pairs:
+
+				5 & 6 = 100 = 4
+				5 & 7 = 101 = 5
+				6 & 7 = 110 = 6
+
+		Total:
+
+				4 + 5 + 6 = 15
+
+		Using bit counting:
+
+		Bit `0`:
+		- Set in `5` and `7`.
+		- `cnt = 2`
+		- Number of pairs = `1`
+		- Contribution = `1 × 1 = 1`
+
+		Bit `1`:
+		- Set in `6` and `7`.
+		- `cnt = 2`
+		- Number of pairs = `1`
+		- Contribution = `1 × 2 = 2`
+
+		Bit `2`:
+		- Set in all three elements.
+		- `cnt = 3`
+		- Number of pairs = `3`
+		- Contribution = `3 × 4 = 12`
+
+		Total:
+
+				1 + 2 + 12 = 15
+
+		Key Insight
+	- Instead of calculating AND for every pair, calculate the contribution of every bit.
+	- If a bit occurs in `cnt` elements, exactly `cnt choose 2` pairs contribute that bit.
+	- This changes the solution from `O(n²)` to `O(n)` because the number of bits in an integer is constant.
