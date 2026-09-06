@@ -1,0 +1,105 @@
+2026-09-06 | Distinct Subsequences
+
+		Question
+	- Given two strings `s` and `t`, return the number of distinct subsequences of `s` that are equal to `t`.
+
+		Key Insight
+	- Let `dp[j]` represent the number of ways to form the first `j` characters of `t` using the characters processed from `s`.
+	- Initially:
+		
+				dp[0] = 1
+
+		There is exactly one way to form an empty string: choose nothing.
+
+	- When processing a character `s[i]`, there are two choices:
+	- Do not use `s[i]`.
+	- Use `s[i]` to match `t[j-1]` if they are equal.
+
+	- Therefore, if:
+
+				s[i] == t[j-1]
+
+		then:
+
+				dp[j] += dp[j-1]
+
+	- We update `j` from right to left so that the current character of `s` is used at most once.
+
+		Approach
+	1. Create a DP array of size `t.length() + 1`.
+
+	2. Set:
+
+				dp[0] = 1
+
+	3. Process every character of `s`.
+
+	4. For each character, traverse `t` from right to left.
+
+	5. If the current characters match:
+
+				s[i] == t[j-1]
+
+		then add the number of ways to form the previous prefix:
+
+				dp[j] += dp[j-1]
+
+	6. After processing the complete string `s`, `dp[t.length()]` contains the number of distinct subsequences equal to `t`.
+
+		Time Complexity
+	- For every character in `s`, we scan `t`.
+
+				O(|s| × |t|)
+
+		Space Complexity
+	- We only store one DP array.
+
+				O(|t|)
+
+		Solution
+```cpp
+class Solution {
+public:
+    int numDistinct(string s, string t) {
+        int n = s.size();
+        int m = t.size();
+
+        vector<long long> dp(m + 1, 0);
+
+        dp[0] = 1;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = m; j >= 1; j--) {
+                if (s[i] == t[j - 1]) {
+                    dp[j] += dp[j - 1];
+                }
+            }
+        }
+
+        return (int)dp[m];
+    }
+};
+```
+
+		Example
+
+		Input:
+
+				s = "rabbbit"
+				t = "rabbit"
+
+		The three `b` characters in `s` give three different ways to form the required `"bb"` portion.
+
+				rabbbit
+				   ^^^
+				   Different choices of b's
+
+		Therefore:
+
+				answer = 3
+
+		Key Insight
+	- `dp[j]` stores the number of ways to form the first `j` characters of `t`.
+	- When `s[i] == t[j-1]`, we can append `s[i]` to every subsequence that already forms `t[0..j-2]`.
+	- Traversing `t` from right to left is important because it prevents the same character of `s` from being used multiple times in one iteration.
+- The result is stored in `dp[m]`.
