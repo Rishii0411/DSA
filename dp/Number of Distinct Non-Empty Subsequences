@@ -1,0 +1,56 @@
+2026-09-07|Number of Distinct Non-Empty Subsequences
+
+Question
+
+* Given a string s, return the number of distinct non-empty subsequences of s.
+* A subsequence is formed by deleting zero or more characters while keeping the relative order of the remaining characters.
+
+Approach
+
+1. Let dp[i] represent the number of distinct subsequences that can be formed using the first i characters of the string, including the empty subsequence.
+2. Initially, dp[0] = 1 because the empty string is the only subsequence of an empty string.
+3. When we process a new character s[i], every existing subsequence can either:
+
+* Not use s[i].
+* Append s[i] to form a new subsequence.
+
+4. Therefore, we might initially think:
+    dp[i + 1] = 2 * dp[i].
+5. The problem is duplicate characters. If s[i] has appeared before, appending the current character to existing subsequences can create subsequences that were already created when the previous occurrence of the same character was processed.
+6. Suppose the previous occurrence of s[i] was at position last[s[i]].
+7. The number of duplicate subsequences is exactly dp[last[s[i]]], so we subtract that value:
+    dp[i + 1] = 2 * dp[i] - dp[last[s[i]]].
+8. We maintain the most recent position of every character.
+9. Finally, dp[n] includes the empty subsequence, so the required answer is:
+    dp[n] - 1.
+10. We take modulo 10^9 + 7 throughout the calculation.
+
+Solution
+
+* The implementation below works for lowercase English letters.
+
+#include <bits/stdc++.h>
+using namespace std;
+class Solution {
+public:
+    int distinctSubseqII(string s) {
+        const long long MOD = 1000000007;
+        int n = s.size();
+        vector<long long> dp(n + 1, 0);
+        vector<int> last(26, -1);
+        dp[0] = 1;
+        for (int i = 0; i < n; i++) {
+            dp[i + 1] = (2 * dp[i]) % MOD;
+            int c = s[i] - 'a';
+            if (last[c] != -1) {
+                dp[i + 1] = (dp[i + 1] - dp[last[c]] + MOD) % MOD;
+            }
+            last[c] = i + 1;
+        }
+        return (dp[n] - 1 + MOD) % MOD;
+    }
+};
+
+* Time Complexity: O(n)
+* Space Complexity: O(n)
+* The key idea is to double the number of subsequences for every new character and subtract the subsequences that become duplicates because that character appeared before.
