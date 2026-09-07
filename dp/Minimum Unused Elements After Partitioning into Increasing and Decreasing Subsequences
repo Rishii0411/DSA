@@ -1,0 +1,71 @@
+2026-09-07|Minimum Unused Elements After Partitioning into Increasing and Decreasing Subsequences
+
+Question
+
+* Given an array arr[] of size n, partition its elements into a strictly increasing subsequence and a strictly decreasing subsequence.
+* Each element can belong to at most one of these subsequences, and some elements may remain unused.
+* Determine the minimum number of elements that cannot be included in either subsequence.
+
+Approach
+
+1. For every position i, calculate inc[i], the maximum length of a strictly increasing subsequence ending at arr[i].
+2. Similarly, calculate dec[i], the maximum length of a strictly decreasing subsequence ending at arr[i].
+3. The two subsequences cannot simply be added independently because they may use the same elements.
+4. A convenient way to model the partition is to assign each selected element to either the increasing or decreasing subsequence while maintaining their respective orders.
+5. We can use dynamic programming where the state keeps track of the last element chosen for each subsequence.
+6. Let dp[i][j] represent the maximum number of elements that can be used when the last elements of the two subsequences are at positions i and j.
+7. For the next element k, it can be:
+
+* Added to the increasing subsequence if arr[k] is greater than its last element.
+* Added to the decreasing subsequence if arr[k] is smaller than its last element.
+* Left unused.
+
+8. Since every element is processed from left to right, the resulting groups are automatically subsequences of the original array.
+9. The maximum number of elements used gives the answer:
+    minimum unused elements = n - maximum used elements.
+
+Solution
+
+* The following C++ solution uses dynamic programming with two last positions to find the maximum number of elements that can be placed into the two required subsequences.
+
+#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    int n;
+    cin >> n;
+    vector<int> arr(n);
+    for (int &x : arr) cin >> x;
+    const int NEG = -1e9;
+    vector<vector<int>> dp(n + 1, vector<int>(n + 1, NEG));
+    dp[0][0] = 0;
+    for (int k = 0; k < n; k++) {
+        vector<vector<int>> ndp = dp;
+        for (int i = 0; i <= k; i++) {
+            for (int j = 0; j <= k; j++) {
+                if (dp[i][j] == NEG) continue;
+                int incLast = (i == 0 ? INT_MIN : arr[i - 1]);
+                int decLast = (j == 0 ? INT_MAX : arr[j - 1]);
+                // Put arr[k] into the increasing subsequence.
+                if (i == 0 || arr[k] > incLast) {
+                    ndp[k + 1][j] = max(ndp[k + 1][j], dp[i][j] + 1);
+                }
+                // Put arr[k] into the decreasing subsequence.
+                if (j == 0 || arr[k] < decLast) {
+                    ndp[i][k + 1] = max(ndp[i][k + 1], dp[i][j] + 1);
+                }
+            }
+        }
+        dp.swap(ndp);
+    }
+    int maximumUsed = 0;
+    for (int i = 0; i <= n; i++) {
+        for (int j = 0; j <= n; j++) {
+            maximumUsed = max(maximumUsed, dp[i][j]);
+        }
+    }
+    cout << n - maximumUsed << '\n';
+    return 0;
+}
+
+* Time Complexity: O(n^3)
+* Space Complexity: O(n^2)
