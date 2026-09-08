@@ -1,0 +1,93 @@
+2026-09-08|Find All Starting Positions of a Word in a Grid
+
+Question
+- Given a 2D grid mat[][] of size n × m and a string word, find all starting positions where the word occurs in the grid.
+- The word can be formed in any of the 8 directions while maintaining the same direction throughout the occurrence.
+- Return all unique starting coordinates in lexicographically smallest order.
+
+Approach
+1. There are 8 possible directions:
+   - Up
+   - Down
+   - Left
+   - Right
+   - Four diagonal directions
+
+2. For every cell in the grid, first check whether its character matches word[0].
+
+3. If it matches, try all 8 directions.
+
+4. For a chosen direction, move one cell at a time and compare the grid character with the corresponding character of the word.
+
+5. If any character goes outside the grid or does not match, that direction fails.
+
+6. If all characters match, the current cell is a valid starting position.
+
+7. Because we only move in one fixed direction, no cell can be visited twice in an occurrence.
+
+8. A starting cell may match the word in multiple directions, but we should return that starting coordinate only once. We can therefore store it only when the first valid direction is found.
+
+9. Finally, scanning the grid from top-left to bottom-right naturally produces coordinates in lexicographically smallest order.
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> searchWord(vector<vector<char>>& mat, string word) {
+        int n = mat.size();
+        int m = mat[0].size();
+
+        vector<vector<int>> ans;
+
+        int dx[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+        int dy[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+
+                if (mat[i][j] != word[0])
+                    continue;
+
+                bool found = false;
+
+                for (int d = 0; d < 8 && !found; d++) {
+                    int x = i;
+                    int y = j;
+                    int k;
+
+                    for (k = 1; k < word.size(); k++) {
+                        x += dx[d];
+                        y += dy[d];
+
+                        if (x < 0 || x >= n || y < 0 || y >= m)
+                            break;
+
+                        if (mat[x][y] != word[k])
+                            break;
+                    }
+
+                    if (k == word.size()) {
+                        found = true;
+                    }
+                }
+
+                if (found) {
+                    ans.push_back({i, j});
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+- Time Complexity: O(n × m × 8 × L), where L is the length of the word.
+- Since 8 is constant, this can be written as O(n × m × L).
+- Space Complexity: O(1) auxiliary space, excluding the output.
+
+- The important observation is that we do not need a visited array. Because the word must be searched in a single fixed direction, every step moves to a new cell, so the same cell cannot be reused.
