@@ -1,0 +1,98 @@
+2026-09-09|Number with Maximum Digit Sum
+
+Question
+- Given a number n, find a number in the range from 1 to n such that its digit sum is maximum.
+- If multiple numbers have the same digit sum, return the largest one.
+
+Approach
+1. Start with n itself and calculate its digit sum.
+
+2. Consider changing one digit of n:
+- Reduce that digit by 1.
+- Change every digit after it to 9.
+
+3. For example, if n = 5234:
+- 5234 has digit sum 14.
+- Changing 5 to 4 and making the remaining digits 9 gives 4999.
+- Its digit sum is 31, which is much larger.
+
+4. We only need to consider positions where the current digit is greater than 0.
+
+5. For every such position:
+- Keep the digits before it unchanged.
+- Decrease the current digit by 1.
+- Set all digits after it to 9.
+
+6. Calculate the digit sum of each candidate.
+
+7. Keep the candidate with:
+- The largest digit sum.
+- If digit sums are equal, the numerically largest candidate.
+
+8. There is also a useful observation: the optimal answer is either n itself or one of these "decrease one digit, then fill with 9s" candidates.
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int digitSum(long long x) {
+        int sum = 0;
+
+        while (x > 0) {
+            sum += x % 10;
+            x /= 10;
+        }
+
+        return sum;
+    }
+
+    long long maxDigitSumNumber(long long n) {
+        string s = to_string(n);
+
+        long long best = n;
+        int bestSum = digitSum(n);
+
+        for (int i = 0; i < s.size(); i++) {
+            if (s[i] == '0')
+                continue;
+
+            string t = s;
+
+            t[i]--;
+
+            for (int j = i + 1; j < t.size(); j++) {
+                t[j] = '9';
+            }
+
+            long long candidate = stoll(t);
+            int sum = digitSum(candidate);
+
+            if (sum > bestSum || (sum == bestSum && candidate > best)) {
+                bestSum = sum;
+                best = candidate;
+            }
+        }
+
+        return best;
+    }
+};
+```
+
+- Example: n = 1000
+- 1000 has digit sum 1.
+- Candidate 0999 is effectively 999, whose digit sum is 27.
+- Therefore, the answer is 999.
+
+- Example: n = 5234
+- 5234 → digit sum = 14
+- 4999 → digit sum = 31
+- 5199 → digit sum = 24
+- 5229 → digit sum = 18
+- Therefore, the answer is 4999.
+
+- Time Complexity: O(log n)
+- Space Complexity: O(log n), due to the string representation of n.
