@@ -1,0 +1,79 @@
+2026-09-09|Total Commas Used from 1 to n
+
+Question
+- Given an integer n, return the total number of commas used when writing all integers from [1, n].
+- A comma is inserted after every three digits from the right.
+
+Approach
+1. Start with the first number that requires a comma: 1000.
+
+2. For every power of 1000:
+- 1000 to 999999 → 1 comma.
+- 1000000 to 999999999 → 2 commas.
+- 1000000000 to 999999999999 → 3 commas.
+- And so on.
+
+3. For a range beginning at start = 1000^k, every number in that range has exactly k commas.
+
+4. Count how many numbers from start to n belong to the current range.
+
+5. Add:
+   count × numberOfCommas
+
+6. Move start to the next power of 1000 and increase the comma count.
+
+7. Stop when start becomes greater than n.
+
+8. This avoids checking each number individually and takes only logarithmic time.
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long countCommas(long long n) {
+        long long ans = 0;
+        long long start = 1000;
+        long long commas = 1;
+
+        while (start <= n) {
+            long long end;
+
+            if (start > n / 1000) {
+                end = n;
+            } else {
+                end = start * 1000 - 1;
+                end = min(end, n);
+            }
+
+            long long count = end - start + 1;
+            ans += count * commas;
+
+            if (start > n / 1000)
+                break;
+
+            start *= 1000;
+            commas++;
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example: n = 1005
+- Numbers 1 to 999 use 0 commas.
+- Numbers 1000 to 1005 are 6 numbers.
+- Each uses 1 comma.
+- Answer = 6.
+
+- Example: n = 1,000,000
+- Numbers 1000 to 999999 contribute 999000 commas.
+- Number 1,000,000 contributes 2 commas.
+- Answer = 999002.
+
+- Time Complexity: O(log₁₀ n)
+- Space Complexity: O(1)
