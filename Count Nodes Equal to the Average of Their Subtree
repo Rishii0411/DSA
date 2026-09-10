@@ -1,0 +1,76 @@
+2026-09-10|Count Nodes Equal to the Average of Their Subtree
+
+- For every node in the binary tree, we need to look at its entire subtree, including the node itself.
+- We calculate the average of all values in that subtree.
+- The average is rounded down using integer division.
+- If the node's value is equal to this average, we count that node.
+- The easiest way to do this is to process the tree from the bottom upward so that each node already knows the sum and number of nodes in its left and right subtrees.
+
+Question
+- Given the root of a binary tree, return the number of nodes whose value is equal to the floor of the average of all values in their subtree.
+
+Approach
+1. Use DFS with postorder traversal.
+
+2. For every node, recursively calculate two things:
+- The sum of values in its subtree.
+- The number of nodes in its subtree.
+
+3. After processing the left and right children:
+- subtreeSum = leftSum + rightSum + root->val
+- subtreeCount = leftCount + rightCount + 1
+
+4. Calculate the subtree average using integer division:
+   average = subtreeSum / subtreeCount
+
+5. If average equals root->val, increment the answer.
+
+6. Return the sum and count to the parent node.
+
+7. Postorder traversal is important because a node's subtree information depends on information from both of its children.
+
+8. A pair<int, int> can be used to return the subtree sum and node count together.
+
+
+
+Solution
+
+```cpp
+class Solution {
+public:
+    int ans = 0;
+
+    pair<int, int> dfs(TreeNode* root) {
+        if (root == nullptr)
+            return {0, 0};
+
+        auto left = dfs(root->left);
+        auto right = dfs(root->right);
+
+        int sum = left.first + right.first + root->val;
+        int count = left.second + right.second + 1;
+
+        if (sum / count == root->val)
+            ans++;
+
+        return {sum, count};
+    }
+
+    int averageOfSubtree(TreeNode* root) {
+        dfs(root);
+        return ans;
+    }
+};
+```
+
+- Example:
+- Suppose a node has subtree values {4, 2, 6}.
+- Sum = 12
+- Number of nodes = 3
+- Average = 12 / 3 = 4
+- Since the node's value is 4, it is counted.
+
+- For a subtree with values {1, 2}, the average is 3 / 2 = 1 using integer division, so a node with value 1 would satisfy the condition.
+
+- Time Complexity: O(n), because every node is visited exactly once.
+- Space Complexity: O(h), where h is the height of the tree, due to the recursion stack.
