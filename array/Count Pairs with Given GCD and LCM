@@ -1,0 +1,89 @@
+2026-09-10|Count Pairs with Given GCD and LCM
+
+Question
+- Given two integers x and y representing the GCD and LCM of two unknown positive integers a and b, count the number of valid ordered pairs (a, b).
+- (a, b) and (b, a) are counted separately when a ≠ b.
+
+Approach
+1. A necessary condition is that x divides y.
+- If y % x != 0, no such pair exists.
+
+2. Write:
+   a = x × p
+   b = x × q
+
+3. Since gcd(a, b) = x:
+   gcd(p, q) = 1
+
+4. Since lcm(a, b) = y:
+   x × p × q = y
+
+5. Therefore:
+   p × q = y / x
+
+6. Let k = y / x.
+- We need ordered pairs (p, q) whose product is k and whose GCD is 1.
+
+7. Consider the prime factorization of k.
+- Every distinct prime factor must go entirely into either p or q.
+- It cannot be split between both, otherwise p and q would have a common factor.
+
+8. If k has r distinct prime factors, each prime has 2 choices:
+- Put it in p.
+- Put it in q.
+
+9. Therefore, the number of ordered pairs is:
+   2^r
+
+10. For example, if k = 12 = 2² × 3:
+- The prime 2 can go to either p or q.
+- The prime 3 can independently go to either p or q.
+- So there are 2² = 4 ordered pairs.
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long countPairs(long long x, long long y) {
+        if (y % x != 0)
+            return 0;
+
+        long long k = y / x;
+        long long distinctPrimes = 0;
+
+        for (long long p = 2; p * p <= k; p++) {
+            if (k % p == 0) {
+                distinctPrimes++;
+
+                while (k % p == 0) {
+                    k /= p;
+                }
+            }
+        }
+
+        if (k > 1)
+            distinctPrimes++;
+
+        return 1LL << distinctPrimes;
+    }
+};
+```
+
+- Example: x = 2, y = 12
+- k = 12 / 2 = 6
+- 6 = 2 × 3, so there are 2 distinct prime factors.
+- Number of ordered pairs = 2² = 4.
+- The valid pairs are (2, 12), (4, 6), (6, 4), and (12, 2).
+
+- Example: x = 6, y = 6
+- k = 1.
+- There are zero distinct prime factors.
+- 2⁰ = 1.
+- The only pair is (6, 6).
+
+- Time Complexity: O(√(y/x))
+- Space Complexity: O(1)
