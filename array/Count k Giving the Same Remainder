@@ -1,0 +1,81 @@
+2026-09-11|Count k Giving the Same Remainder
+
+Question
+- Given an integer array arr[], count the number of positive integers k such that all elements leave the same remainder when divided by k.
+- If infinitely many such k exist, return -1.
+
+Approach
+1. Take the first element as a reference.
+
+2. For every other element, calculate its difference from the first element:
+   diff = |arr[i] - arr[0]|
+
+3. Any valid k must divide every such difference.
+
+4. Therefore, calculate:
+   g = gcd(|arr[1] - arr[0]|, |arr[2] - arr[0]|, ...)
+
+5. If g = 0, all elements are equal.
+- Every k greater than the common value produces remainder equal to that value.
+- Hence infinitely many k exist.
+- Return -1.
+
+6. Otherwise, every positive divisor of g is a valid k.
+
+7. So the problem becomes counting the number of positive divisors of g.
+
+8. We can count divisors by iterating from 1 to √g.
+- If i divides g, then both i and g/i are divisors.
+- If i × i = g, count it only once.
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countK(vector<int>& arr) {
+        int n = arr.size();
+
+        long long g = 0;
+
+        for (int i = 1; i < n; i++) {
+            g = gcd(g, llabs((long long)arr[i] - arr[0]));
+        }
+
+        // All elements are equal.
+        if (g == 0)
+            return -1;
+
+        int count = 0;
+
+        for (long long i = 1; i * i <= g; i++) {
+            if (g % i == 0) {
+                count++;
+
+                if (i != g / i)
+                    count++;
+            }
+        }
+
+        return count;
+    }
+};
+```
+
+- Example: arr = [6, 10, 14]
+- Differences from 6 are 4 and 8.
+- GCD = gcd(4, 8) = 4.
+- Positive divisors of 4 are 1, 2, 4.
+- Therefore, the answer is 3.
+
+- Example: arr = [5, 5, 5]
+- All differences are 0.
+- Every k > 5 gives the same remainder 5.
+- Therefore, there are infinitely many valid k.
+- Answer = -1.
+
+- Time Complexity: O(n + √g)
+- Space Complexity: O(1)
