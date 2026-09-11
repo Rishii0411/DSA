@@ -1,0 +1,80 @@
+2026-09-11|Count Distinct Three-Digit Even Numbers
+
+Question
+- Given an array digits, determine the number of distinct three-digit even numbers that can be formed using the available digits.
+- Each occurrence of a digit can be used at most once in a number.
+- Leading zeros are not allowed.
+
+Approach
+1. Since we only need a three-digit number, choose:
+- Hundreds digit.
+- Tens digit.
+- Units digit.
+
+2. The units digit must be even.
+
+3. The hundreds digit must be non-zero.
+
+4. The same digit can be used multiple times only if there are multiple copies of that digit in digits.
+
+5. A simple and reliable approach is to use three nested loops over the input array.
+
+6. For every choice of three different indices:
+- Check that the hundreds digit is not zero.
+- Check that the units digit is even.
+- Construct the number.
+
+7. Store every valid number in a set.
+- The set automatically removes duplicates caused by repeated digits.
+
+8. Finally, return the size of the set.
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int totalNumbers(vector<int>& digits) {
+        set<int> numbers;
+        int n = digits.size();
+
+        for (int i = 0; i < n; i++) {
+            if (digits[i] == 0)
+                continue;
+
+            for (int j = 0; j < n; j++) {
+                if (j == i)
+                    continue;
+
+                for (int k = 0; k < n; k++) {
+                    if (k == i || k == j)
+                        continue;
+
+                    if (digits[k] % 2 != 0)
+                        continue;
+
+                    int num = digits[i] * 100 +
+                              digits[j] * 10 +
+                              digits[k];
+
+                    numbers.insert(num);
+                }
+            }
+        }
+
+        return numbers.size();
+    }
+};
+```
+
+- Example: digits = [2, 1, 3, 0]
+- Possible valid numbers include 102, 120, 130, 132, 210, 230, 302, 310, 312, 320, etc.
+- The last digit is always even and the first digit is never zero.
+- The set ensures that every distinct three-digit number is counted only once.
+
+- Time Complexity: O(n³ log K), where K is the number of distinct valid numbers.
+- Since a three-digit number has at most 900 possible values, this is effectively very small.
+- Space Complexity: O(K), for storing the distinct numbers.
