@@ -1,0 +1,89 @@
+2026-09-12|Maximum Product Subsequence of Size k
+
+Question
+- Given an integer array arr[] and an integer k, find a subsequence of size k whose product is maximum among all possible subsequences of size k.
+- Return the maximum product that can be obtained.
+
+Approach
+1. Sort the array in increasing order.
+
+2. The maximum product can be obtained by considering elements from both ends:
+- Large positive numbers are useful.
+- Two large-magnitude negative numbers can also produce a large positive value.
+
+3. Maintain two pointers:
+- left points to the smallest remaining element.
+- right points to the largest remaining element.
+
+4. At every step, compare:
+- Product of the two smallest available values.
+- Product of the two largest available values.
+
+5. If k is odd, we must initially take the largest element because it is the only way to handle the remaining single selection optimally.
+
+6. After that, choose elements in pairs:
+- If left pair has a larger product, take both negative/small elements.
+- Otherwise, take the two largest elements.
+
+7. This works because after sorting, an optimal maximum-product selection can be constructed by taking elements from the two ends.
+
+8. Use long long for the product.
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long maxProduct(vector<int>& arr, int k) {
+        sort(arr.begin(), arr.end());
+
+        int left = 0;
+        int right = arr.size() - 1;
+
+        long long ans = 1;
+
+        // If k is odd, take the largest element first.
+        if (k % 2 == 1) {
+            ans *= arr[right];
+            right--;
+            k--;
+        }
+
+        // Choose the best pair at each step.
+        while (k > 0) {
+            long long leftProduct = 1LL * arr[left] * arr[left + 1];
+            long long rightProduct = 1LL * arr[right] * arr[right - 1];
+
+            if (leftProduct > rightProduct) {
+                ans *= leftProduct;
+                left += 2;
+            } else {
+                ans *= rightProduct;
+                right -= 2;
+            }
+
+            k -= 2;
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example: arr = [-10, -10, 1, 2, 3], k = 2
+- The two smallest values give:
+  (-10) × (-10) = 100
+- The two largest give:
+  3 × 2 = 6
+- Therefore, the maximum product is 100.
+
+- Example: arr = [-5, -4, 2, 3, 6], k = 3
+- Take 6 first because k is odd.
+- The remaining best pair is (-5) × (-4) = 20.
+- Product = 6 × 20 = 120.
+
+- Time Complexity: O(n log n), due to sorting.
+- Space Complexity: O(1) auxiliary space apart from the sorting implementation.
