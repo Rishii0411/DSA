@@ -1,0 +1,109 @@
+2026-09-13|Party in Town
+
+Question
+- Given an adjacency list adj representing a tree of n houses, return the minimum possible distance from the chosen party house to its farthest house.
+
+Approach
+1. The longest path between any two houses is called the diameter of the tree.
+
+2. The best party location lies at the center of this diameter.
+
+3. Find one endpoint of the diameter:
+- Start BFS from any house, for example house 1.
+- The farthest house obtained is one endpoint of the diameter.
+
+4. Run BFS again from that endpoint.
+- The farthest distance obtained is the diameter length D.
+
+5. The minimum possible maximum distance is the radius of the tree:
+- radius = ceil(D / 2)
+- Using integer arithmetic: (D + 1) / 2
+
+6. For the first example:
+- The diameter is 2.
+- Its center is house 2.
+- The answer is ceil(2 / 2) = 1.
+
+7. For the second example:
+- The diameter is 3.
+- Houses 2 and 3 are both possible centers.
+- The answer is ceil(3 / 2) = 2.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+
+    pair<int, int> bfs(vector<vector<int>>& adj, int start) {
+
+        int n = adj.size();
+
+        vector<int> dist(n, -1);
+        queue<int> q;
+
+        dist[start] = 0;
+        q.push(start);
+
+        int farthestNode = start;
+        int maxDist = 0;
+
+        while (!q.empty()) {
+
+            int u = q.front();
+            q.pop();
+
+            for (int v : adj[u]) {
+
+                // GFG nodes are 1-based
+                // Convert to 0-based
+                v--;
+
+                if (dist[v] == -1) {
+
+                    dist[v] = dist[u] + 1;
+                    q.push(v);
+
+                    if (dist[v] > maxDist) {
+                        maxDist = dist[v];
+                        farthestNode = v;
+                    }
+                }
+            }
+        }
+
+        return {farthestNode, maxDist};
+    }
+
+    int partyHouse(vector<vector<int>>& adj) {
+
+        // BFS 1: find one endpoint of diameter
+        pair<int, int> first = bfs(adj, 0);
+
+        int endPoint = first.first;
+
+        // BFS 2: find diameter length
+        pair<int, int> second = bfs(adj, endPoint);
+
+        int diameter = second.second;
+
+        // Radius = ceil(diameter / 2)
+        return (diameter + 1) / 2;
+    }
+};
+
+- Example 1:
+  adj = [[2], [1, 4, 3], [2], [2]]
+- The diameter is between house 1 and either house 3 or 4.
+- Diameter = 2.
+- Minimum distance = (2 + 1) / 2 = 1.
+
+- Example 2:
+  adj = [[2], [1, 3], [4, 2], [3]]
+- The diameter is from house 1 to house 4.
+- Diameter = 3.
+- Minimum distance = (3 + 1) / 2 = 2.
+
+- Time Complexity: O(n), because BFS visits every house and road at most once in each traversal.
+- Space Complexity: O(n), for the adjacency list, distance array, and queue.
