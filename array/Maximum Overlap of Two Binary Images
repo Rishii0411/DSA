@@ -1,0 +1,83 @@
+2026-09-13|Maximum Overlap of Two Binary Images
+
+Question
+- Given two binary matrices img1 and img2 of size n × n, return the maximum number of overlapping 1s after translating one image in any direction.
+
+Approach
+1. Store the coordinates of all cells containing 1 in img1 and img2.
+
+2. Suppose a 1 at (r1, c1) in img1 overlaps a 1 at (r2, c2) in img2.
+
+3. The required translation is:
+   dr = r2 - r1
+   dc = c2 - c1
+
+4. Every pair of 1s produces one possible translation.
+
+5. Use a hash map to count how many pairs of 1s produce the same `(dr, dc)` translation.
+
+6. If a particular translation occurs many times, it means many 1s from img1 overlap 1s from img2 after applying that translation.
+
+7. The maximum frequency among all translations is therefore the maximum possible overlap.
+
+8. This approach automatically handles:
+- Horizontal shifts.
+- Vertical shifts.
+- Diagonal shifts.
+- Bits moving outside the matrix, because only coordinates that correspond to existing 1s in both images are counted.
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int largestOverlap(vector<vector<int>>& img1,
+                       vector<vector<int>>& img2) {
+        int n = img1.size();
+
+        vector<pair<int, int>> ones1;
+        vector<pair<int, int>> ones2;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (img1[i][j] == 1)
+                    ones1.push_back({i, j});
+
+                if (img2[i][j] == 1)
+                    ones2.push_back({i, j});
+            }
+        }
+
+        map<pair<int, int>, int> freq;
+
+        int ans = 0;
+
+        for (auto [r1, c1] : ones1) {
+            for (auto [r2, c2] : ones2) {
+                int dr = r2 - r1;
+                int dc = c2 - c1;
+
+                freq[{dr, dc}]++;
+
+                ans = max(ans, freq[{dr, dc}]);
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example:
+- Suppose three pairs of 1s produce the same translation `(2, -1)`.
+- That means after shifting img1 by 2 rows downward and 1 column left, those three pairs overlap.
+- Therefore, that translation gives an overlap of 3.
+
+- The important idea is to count translations rather than trying every shifted matrix explicitly.
+
+- Time Complexity: O(k₁ × k₂), where k₁ and k₂ are the numbers of 1s in img1 and img2.
+- In the worst case, k₁ = k₂ = n², giving O(n⁴).
+- Space Complexity: O(k₁ × k₂) in the worst case for the translation frequency map.
