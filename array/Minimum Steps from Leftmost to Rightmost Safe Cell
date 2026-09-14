@@ -1,0 +1,117 @@
+2026-09-14|Minimum Steps from Leftmost to Rightmost Safe Cell
+
+Question
+- Given a binary matrix mat[][] where 0 represents a landmine and 1 represents a safe cell, find the minimum number of steps needed to travel from any cell in the first column to any cell in the last column.
+- Movement is allowed only up, down, left, and right.
+- Landmines and cells directly adjacent to landmines cannot be used.
+- Return -1 if no valid path exists.
+
+Approach
+1. First create a safe/unsafe representation of the grid.
+
+2. For every cell containing 0, mark the cell itself as unsafe.
+
+3. Also mark its four neighboring cells as unsafe:
+- Up
+- Down
+- Left
+- Right
+
+4. After this preprocessing, only cells that are still marked safe can be used.
+
+5. We now need the shortest path from any safe cell in column 0 to any safe cell in column m - 1.
+
+6. Put all safe cells in the first column into a BFS queue with distance 0.
+
+7. Run BFS using the four allowed directions.
+
+8. When we reach a safe cell in the last column, its distance is the minimum number of moves required.
+
+9. If BFS finishes without reaching the last column, no safe path exists, so return -1.
+
+10. BFS guarantees the shortest path because every movement has the same cost.
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findShortestPath(vector<vector<int>>& mat) {
+        int n = mat.size();
+        int m = mat[0].size();
+
+        vector<vector<bool>> unsafe(n, vector<bool>(m, false));
+
+        int dr[4] = {-1, 1, 0, 0};
+        int dc[4] = {0, 0, -1, 1};
+
+        // Mark landmines and their adjacent cells as unsafe.
+        for (int r = 0; r < n; r++) {
+            for (int c = 0; c < m; c++) {
+                if (mat[r][c] == 0) {
+                    unsafe[r][c] = true;
+
+                    for (int d = 0; d < 4; d++) {
+                        int nr = r + dr[d];
+                        int nc = c + dc[d];
+
+                        if (nr >= 0 && nr < n &&
+                            nc >= 0 && nc < m) {
+                            unsafe[nr][nc] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        vector<vector<bool>> visited(n, vector<bool>(m, false));
+        queue<pair<pair<int, int>, int>> q;
+
+        // Start BFS from every safe cell in the first column.
+        for (int r = 0; r < n; r++) {
+            if (!unsafe[r][0]) {
+                q.push({{r, 0}, 0});
+                visited[r][0] = true;
+            }
+        }
+
+        while (!q.empty()) {
+            auto [cell, dist] = q.front();
+            q.pop();
+
+            int r = cell.first;
+            int c = cell.second;
+
+            if (c == m - 1)
+                return dist;
+
+            for (int d = 0; d < 4; d++) {
+                int nr = r + dr[d];
+                int nc = c + dc[d];
+
+                if (nr >= 0 && nr < n &&
+                    nc >= 0 && nc < m &&
+                    !unsafe[nr][nc] &&
+                    !visited[nr][nc]) {
+
+                    visited[nr][nc] = true;
+                    q.push({{nr, nc}, dist + 1});
+                }
+            }
+        }
+
+        return -1;
+    }
+};
+```
+
+- Example idea:
+- First, if a landmine is at `(r, c)`, the cells `(r,c)`, `(r-1,c)`, `(r+1,c)`, `(r,c-1)`, and `(r,c+1)` become unavailable when they are inside the grid.
+- BFS then considers only the remaining safe cells.
+- Because we start from every safe cell in the first column simultaneously, the first time we reach the last column is the globally minimum number of steps.
+
+- Time Complexity: O(n × m)
+- Space Complexity: O(n × m)
