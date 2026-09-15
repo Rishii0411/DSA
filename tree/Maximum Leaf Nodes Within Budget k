@@ -1,0 +1,69 @@
+2026-09-15|Maximum Leaf Nodes Within Budget k
+
+Question
+- Given a binary tree and an integer k, find the maximum number of leaf nodes that can be visited such that the sum of their levels does not exceed k.
+
+Approach
+1. Traverse the binary tree using DFS.
+2. Keep track of the current level, starting with level 1 for the root.
+3. When we reach a leaf node, store its level in a vector.
+4. After the traversal, sort all leaf levels in increasing order.
+5. Start with total cost = 0 and number of leaves = 0.
+
+6. Take leaf levels from smallest to largest.
+- If adding the current level does not exceed k, visit that leaf.
+- Otherwise, stop.
+
+7. Taking the smallest costs first is optimal because every leaf has an independent cost and all leaves have equal value of 1.
+
+Solution
+class Solution {
+public:
+    void dfs(TreeNode* root, int level, vector<int>& costs) {
+        if (root == nullptr)
+            return;
+
+        if (root->left == nullptr && root->right == nullptr) {
+            costs.push_back(level);
+            return;
+        }
+
+        dfs(root->left, level + 1, costs);
+        dfs(root->right, level + 1, costs);
+    }
+
+    int maxLeaves(TreeNode* root, int k) {
+        vector<int> costs;
+
+        dfs(root, 1, costs);
+
+        sort(costs.begin(), costs.end());
+
+        int count = 0;
+        long long totalCost = 0;
+
+        for (int cost : costs) {
+            if (totalCost + cost > k)
+                break;
+
+            totalCost += cost;
+            count++;
+        }
+
+        return count;
+    }
+};
+```
+
+- Example:
+- Suppose the leaf levels are [2, 3, 3, 4] and k = 8.
+- Take level 2 → cost = 2.
+- Take level 3 → cost = 5.
+- Take another level 3 → cost = 8.
+- The next leaf would make the cost 12, which exceeds k.
+- Therefore, the maximum number of leaves is 3.
+
+- The key greedy idea is: every leaf gives the same benefit of 1, so always choose the leaves with the smallest visiting cost first.
+
+- Time Complexity: O(n + L log L), where L is the number of leaf nodes.
+- Space Complexity: O(L + h), where h is the height of the tree.
