@@ -1,0 +1,75 @@
+2026-09-15|Maximum Number of Non-Overlapping Palindromic Substrings of Length at Least k
+
+Question
+- Given a string s and a positive integer k, return the maximum number of non-overlapping palindromic substrings whose lengths are at least k.
+
+Approach
+1. First determine which substrings are palindromes.
+
+2. Use palindrome DP:
+- pal[i][j] is true if s[i...j] is a palindrome.
+- A substring is a palindrome when its two end characters match and its inside portion is also a palindrome.
+
+3. Define dp[i] as the maximum number of valid non-overlapping palindromic substrings that can be selected from the first i characters.
+
+4. At every position i, we have two choices:
+- Do not end a substring at i, so dp[i] = dp[i-1].
+- Choose a palindrome starting at j and ending at i-1, provided its length is at least k.
+  Then the number of substrings becomes dp[j] + 1.
+
+5. Take the maximum of these choices.
+
+6. Because dp[j] only uses characters before the selected substring, the selected substrings are guaranteed to be non-overlapping.
+
+7. The final answer is dp[n].
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxPalindromes(string s, int k) {
+        int n = s.size();
+
+        vector<vector<bool>> pal(n, vector<bool>(n, false));
+
+        // Build palindrome table.
+        for (int len = 1; len <= n; len++) {
+            for (int i = 0; i + len <= n; i++) {
+                int j = i + len - 1;
+
+                if (s[i] == s[j] &&
+                    (len <= 2 || pal[i + 1][j - 1])) {
+                    pal[i][j] = true;
+                }
+            }
+        }
+
+        vector<int> dp(n + 1, 0);
+
+        for (int i = 1; i <= n; i++) {
+            // Do not use a substring ending at i - 1.
+            dp[i] = dp[i - 1];
+
+            // Try every palindrome ending at i - 1.
+            for (int j = 0; j < i; j++) {
+                if (i - j >= k && pal[j][i - 1]) {
+                    dp[i] = max(dp[i], dp[j] + 1);
+                }
+            }
+        }
+
+        return dp[n];
+    }
+};
+```
+
+- Example: s = "abaccdbbd", k = 3
+- Valid palindromic substrings can be selected without overlapping.
+- The DP considers all possible palindrome endings and keeps the maximum number that can fit before each position.
+
+- The important point is that we maximize the number of substrings, not their total length. Therefore, whenever a valid palindrome is found, its contribution is exactly 1.
+
+- Time Complexity: O(n²)
+- Space Complexity: O(n²) for the palindrome table.
