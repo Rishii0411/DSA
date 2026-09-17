@@ -1,0 +1,91 @@
+2026-09-17|Minimum Total Length of Two Non-Overlapping Subarrays
+
+Question
+- Given an array arr and an integer target, find two non-overlapping subarrays, each having sum equal to target.
+- Return the minimum possible sum of their lengths.
+- Return -1 if two such subarrays cannot be found.
+
+Approach
+1. Use a sliding window to find every subarray whose sum is target.
+
+2. Maintain:
+- left: beginning of the current window.
+- sum: sum of the current window.
+- best: shortest valid subarray found completely before the current position.
+
+3. When sum becomes equal to target:
+- The current window is a valid subarray.
+- Its length is right - left + 1.
+- If there was a valid subarray ending before this window starts, combine their lengths.
+
+4. Store the minimum length of any valid subarray ending at or before each position using a DP array.
+
+5. For each right position:
+- If a previous valid subarray exists before left, update the answer.
+- Then record the current subarray as a candidate for future subarrays.
+
+6. Because we process from left to right, the two chosen subarrays are guaranteed not to overlap.
+
+7. Finally, if no pair was found, return -1.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minSumOfLengths(vector<int>& arr, int target) {
+        int n = arr.size();
+        const int INF = 1e9;
+
+        vector<int> best(n, INF);
+
+        int left = 0;
+        long long sum = 0;
+        int ans = INF;
+        int shortest = INF;
+
+        for (int right = 0; right < n; right++) {
+            sum += arr[right];
+
+            while (left <= right && sum > target) {
+                sum -= arr[left];
+                left++;
+            }
+
+            // Carry forward the shortest valid subarray so far.
+            if (right > 0)
+                best[right] = best[right - 1];
+
+            if (sum == target) {
+                int len = right - left + 1;
+
+                // A previous subarray must end before 'left'.
+                if (left > 0 && best[left - 1] != INF) {
+                    ans = min(ans, best[left - 1] + len);
+                }
+
+                shortest = min(shortest, len);
+                best[right] = min(best[right], shortest);
+            }
+        }
+
+        return ans == INF ? -1 : ans;
+    }
+};
+```
+
+- Example:
+  arr = [3, 2, 2, 4, 3], target = 5
+
+- Valid subarrays include:
+  [3, 2] → length 2
+  [2, 3] → length 2
+
+- They are non-overlapping, so the minimum total length is:
+  2 + 2 = 4
+
+- The important idea is to combine the current target-sum subarray only with the shortest target-sum subarray that occurs completely before it.
+
+- Time Complexity: O(n)
+- Space Complexity: O(n)
