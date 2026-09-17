@@ -1,0 +1,93 @@
+2026-09-17|Minimum Edge Reversals to Reach Destination
+
+Question
+- Given a directed graph with n vertices and edges [u, v], find the minimum number of edges that must be reversed so that there exists a path from src to dst.
+- Return -1 if no path can be created.
+
+Approach
+1. For every directed edge u → v, add two edges to a new graph:
+- u → v with cost 0 because it already exists.
+- v → u with cost 1 because using this direction requires reversing the original edge.
+
+2. Now the problem becomes:
+- Find the minimum-cost path from src to dst.
+- Every edge has weight either 0 or 1.
+
+3. Use 0-1 BFS instead of normal BFS.
+- If an edge has cost 0, add the next vertex to the front of the deque.
+- If an edge has cost 1, add it to the back.
+
+4. Maintain dist[v], the minimum number of reversals required to reach vertex v.
+
+5. When we reach dst, dist[dst] is the minimum number of reversed edges needed.
+
+6. If dst remains unreachable, return -1.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minEdgeReversals(int n, vector<vector<int>>& edges,
+                         int src, int dst) {
+        vector<vector<pair<int, int>>> adj(n + 1);
+
+        for (auto &edge : edges) {
+            int u = edge[0];
+            int v = edge[1];
+
+            // Original direction: no reversal needed.
+            adj[u].push_back({v, 0});
+
+            // Reverse direction: one reversal needed.
+            adj[v].push_back({u, 1});
+        }
+
+        const int INF = 1e9;
+        vector<int> dist(n + 1, INF);
+
+        deque<int> dq;
+        dist[src] = 0;
+        dq.push_front(src);
+
+        while (!dq.empty()) {
+            int u = dq.front();
+            dq.pop_front();
+
+            for (auto [v, cost] : adj[u]) {
+                if (dist[u] + cost < dist[v]) {
+                    dist[v] = dist[u] + cost;
+
+                    if (cost == 0)
+                        dq.push_front(v);
+                    else
+                        dq.push_back(v);
+                }
+            }
+        }
+
+        return dist[dst] == INF ? -1 : dist[dst];
+    }
+};
+```
+
+- Example:
+  edges = [[1,2], [2,3]], src = 3, dst = 1
+
+- The original directions are:
+  1 → 2 → 3
+
+- To travel from 3 to 1, both edges must be reversed:
+  3 → 2 → 1
+
+- Therefore, the answer is 2.
+
+- The key trick is converting every directed edge into two weighted edges:
+  original direction = 0
+  reverse direction = 1
+
+- Then 0-1 BFS directly finds the minimum number of reversals.
+
+- Time Complexity: O(n + m)
+- Space Complexity: O(n + m)
