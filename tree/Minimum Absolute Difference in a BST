@@ -1,0 +1,64 @@
+2026-09-18|Minimum Absolute Difference in a BST
+
+Question
+- Given the root of a Binary Search Tree containing n > 1 nodes, find the minimum absolute difference between the values of any two different nodes.
+
+Approach
+1. Perform an inorder traversal of the BST.
+
+2. Because it is a BST, inorder traversal gives node values in increasing order.
+
+3. Keep track of the previous visited node using prev.
+
+4. For every current node:
+- Calculate current value - previous value.
+- Update the minimum difference.
+
+5. We only need to compare adjacent values.
+- For example, if the sorted values are [2, 5, 9, 15], the differences are 3, 4, and 6.
+- The smallest difference between any two values must be among these adjacent differences.
+
+6. Return the minimum difference after traversing the entire tree.
+
+Solution
+
+```cpp
+class Solution {
+public:
+    int ans = INT_MAX;
+    TreeNode* prev = nullptr;
+
+    void inorder(TreeNode* root) {
+        if (root == nullptr)
+            return;
+
+        inorder(root->left);
+
+        if (prev != nullptr) {
+            ans = min(ans, root->val - prev->val);
+        }
+
+        prev = root;
+
+        inorder(root->right);
+    }
+
+    int getMinimumDifference(TreeNode* root) {
+        inorder(root);
+        return ans;
+    }
+};
+```
+
+- Example:
+  BST values in sorted order: [1, 3, 6, 10]
+- Differences:
+  3 - 1 = 2
+  6 - 3 = 3
+  10 - 6 = 4
+- Minimum absolute difference = 2.
+
+- The key observation is: BST + inorder traversal = sorted values, so checking consecutive values is sufficient.
+
+- Time Complexity: O(n)
+- Space Complexity: O(h), where h is the height of the BST due to the recursion stack.
