@@ -1,0 +1,121 @@
+2026-09-18|LeetCode 1520 - Maximum Number of Non-Overlapping Substrings
+
+Question
+- Given a string s containing lowercase English letters, find the maximum number of non-overlapping valid substrings.
+- If several solutions contain the same maximum number of substrings, return the solution with the minimum total length.
+- The returned substrings can be in any order.
+
+Approach
+1. Find the first and last occurrence of every character.
+
+2. For each character c, start with its first occurrence l and last occurrence r.
+
+3. Try to create the smallest valid substring starting at l.
+- Scan from l to r.
+- For every character s[i] encountered, its entire occurrence range must be inside [l, r].
+- Therefore, update r to last[s[i]].
+- If first[s[i]] < l, this interval cannot be valid.
+
+4. If the scan finishes successfully, [l, r] is the smallest valid substring beginning at that character.
+
+5. Now we have a collection of valid candidate intervals.
+
+6. Sort these intervals by their ending position.
+
+7. Greedily select intervals:
+- If the current interval starts after the end of the previously selected interval, select it.
+- Because we process intervals by increasing ending position, we maximize the number of non-overlapping intervals.
+
+8. Why does this also give the minimum total length?
+- For every possible starting character, we constructed the smallest valid interval.
+- Choosing the earliest finishing compatible interval gives the maximum possible number of intervals.
+- If multiple choices have that same count, replacing a chosen interval with its smaller valid version cannot increase the total length.
+- Thus the resulting collection has minimum total length among maximum-cardinality solutions.
+
+Solution
+
+```cpp
+class Solution {
+public:
+    vector<string> maxNumOfSubstrings(string s) {
+        int n = s.size();
+
+        vector<int> first(26, n);
+        vector<int> last(26, -1);
+
+        // Find first and last occurrence of every character.
+        for (int i = 0; i < n; i++) {
+            int c = s[i] - 'a';
+            first[c] = min(first[c], i);
+            last[c] = i;
+        }
+
+        vector<pair<int, int>> intervals;
+
+        // Build the smallest valid interval for each character.
+        for (int c = 0; c < 26; c++) {
+            if (last[c] == -1)
+                continue;
+
+            int l = first[c];
+            int r = last[c];
+            bool valid = true;
+
+            for (int i = l; i <= r; i++) {
+                int x = s[i] - 'a';
+
+                // This character occurs before l,
+                // so the substring cannot contain all its occurrences.
+                if (first[x] < l) {
+                    valid = false;
+                    break;
+                }
+
+                r = max(r, last[x]);
+            }
+
+            if (valid) {
+                intervals.push_back({l, r});
+            }
+        }
+
+        // Earliest finishing interval first.
+        sort(intervals.begin(), intervals.end(),
+             [](const pair<int, int>& a, const pair<int, int>& b) {
+                 if (a.second != b.second)
+                     return a.second < b.second;
+
+                 return a.first > b.first;
+             });
+
+        vector<string> ans;
+        int prevEnd = -1;
+
+        for (auto [l, r] : intervals) {
+            if (l > prevEnd) {
+                ans.push_back(s.substr(l, r - l + 1));
+                prevEnd = r;
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example:
+  s = "adefaddaccc"
+
+- The valid small substrings include:
+  "e"
+  "f"
+  "ccc"
+  "ad...da" type intervals that contain all occurrences of their characters.
+
+- The greedy process chooses compatible intervals that finish earliest, allowing the maximum possible number of substrings.
+
+- The most important condition is:
+  if a character appears inside the chosen substring, its first occurrence must not be before the substring's left boundary, and its last occurrence must not be after the substring's right boundary.
+
+- Time Complexity: O(26 × n), which is O(n) because there are only 26 lowercase letters.
+- Space Complexity: O(26), excluding the returned substrings.
