@@ -1,0 +1,80 @@
+2026-09-19|Minimum Cost to Make Two Strings Identical
+
+Question
+- Given strings s1 and s2 and deletion costs costS1 and costS2, find the minimum cost required to make both strings identical.
+
+Approach
+1. The two strings can be made identical by keeping some common subsequence and deleting everything else.
+
+2. Suppose we keep a common subsequence of length L.
+- From s1, we delete |s1| - L characters.
+- From s2, we delete |s2| - L characters.
+
+3. Therefore, if all deletions have their respective costs, the total cost is:
+   (|s1| - L) × costS1 + (|s2| - L) × costS2.
+
+4. Since both deletion costs are fixed, minimizing the deletion cost is equivalent to maximizing the weighted amount of characters retained.
+
+5. Because every retained character contributes costS1 + costS2 to the saving, we simply need the longest common subsequence (LCS).
+
+6. Use the standard LCS dynamic programming:
+- If s1[i-1] == s2[j-1], then:
+  dp[i][j] = dp[i-1][j-1] + 1
+- Otherwise:
+  dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+
+7. Let L = LCS length.
+
+8. The answer is:
+   (n - L) × costS1 + (m - L) × costS2
+
+Solution
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long minimumCost(string s1, string s2,
+                          long long costS1, long long costS2) {
+        int n = s1.size();
+        int m = s2.size();
+
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                if (s1[i - 1] == s2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = max(dp[i - 1][j],
+                                   dp[i][j - 1]);
+                }
+            }
+        }
+
+        int common = dp[n][m];
+
+        long long deleteS1 = 1LL * (n - common) * costS1;
+        long long deleteS2 = 1LL * (m - common) * costS2;
+
+        return deleteS1 + deleteS2;
+    }
+};
+```
+
+- Example:
+  s1 = "sea", s2 = "eat"
+  costS1 = 2, costS2 = 3
+
+- One LCS is "ea", whose length is 2.
+- From s1, delete "s": cost = 2.
+- From s2, delete "t": cost = 3.
+- Both strings become "ea".
+- Minimum cost = 2 + 3 = 5.
+
+- Time Complexity: O(n × m)
+- Space Complexity: O(n × m)
+
+- The key observation is that once we know the LCS length, we know exactly how many characters must be deleted from each string.
