@@ -1,0 +1,42 @@
+2026-09-20|Calculate the Reverse Degree of a String
+
+Question
+- Given a string `s`, return its reverse degree.
+
+Approach
+1. Traverse the string from left to right.
+2. For the character at index `i`, its position in the string is `i + 1`.
+3. Its reverse alphabet value is:
+   `26 - (s[i] - 'a')`
+4. Multiply the two values.
+5. Add the result to the answer.
+6. Return the total sum.
+
+Solution
+
+```cpp
+class Solution {
+public:
+    int reverseDegree(string s) {
+        int ans = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            int reverseValue = 26 - (s[i] - 'a');
+            int position = i + 1;
+
+            ans += reverseValue * position;
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example: `s = "abc"`
+- 'a' → 26 × 1 = 26
+- 'b' → 25 × 2 = 50
+- 'c' → 24 × 3 = 72
+- Reverse degree = 26 + 50 + 72 = 148
+
+- Time Complexity: O(n)
+- Space Complexity: O(1)
