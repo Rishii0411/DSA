@@ -1,0 +1,82 @@
+2026-09-20|Largest Square Submatrix with X Boundary
+
+Question
+- Given an n × n matrix containing only 'X' and 'O', find the maximum side length of a square submatrix whose top, bottom, left, and right boundaries consist entirely of 'X'.
+
+Approach
+1. Precompute two DP matrices:
+- `right[i][j]` = number of consecutive 'X' cells starting from `(i,j)` and going right.
+- `down[i][j]` = number of consecutive 'X' cells starting from `(i,j)` and going down.
+
+2. Consider `(i, j)` as the top-left corner of a possible square.
+
+3. For a square of side length `len`:
+- The top boundary is valid if `right[i][j] >= len`.
+- The left boundary is valid if `down[i][j] >= len`.
+- The bottom boundary is valid if `right[i + len - 1][j] >= len`.
+- The right boundary is valid if `down[i][j + len - 1] >= len`.
+
+4. If all four conditions are satisfied, the square is valid.
+
+5. Try possible square sizes from largest to smallest. As soon as a valid square is found, return its size.
+
+6. Since the largest possible answer is `n`, the overall complexity is O(n³).
+
+Solution
+
+```cpp
+class Solution {
+public:
+    int largestSquare(vector<vector<char>>& mat) {
+        int n = mat.size();
+
+        vector<vector<int>> right(n, vector<int>(n, 0));
+        vector<vector<int>> down(n, vector<int>(n, 0));
+
+        // Precompute consecutive X's to the right and downward.
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = n - 1; j >= 0; j--) {
+                if (mat[i][j] == 'X') {
+                    right[i][j] = 1;
+                    down[i][j] = 1;
+
+                    if (j + 1 < n)
+                        right[i][j] += right[i][j + 1];
+
+                    if (i + 1 < n)
+                        down[i][j] += down[i + 1][j];
+                }
+            }
+        }
+
+        // Try every possible top-left corner.
+        for (int len = n; len >= 1; len--) {
+            for (int i = 0; i + len <= n; i++) {
+                for (int j = 0; j + len <= n; j++) {
+
+                    // Top and left boundaries
+                    if (right[i][j] < len || down[i][j] < len)
+                        continue;
+
+                    // Bottom boundary
+                    if (right[i + len - 1][j] < len)
+                        continue;
+
+                    // Right boundary
+                    if (down[i][j + len - 1] < len)
+                        continue;
+
+                    return len;
+                }
+            }
+        }
+
+        return 0;
+    }
+};
+```
+
+- Time Complexity: O(n³)
+- Space Complexity: O(n²)
+
+- The key idea is that `right` and `down` let us check each of the four boundaries in O(1), instead of scanning all four sides for every possible square.
