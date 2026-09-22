@@ -1,0 +1,71 @@
+2026-09-22|Longest Dictionary Word That Can Be Formed by Deleting Characters
+
+Question
+- Given a lowercase string `s` and a dictionary `d[]`, find the longest word that is a subsequence of `s`.
+- If multiple words have the same length, return the lexicographically smallest word.
+
+Approach
+1. Check each dictionary word independently.
+
+2. Use two pointers:
+- `i` points to the current character of `s`.
+- `j` points to the current character of the dictionary word.
+
+3. If `s[i] == word[j]`, match them and move both pointers.
+4. Otherwise, move only `i`.
+
+5. If `j` reaches the end of the dictionary word, the word is a valid subsequence of `s`.
+
+6. Keep track of the best valid word:
+- Prefer the word with greater length.
+- If lengths are equal, prefer the lexicographically smaller word.
+
+7. Return the best word after checking the entire dictionary.
+
+Solution
+
+```cpp
+class Solution {
+public:
+    bool isSubsequence(const string& s, const string& word) {
+        int i = 0, j = 0;
+
+        while (i < s.size() && j < word.size()) {
+            if (s[i] == word[j]) {
+                j++;
+            }
+            i++;
+        }
+
+        return j == word.size();
+    }
+
+    string findLongestWord(string s, vector<string>& d) {
+        string ans = "";
+
+        for (const string& word : d) {
+            if (!isSubsequence(s, word))
+                continue;
+
+            if (word.size() > ans.size() ||
+                (word.size() == ans.size() && word < ans)) {
+                ans = word;
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example:
+  `s = "abpcplea"`
+  `d = ["ale", "apple", "monkey", "plea"]`
+
+- `"apple"` can be formed by deleting characters from `s`.
+- `"ale"` and `"plea"` can also be formed, but they are shorter.
+- `"monkey"` cannot be formed.
+- Therefore, the answer is `"apple"`.
+
+- Time Complexity: O(n × m × L), where `n` is the number of dictionary words, `m` is the length of `s`, and `L` is the average dictionary-word length.
+- Space Complexity: O(1), excluding the input and returned string.
