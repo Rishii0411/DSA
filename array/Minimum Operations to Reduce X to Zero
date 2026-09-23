@@ -1,0 +1,85 @@
+2026-09-23|Minimum Operations to Reduce X to Zero
+
+Question
+- Given an integer array `nums` and integer `x`, return the minimum number of operations required to reduce `x` exactly to `0`.
+- Return `-1` if it is impossible.
+
+Approach
+1. Calculate the total sum of the array.
+
+2. Let:
+   `target = total - x`
+
+3. We need to find the longest contiguous subarray whose sum is exactly `target`.
+
+4. Since the array elements are positive, we can use a sliding window:
+- Expand the right pointer and add `nums[right]`.
+- While the current sum is greater than `target`, move the left pointer forward.
+- Whenever the current sum equals `target`, update the maximum subarray length.
+
+5. If the longest valid subarray has length `maxLen`, then:
+   `answer = n - maxLen`
+
+6. If no such subarray exists, return `-1`.
+
+7. Special case:
+- If `target == 0`, we need to remove the entire array, so the answer is `n`.
+
+Solution
+class Solution {
+public:
+    int minOperations(vector<int>& nums, int x) {
+        int n = nums.size();
+
+        long long total = 0;
+        for (int num : nums) {
+            total += num;
+        }
+
+        long long target = total - x;
+
+        if (target < 0)
+            return -1;
+
+        if (target == 0)
+            return n;
+
+        long long sum = 0;
+        int left = 0;
+        int maxLen = -1;
+
+        for (int right = 0; right < n; right++) {
+            sum += nums[right];
+
+            while (left <= right && sum > target) {
+                sum -= nums[left];
+                left++;
+            }
+
+            if (sum == target) {
+                maxLen = max(maxLen, right - left + 1);
+            }
+        }
+
+        if (maxLen == -1)
+            return -1;
+
+        return n - maxLen;
+    }
+};
+```
+
+- Example:
+  `nums = [1,1,4,2,3]`, `x = 5`
+
+- Total sum = `11`
+- Target remaining sum = `11 - 5 = 6`
+
+- The longest subarray with sum `6` is `[1,1,4]`, whose length is `3`.
+- Therefore, we remove the other `5 - 3 = 2` elements: `2` and `3`.
+- Answer = `2`.
+
+- Time Complexity: O(n)
+- Space Complexity: O(1)
+
+- The key idea is to convert "remove the minimum number from the two ends" into "keep the longest possible middle subarray." Because all numbers are positive, sliding window finds that subarray in linear time.
