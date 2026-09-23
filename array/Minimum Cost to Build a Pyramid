@@ -1,0 +1,91 @@
+2026-09-23|Minimum Cost to Build a Pyramid
+
+Question
+- Given `arr[]`, find the minimum total cost needed to transform the array into a valid contiguous pyramid by only decreasing stone heights.
+
+Approach
+1. Compute `left[i]`.
+- `left[i]` is the maximum possible height of the pyramid peak at `i` considering only the left side.
+- It satisfies:
+  `left[i] = min(arr[i], left[i-1] + 1)`
+- This ensures the heights can increase by at most 1 as we move toward the peak.
+
+2. Compute `right[i]` similarly from right to left:
+  `right[i] = min(arr[i], right[i+1] + 1)`
+
+3. For position `i` to be the peak, its maximum possible height is:
+  `peak = min(left[i], right[i])`
+
+4. A peak of height `peak` requires the pyramid:
+  `1, 2, ..., peak-1, peak, peak-1, ..., 2, 1`
+
+5. We need the cost of reducing the stones to this pyramid.
+- The total original sum of the stones is fixed.
+- Therefore:
+  `cost = sum(arr) - sum(heights kept in the pyramid)`
+
+6. The sum of a pyramid with peak height `peak` is:
+  `peak²`
+
+7. So for every possible center:
+  `cost = totalSum - peak²`
+
+8. We maximize `peak²`, which is equivalent to maximizing `peak`.
+
+Solution
+class Solution {
+public:
+    long long minCost(vector<int>& arr) {
+        int n = arr.size();
+
+        vector<long long> left(n), right(n);
+
+        left[0] = min(1LL, (long long)arr[0]);
+
+        for (int i = 1; i < n; i++) {
+            left[i] = min((long long)arr[i], left[i - 1] + 1);
+        }
+
+        right[n - 1] = min(1LL, (long long)arr[n - 1]);
+
+        for (int i = n - 2; i >= 0; i--) {
+            right[i] = min((long long)arr[i], right[i + 1] + 1);
+        }
+
+        long long totalSum = 0;
+
+        for (int height : arr) {
+            totalSum += height;
+        }
+
+        long long maxPeak = 0;
+
+        for (int i = 0; i < n; i++) {
+            long long peak = min(left[i], right[i]);
+            maxPeak = max(maxPeak, peak);
+        }
+
+        // Sum of 1 + 2 + ... + peak + ... + 2 + 1 = peak^2
+        long long pyramidSum = maxPeak * maxPeak;
+
+        return totalSum - pyramidSum;
+    }
+};
+```
+
+- Example:
+  `arr = [1, 3, 3, 2, 1]`
+
+- The largest possible pyramid is:
+  `1, 2, 3, 2, 1`
+
+- Original sum = `10`
+- Pyramid sum = `9`
+- Minimum cost = `10 - 9 = 1`
+
+- We only reduce the second stone from `3` to `2`.
+
+- Time Complexity: O(n)
+- Space Complexity: O(n)
+
+- The key observation is that a pyramid of peak height `x` always contains exactly `x²` total height. Therefore, after finding the largest feasible peak, the answer is simply the original total height minus `x²`.
