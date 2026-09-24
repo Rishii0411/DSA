@@ -1,0 +1,78 @@
+2026-09-24|Maximum Height of Stack of Circular Discs
+
+Question
+- Given arrays `r[]` and `h[]`, where `r[i]` is the radius and `h[i]` is the height of disc `i`, find the maximum total height of a stack such that for every disc placed above another disc, both its radius and height are strictly smaller.
+
+Approach
+1. Treat every disc as a pair `(radius, height)`.
+
+2. Sort the discs by radius in increasing order.
+- This allows us to consider smaller-radius discs before larger-radius discs.
+
+3. Define `dp[i]` as the maximum total stack height when disc `i` is the bottom disc of the stack considered so far.
+
+4. For every pair of discs `j` and `i`:
+- If `r[j] < r[i]` and `h[j] < h[i]`, disc `j` can be placed below disc `i`.
+- Therefore:
+  `dp[i] = max(dp[i], dp[j] + h[i])`
+
+5. Initialize:
+  `dp[i] = h[i]`
+- A single disc itself forms a valid stack.
+
+6. The answer is the maximum value among all `dp[i]`.
+
+7. The strict inequalities are important:
+- Equal radius is not allowed.
+- Equal height is not allowed.
+
+Solution
+class Solution {
+public:
+    long long maxHeight(vector<int>& r, vector<int>& h) {
+        int n = r.size();
+
+        vector<pair<int, int>> discs;
+
+        for (int i = 0; i < n; i++) {
+            discs.push_back({r[i], h[i]});
+        }
+
+        sort(discs.begin(), discs.end());
+
+        vector<long long> dp(n);
+
+        long long ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            dp[i] = discs[i].second;
+
+            for (int j = 0; j < i; j++) {
+                if (discs[j].first < discs[i].first &&
+                    discs[j].second < discs[i].second) {
+                    dp[i] = max(dp[i],
+                                dp[j] + discs[i].second);
+                }
+            }
+
+            ans = max(ans, dp[i]);
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example:
+  `r = [4, 2, 3, 1]`
+  `h = [4, 2, 3, 1]`
+
+- The discs can be stacked as:
+  `(1,1) -> (2,2) -> (3,3) -> (4,4)`
+
+- Total height = `1 + 2 + 3 + 4 = 10`.
+
+- Time Complexity: O(n²)
+- Space Complexity: O(n)
+
+- The key idea is to convert the problem into a weighted Longest Increasing Subsequence: both radius and height must increase strictly from the top toward the bottom, while the DP value stores the maximum total height rather than just the number of discs.
