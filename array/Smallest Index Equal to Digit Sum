@@ -1,0 +1,55 @@
+2026-09-24|Smallest Index Equal to Digit Sum
+
+Question
+- Given an integer array `nums`, return the smallest index `i` such that the sum of the digits of `nums[i]` equals `i`.
+- If no such index exists, return `-1`.
+
+Approach
+1. Traverse the array from index `0` to `n - 1`.
+2. For each `nums[i]`, calculate its digit sum.
+3. Compare the digit sum with `i`.
+4. If they are equal, immediately return `i`.
+5. If the complete array is checked without finding a match, return `-1`.
+
+Solution
+
+```cpp
+class Solution {
+public:
+    int digitSum(int num) {
+        int sum = 0;
+
+        while (num > 0) {
+            sum += num % 10;
+            num /= 10;
+        }
+
+        return sum;
+    }
+
+    int smallestIndex(vector<int>& nums) {
+        for (int i = 0; i < nums.size(); i++) {
+            if (digitSum(nums[i]) == i) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+};
+```
+
+- Example:
+  `nums = [1, 2, 3, 4, 5, 15]`
+
+- Index `0`: digit sum of `1` = `1`, not `0`
+- Index `1`: digit sum of `2` = `2`, not `1`
+- Index `2`: digit sum of `3` = `3`, not `2`
+- Index `3`: digit sum of `4` = `4`, not `3`
+- Index `4`: digit sum of `5` = `5`, not `4`
+- Index `5`: digit sum of `15` = `1 + 5 = 6`, not `5`
+
+- No valid index exists, so the answer is `-1`.
+
+- Time Complexity: O(n × d), where `d` is the number of digits in an element.
+- Space Complexity: O(1).
