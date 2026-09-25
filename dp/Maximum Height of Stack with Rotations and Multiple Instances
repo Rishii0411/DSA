@@ -1,0 +1,120 @@
+2026-09-25|Maximum Height of Stack with Rotations and Multiple Instances
+
+Question
+- Given `height[]`, `width[]`, and `length[]`, find the maximum possible height of a stack.
+- Each box can be rotated in any of the three ways.
+- A box can be placed above another only when both its base dimensions are strictly smaller.
+
+Approach
+1. Generate all 3 possible orientations of every box.
+- Each dimension can become the height.
+- The remaining two dimensions become the base.
+
+2. Normalize every base so that:
+- `baseLength >= baseWidth`
+- This makes comparisons consistent.
+
+3. For every orientation, calculate the maximum stack height when that orientation is the bottom box.
+
+4. Suppose orientation `i` has base `(L1, W1)`.
+- We can place orientation `j` above it when:
+  `L2 < L1` and `W2 < W1`
+
+5. Use dynamic programming:
+- `dp[i]` = maximum stack height with orientation `i` at the bottom.
+
+6. Therefore:
+  `dp[i] = height[i] + max(dp[j])`
+  for every orientation `j` that can be placed above `i`.
+
+7. Because both base dimensions must strictly decrease, we cannot form a cycle. Even though multiple copies of a box are allowed, the same orientation cannot be placed on itself because its base dimensions are not strictly smaller.
+- So the same DP over the finite set of orientations is sufficient.
+
+8. The answer is the maximum `dp[i]`.
+
+Solution
+class Solution {
+    struct Box {
+        long long h;
+        long long l;
+        long long w;
+    };
+
+public:
+    long long maxHeight(vector<int>& height,
+                        vector<int>& width,
+                        vector<int>& length) {
+
+        int n = height.size();
+        vector<Box> boxes;
+
+        for (int i = 0; i < n; i++) {
+            // height = height[i]
+            boxes.push_back({
+                height[i],
+                max(width[i], length[i]),
+                min(width[i], length[i])
+            });
+
+            // height = width[i]
+            boxes.push_back({
+                width[i],
+                max(height[i], length[i]),
+                min(height[i], length[i])
+            });
+
+            // height = length[i]
+            boxes.push_back({
+                length[i],
+                max(height[i], width[i]),
+                min(height[i], width[i])
+            });
+        }
+
+        int m = boxes.size();
+
+        // Sort by base dimensions in decreasing order.
+        sort(boxes.begin(), boxes.end(), [](const Box& a, const Box& b) {
+            if (a.l != b.l)
+                return a.l > b.l;
+            return a.w > b.w;
+        });
+
+        vector<long long> dp(m);
+
+        long long ans = 0;
+
+        for (int i = 0; i < m; i++) {
+            dp[i] = boxes[i].h;
+
+            for (int j = 0; j < i; j++) {
+                if (boxes[j].l > boxes[i].l &&
+                    boxes[j].w > boxes[i].w) {
+
+                    dp[i] = max(dp[i], dp[j] + boxes[i].h);
+                }
+            }
+
+            ans = max(ans, dp[i]);
+        }
+
+        return ans;
+    }
+};
+```
+
+Example
+- Suppose a box has dimensions `(4, 3, 2)`.
+- Its possible orientations are:
+  - Height `4`, base `3 × 2`
+  - Height `3`, base `4 × 2`
+  - Height `2`, base `4 × 3`
+
+- For every orientation, we compare its base with the bases of other orientations and build the tallest valid sequence.
+
+Key Point
+- Rotating each box gives 3 possible orientations.
+- After generating these orientations, the problem becomes a longest increasing/decreasing subsequence problem in two dimensions, where the value being maximized is the total height.
+
+- Time Complexity: O(n²), because there are `3n` orientations.
+- Space Complexity: O(n).
