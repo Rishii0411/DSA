@@ -1,0 +1,110 @@
+2026-09-25|Brace Expansion
+
+Question
+- Given an expression containing lowercase letters, `{}`, and `,`, return all distinct words represented by the expression in lexicographically sorted order.
+
+Approach
+1. Use recursive descent parsing.
+
+2. Define a function `parse()` that evaluates one complete expression and returns a set of strings.
+
+3. If the current character is a lowercase letter:
+- It represents a single word.
+- Return a set containing that character.
+
+4. If the current character is `{`:
+- Move past `{`.
+- Parse expressions separated by commas.
+- Take the union of all their results.
+- Stop when `}` is encountered.
+
+5. For concatenation, repeatedly parse the next expression and combine the current set with the next set.
+- If `A = {"a", "b"}` and `B = {"c", "d"}`, the result is:
+  `{"ac", "ad", "bc", "bd"}`
+
+6. A `set<string>` keeps every generated word unique and automatically sorts them lexicographically.
+
+7. Finally, convert the set into a vector and return it.
+
+Solution
+class Solution {
+    string s;
+    int pos;
+
+    set<string> combine(const set<string>& a, const set<string>& b) {
+        set<string> result;
+
+        for (const string& x : a) {
+            for (const string& y : b) {
+                result.insert(x + y);
+            }
+        }
+
+        return result;
+    }
+
+    set<string> parse() {
+        set<string> result;
+
+        while (pos < s.size() && s[pos] != '}' && s[pos] != ',') {
+            set<string> current;
+
+            if (s[pos] == '{') {
+                pos++; // Skip '{'
+
+                current = parse();
+
+                pos++; // Skip '}'
+            } else {
+                current.insert(string(1, s[pos]));
+                pos++;
+            }
+
+            if (result.empty()) {
+                result = current;
+            } else {
+                result = combine(result, current);
+            }
+        }
+
+        // Skip comma when returning to the caller.
+        if (pos < s.size() && s[pos] == ',')
+            pos++;
+
+        return result;
+    }
+
+public:
+    vector<string> braceExpansionII(string expression) {
+        s = expression;
+        pos = 0;
+
+        set<string> words = parse();
+
+        return vector<string>(words.begin(), words.end());
+    }
+};
+```
+
+- Example 1:
+  `"{a,b}{c,{d,e}}"`
+
+- First part:
+  `"{a,b}"` → `{"a", "b"}`
+
+- Second part:
+  `"{c,{d,e}}"` → `{"c", "d", "e"}`
+
+- Cartesian product:
+  `{"ac", "ad", "ae", "bc", "bd", "be"}`
+
+- The `set` keeps the results unique and sorted.
+
+- Example 2:
+  `"{{a,z},a{b,c},{ab,z}}"`
+
+- The resulting set is:
+  `{"a", "ab", "ac", "z"}`
+
+- Time Complexity: Let `M` be the number of distinct words generated. The algorithm is proportional to the amount of generated output and the Cartesian products needed to construct it.
+- Space Complexity: O(M × L), where `L` is the maximum word length, for storing the generated words.
