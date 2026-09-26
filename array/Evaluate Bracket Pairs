@@ -1,0 +1,79 @@
+2026-09-26|Evaluate Bracket Pairs
+
+Question
+- Given a string `s` and a list `knowledge` containing key-value pairs, replace every `(key)` in `s` with its corresponding value.
+- If a key is not present in `knowledge`, replace it with `?`.
+
+Approach
+1. Store all key-value pairs from `knowledge` in an `unordered_map`.
+
+2. Traverse `s` from left to right.
+
+3. If the current character is not `'('`, directly append it to the answer.
+
+4. If we encounter `'('`, find the corresponding `')'`.
+- The characters between them form the key.
+
+5. Look up the key in the hash map:
+- If it exists, append its value.
+- Otherwise, append `?`.
+
+6. Move the pointer after `')'` and continue.
+
+7. Since every bracket pair is guaranteed to be valid and there are no nested brackets, this parsing is straightforward.
+
+Solution
+
+```cpp
+class Solution {
+public:
+    string evaluate(string s, vector<vector<string>>& knowledge) {
+        unordered_map<string, string> mp;
+
+        for (auto& entry : knowledge) {
+            mp[entry[0]] = entry[1];
+        }
+
+        string ans;
+
+        for (int i = 0; i < s.size(); ) {
+            if (s[i] != '(') {
+                ans += s[i];
+                i++;
+            } else {
+                int j = i + 1;
+
+                while (s[j] != ')') {
+                    j++;
+                }
+
+                string key = s.substr(i + 1, j - i - 1);
+
+                if (mp.count(key)) {
+                    ans += mp[key];
+                } else {
+                    ans += '?';
+                }
+
+                i = j + 1;
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example:
+  `s = "(name)is(age)yearsold"`
+  `knowledge = [["name","bob"],["age","two"]]`
+
+- `(name)` → `bob`
+- `(age)` → `two`
+- Final result:
+  `bobistwoyearsold`
+
+- If a key is missing, for example `(name)` with no `"name"` entry, it becomes `?`.
+
+- Time Complexity: O(n + K), where `n` is the length of `s` and `K` is the total size of the knowledge entries.
+- Space Complexity: O(K) for the hash map.
