@@ -1,0 +1,96 @@
+2026-09-26|Minimum Cost to Buy Pizzas for Required Area
+
+Question
+- Given pizza areas `s`, `m`, `l`, their costs `cs`, `cm`, `cl`, and required area `x`, find the minimum cost to obtain total pizza area at least `x`.
+
+Approach
+1. Create a DP array where `dp[i]` represents the minimum cost required to obtain exactly `i` units of area.
+
+2. Because we need at least `x` area, we can calculate states up to `x + max(s,m,l)`.
+- This allows us to handle the case where the final pizza takes us beyond `x`.
+
+3. Initialize:
+- `dp[0] = 0`
+- All other states are initially infinity.
+
+4. For every reachable area `i`, try buying one more pizza of each type:
+- Small: `i + s`, cost `cs`
+- Medium: `i + m`, cost `cm`
+- Large: `i + l`, cost `cl`
+
+5. When the new area exceeds `x`, we do not need to continue building that state.
+- Instead, we can directly update the answer with its cost.
+
+6. The minimum cost found for reaching an area at least `x` is the answer.
+
+Solution
+
+```cpp
+class Solution {
+public:
+    long long minCost(int s, int m, int l,
+                      int cs, int cm, int cl,
+                      int x) {
+
+        int maxArea = max({s, m, l});
+        const long long INF = 1e18;
+
+        vector<long long> dp(x + maxArea + 1, INF);
+        dp[0] = 0;
+
+        long long ans = INF;
+
+        for (int area = 0; area <= x; area++) {
+            if (dp[area] == INF)
+                continue;
+
+            // Buy a small pizza.
+            int newArea = area + s;
+            if (newArea >= x) {
+                ans = min(ans, dp[area] + cs);
+            } else {
+                dp[newArea] = min(dp[newArea],
+                                  dp[area] + cs);
+            }
+
+            // Buy a medium pizza.
+            newArea = area + m;
+            if (newArea >= x) {
+                ans = min(ans, dp[area] + cm);
+            } else {
+                dp[newArea] = min(dp[newArea],
+                                  dp[area] + cm);
+            }
+
+            // Buy a large pizza.
+            newArea = area + l;
+            if (newArea >= x) {
+                ans = min(ans, dp[area] + cl);
+            } else {
+                dp[newArea] = min(dp[newArea],
+                                  dp[area] + cl);
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example:
+  Suppose:
+  `s = 6, m = 10, l = 15`
+  `cs = 5, cm = 8, cl = 11`
+  `x = 20`
+
+- Possible choices include:
+  - 4 small pizzas → area `24`, cost `20`
+  - 2 medium pizzas → area `20`, cost `16`
+  - 1 large + 1 small → area `21`, cost `16`
+
+- Therefore, the minimum cost is `16`.
+
+- Time Complexity: O(x)
+- Space Complexity: O(x)
+
+- The important idea is that each pizza can be purchased any number of times, so after reaching an area `i`, we can transition to `i + s`, `i + m`, or `i + l` repeatedly
