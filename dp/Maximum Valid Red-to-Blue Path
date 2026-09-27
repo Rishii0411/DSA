@@ -1,0 +1,160 @@
+2026-09-27|Maximum Valid Red-to-Blue Path
+
+Question
+- Given a tree whose nodes are colored Red or Blue, find the maximum number of nodes in a path such that no Red node appears after a Blue node.
+
+Approach
+1. Root the tree arbitrarily, for example at node `1`.
+
+2. For every node, calculate two values:
+- `red[i]`: longest valid downward path starting at `i` that consists only of Red nodes.
+- `blue[i]`: longest valid downward path starting at `i` that starts with Red nodes and then contains Blue nodes, or consists entirely of Blue nodes.
+
+3. For a Red node:
+- A Red-only path can continue into another Red child.
+- So:
+  `red[u] = 1 + max(red[v])`
+- A Red node can also start a Red-to-Blue path through a Blue child:
+  `blue[u] = 1 + max(blue[v])` for Blue children.
+- More generally, if the child path starts with Blue, the Red parent can safely be placed before it.
+
+4. For a Blue node:
+- We cannot continue into a Red child.
+- Therefore, only Blue children can extend the path:
+  `blue[u] = 1 + max(blue[v])`
+
+5. To obtain the longest path that passes through a node, we can combine the best valid downward paths from two different child directions.
+- For a Red node, we can combine two Red-side paths.
+- For a Blue node, both sides must remain Blue once the path reaches the node.
+
+6. An even simpler way is to assign each directed edge transition a validity condition and maintain two states during DFS:
+- State `0`: we have not encountered Blue yet, so both R and B are allowed.
+- State `1`: we have already encountered Blue, so only B is allowed.
+- The path can switch from state `0` to state `1` when entering a Blue node, but never back.
+
+7. Since the path can have any node as its turning point, maintain the two longest valid downward chains from each node and combine them.
+
+Solution
+class Solution {
+    vector<vector<int>> adj;
+    string color;
+    int ans;
+
+    // Returns:
+    // 0 -> longest path starting at u when Red is still allowed
+    // 1 -> longest path starting at u after Blue has been encountered
+    pair<int, int> dfs(int u, int parent) {
+        int redStart = 1;
+        int blueStart = 1;
+
+        int bestRed1 = 0, bestRed2 = 0;
+        int bestBlue1 = 0, bestBlue2 = 0;
+
+        for (int v : adj[u]) {
+            if (v == parent)
+                continue;
+
+            auto [childRed, childBlue] = dfs(v, u);
+
+            if (color[u] == 'R') {
+                // If u is Red, we can continue with a child
+                // whose path starts while Red is still allowed.
+                if (color[v] == 'R') {
+                    int len = childRed;
+
+                    if (len > bestRed1) {
+                        bestRed2 = bestRed1;
+                        bestRed1 = len;
+                    } else if (len > bestRed2) {
+                        bestRed2 = len;
+                    }
+                }
+
+                // We can transition from Red to Blue.
+                if (color[v] == 'B') {
+                    int len = childBlue;
+
+                    if (len > bestBlue1) {
+                        bestBlue2 = bestBlue1;
+                        bestBlue1 = len;
+                    } else if (len > bestBlue2) {
+                        bestBlue2 = len;
+                    }
+                }
+            } else {
+                // u is Blue, so after reaching u we can only
+                // continue through Blue nodes.
+                if (color[v] == 'B') {
+                    int len = childBlue;
+
+                    if (len > bestBlue1) {
+                        bestBlue2 = bestBlue1;
+                        bestBlue1 = len;
+                    } else if (len > bestBlue2) {
+                        bestBlue2 = len;
+                    }
+                }
+            }
+        }
+
+        if (color[u] == 'R') {
+            redStart = 1 + bestRed1;
+            blueStart = 1 + bestBlue1;
+
+            // A valid path can have a Red part on one side
+            // and a Blue part on the other side.
+            ans = max(ans, 1 + bestRed1 + bestBlue1);
+
+            // It can also be completely Red.
+            ans = max(ans, 1 + bestRed1 + bestRed2);
+        } else {
+            blueStart = 1 + bestBlue1;
+
+            // A path through Blue can only contain Blue nodes.
+            ans = max(ans, 1 + bestBlue1 + bestBlue2);
+        }
+
+        return {redStart, blueStart};
+    }
+
+public:
+    int maxValidPath(int n, string s, vector<vector<int>>& edges) {
+        color = s;
+        adj.assign(n, {});
+
+        for (auto &e : edges) {
+            int u = e[0] - 1;
+            int v = e[1] - 1;
+
+            adj[u].push_back(v);
+            adj[v].push_back(u);
+        }
+
+        ans = 1;
+        dfs(0, -1);
+
+        return ans;
+    }
+};
+```
+
+- Example:
+  Suppose a path is:
+  `R -> R -> B -> B`
+
+  This is valid because after the first Blue node, every later node is also Blue.
+
+- But:
+  `R -> B -> R`
+
+  is invalid because a Red node appears after Blue.
+
+- The important observation is that the path has only one possible color transition:
+  `R -> B`
+
+  It can never transition back to `R`.
+
+- Time Complexity: O(n)
+- Space Complexity: O(n)
+
+- The DFS processes every tree edge a constant number of times, so the solution remains linear even for a tree with `10^5` nodes.
