@@ -1,0 +1,66 @@
+2026-09-27|Reverse Strings Inside Matching Parentheses
+
+Question
+- Given a string `s` containing lowercase letters and parentheses, reverse the string inside every matching pair of parentheses, starting from the innermost pair, and return the final string without parentheses.
+
+Approach
+1. Maintain a stack of strings.
+- The stack represents the text belonging to currently open parentheses.
+
+2. Start with an empty string on the stack for the outside text.
+
+3. When we see `'('`:
+- Start a new empty string by pushing it onto the stack.
+
+4. When we see a lowercase letter:
+- Append it to the string at the top of the stack.
+
+5. When we see `')'`:
+- The top string represents the contents of the innermost parentheses.
+- Reverse it.
+- Remove that string from the stack.
+- Append the reversed string to the new top of the stack.
+
+6. At the end, the bottom stack element contains the complete answer.
+
+Solution
+
+```cpp
+class Solution {
+public:
+    string reverseParentheses(string s) {
+        stack<string> st;
+        st.push("");
+
+        for (char ch : s) {
+            if (ch == '(') {
+                st.push("");
+            }
+            else if (ch == ')') {
+                string cur = st.top();
+                st.pop();
+
+                reverse(cur.begin(), cur.end());
+
+                st.top() += cur;
+            }
+            else {
+                st.top() += ch;
+            }
+        }
+
+        return st.top();
+    }
+};
+```
+
+- Example:
+  `s = "(u(love)i)"`
+
+- Inner pair `(love)` becomes `evol`.
+- The outer pair now contains `u evol i`, which becomes `iloveu`.
+- Final answer:
+  `iloveu`
+
+- Time Complexity: O(n²) in the worst case because reversing and concatenating nested strings can repeatedly process the same characters.
+- Space Complexity: O(n), for the stack and stored characters.
