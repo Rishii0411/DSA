@@ -1,0 +1,48 @@
+2026-09-28|Maximum Nesting Depth of Parentheses
+
+Question
+- Given a valid parentheses string `s`, return its maximum nesting depth.
+
+Approach
+1. Initialize `depth = 0` to track the current nesting level.
+2. Initialize `ans = 0` to store the maximum depth.
+3. Traverse the string from left to right.
+4. When the character is `(`:
+- Increment `depth`.
+- Update `ans = max(ans, depth)`.
+5. When the character is `)`:
+- Decrement `depth`.
+6. Since the string is guaranteed to be valid, the depth will never become negative.
+7. Return `ans`.
+
+Solution
+class Solution {
+public:
+    int maxDepth(string s) {
+        int depth = 0;
+        int ans = 0;
+
+        for (char ch : s) {
+            if (ch == '(') {
+                depth++;
+                ans = max(ans, depth);
+            } else if (ch == ')') {
+                depth--;
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+- Example:
+  `s = "(1+(2*3)+((8)/4))+1"`
+
+- The deepest point is:
+  `((8)/4)`
+- At that point, there are 3 nested pairs of parentheses.
+- Therefore, the answer is `3`.
+
+- Time Complexity: O(n)
+- Space Complexity: O(1)
