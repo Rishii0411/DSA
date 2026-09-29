@@ -1,0 +1,106 @@
+2026-09-29|Valid Parentheses String Path
+
+Question
+- Given an `m × n` grid containing only `(` and `)`, determine whether there exists a path from `(0,0)` to `(m-1,n-1)` moving only down or right such that the resulting parentheses string is valid.
+
+Approach
+1. The path contains exactly `m + n - 1` cells.
+2. A valid parentheses string must have even length.
+- If `m + n - 1` is odd, immediately return `false`.
+
+3. Maintain a DP state for every cell and every possible balance.
+- `balance` = number of `(` seen minus number of `)` seen so far.
+- A balance can never become negative.
+
+4. At `(i,j)`:
+- If the cell contains `(`, increase the balance by `1`.
+- If it contains `)`, decrease the balance by `1`.
+
+5. A state can be reached from:
+- The cell above `(i-1,j)`.
+- The cell to the left `(i,j-1)`.
+
+6. We only keep balances from which the path can still be valid.
+
+7. At the bottom-right cell, the answer is `true` only if balance `0` is reachable.
+
+8. We can optimize the DP using two-dimensional arrays of boolean states. Since the maximum possible balance is at most `m + n - 1`, the complexity is acceptable.
+
+Solution
+class Solution {
+public:
+    bool hasValidPath(vector<vector<char>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+
+        // A valid parentheses string must have even length.
+        if ((m + n - 1) % 2 != 0)
+            return false;
+
+        // dp[j][balance] represents whether we can reach
+        // cell (current row, j) with this balance.
+        vector<vector<bool>> dp(n, vector<bool>(m + n, false));
+
+        for (int i = 0; i < m; i++) {
+            vector<vector<bool>> next(
+                n, vector<bool>(m + n, false)
+            );
+
+            for (int j = 0; j < n; j++) {
+                int value = (grid[i][j] == '(' ? 1 : -1);
+
+                if (i == 0 && j == 0) {
+                    int balance = value;
+
+                    if (balance >= 0)
+                        next[j][balance] = true;
+
+                    continue;
+                }
+
+                for (int balance = 0; balance <= m + n; balance++) {
+                    bool reachable = false;
+
+                    // From the cell above.
+                    if (i > 0 && dp[j][balance]) {
+                        reachable = true;
+                    }
+
+                    // From the cell on the left.
+                    if (j > 0 && next[j - 1][balance]) {
+                        reachable = true;
+                    }
+
+                    if (!reachable)
+                        continue;
+
+                    int newBalance = balance + value;
+
+                    if (newBalance >= 0 &&
+                        newBalance <= m + n) {
+                        next[j][newBalance] = true;
+                    }
+                }
+            }
+
+            dp = move(next);
+        }
+
+        return dp[n - 1][0];
+    }
+};
+```
+
+- Example:
+  Suppose the path produces:
+  `(()())`
+
+- Its balance changes as:
+  `1 -> 2 -> 1 -> 2 -> 1 -> 0`
+
+- The balance never becomes negative and finishes at `0`, so the path is valid.
+
+- Time Complexity: O(m × n × (m + n))
+- Space Complexity: O(n × (m + n))
+
+- The key idea is to track the current parentheses balance rather than storing the entire string for every possible path. A state is valid only when its balance never becomes negative, and the final balance must be exactly `0`.
