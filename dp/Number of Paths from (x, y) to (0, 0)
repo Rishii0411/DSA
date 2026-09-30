@@ -1,0 +1,66 @@
+2026-09-30|Number of Paths from (x, y) to (0, 0)
+
+Question
+- Given `x` and `y`, find the number of distinct paths from `(x, y)` to `(0, 0)`.
+- Return the answer modulo `10^9 + 7`.
+
+Approach
+1. There are exactly `x + y` moves in every path.
+
+2. Out of these moves:
+- `x` moves must be left.
+- `y` moves must be down.
+
+3. The number of different arrangements is:
+   `C(x + y, x)`
+   or equivalently
+   `C(x + y, y)`.
+
+4. We can calculate this using Dynamic Programming with Pascal's identity:
+   `C(n, r) = C(n-1, r-1) + C(n-1, r)`
+
+5. Alternatively, if the constraints are large, factorials and modular inverses can calculate the combination efficiently.
+
+6. Using DP is straightforward and avoids modular inverse calculations.
+
+Solution
+class Solution {
+public:
+    int numberOfPaths(int x, int y) {
+        const long long MOD = 1000000007;
+
+        // dp[j] = number of ways to reach the current row/column state.
+        vector<long long> dp(y + 1, 1);
+
+        for (int i = 1; i <= x; i++) {
+            for (int j = 1; j <= y; j++) {
+                dp[j] = (dp[j] + dp[j - 1]) % MOD;
+            }
+        }
+
+        return dp[y];
+    }
+};
+```
+
+- Example:
+  `x = 2, y = 2`
+
+- Every path contains:
+  - 2 left moves
+  - 2 down moves
+
+- The possible sequences are:
+  - L L D D
+  - L D L D
+  - L D D L
+  - D L L D
+  - D L D L
+  - D D L L
+
+- Therefore, the answer is `6`.
+
+- Time Complexity: O(x × y)
+- Space Complexity: O(y)
+
+- The key observation is that every valid path is simply a different ordering of exactly `x` left moves and `y` down moves, so mathematically the answer is `C(x + y, x)`.
