@@ -1,0 +1,83 @@
+2026-10-02|Lexicographically Smallest String Rotation
+
+Question
+- Given a string `s`, return the lexicographically smallest string obtainable by rotating `s` left any number of times, including zero.
+
+Approach
+1. Imagine the string repeated twice:
+   `s + s`
+- Every rotation of `s` appears as a substring of length `n` in this doubled string.
+
+2. We could compare all `n` possible starting positions, but that could take O(n²).
+
+3. Booth’s algorithm eliminates rotations that cannot possibly be the minimum.
+- Maintain two candidate starting positions `i` and `j`.
+- Compare characters from both rotations.
+- If they differ, the rotation with the larger character cannot be the minimum.
+- Skip the appropriate number of positions.
+
+4. Continue until only the best starting position remains.
+
+5. The answer is the substring of length `n` starting from that position in `s + s`.
+
+Solution
+class Solution {
+public:
+    string minRotation(string s) {
+        int n = s.size();
+
+        if (n <= 1)
+            return s;
+
+        string t = s + s;
+
+        int i = 0;
+        int j = 1;
+        int k = 0;
+
+        while (i < n && j < n && k < n) {
+            if (t[i + k] == t[j + k]) {
+                k++;
+                continue;
+            }
+
+            if (t[i + k] > t[j + k]) {
+                i = i + k + 1;
+
+                if (i <= j)
+                    i = j + 1;
+            } else {
+                j = j + k + 1;
+
+                if (j <= i)
+                    j = i + 1;
+            }
+
+            k = 0;
+        }
+
+        int start = min(i, j);
+
+        return t.substr(start, n);
+    }
+};
+```
+
+- Example:
+  `s = "baca"`
+
+- Its rotations are:
+  - `baca`
+  - `acab`
+  - `caba`
+  - `abac`
+
+- The lexicographically smallest rotation is:
+  `abac`
+
+- Therefore, the answer is `"abac"`.
+
+- Time Complexity: O(n)
+- Space Complexity: O(n), because we create `s + s`.
+
+- The key idea is Booth’s algorithm: instead of explicitly constructing and comparing all rotations, it efficiently eliminates rotations that cannot be the lexicographically smallest.
