@@ -1,0 +1,71 @@
+2026-10-02|Generate All Valid Parentheses Combinations
+
+Question
+- Given `n` pairs of parentheses, generate all combinations of well-formed parentheses.
+
+Approach
+1. Use backtracking to build the answer character by character.
+
+2. Maintain two counts:
+- `open` = number of `(` used.
+- `close` = number of `)` used.
+
+3. We can add `(` when:
+- `open < n`
+
+4. We can add `)` when:
+- `close < open`
+- This ensures that the number of closing brackets never exceeds the number of opening brackets.
+
+5. When the current string has length `2 * n`, we have used all parentheses and can add it to the answer.
+
+6. Backtracking removes the last character after exploring a choice, allowing us to try another possibility.
+
+Solution
+class Solution {
+public:
+    vector<string> ans;
+
+    void generate(string& cur, int open, int close, int n) {
+        if (cur.size() == 2 * n) {
+            ans.push_back(cur);
+            return;
+        }
+
+        // Add an opening bracket.
+        if (open < n) {
+            cur.push_back('(');
+            generate(cur, open + 1, close, n);
+            cur.pop_back();
+        }
+
+        // Add a closing bracket only if it is valid.
+        if (close < open) {
+            cur.push_back(')');
+            generate(cur, open, close + 1, n);
+            cur.pop_back();
+        }
+    }
+
+    vector<string> generateParenthesis(int n) {
+        string cur;
+        generate(cur, 0, 0, n);
+        return ans;
+    }
+};
+```
+
+- Example:
+  `n = 3`
+
+- The valid combinations are:
+  `((()))`
+  `(()())`
+  `(())()`
+  `()(())`
+  `()()()`
+
+- Notice that a closing bracket is never added when `close >= open`. This prevents strings such as `())...` from ever being generated.
+
+- Time Complexity: O(Cn × n), where `Cn` is the nth Catalan number, because there are `Cn` valid strings and each string has length `2n`.
+- Space Complexity: O(n) for the recursion depth and current string, excluding the returned answer.
