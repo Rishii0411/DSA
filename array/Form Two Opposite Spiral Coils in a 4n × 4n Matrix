@@ -1,0 +1,165 @@
+2026-10-03|Form Two Opposite Spiral Coils in a 4n × 4n Matrix
+
+Question
+Given a positive integer n, construct the 4n × 4n matrix and return the two coils formed by spiraling inward from the top-left and bottom-right corners.
+
+Approach
+
+1. Let `N = 4 * n`.
+
+2. Fill the matrix in row-major order. The value at position `(i, j)` is:
+   `i * N + j + 1`
+
+3. For the first coil:
+   - Start from the top-left corner.
+   - Move right.
+   - Move down.
+   - Move left.
+   - Move up.
+   - Shrink the boundaries and repeat.
+
+4. For the second coil:
+   - Start from the bottom-right corner.
+   - Move left.
+   - Move up.
+   - Move right.
+   - Move down.
+   - Shrink the boundaries and repeat.
+
+5. Each traversal visits exactly `N²` cells.
+
+6. Since `N = 4n`, the number of elements in each coil is:
+   `(4n)² = 16n²`
+
+7. Time complexity is O(n²), because we process every matrix element a constant number of times.
+
+8. Space complexity is O(n²) for the matrix and the two coils.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> getFirstCoil(const vector<vector<int>>& mat) {
+    int n = mat.size();
+
+    vector<int> coil;
+
+    int top = 0;
+    int bottom = n - 1;
+    int left = 0;
+    int right = n - 1;
+
+    while (top <= bottom && left <= right) {
+        // Move right
+        for (int j = left; j <= right; j++) {
+            coil.push_back(mat[top][j]);
+        }
+        top++;
+
+        // Move down
+        for (int i = top; i <= bottom; i++) {
+            coil.push_back(mat[i][right]);
+        }
+        right--;
+
+        // Move left
+        if (top <= bottom) {
+            for (int j = right; j >= left; j--) {
+                coil.push_back(mat[bottom][j]);
+            }
+            bottom--;
+        }
+
+        // Move up
+        if (left <= right) {
+            for (int i = bottom; i >= top; i--) {
+                coil.push_back(mat[i][left]);
+            }
+            left++;
+        }
+    }
+
+    return coil;
+}
+
+vector<int> getSecondCoil(const vector<vector<int>>& mat) {
+    int n = mat.size();
+
+    vector<int> coil;
+
+    int top = 0;
+    int bottom = n - 1;
+    int left = 0;
+    int right = n - 1;
+
+    while (top <= bottom && left <= right) {
+        // Move left
+        for (int j = right; j >= left; j--) {
+            coil.push_back(mat[bottom][j]);
+        }
+        bottom--;
+
+        // Move up
+        for (int i = bottom; i >= top; i--) {
+            coil.push_back(mat[i][left]);
+        }
+        left++;
+
+        // Move right
+        if (top <= bottom) {
+            for (int j = left; j <= right; j++) {
+                coil.push_back(mat[top][j]);
+            }
+            top++;
+        }
+
+        // Move down
+        if (left <= right) {
+            for (int i = top; i <= bottom; i++) {
+                coil.push_back(mat[i][right]);
+            }
+            right--;
+        }
+    }
+
+    return coil;
+}
+
+pair<vector<int>, vector<int>> formCoils(int n) {
+    int N = 4 * n;
+
+    vector<vector<int>> mat(N, vector<int>(N));
+
+    int value = 1;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            mat[i][j] = value++;
+        }
+    }
+
+    vector<int> coil1 = getFirstCoil(mat);
+    vector<int> coil2 = getSecondCoil(mat);
+
+    return {coil1, coil2};
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    auto [coil1, coil2] = formCoils(n);
+
+    for (int x : coil1) {
+        cout << x << " ";
+    }
+    cout << "\n";
+
+    for (int x : coil2) {
+        cout << x << " ";
+    }
+    cout << "\n";
+
+    return 0;
+}
+```
