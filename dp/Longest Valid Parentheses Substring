@@ -1,0 +1,68 @@
+2026-10-03|Longest Valid Parentheses Substring
+
+Question
+Given a string `s` containing only `(` and `)`, return the length of the longest valid parentheses substring.
+
+Approach
+
+1. Use a stack to store indices of unmatched parentheses.
+
+2. Start the stack with `-1`. This acts as a boundary before the current valid substring.
+
+3. Traverse the string from left to right.
+
+4. If the current character is `(`, push its index into the stack.
+
+5. If the current character is `)`:
+   - Pop the top element because this `)` attempts to match an opening `(`.
+   - If the stack becomes empty, push the current index as the new boundary. This means the current `)` cannot be part of a valid substring.
+   - Otherwise, the current valid substring starts just after the index at the top of the stack. Its length is:
+     `i - stack.top()`
+
+6. Keep updating the maximum length.
+
+7. For example, for `s = "(()"`:
+   - At index 2, the final `)` matches the `(` at index 1.
+   - The valid substring is from index 1 to index 2.
+   - Its length is 2.
+
+8. Time complexity is O(n), because every index is pushed and popped at most once.
+
+9. Space complexity is O(n) for the stack.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+int longestValidParentheses(string s) {
+    stack<int> st;
+    st.push(-1);
+
+    int ans = 0;
+
+    for (int i = 0; i < s.size(); i++) {
+        if (s[i] == '(') {
+            st.push(i);
+        } else {
+            st.pop();
+
+            if (st.empty()) {
+                st.push(i);
+            } else {
+                ans = max(ans, i - st.top());
+            }
+        }
+    }
+
+    return ans;
+}
+
+int main() {
+    string s;
+    cin >> s;
+
+    cout << longestValidParentheses(s) << endl;
+
+    return 0;
+}
+```
