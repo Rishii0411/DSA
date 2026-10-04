@@ -1,0 +1,84 @@
+2026-10-04|Valid Parenthesis String
+
+Question
+Given a string `s` containing only `(`, `)` and `*`, return `true` if the string can be made valid by treating each `*` as `(`, `)` or an empty string. Otherwise, return `false`.
+
+Approach
+1. Maintain two values:
+   - `low`: minimum possible number of unmatched `(`.
+   - `high`: maximum possible number of unmatched `(`.
+
+2. Initially, both are `0`.
+
+3. Traverse the string from left to right.
+
+4. If the character is `(`:
+   - It increases the number of unmatched opening parentheses.
+   - `low++`
+   - `high++`
+
+5. If the character is `)`:
+   - It can close an existing opening parenthesis.
+   - `low--`
+   - `high--`
+
+6. If the character is `*`:
+   - It could be `)`, so the minimum decreases: `low--`.
+   - It could be `(`, so the maximum increases: `high++`.
+   - It could be empty, which keeps the balance unchanged.
+
+7. `low` can never be negative because we cannot have fewer than zero unmatched opening parentheses:
+   `low = max(0, low)`
+
+8. If `high` becomes negative, even treating every `*` as `(` cannot provide enough opening parentheses for the current `)`. Therefore, the string is invalid.
+
+9. After processing the entire string, if `low == 0`, there is some valid interpretation of all the `*` characters.
+
+10. Time complexity is O(n).
+
+11. Space complexity is O(1).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+bool checkValidString(string s) {
+    int low = 0;
+    int high = 0;
+
+    for (char ch : s) {
+        if (ch == '(') {
+            low++;
+            high++;
+        }
+        else if (ch == ')') {
+            low--;
+            high--;
+        }
+        else {
+            // '*' can be ')' or '(' or empty
+            low--;
+            high++;
+        }
+
+        // We cannot have fewer than 0 unmatched '('
+        low = max(0, low);
+
+        // Even with all '*' as '(', balance is negative
+        if (high < 0) {
+            return false;
+        }
+    }
+
+    return low == 0;
+}
+
+int main() {
+    string s;
+    cin >> s;
+
+    cout << (checkValidString(s) ? "true" : "false") << endl;
+
+    return 0;
+}
+```
