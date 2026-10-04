@@ -1,0 +1,59 @@
+2026-10-04|Total Perimeter of Figures Formed by 1s
+
+Humanized Description of the Problem
+We are given a binary matrix where `1` represents a filled cell and `0` represents an empty cell.
+Every `1` cell initially contributes 4 sides to the perimeter. However, if two `1` cells share a side, that shared side is inside the figure and should not be counted as perimeter.
+So, we can calculate the perimeter by checking each `1` cell and counting how many of its four sides touch either the boundary of the matrix or a `0`.
+
+Question
+Given a binary matrix `mat[][]` of size `n × m`, find the total perimeter of all figures formed by cells containing `1s`.
+A single `1` cell has perimeter 4. Two horizontally or vertically adjacent `1` cells together have perimeter 6.
+
+Approach
+1. Traverse every cell of the matrix.
+2. Whenever `mat[i][j] == 1`, initially add 4 to the answer.
+3. Check its four neighboring cells:
+   - Up: `(i - 1, j)`
+   - Down: `(i + 1, j)`
+   - Left: `(i, j - 1)`
+   - Right: `(i, j + 1)`
+
+4. If a neighboring cell also contains `1`, the two cells share one side. That side should not contribute to the perimeter, so subtract 1.
+5. We can also avoid checking all four directions by only checking the top and left neighbors. Every shared edge will then be counted exactly once.
+6. For each `1` cell:
+   - Add 4.
+   - If the cell above is `1`, subtract 1.
+   - If the cell to the left is `1`, subtract 1.
+7. Time complexity is O(n × m), since every matrix cell is visited once.
+8. Space complexity is O(1), excluding the input matrix.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+int totalPerimeter(vector<vector<int>>& mat) {
+    int n = mat.size();
+    int m = mat[0].size();
+
+    int perimeter = 0;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (mat[i][j] == 1) {
+                perimeter += 4;
+
+                // Shared side with the cell above
+                if (i > 0 && mat[i - 1][j] == 1) {
+                    perimeter--;
+                }
+
+                // Shared side with the cell on the left
+                if (j > 0 && mat[i][j - 1] == 1) {
+                    perimeter--;
+                }
+            }
+        }
+    }
+
+    return perimeter;
+}
