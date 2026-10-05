@@ -1,0 +1,92 @@
+2026-10-05|Find All Reachable Users and Their Distance
+
+Question
+Given `arr[]` of size `n - 1`, where `arr[i - 2]` is the friend of user `i`, return all reachable pairs `[i, j, k]` in the required order.
+
+Approach
+
+1. Store the direct friend of every user.
+   - `parent[1] = 0`
+   - `parent[i] = arr[i - 2]`
+
+2. For every user `i` from 2 to `n`, start at `i` and repeatedly follow `parent`.
+
+3. The first user reached is `parent[i]`, at distance 1.
+
+4. Continue following the chain until reaching user 1.
+
+5. Every user encountered is reachable, so add `[i, current, distance]` to the answer.
+
+6. Because every user's friend has a smaller number, the chain always moves toward user 1. Therefore, there cannot be a cycle.
+
+7. The required ordering happens naturally:
+   - Outer loop processes `i` from 2 to n.
+   - Inner traversal follows users toward smaller numbers, but the problem requires reachable `j` values in increasing order.
+
+8. To guarantee the required ordering, collect all reachable `(j, distance)` pairs first, then sort them by `j`.
+
+9. Time complexity is O(n²) in the worst case, because a user may have a chain containing almost all previous users.
+
+10. Space complexity is O(n) excluding the output.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<vector<int>> findReachablePairs(int n, vector<int>& arr) {
+    vector<int> parent(n + 1, 0);
+
+    for (int i = 2; i <= n; i++) {
+        parent[i] = arr[i - 2];
+    }
+
+    vector<vector<int>> ans;
+
+    for (int i = 2; i <= n; i++) {
+        vector<pair<int, int>> reachable;
+
+        int current = parent[i];
+        int distance = 1;
+
+        while (current != 0) {
+            reachable.push_back({current, distance});
+
+            if (current == 1) {
+                break;
+            }
+
+            current = parent[current];
+            distance++;
+        }
+
+        sort(reachable.begin(), reachable.end());
+
+        for (auto &[user, dist] : reachable) {
+            ans.push_back({i, user, dist});
+        }
+    }
+
+    return ans;
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> arr(n - 1);
+
+    for (int i = 0; i < n - 1; i++) {
+        cin >> arr[i];
+    }
+
+    vector<vector<int>> ans = findReachablePairs(n, arr);
+
+    for (auto &v : ans) {
+        cout << "[" << v[0] << ", " << v[1] << ", " << v[2] << "]\n";
+    }
+
+    return 0;
+}
+```
+
+For example, if the friend chain is `4 -> 3 -> 1`, then for user 4 the reachable users are 1 and 3. The output order must be `[4, 1, 2]` followed by `[4, 3, 1]`, because the required order is based on increasing user number `j`, not on distance.
