@@ -1,0 +1,77 @@
+2026-10-05|Score of Parentheses
+
+Question
+Given a balanced parentheses string `s`, return its score using these rules:
+
+- `()` has score `1`.
+- `AB` has score `A + B`.
+- `(A)` has score `2 * A`.
+
+Approach
+1. Use a stack to store the score of each currently open pair of parentheses.
+
+2. Start the stack with `0`, representing the score at the outermost level.
+
+3. When we see `(`, push `0` onto the stack. This starts a new nested group.
+
+4. When we see `)`:
+   - Remove the score belonging to the current pair.
+   - If that score is `0`, the pair is simply `()`, so its score is `1`.
+   - Otherwise, its score is `2 * innerScore`.
+   - Add this value to the score of the enclosing level.
+
+5. After processing the complete string, the bottom of the stack contains the final score.
+
+6. For example, for `(())`:
+   - The inner `()` has score `1`.
+   - The outer parentheses double it.
+   - Final score = `2`.
+
+7. For `()()`:
+   - First `()` contributes `1`.
+   - Second `()` contributes `1`.
+   - Final score = `2`.
+
+8. Time complexity is O(n), because every character is processed once.
+
+9. Space complexity is O(n) in the worst case when all parentheses are nested.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+int scoreOfParentheses(string s) {
+    stack<int> st;
+    st.push(0);
+
+    for (char ch : s) {
+        if (ch == '(') {
+            st.push(0);
+        } else {
+            int innerScore = st.top();
+            st.pop();
+
+            int currentScore;
+
+            if (innerScore == 0) {
+                currentScore = 1;
+            } else {
+                currentScore = 2 * innerScore;
+            }
+
+            st.top() += currentScore;
+        }
+    }
+
+    return st.top();
+}
+
+int main() {
+    string s;
+    cin >> s;
+
+    cout << scoreOfParentheses(s) << endl;
+
+    return 0;
+}
+```
