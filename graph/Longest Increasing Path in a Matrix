@@ -1,0 +1,102 @@
+2026-10-06|Longest Increasing Path in a Matrix
+
+Question
+Given an `n × m` matrix, find the length of the longest strictly increasing path. The path can start and end at any cell, and movement is allowed only in the four non-diagonal directions.
+
+Approach
+
+1. Define `dp[i][j]` as the length of the longest increasing path starting from cell `(i, j)`.
+
+2. From `(i, j)`, check its four neighbors.
+
+3. We can move to a neighbor `(ni, nj)` only when:
+   `mat[ni][nj] > mat[i][j]`
+
+4. If we can move there, the path length becomes:
+   `1 + dp[ni][nj]`
+
+5. Take the maximum among all valid moves.
+
+6. If there is no larger neighboring value, the path starting at that cell has length `1`.
+
+7. Use DFS with memoization so that every cell's answer is calculated only once.
+
+8. Because every move goes to a strictly larger value, there can be no cycle. Therefore, the DFS is safe.
+
+9. Run DFS from every cell and keep the maximum result.
+
+10. Time complexity is O(n × m), because each cell is processed once and checks only four neighbors.
+
+11. Space complexity is O(n × m) for the DP table and O(n × m) in the worst case for the recursion stack.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int n, m;
+    vector<vector<int>> dp;
+
+    int dfs(int i, int j, vector<vector<int>>& mat) {
+        if (dp[i][j] != -1) {
+            return dp[i][j];
+        }
+
+        int best = 1;
+
+        int dr[] = {-1, 1, 0, 0};
+        int dc[] = {0, 0, -1, 1};
+
+        for (int d = 0; d < 4; d++) {
+            int ni = i + dr[d];
+            int nj = j + dc[d];
+
+            if (ni >= 0 && ni < n &&
+                nj >= 0 && nj < m &&
+                mat[ni][nj] > mat[i][j]) {
+
+                best = max(best, 1 + dfs(ni, nj, mat));
+            }
+        }
+
+        return dp[i][j] = best;
+    }
+
+    int longestIncreasingPath(vector<vector<int>>& mat) {
+        n = mat.size();
+        m = mat[0].size();
+
+        dp.assign(n, vector<int>(m, -1));
+
+        int answer = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                answer = max(answer, dfs(i, j, mat));
+            }
+        }
+
+        return answer;
+    }
+};
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> mat(n, vector<int>(m));
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> mat[i][j];
+        }
+    }
+
+    Solution obj;
+
+    cout << obj.longestIncreasingPath(mat) << endl;
+
+    return 0;
+}
+```
