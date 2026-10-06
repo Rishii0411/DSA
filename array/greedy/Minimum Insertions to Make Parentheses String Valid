@@ -1,0 +1,74 @@
+2026-10-06|Minimum Insertions to Make Parentheses String Valid
+
+Question
+Given a parentheses string `s`, in one move we can insert either `(` or `)` at any position. Return the minimum number of insertions needed to make `s` valid.
+
+Approach
+
+1. Maintain `open`, the number of unmatched `(` encountered so far.
+
+2. Maintain `insertions`, the number of parentheses we have inserted.
+
+3. Traverse the string from left to right.
+
+4. If the current character is `(`:
+   - Increment `open`.
+
+5. If the current character is `)`:
+   - If `open > 0`, match it with an existing `(` and decrement `open`.
+   - If `open == 0`, there is no opening parenthesis available. We must insert one `(`, so increment `insertions`.
+
+6. After processing the entire string, if `open > 0`, every unmatched `(` needs one `)`.
+
+7. Therefore, add `open` to `insertions`.
+
+8. The answer is `insertions`.
+
+9. Time complexity is O(n), since every character is processed once.
+
+10. Space complexity is O(1).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+int minAddToMakeValid(string s) {
+    int open = 0;
+    int insertions = 0;
+
+    for (char ch : s) {
+        if (ch == '(') {
+            open++;
+        } else {
+            if (open > 0) {
+                open--;
+            } else {
+                // Insert '(' before this ')'
+                insertions++;
+            }
+        }
+    }
+
+    // Insert ')' for every unmatched '('
+    insertions += open;
+
+    return insertions;
+}
+
+int main() {
+    string s;
+    cin >> s;
+
+    cout << minAddToMakeValid(s) << endl;
+
+    return 0;
+}
+```
+
+For example, for `s = "()))"`:
+
+- The first `()` is already valid.
+- The next `)` has no matching `(`, so insert one `(`.
+- The final `)` matches that inserted `(`.
+
+Minimum insertions = `1`.
