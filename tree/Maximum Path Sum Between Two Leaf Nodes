@@ -1,0 +1,111 @@
+2026-10-07|Maximum Path Sum Between Two Leaf Nodes
+
+Question
+Given the root of a binary tree, find the maximum possible path sum between any two leaf nodes. If the tree has fewer than two leaf nodes, return `-1`.
+
+Approach
+
+1. Use DFS to calculate the maximum root-to-leaf path sum for every subtree.
+
+2. For each node, recursively calculate:
+   - The maximum path sum from the current node down to a leaf in the left subtree.
+   - The maximum path sum from the current node down to a leaf in the right subtree.
+
+3. If both left and right subtrees exist, the current node can be the highest point of a path connecting two leaves.
+
+4. The path sum through the current node is:
+   `leftSum + node->data + rightSum`
+
+5. Update the global maximum with this value.
+
+6. Return to the parent the best single-side path:
+   `node->data + max(leftSum, rightSum)`
+
+7. If a node has only one child, it cannot form a leaf-to-leaf path through both sides. We simply continue through the existing child.
+
+8. Keep a count of the number of leaves. If fewer than two leaves exist, return `-1`.
+
+9. Time complexity is O(n), because every node is visited once.
+
+10. Space complexity is O(h), where `h` is the height of the tree, due to the DFS recursion stack.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int val) {
+        data = val;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+class Solution {
+public:
+    long long ans;
+    int leafCount;
+
+    long long dfs(Node* root) {
+        if (root == nullptr) {
+            return 0;
+        }
+
+        if (root->left == nullptr && root->right == nullptr) {
+            leafCount++;
+            return root->data;
+        }
+
+        long long leftSum = dfs(root->left);
+        long long rightSum = dfs(root->right);
+
+        if (root->left != nullptr && root->right != nullptr) {
+            ans = max(ans, leftSum + root->data + rightSum);
+
+            return root->data + max(leftSum, rightSum);
+        }
+
+        if (root->left != nullptr) {
+            return root->data + leftSum;
+        }
+
+        return root->data + rightSum;
+    }
+
+    long long maxPathSum(Node* root) {
+        ans = LLONG_MIN;
+        leafCount = 0;
+
+        dfs(root);
+
+        if (leafCount < 2) {
+            return -1;
+        }
+
+        return ans;
+    }
+};
+
+int main() {
+    Node* root = new Node(1);
+
+    root->left = new Node(2);
+    root->right = new Node(3);
+
+    root->left->left = new Node(4);
+    root->left->right = new Node(5);
+
+    root->right->left = new Node(6);
+    root->right->right = new Node(7);
+
+    Solution obj;
+
+    cout << obj.maxPathSum(root) << endl;
+
+    return 0;
+}
+```
