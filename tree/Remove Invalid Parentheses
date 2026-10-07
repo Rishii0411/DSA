@@ -1,0 +1,156 @@
+2026-10-07|Remove Invalid Parentheses
+
+Question
+Given a string `s` containing parentheses and letters, remove the minimum number of invalid parentheses so that the resulting string is valid.
+Return all unique valid strings that can be obtained using the minimum number of removals.
+
+Approach
+1. First determine how many extra `(` and `)` must be removed.
+
+2. Scan the string:
+   - For `(`, increase the opening balance.
+   - For `)`, if an opening parenthesis is available, match it.
+   - Otherwise, this `)` is extra and must eventually be removed.
+
+3. Let:
+   - `leftRemove` = number of extra `(` to remove.
+   - `rightRemove` = number of extra `)` to remove.
+
+4. Use DFS/backtracking to decide for every parenthesis whether to keep it or remove it.
+
+5. Keep track of the current balance:
+   - Adding `(` increases the balance.
+   - Adding `)` decreases the balance.
+   - The balance can never become negative because that would make the prefix invalid.
+
+6. When encountering an invalid `)` and `rightRemove > 0`, try removing it.
+
+7. To avoid duplicate answers, when several consecutive identical parentheses occur, do not remove the same-position equivalent repeatedly.
+
+8. Once the entire string has been processed, a result is valid only when:
+   - `leftRemove == 0`
+   - `rightRemove == 0`
+   - `balance == 0`
+
+9. Insert every valid result into a set to guarantee uniqueness.
+
+10. Time complexity is exponential in the worst case because this is a backtracking problem. The pruning significantly reduces unnecessary states.
+
+11. Space complexity is O(n) for the recursion and the current result, excluding the output.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    unordered_set<string> result;
+
+    void dfs(string& s, int index, int balance,
+             int leftRemove, int rightRemove,
+             string& current) {
+
+        if (balance < 0) {
+            return;
+        }
+
+        if (leftRemove < 0 || rightRemove < 0) {
+            return;
+        }
+
+        if (index == s.size()) {
+            if (balance == 0 && leftRemove == 0 && rightRemove == 0) {
+                result.insert(current);
+            }
+            return;
+        }
+
+        char ch = s[index];
+
+        if (ch == '(') {
+            // Remove this '('
+            if (leftRemove > 0) {
+                dfs(s, index + 1, balance,
+                    leftRemove - 1, rightRemove, current);
+            }
+
+            // Keep this '('
+            current.push_back('(');
+
+            dfs(s, index + 1, balance + 1,
+                leftRemove, rightRemove, current);
+
+            current.pop_back();
+        }
+        else if (ch == ')') {
+            // Remove this ')'
+            if (rightRemove > 0) {
+                dfs(s, index + 1, balance,
+                    leftRemove, rightRemove - 1, current);
+            }
+
+            // Keep this ')' only if it has a matching '('
+            if (balance > 0) {
+                current.push_back(')');
+
+                dfs(s, index + 1, balance - 1,
+                    leftRemove, rightRemove, current);
+
+                current.pop_back();
+            }
+        }
+        else {
+            // Letters are always kept
+            current.push_back(ch);
+
+            dfs(s, index + 1, balance,
+                leftRemove, rightRemove, current);
+
+            current.pop_back();
+        }
+    }
+
+    vector<string> removeInvalidParentheses(string s) {
+        int leftRemove = 0;
+        int rightRemove = 0;
+
+        // Find the minimum number of '(' and ')' to remove.
+        for (char ch : s) {
+            if (ch == '(') {
+                leftRemove++;
+            }
+            else if (ch == ')') {
+                if (leftRemove > 0) {
+                    leftRemove--;
+                }
+                else {
+                    rightRemove++;
+                }
+            }
+        }
+
+        result.clear();
+
+        string current;
+
+        dfs(s, 0, 0, leftRemove, rightRemove, current);
+
+        return vector<string>(result.begin(), result.end());
+    }
+};
+
+int main() {
+    string s;
+    cin >> s;
+
+    Solution obj;
+
+    vector<string> ans = obj.removeInvalidParentheses(s);
+
+    for (const string& str : ans) {
+        cout << str << endl;
+    }
+
+    return 0;
+}
+```
