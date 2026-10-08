@@ -1,0 +1,70 @@
+2026-10-08|Maximum Frequency After At Most K Increments
+
+Question
+Given an integer array `arr[]`, in one operation we can choose an index and increase its value by `1`.
+Find the maximum possible frequency of any element after performing at most `k` operations.
+
+Approach
+1. Sort the array.
+
+2. Maintain a sliding window `[left, right]`.
+
+3. Treat `arr[right]` as the value we want every element in the current window to become.
+
+4. The number of operations needed is:
+   `arr[right] * windowSize - sum`
+
+5. If this cost is at most `k`, the entire window can be converted to `arr[right]`, so update the answer.
+
+6. If the cost exceeds `k`, move `left` forward and subtract `arr[left]` from the window sum until the window becomes affordable again.
+
+7. Continue this process for every `right`.
+
+8. Sorting ensures that we only need to increase smaller values toward the current maximum. We never need to decrease any value.
+
+9. Time complexity is O(n log n) because of sorting, followed by O(n) sliding-window processing.
+
+10. Space complexity is O(1) auxiliary space apart from the sorting implementation.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+int maxFrequency(vector<int>& arr, long long k) {
+    sort(arr.begin(), arr.end());
+
+    int left = 0;
+    long long sum = 0;
+    int ans = 1;
+
+    for (int right = 0; right < arr.size(); right++) {
+        sum += arr[right];
+
+        while (1LL * arr[right] * (right - left + 1) - sum > k) {
+            sum -= arr[left];
+            left++;
+        }
+
+        ans = max(ans, right - left + 1);
+    }
+
+    return ans;
+}
+
+int main() {
+    int n;
+    long long k;
+
+    cin >> n >> k;
+
+    vector<int> arr(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    cout << maxFrequency(arr, k) << endl;
+
+    return 0;
+}
+```
