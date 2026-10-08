@@ -1,0 +1,63 @@
+2026-10-08|Remove Outermost Parentheses
+
+Question
+Given a valid parentheses string `s`, remove the outermost parentheses from every primitive part of its decomposition and return the resulting string.
+
+Approach
+1. Maintain a `balance` variable.
+
+2. Traverse the string character by character.
+
+3. For `(`:
+   - If `balance > 0`, this `(` is not the outermost opening parenthesis, so add it to the answer.
+   - Then increase `balance`.
+
+4. For `)`:
+   - First decrease `balance`.
+   - If `balance > 0` after decreasing, this `)` is not the outermost closing parenthesis, so add it to the answer.
+
+5. When `balance` becomes `0`, we have finished one primitive substring.
+
+6. The first `(` and final `)` of every primitive are therefore automatically skipped.
+
+7. Time complexity is O(n), where n is the length of the string.
+
+8. Space complexity is O(n) for the resulting string.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+string removeOuterParentheses(string s) {
+    string ans;
+    int balance = 0;
+
+    for (char ch : s) {
+        if (ch == '(') {
+            if (balance > 0) {
+                ans.push_back(ch);
+            }
+
+            balance++;
+        }
+        else {
+            balance--;
+
+            if (balance > 0) {
+                ans.push_back(ch);
+            }
+        }
+    }
+
+    return ans;
+}
+
+int main() {
+    string s;
+    cin >> s;
+
+    cout << removeOuterParentheses(s) << endl;
+
+    return 0;
+}
+```
