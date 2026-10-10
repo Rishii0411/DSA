@@ -1,0 +1,91 @@
+2026-10-11|Minimum Sum of Squared Differences
+
+Question
+Given two arrays nums1 and nums2 of equal length, and two integers k1 and k2, minimize the sum of squared differences by modifying elements of nums1 at most k1 times and elements of nums2 at most k2 times.
+Return the minimum possible sum of squared differences.
+
+Approach
+
+1. Calculate the absolute difference at each index:
+   diff[i] = abs(nums1[i] - nums2[i]).
+
+2. Calculate the total available operations:
+   k = k1 + k2.
+
+3. If the sum of all differences is less than or equal to k, we can reduce every difference to zero. Any remaining operations can be spent without changing the final answer, so return 0.
+
+4. Otherwise, use a max-heap to repeatedly select the largest difference.
+
+5. Reduce the largest difference by 1 and insert the updated difference back into the heap.
+
+6. Repeat until all available operations are used.
+
+7. Calculate the sum of the squares of the remaining differences.
+
+8. Time complexity is O((n + k) log n), since each operation requires extracting and reinserting an element into the heap.
+
+9. Space complexity is O(n) for storing the differences in the heap.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+long long minSumSquareDiff(vector<int>& nums1, vector<int>& nums2,
+                           int k1, int k2) {
+    int n = nums1.size();
+    long long k = 1LL * k1 + k2;
+
+    priority_queue<long long> pq;
+    long long totalDiff = 0;
+
+    for (int i = 0; i < n; i++) {
+        long long diff = abs(1LL * nums1[i] - nums2[i]);
+        pq.push(diff);
+        totalDiff += diff;
+    }
+
+    if (totalDiff <= k) {
+        return 0;
+    }
+
+    while (k > 0) {
+        long long largest = pq.top();
+        pq.pop();
+
+        pq.push(largest - 1);
+        k--;
+    }
+
+    long long ans = 0;
+
+    while (!pq.empty()) {
+        long long diff = pq.top();
+        pq.pop();
+
+        ans += diff * diff;
+    }
+
+    return ans;
+}
+
+int main() {
+    int n, k1, k2;
+    cin >> n >> k1 >> k2;
+
+    vector<int> nums1(n), nums2(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> nums1[i];
+    }
+
+    for (int i = 0; i < n; i++) {
+        cin >> nums2[i];
+    }
+
+    cout << minSumSquareDiff(nums1, nums2, k1, k2) << '\n';
+
+    return 0;
+}
+```
+
+Note: The max-heap solution is easy to understand, but it can be too slow when k1 + k2 is very large. A more efficient approach uses binary search or frequency counting to reduce the largest differences in groups rather than one operation at a time.
