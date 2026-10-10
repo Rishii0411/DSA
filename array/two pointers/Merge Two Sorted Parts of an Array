@@ -1,0 +1,111 @@
+2026-10-11|Merge Two Sorted Parts of an Array
+
+Question
+Given an integer array arr[] where the two parts around a break point are individually sorted, merge them into a single sorted array. The break point can be anywhere in the array, including at the beginning or end.
+
+Approach
+
+1. Identify the break point separating the two sorted parts.
+
+2. Let the break point be `k`. The two sorted parts are:
+   - First part: `arr[0...k-1]`
+   - Second part: `arr[k...n-1]`
+
+3. Initialize two pointers:
+   - `i = 0`, pointing to the first part.
+   - `j = k`, pointing to the second part.
+
+4. Compare `arr[i]` and `arr[j]`. Add the smaller element to the result and advance its pointer.
+
+5. Continue until one part has been completely processed.
+
+6. Append any remaining elements from the other part.
+
+7. If the break point is at the beginning or end, one part is empty, so the other sorted part is already the answer.
+
+8. Time complexity is O(n), because each element is processed once.
+
+9. Space complexity is O(n) for the resulting array.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> mergeSortedParts(vector<int>& arr, int k) {
+    int n = arr.size();
+
+    vector<int> result;
+    result.reserve(n);
+
+    int i = 0;
+    int j = k;
+
+    while (i < k && j < n) {
+        if (arr[i] <= arr[j]) {
+            result.push_back(arr[i]);
+            i++;
+        } else {
+            result.push_back(arr[j]);
+            j++;
+        }
+    }
+
+    while (i < k) {
+        result.push_back(arr[i]);
+        i++;
+    }
+
+    while (j < n) {
+        result.push_back(arr[j]);
+        j++;
+    }
+
+    return result;
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> arr(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    int k;
+    cin >> k;
+
+    vector<int> result = mergeSortedParts(arr, k);
+
+    for (int x : result) {
+        cout << x << " ";
+    }
+
+    cout << '\n';
+    return 0;
+}
+```
+
+Example
+
+Input:
+```text
+6
+4 5 6 1 2 3
+3
+```
+
+Output:
+```text
+1 2 3 4 5 6
+```
+
+Explanation:
+
+The break point is at index 3.
+
+- First sorted part: [4, 5, 6]
+- Second sorted part: [1, 2, 3]
+
+Using two pointers, we merge the two parts in ascending order to obtain [1, 2, 3, 4, 5, 6].
