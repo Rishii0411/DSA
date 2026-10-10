@@ -1,0 +1,120 @@
+2026-10-11|Merge Two Sorted Parts of an Array
+
+Question
+Given an integer array `arr[]` whose two parts around a break point are individually sorted, merge them into a single sorted array. The break point may be anywhere in the array.
+
+Approach
+
+1. Find the break point where the array changes from the first sorted part to the second sorted part.
+
+2. Since both parts are sorted, we can use binary search to find the rotation point when the array was originally sorted and then rotated. However, if the break point is explicitly provided, we can use it directly.
+
+3. Let the break point be `mid`. The two sorted parts are:
+   - First part: `arr[0...mid-1]`
+   - Second part: `arr[mid...n-1]`
+
+4. Use two pointers:
+   - `i` starts at the beginning of the first part.
+   - `j` starts at the beginning of the second part.
+
+5. Compare `arr[i]` and `arr[j]`. Add the smaller value to the result and advance its pointer.
+
+6. Once one part is exhausted, append the remaining elements from the other part.
+
+7. If the break point is at the beginning or end, one part is empty, and the merge simply returns the already sorted part.
+
+8. Time complexity is O(n), because each element is processed once during merging.
+
+9. Space complexity is O(n) for the result array.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> mergeSortedParts(vector<int>& arr) {
+    int n = arr.size();
+
+    if (n <= 1) {
+        return arr;
+    }
+
+    // Find the rotation point (start of the second sorted part).
+    int low = 0, high = n - 1;
+
+    while (low < high) {
+        int mid = low + (high - low) / 2;
+
+        if (arr[mid] > arr[high]) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+
+    int breakPoint = low;
+
+    // If the array is already sorted, return it directly.
+    if (breakPoint == 0) {
+        return arr;
+    }
+
+    vector<int> result;
+    result.reserve(n);
+
+    int i = 0;
+    int j = breakPoint;
+
+    while (i < breakPoint && j < n) {
+        if (arr[i] <= arr[j]) {
+            result.push_back(arr[i++]);
+        } else {
+            result.push_back(arr[j++]);
+        }
+    }
+
+    while (i < breakPoint) {
+        result.push_back(arr[i++]);
+    }
+
+    while (j < n) {
+        result.push_back(arr[j++]);
+    }
+
+    return result;
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> arr(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    vector<int> result = mergeSortedParts(arr);
+
+    for (int x : result) {
+        cout << x << " ";
+    }
+
+    cout << '\n';
+    return 0;
+}
+```
+
+Example
+
+Input:
+```text
+6
+4 5 6 1 2 3
+```
+
+Output:
+```text
+1 2 3 4 5 6
+```
+
+Note: Binary search here assumes the array is a rotated sorted array. If the two sorted parts can have an arbitrary break point and the break point is not provided, it may not be possible to identify it reliably in O(log n). In that case, the problem needs to specify the break point or allow a linear scan to find it.
