@@ -1,0 +1,67 @@
+2026-10-12|Minimum Number of Squares to Cut a Rectangle
+
+Question
+Given a rectangular paper with dimensions n × m, find the minimum number of squares that can be formed by cutting the paper. Each cut must be made completely across the remaining paper, either horizontally or vertically.
+
+Approach
+
+1. If n equals m, the paper is already a square, so the answer is 1.
+
+2. Otherwise, let `side = min(n, m)` and `other = max(n, m)`.
+
+3. Cut off the largest possible squares of side `side` from the rectangle. The number of such squares is `other / side`.
+
+4. The remaining rectangle has dimensions `side × (other % side)`.
+
+5. Repeat the process until the remaining rectangle becomes a square or one dimension becomes zero.
+
+6. Add the number of squares obtained at every step.
+
+7. This is equivalent to applying the Euclidean algorithm, repeatedly replacing the larger dimension with its remainder when divided by the smaller dimension.
+
+8. Time complexity is O(log(min(n, m))) for positive dimensions, based on the Euclidean algorithm.
+
+9. Space complexity is O(1).
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+long long minimumSquares(long long n, long long m) {
+    long long count = 0;
+
+    while (n > 0 && m > 0) {
+        count += max(n, m) / min(n, m);
+
+        long long remainder = max(n, m) % min(n, m);
+
+        n = min(n, m);
+        m = remainder;
+    }
+
+    return count;
+}};
+
+Example
+
+Input:
+```text
+5 3
+```
+
+Output:
+```text
+3
+```
+
+Explanation:
+
+A 5 × 3 rectangle can be divided into one 3 × 3 square and one remaining 2 × 3 rectangle.
+
+The 2 × 3 rectangle can be divided into one 2 × 2 square and one 1 × 2 rectangle.
+
+Finally, the 1 × 2 rectangle can be divided into two 1 × 1 squares.
+
+Therefore, the total number of squares is 1 + 1 + 2 = 4.
+
+The correct output for this example is 4, not 3.
