@@ -1,0 +1,66 @@
+2026-10-12|Maximum Sum of Squares After Bitwise Operations
+
+Question
+Given a 0-indexed integer array `nums` and a positive integer `k`, repeatedly apply the following operation any number of times:
+- Choose distinct indices `i` and `j`.
+- Simultaneously set `nums[i] = nums[i] & nums[j]` and `nums[j] = nums[i] | nums[j]`, using the original values for both calculations.
+Choose `k` elements from the final array to maximize the sum of their squares. Return the answer modulo `10^9 + 7`.
+
+Approach
+1. Count the number of set bits at each bit position across all elements of `nums`.
+
+2. Since the operation preserves the total number of set bits at each bit position, these counts remain unchanged.
+
+3. Construct `k` numbers greedily, one at a time.
+
+4. For each number, examine every bit position. If that bit is still available, set it in the current number and decrease its remaining count by one.
+
+5. This creates numbers containing as many available set bits as possible, concentrating bits into fewer numbers.
+
+6. Calculate the square of each constructed number and add it to the answer modulo `10^9 + 7`.
+
+7. Time complexity is O(nB + kB), where `B` is the number of bits processed.
+
+8. Space complexity is O(B) for the bit counts.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxSum(vector<int>& nums, int k) {
+        const long long MOD = 1000000007LL;
+        const int B = 31;
+
+        vector<int> bitCount(B, 0);
+
+        // Count set bits at each position.
+        for (int num : nums) {
+            for (int b = 0; b < B; b++) {
+                if (num & (1LL << b)) {
+                    bitCount[b]++;
+                }
+            }
+        }
+
+        long long ans = 0;
+
+        // Greedily construct k numbers with the largest possible values.
+        for (int i = 0; i < k; i++) {
+            long long value = 0;
+
+            for (int b = 0; b < B; b++) {
+                if (bitCount[b] > 0) {
+                    value |= (1LL << b);
+                    bitCount[b]--;
+                }
+            }
+
+            ans = (ans + value * value % MOD) % MOD;
+        }
+
+        return static_cast<int>(ans);
+    }
+};
+```
