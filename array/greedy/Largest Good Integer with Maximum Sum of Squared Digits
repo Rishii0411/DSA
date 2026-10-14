@@ -1,0 +1,90 @@
+2026-10-14|Largest Good Integer with Maximum Sum of Squared Digits
+
+Question
+Given positive integers `num` and `sum`, return the string representing a good integer with exactly `num` digits and digit sum `sum` that maximizes the sum of squared digits. If multiple integers have the same maximum score, return the largest one. If no such integer exists, return an empty string.
+
+Approach
+
+1. Check whether a valid number can exist.
+   - The minimum possible digit sum for a positive `num`-digit integer is 1.
+   - The maximum possible digit sum is `9 * num`.
+   - If `sum < 1` or `sum > 9 * num`, return an empty string.
+
+2. To maximize the sum of squared digits, make as many digits as possible equal to 9.
+
+3. Calculate how many 9s can be placed:
+   `nines = sum / 9`
+
+4. Calculate the remaining sum:
+   `remainder = sum % 9`
+
+5. Place the 9s at the beginning of the number. If there is a nonzero remainder, place it immediately after the 9s.
+
+6. Fill the remaining positions with zeros.
+
+7. This arrangement maximizes the squared-digit score because concentrating the digit sum into larger digits increases the sum of squares.
+
+8. It also produces the largest number among arrangements with the same score because larger digits appear first.
+
+9. Time complexity is O(num), since we construct a string of length `num`.
+
+10. Space complexity is O(num) for the resulting string.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+string maxGoodInteger(int num, int sum) {
+    if (sum < 1 || sum > 9 * num) {
+        return "";
+    }
+
+    string ans;
+
+    int nines = sum / 9;
+    int remainder = sum % 9;
+
+    for (int i = 0; i < nines; i++) {
+        ans.push_back('9');
+    }
+
+    if (remainder > 0) {
+        ans.push_back(char('0' + remainder));
+    }
+
+    while (ans.size() < num) {
+        ans.push_back('0');
+    }
+
+    return ans;
+}
+
+int main() {
+    int num, sum;
+    cin >> num >> sum;
+
+    cout << maxGoodInteger(num, sum) << '\n';
+
+    return 0;
+}
+```
+
+Example
+
+Input:
+```text
+3 20
+```
+
+Output:
+```text
+992
+```
+
+Explanation:
+
+The number must have 3 digits with a digit sum of 20.
+
+The number `992` has digit sum `9 + 9 + 2 = 20` and score `9² + 9² + 2² = 166`.
+
+This achieves the maximum possible score.
