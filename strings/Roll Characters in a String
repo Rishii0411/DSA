@@ -1,0 +1,93 @@
+2026-10-14|Roll Characters in a String
+
+Question
+Given a lowercase string `s` and an integer array `roll[]`, perform each roll operation by incrementing the first `roll[i]` characters by one, wrapping `z` around to `a`. Return the final string.
+
+Approach
+
+1. Create a variable `rollCount = 0` to track the total number of increments affecting the current position.
+
+2. Traverse the `roll[]` array from right to left.
+
+3. Add `roll[i]` to the running count, but note that `roll[i]` represents a prefix length, not an increment amount. Therefore, the efficient method is to use a difference array:
+   - For each roll value `r`, increment the difference at index `0`.
+   - Decrement the difference at index `r` if `r < n`.
+
+4. Compute the prefix sum of the difference array. The resulting value at each position tells us how many roll operations affect that character.
+
+5. For each character, calculate its new position:
+   `(s[i] - 'a' + increments[i]) % 26`
+
+6. Convert the resulting position back to a lowercase letter.
+
+7. Time complexity is O(n + k), where `n` is the string length and `k` is the number of roll operations.
+
+8. Space complexity is O(n) for the difference array.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+string findRollOut(string s, vector<int>& roll) {
+    int n = s.size();
+    vector<long long> diff(n + 1, 0);
+
+    for (int r : roll) {
+        diff[0]++;
+        if (r < n) {
+            diff[r]--;
+        }
+    }
+
+    long long increments = 0;
+
+    for (int i = 0; i < n; i++) {
+        increments += diff[i];
+
+        int newPosition = (s[i] - 'a' + increments % 26) % 26;
+        s[i] = char('a' + newPosition);
+    }
+
+    return s;
+}
+
+int main() {
+    string s;
+    cin >> s;
+
+    int k;
+    cin >> k;
+
+    vector<int> roll(k);
+
+    for (int i = 0; i < k; i++) {
+        cin >> roll[i];
+    }
+
+    cout << findRollOut(s, roll) << '\n';
+
+    return 0;
+}
+```
+
+Example
+
+Input:
+```text
+abc
+3
+3 2 1
+```
+
+Output:
+```text
+dcd
+```
+
+Explanation:
+
+- Roll 3: `abc` becomes `bcd`.
+- Roll 2: `bcd` becomes `ccd`.
+- Roll 1: `ccd` becomes `dcd`.
+
+The final string is `dcd`.
