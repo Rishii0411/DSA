@@ -1,0 +1,81 @@
+2026-10-15|Sum of Squares of Distinct Counts of All Subarrays
+
+Question
+Given a 0-indexed integer array `nums`, return the sum of the squares of the distinct counts of all non-empty contiguous subarrays.
+
+Approach
+1. Initialize the answer to `0`.
+
+2. Consider every possible starting index `i` of a subarray.
+
+3. For each starting index, create an unordered set to track distinct elements.
+
+4. Extend the subarray one element at a time, using an ending index `j` from `i` to `n - 1`.
+
+5. Insert `nums[j]` into the set. The set automatically maintains only distinct values.
+
+6. The current distinct count is `seen.size()`.
+
+7. Add the square of this count to the answer:
+   `answer += distinctCount * distinctCount`
+
+8. Repeat until every subarray has been considered.
+
+9. Time complexity is O(n²) on average, assuming constant-time hash set operations.
+
+10. Space complexity is O(n) for the set.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+long long sumCounts(vector<int>& nums) {
+    int n = nums.size();
+    long long ans = 0;
+
+    for (int i = 0; i < n; i++) {
+        unordered_set<int> seen;
+
+        for (int j = i; j < n; j++) {
+            seen.insert(nums[j]);
+
+            long long distinctCount = seen.size();
+            ans += distinctCount * distinctCount;
+        }
+    }
+
+    return ans;
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> nums(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> nums[i];
+    }
+
+    cout << sumCounts(nums) << '\n';
+
+    return 0;
+}
+```
+
+Example
+
+Input:
+```text
+3
+1 2 1
+```
+
+Output:
+```text
+15
+```
+
+Explanation:
+
+There are six non-empty subarrays. Their squared distinct counts are `1, 1, 1, 4, 4, 4`, whose sum is `15`.
