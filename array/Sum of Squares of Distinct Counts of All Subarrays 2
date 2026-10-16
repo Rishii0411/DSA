@@ -1,0 +1,86 @@
+2026-10-16|Sum of Squares of Distinct Counts of All Subarrays
+
+Question
+Given a 0-indexed integer array `nums`, return the sum of the squares of the distinct counts of all non-empty contiguous subarrays, modulo `10⁹ + 7`.
+
+Approach
+1. Initialize `answer = 0` and define `MOD = 1000000007`.
+
+2. Consider every possible starting index `i` of a subarray.
+
+3. For each starting index, create a hash set to track the distinct elements.
+
+4. Extend the subarray by moving the ending index `j` from `i` to `n - 1`.
+
+5. Insert `nums[j]` into the hash set. Duplicate values do not increase the set's size.
+
+6. Let `distinctCount` be the number of elements in the set.
+
+7. Add the square of `distinctCount` to the answer:
+   `answer = (answer + distinctCount * distinctCount) % MOD`
+
+8. Repeat until every non-empty subarray has been considered.
+
+9. Time complexity is O(n²) on average, assuming hash set operations take O(1) time.
+
+10. Space complexity is O(n) for the hash set.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int sumCounts(vector<int>& nums) {
+        const long long MOD = 1000000007LL;
+        int n = nums.size();
+        long long answer = 0;
+
+        for (int i = 0; i < n; i++) {
+            unordered_set<int> distinct;
+
+            for (int j = i; j < n; j++) {
+                distinct.insert(nums[j]);
+
+                long long count = distinct.size();
+                answer = (answer + count * count) % MOD;
+            }
+        }
+
+        return static_cast<int>(answer);
+    }
+};
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> nums(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> nums[i];
+    }
+
+    Solution solution;
+    cout << solution.sumCounts(nums) << '\n';
+
+    return 0;
+}
+```
+
+Example
+
+Input:
+```text
+3
+1 2 1
+```
+
+Output:
+```text
+15
+```
+
+Explanation:
+
+There are six non-empty subarrays. Their squared distinct counts are 1, 1, 1, 4, 4, and 4. Their sum is 15, so the answer modulo 10⁹ + 7 is also 15.
