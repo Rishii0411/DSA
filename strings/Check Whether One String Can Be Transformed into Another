@@ -1,0 +1,113 @@
+2026-10-17|Check Whether One String Can Be Transformed into Another
+
+Question
+Given strings s1 and s2 of equal length, return true if s1 can be transformed into s2 using the allowed movements. Otherwise, return false.
+
+Approach
+
+1. First, remove all '#' characters from both strings. If the resulting strings differ, the transformation is impossible because characters cannot cross each other or disappear.
+
+2. Use two pointers to traverse s1 and s2, skipping all '#' characters.
+
+3. Compare the positions of corresponding non-empty characters.
+
+4. If the character is 'A', it can only move left. Therefore, its position in s2 must be less than or equal to its position in s1.
+
+5. If the character is 'B', it can only move right. Therefore, its position in s2 must be greater than or equal to its position in s1.
+
+6. If any character violates its movement restriction, return false.
+
+7. If all corresponding characters satisfy these conditions, return true.
+
+8. Time complexity is O(n), where n is the length of the strings, because each character is processed at most once.
+
+9. Space complexity is O(1) auxiliary space when using two pointers without creating additional strings.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool canChange(string s1, string s2) {
+        int n = s1.size();
+
+        if (s2.size() != n) {
+            return false;
+        }
+
+        int i = 0, j = 0;
+
+        while (i < n && j < n) {
+            while (i < n && s1[i] == '#') {
+                i++;
+            }
+
+            while (j < n && s2[j] == '#') {
+                j++;
+            }
+
+            if (i == n || j == n) {
+                break;
+            }
+
+            if (s1[i] != s2[j]) {
+                return false;
+            }
+
+            if (s1[i] == 'A' && i < j) {
+                return false;
+            }
+
+            if (s1[i] == 'B' && i > j) {
+                return false;
+            }
+
+            i++;
+            j++;
+        }
+
+        while (i < n && s1[i] == '#') {
+            i++;
+        }
+
+        while (j < n && s2[j] == '#') {
+            j++;
+        }
+
+        return i == n && j == n;
+    }
+};
+
+int main() {
+    string s1, s2;
+    cin >> s1 >> s2;
+
+    Solution solution;
+
+    cout << (solution.canChange(s1, s2) ? "true" : "false") << '\n';
+
+    return 0;
+}
+```
+
+Example
+
+Input:
+```text
+#A#B##
+A###B#
+```
+
+Output:
+```text
+true
+```
+
+Explanation:
+
+- 'A' moves one position to the left.
+- 'B' moves one position to the right.
+- Neither character crosses the other.
+
+Therefore, the transformation is possible.
