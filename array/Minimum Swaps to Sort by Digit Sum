@@ -1,0 +1,146 @@
+2026-10-17|Minimum Swaps to Sort by Digit Sum
+
+Question
+Given an array `nums` of distinct positive integers, sort it in increasing order based on digit sum. If two numbers have the same digit sum, sort them by their numerical values in ascending order.
+Return the minimum number of swaps required to obtain this sorted order.
+
+Approach
+
+1. Define a function `digitSum(x)` that calculates the sum of the digits of an integer.
+
+2. Create a copy of `nums` and sort it using these rules:
+   - Smaller digit sum comes first.
+   - If digit sums are equal, the smaller number comes first.
+
+3. Since all elements are distinct, each element has a unique target position in the sorted array.
+
+4. Create a mapping from each element to its index in the sorted array.
+
+5. Convert the original array into a permutation by replacing each element with its target index.
+
+6. Traverse this permutation and identify cycles. A cycle represents elements that must move among each other's positions.
+
+7. A cycle containing `L` elements requires exactly `L - 1` swaps to place all its elements correctly.
+
+8. Add `L - 1` for every cycle and return the total.
+
+9. Time complexity is O(n log n), dominated by sorting.
+
+10. Space complexity is O(n) for the sorted array, index mapping, and visited array.
+
+Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int digitSum(int x) {
+        int sum = 0;
+
+        while (x > 0) {
+            sum += x % 10;
+            x /= 10;
+        }
+
+        return sum;
+    }
+
+    int minSwaps(vector<int>& nums) {
+        int n = nums.size();
+
+        vector<int> sortedNums = nums;
+
+        sort(sortedNums.begin(), sortedNums.end(),
+             [&](int a, int b) {
+                 int sumA = digitSum(a);
+                 int sumB = digitSum(b);
+
+                 if (sumA != sumB) {
+                     return sumA < sumB;
+                 }
+
+                 return a < b;
+             });
+
+        unordered_map<int, int> targetIndex;
+
+        for (int i = 0; i < n; i++) {
+            targetIndex[sortedNums[i]] = i;
+        }
+
+        vector<int> permutation(n);
+
+        for (int i = 0; i < n; i++) {
+            permutation[i] = targetIndex[nums[i]];
+        }
+
+        vector<bool> visited(n, false);
+        int swaps = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (visited[i] || permutation[i] == i) {
+                continue;
+            }
+
+            int cycleLength = 0;
+            int current = i;
+
+            while (!visited[current]) {
+                visited[current] = true;
+                current = permutation[current];
+                cycleLength++;
+            }
+
+            if (cycleLength > 1) {
+                swaps += cycleLength - 1;
+            }
+        }
+
+        return swaps;
+    }
+};
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> nums(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> nums[i];
+    }
+
+    Solution solution;
+
+    cout << solution.minSwaps(nums) << '\n';
+
+    return 0;
+}
+```
+
+Example
+
+Input:
+```text
+5
+37 100 22 11 14
+```
+
+Output:
+```text
+1
+```
+
+Explanation:
+
+The digit sums are:
+
+- 37 → 10
+- 100 → 1
+- 22 → 4
+- 11 → 2
+- 14 → 5
+
+The required sorted order is `[100, 11, 22, 14, 37]`.
+
+Only `37` and `14` need to exchange positions, so the minimum number of swaps is `1`.
