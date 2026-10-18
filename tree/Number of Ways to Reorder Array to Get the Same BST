@@ -1,0 +1,99 @@
+2026-10-18|Number of Ways to Reorder Array to Get the Same BST
+
+Question:
+Given an array nums that is a permutation of integers from 1 to n, count the number of reorderings that produce the same BST as the original array.
+
+Return the answer modulo 10^9 + 7.
+For example:
+Input: nums = [2,1,3]
+Output: 1
+
+Explanation:
+- The original ordering [2,1,3] produces a BST with root 2, left child 1, and right child 3.
+- The ordering [2,3,1] produces the same BST.
+- There are 2 valid orderings in total, including the original ordering.
+- Therefore, the answer is 2 - 1 = 1.
+
+Approach:
+
+1. Build the BST structure conceptually using the first element as the root. Elements smaller than the root belong to the left subtree, while larger elements belong to the right subtree.
+
+2. Recursively count the valid reorderings for the left and right subtrees.
+
+3. Suppose the left subtree contains L elements and the right subtree contains R elements. After the root, the left and right subtree elements can be interleaved in C(L + R, L) ways, while preserving the original relative order within each subtree.
+
+4. The number of reorderings for the current subtree is:
+
+   ways = C(L + R, L) * leftWays * rightWays
+
+5. Precompute binomial coefficients using Pascal's Triangle:
+   C(n, k) = C(n - 1, k - 1) + C(n - 1, k)
+
+6. Apply modulo 10^9 + 7 during calculations to prevent the result from growing too large.
+
+7. Finally, subtract one to exclude the original ordering. Normalize the result modulo 10^9 + 7.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+private:
+    static const long long MOD = 1000000007LL;
+    vector<vector<long long>> comb;
+
+    long long solve(const vector<int>& nums) {
+        int n = nums.size();
+
+        if (n <= 2) {
+            return 1;
+        }
+
+        vector<int> left, right;
+
+        int root = nums[0];
+
+        for (int i = 1; i < n; i++) {
+            if (nums[i] < root) {
+                left.push_back(nums[i]);
+            } else {
+                right.push_back(nums[i]);
+            }
+        }
+
+        long long leftWays = solve(left);
+        long long rightWays = solve(right);
+
+        long long interleavings = comb[n - 1][left.size()];
+
+        long long result = interleavings * leftWays % MOD;
+        result = result * rightWays % MOD;
+
+        return result;
+    }
+
+public:
+    int numOfWays(vector<int>& nums) {
+        int n = nums.size();
+
+        comb.assign(n + 1, vector<long long>(n + 1, 0));
+
+        for (int i = 0; i <= n; i++) {
+            comb[i][0] = comb[i][i] = 1;
+        }
+
+        for (int i = 2; i <= n; i++) {
+            for (int j = 1; j < i; j++) {
+                comb[i][j] =
+                    (comb[i - 1][j - 1] + comb[i - 1][j]) % MOD;
+            }
+        }
+
+        return (solve(nums) - 1 + MOD) % MOD;
+    }
+};
+```
+
+Time Complexity: O(n^2) in the worst case, because each recursive call partitions its elements and the tree may be highly unbalanced.
+
+Space Complexity: O(n^2) for the binomial coefficient table, plus recursion and temporary subtree arrays.
