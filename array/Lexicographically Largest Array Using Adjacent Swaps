@@ -1,0 +1,61 @@
+2026-10-20|Lexicographically Largest Array Using Adjacent Swaps
+
+Question:
+Given an array arr[], you may swap adjacent elements arr[i] and arr[i + 1] only if their sum is even. Find the lexicographically largest array obtainable by performing this operation any number of times, including zero times.
+
+Approach:
+1. Traverse the array and identify consecutive groups of elements with the same parity.
+2. Within each group, collect the elements.
+3. Sort the elements of each group in descending order.
+4. Place the sorted elements back into their original group positions.
+5. Return the modified array.
+
+Why this works:
+- Two adjacent elements can be swapped exactly when they have the same parity.
+- Elements of different parity cannot cross each other.
+- Consequently, each element must remain within its original consecutive parity group.
+- Within a group, any permutation is possible through adjacent swaps, so sorting the group in descending order gives the lexicographically largest arrangement.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> lexicographicallyLargest(vector<int>& arr) {
+        int n = arr.size();
+        int i = 0;
+
+        while (i < n) {
+            int j = i;
+
+            while (j + 1 < n &&
+                   abs(arr[j] % 2) == abs(arr[j + 1] % 2)) {
+                j++;
+            }
+
+            sort(arr.begin() + i, arr.begin() + j + 1, greater<int>());
+
+            i = j + 1;
+        }
+
+        return arr;
+    }
+};
+```
+
+Example:
+
+Input: arr = [1, 5, 3, 2, 4, 6]
+
+The consecutive parity groups are:
+- [1, 5, 3] — all odd.
+- [2, 4, 6] — all even.
+
+After sorting each group in descending order:
+
+Output: [5, 3, 1, 6, 4, 2]
+
+Time Complexity: O(n log n) in the worst case, due to sorting the parity groups.
+
+Space Complexity: O(log n) auxiliary space for sorting, excluding the input array.
