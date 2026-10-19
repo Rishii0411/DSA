@@ -1,0 +1,80 @@
+2026-10-20|Count Good Indices in an Array
+
+Question:
+Given an array arr, where arr[i] represents the exact number of steps to move from index i, return the number of good indices. An index is good if following the jumps repeatedly eventually takes us outside the array. Otherwise, it is bad.
+
+Approach:
+1. Start from each index that has not yet been classified as good or bad.
+2. Follow the jumps, keeping track of the indices visited during the current traversal.
+3. If the next index is less than 0 or greater than or equal to the array size, the path leaves the array. All indices in the current traversal are good.
+4. If the traversal reaches an index already visited during the current traversal, a cycle exists. All indices in that traversal are bad.
+5. If the traversal reaches an index already classified as good or bad, use that result to classify the current traversal.
+6. Store the result for each index so that each index is processed only once overall.
+7. Count and return the number of good indices.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countGoodIndices(vector<int>& arr) {
+        int n = arr.size();
+
+        // 0 = unknown, 1 = good, 2 = bad
+        vector<int> state(n, 0);
+
+        for (int start = 0; start < n; start++) {
+            if (state[start] != 0) {
+                continue;
+            }
+
+            vector<int> path;
+            unordered_map<int, int> position;
+
+            int current = start;
+
+            while (current >= 0 && current < n &&
+                   state[current] == 0 &&
+                   position.find(current) == position.end()) {
+                position[current] = path.size();
+                path.push_back(current);
+
+                if (arr[current] == 0) {
+                    break;
+                }
+
+                current += arr[current];
+            }
+
+            int result;
+
+            if (current < 0 || current >= n) {
+                result = 1; // Good: path leaves the array
+            } else if (state[current] != 0) {
+                result = state[current];
+            } else {
+                result = 2; // Bad: cycle or zero
+            }
+
+            for (int index : path) {
+                state[index] = result;
+            }
+        }
+
+        int goodCount = 0;
+
+        for (int s : state) {
+            if (s == 1) {
+                goodCount++;
+            }
+        }
+
+        return goodCount;
+    }
+};
+```
+
+Time Complexity: O(n), because each index is classified and processed at most once, assuming constant-time hash map operations.
+
+Space Complexity: O(n), for the state array and traversal tracking.
