@@ -1,0 +1,96 @@
+2026-10-20|Sum of All Sortable Integers
+
+Question:
+Given an integer array nums of length n, find the sum of all positive integers k such that:
+- k divides n.
+- Partitioning nums into consecutive subarrays of length k allows each subarray to be cyclically rotated independently so that the entire array becomes sorted in non-decreasing order.
+
+Approach:
+1. Create a sorted copy of nums. This represents the array we want to obtain.
+2. Find all divisors k of n, because only divisors can divide the array into equal-sized blocks.
+3. For each candidate k, examine every consecutive block of length k.
+4. Check whether each block can be transformed into its corresponding sorted block using a cyclic rotation.
+5. A block can be transformed into its target block if some cyclic shift makes every element match the target block at the same positions.
+6. If every block passes this check, add k to the answer.
+7. Return the sum of all valid k values.
+
+Solution:
+
+class Solution {
+private:
+    bool canRotateToTarget(const vector<int>& nums,
+                           const vector<int>& sorted,
+                           int start, int k) {
+        // Build the KMP prefix array for the sorted block.
+        vector<int> lps(k, 0);
+
+        for (int i = 1, len = 0; i < k; ) {
+            if (sorted[start + i] == sorted[start + len]) {
+                lps[i++] = ++len;
+            } else if (len > 0) {
+                len = lps[len - 1];
+            } else {
+                lps[i++] = 0;
+            }
+        }
+
+        // Search for the sorted block in the cyclic nums block.
+        // A cycle of length k needs at most 2*k - 1 elements.
+        int matched = 0;
+
+        for (int j = 0; j < 2 * k - 1; j++) {
+            int value = nums[start + (j % k)];
+
+            while (matched > 0 &&
+                   value != sorted[start + matched]) {
+                matched = lps[matched - 1];
+            }
+
+            if (value == sorted[start + matched]) {
+                matched++;
+            }
+
+            if (matched == k) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+public:
+    long long sortableIntegers(vector<int>& nums) {
+        int n = nums.size();
+
+        vector<int> sorted = nums;
+        sort(sorted.begin(), sorted.end());
+
+        long long answer = 0;
+
+        for (int k = 1; k <= n; k++) {
+            if (n % k != 0) {
+                continue;
+            }
+
+            bool valid = true;
+
+            for (int start = 0; start < n; start += k) {
+                if (!canRotateToTarget(nums, sorted, start, k)) {
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                answer += k;
+            }
+        }
+
+        return answer;
+    }
+};
+
+
+Time Complexity: O(n log n + n × sum of k² over all divisors k of n) in the worst case for this direct approach, including sorting and checking cyclic shifts.
+
+Space Complexity: O(n) for the sorted copy.
