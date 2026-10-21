@@ -1,0 +1,45 @@
+2026-10-21|Minimum Sum Subarray
+
+Question:
+Given an array arr[], find the minimum sum of a subarray containing at least one element.
+
+Example:
+Input: arr = [3, -4, 2, -3, -1, 7, -5]
+Output: -6
+Explanation: The subarray [-4, 2, -3, -1] has sum -6, which is the minimum possible subarray sum.
+
+Approach:
+1. Initialize two variables:
+   - currentMin = arr[0], representing the minimum sum of a subarray ending at the current position.
+   - minSum = arr[0], representing the minimum sum found so far.
+2. Traverse the array starting from the second element.
+3. At each element, decide whether to start a new subarray at that element or extend the previous subarray:
+   - Start fresh with arr[i].
+   - Extend the previous subarray by calculating currentMin + arr[i].
+   - Choose the smaller of these two values.
+4. Update minSum whenever currentMin becomes smaller than the minimum found so far.
+5. Return minSum after processing the entire array.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minSubArraySum(vector<int>& arr) {
+        int currentMin = arr[0];
+        int minSum = arr[0];
+
+        for (int i = 1; i < arr.size(); i++) {
+            currentMin = min(arr[i], currentMin + arr[i]);
+            minSum = min(minSum, currentMin);
+        }
+
+        return minSum;
+    }
+};
+```
+
+Time Complexity: O(n), because the array is traversed once.
+
+Space Complexity: O(1), because only two variables are used.
