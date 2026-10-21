@@ -1,0 +1,58 @@
+2026-10-21|Minimum Operations to Sort a String
+
+Question:
+Given a string s consisting of lowercase English letters, in one operation select any substring that is not the entire string and sort it in non-descending alphabetical order. Return the minimum number of operations required to sort s, or -1 if it is impossible.
+
+Approach:
+1. If the string is already sorted, return 0.
+2. If the string has at least three characters and the first character is not the maximum character, while the last character is not the minimum character, the string can be sorted in at most two operations.
+3. If the first character is the maximum character or the last character is the minimum character, check whether one operation is sufficient:
+   - If the first character is the maximum and all remaining characters are already sorted, sorting the substring from index 1 to the end works.
+   - If the last character is the minimum and all preceding characters are already sorted, sorting the substring from the beginning to the second-last character works.
+4. For strings of length 2, if the string is unsorted, the only proper non-empty substrings have length 1 and cannot change the string. Therefore, return -1.
+5. Return the minimum number of operations based on these conditions.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minOperations(string s) {
+        int n = s.size();
+
+        if (is_sorted(s.begin(), s.end())) {
+            return 0;
+        }
+
+        if (n == 2) {
+            return -1;
+        }
+
+        char mn = *min_element(s.begin(), s.end());
+        char mx = *max_element(s.begin(), s.end());
+
+        if (s[0] != mx && s[n - 1] != mn) {
+            return 2;
+        }
+
+        if (s[0] == mx && s[n - 1] == mn) {
+            return 3;
+        }
+
+        if (s[0] == mx) {
+            return 1;
+        }
+
+        if (s[n - 1] == mn) {
+            return 1;
+        }
+
+        return 2;
+    }
+};
+```
+
+Time Complexity: O(n), because the string is scanned a constant number of times.
+
+Space Complexity: O(1), because only a fixed number of variables are used.
