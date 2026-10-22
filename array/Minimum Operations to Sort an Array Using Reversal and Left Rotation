@@ -1,0 +1,67 @@
+2026-10-22|Minimum Operations to Sort an Array Using Reversal and Left Rotation
+
+Question:
+Given a permutation nums of integers from 0 to n - 1, find the minimum number of operations required to sort it in increasing order using only:
+- Reversing the entire array.
+- Rotating the array left by one position.
+Return -1 if sorting is impossible.
+
+Approach:
+1. If nums is already sorted, return 0.
+2. Consider every left rotation of the original array. A rotation by k positions takes k operations.
+3. Consider reversing the original array first, which costs one operation. Then consider every left rotation of the reversed array.
+4. For each candidate, check whether it equals the sorted permutation [0, 1, 2, ..., n - 1].
+5. Track the smallest operation count among all successful candidates.
+6. If no candidate produces the sorted permutation, return -1.
+
+Solution:
+
+class Solution {
+public:
+    int minOperations(vector<int>& nums) {
+        int n = nums.size();
+
+        // Find the position of 0
+        int zero = 0;
+        for (int i = 0; i < n; i++) {
+            if (nums[i] == 0) {
+                zero = i;
+                break;
+            }
+        }
+
+        // Check whether the sequence starting from 0
+        // is increasing in the given direction.
+        auto check = [&](int step) -> bool {
+            for (int i = 1; i < n; i++) {
+                int prev = (zero + (i - 1) * step + n) % n;
+                int curr = (zero + i * step + n) % n;
+
+                if (nums[prev] > nums[curr]) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        int ans = INT_MAX;
+
+        // Case 1: Traverse forward from 0
+        if (check(1)) {
+            ans = min(ans, zero);
+            ans = min(ans, n - zero + 2);
+        }
+
+        // Case 2: Traverse backward from 0
+        if (check(-1)) {
+            ans = min(ans, zero + 2);
+            ans = min(ans, n - zero);
+        }
+
+        return ans == INT_MAX ? -1 : ans;
+    }
+};
+
+Time Complexity: O(n²), because there are 2n candidates and comparing each candidate with the target takes O(n) time.
+
+Space Complexity: O(n), for the target and working arrays.
