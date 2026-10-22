@@ -1,0 +1,81 @@
+2026-10-22|Minimum Adjacent ASCII Difference for a Palindrome
+
+Question:
+Given a string s consisting of lowercase English letters and '?':
+
+- Replace every '?' with a lowercase English letter so that s becomes a palindrome.
+- Minimize the sum of absolute ASCII differences between every pair of adjacent characters.
+- Return the minimum sum, or -1 if forming a palindrome is impossible.
+
+Approach:
+1. Use two pointers, one at the beginning and one at the end of the string.
+2. Compare the characters at the mirrored positions.
+   - If both are letters and different, forming a palindrome is impossible, so return -1.
+   - If both are letters and equal, keep them unchanged.
+   - If one is '?' and the other is a letter, replace '?' with that letter.
+   - If both are '?', temporarily leave them unresolved.
+3. After resolving mirrored pairs, assign a letter to each unresolved pair. To minimize adjacent differences, consider the neighboring fixed characters. A simple optimal choice for a run of unresolved positions is to use the same letter throughout, chosen to minimize the differences at the run's boundaries.
+4. Calculate the sum of absolute ASCII differences between each pair of adjacent characters.
+5. Return the total.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long minimumCost(string s) {
+        int n = s.size();
+
+        // Enforce palindrome constraints.
+        for (int i = 0; i < n / 2; i++) {
+            int j = n - 1 - i;
+
+            if (s[i] != '?' && s[j] != '?' && s[i] != s[j]) {
+                return -1;
+            }
+
+            if (s[i] == '?' && s[j] != '?') {
+                s[i] = s[j];
+            } else if (s[j] == '?' && s[i] != '?') {
+                s[j] = s[i];
+            }
+        }
+
+        // A palindrome has mirrored characters equal.
+        // Fill each unresolved mirrored pair with the same letter.
+        for (int i = 0; i < n / 2; i++) {
+            int j = n - 1 - i;
+
+            if (s[i] == '?' && s[j] == '?') {
+                char chosen = 'a';
+
+                // Prefer a neighboring fixed character when available.
+                if (i > 0 && s[i - 1] != '?') {
+                    chosen = s[i - 1];
+                } else if (j + 1 < n && s[j + 1] != '?') {
+                    chosen = s[j + 1];
+                }
+
+                s[i] = s[j] = chosen;
+            }
+        }
+
+        if (n % 2 == 1 && s[n / 2] == '?') {
+            s[n / 2] = (n / 2 > 0) ? s[n / 2 - 1] : 'a';
+        }
+
+        // Compute adjacent ASCII differences.
+        long long answer = 0;
+
+        for (int i = 1; i < n; i++) {
+            answer += abs((int)s[i] - (int)s[i - 1]);
+        }
+
+        return answer;
+    }
+};
+
+Time Complexity: O(n), because the string is traversed a constant number of times.
+
+Space Complexity: O(1) auxiliary space, excluding the string storage.
