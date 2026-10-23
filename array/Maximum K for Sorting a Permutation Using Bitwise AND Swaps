@@ -1,0 +1,38 @@
+2026-10-23|Maximum K for Sorting a Permutation Using Bitwise AND Swaps
+
+Question:
+Given a permutation nums of integers from 0 to n - 1, we may swap elements at indices i and j only if:
+(nums[i] AND nums[j]) == k
+Return the maximum non-negative k that allows the array to be sorted. If nums is already sorted, return 0.
+
+Approach:
+1. If nums is already sorted, return 0.
+2. Observe that a swap producing AND value k requires both swapped values to contain every set bit present in k.
+3. For any element that is misplaced, it must be possible to move it to its correct position through valid swaps.
+4. Because every value belongs to the range [0, n - 1], the maximum possible k cannot exceed the bitwise AND of all misplaced values.
+5. Calculate the bitwise AND of every value whose current index differs from its value.
+6. Return that AND value. If the result is zero, zero is the only possible candidate.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int sortPermutation(vector<int>& nums) {
+        int n = nums.size();
+        int k = -1;
+
+        for (int i = 0; i < n; i++) {
+            if (nums[i] != i) {
+                k &= nums[i];
+            }
+        }
+
+        return k == -1 ? 0 : k;
+    }
+};
+
+Time Complexity: O(n), because we traverse the array once.
+
+Space Complexity: O(1), because only a constant number of variables are used.
