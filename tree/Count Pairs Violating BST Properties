@@ -1,0 +1,74 @@
+2026-10-23|Count Pairs Violating BST Properties
+
+Question:
+Given the root of a binary tree with distinct values, count pairs of nodes that violate either of the following BST properties:
+
+- All values in the left subtree are strictly smaller than the root.
+- All values in the right subtree are strictly greater than the root.
+
+Approach:
+1. For each node, inspect all nodes in its left and right subtrees.
+2. For every node in the left subtree, count a violation if its value is greater than the current node's value.
+3. For every node in the right subtree, count a violation if its value is smaller than the current node's value.
+4. Recursively perform the same checks for every node in the tree.
+5. Return the total number of violating pairs.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int value) : data(value), left(nullptr), right(nullptr) {}
+};
+
+class Solution {
+private:
+    void collect(Node* root, vector<int>& values) {
+        if (!root) return;
+
+        values.push_back(root->data);
+        collect(root->left, values);
+        collect(root->right, values);
+    }
+
+    long long countViolations(Node* root) {
+        if (!root) return 0;
+
+        vector<int> leftValues, rightValues;
+        collect(root->left, leftValues);
+        collect(root->right, rightValues);
+
+        long long count = 0;
+
+        for (int value : leftValues) {
+            if (value > root->data) {
+                count++;
+            }
+        }
+
+        for (int value : rightValues) {
+            if (value < root->data) {
+                count++;
+            }
+        }
+
+        count += countViolations(root->left);
+        count += countViolations(root->right);
+
+        return count;
+    }
+
+public:
+    long long pairsViolatingBST(Node* root) {
+        return countViolations(root);
+    }
+};
+
+Time Complexity: O(n²) in the worst case, because each node may require traversing its entire subtree.
+
+Space Complexity: O(n) for storing subtree values and the recursive call stack.
