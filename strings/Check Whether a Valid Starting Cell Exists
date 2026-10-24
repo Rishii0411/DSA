@@ -1,0 +1,62 @@
+2026-10-24|Check Whether a Valid Starting Cell Exists
+
+Question:
+Given a grid of n rows and m columns and a movement string s:
+
+- L moves one column left.
+- R moves one column right.
+- D moves one row up.
+- U moves one row down.
+Determine whether there is a starting cell from which all commands can be performed while remaining inside the grid.
+
+Approach:
+1. Start at relative coordinate (0, 0), representing the starting cell.
+2. Process each command and update the relative row or column:
+   - L: decrease the column.
+   - R: increase the column.
+   - D: decrease the row.
+   - U: increase the row.
+3. Track the minimum and maximum row and column positions visited, including the initial position.
+4. Calculate the required movement range:
+   - Required rows = maxRow - minRow + 1.
+   - Required columns = maxCol - minCol + 1.
+5. If the required rows are at most n and the required columns are at most m, a valid starting cell exists. Otherwise, it is impossible.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool canStayInGrid(int n, int m, string s) {
+        int row = 0, col = 0;
+        int minRow = 0, maxRow = 0;
+        int minCol = 0, maxCol = 0;
+
+        for (char c : s) {
+            if (c == 'L') {
+                col--;
+            } else if (c == 'R') {
+                col++;
+            } else if (c == 'D') {
+                row--;
+            } else if (c == 'U') {
+                row++;
+            }
+
+            minRow = min(minRow, row);
+            maxRow = max(maxRow, row);
+            minCol = min(minCol, col);
+            maxCol = max(maxCol, col);
+        }
+
+        int requiredRows = maxRow - minRow + 1;
+        int requiredCols = maxCol - minCol + 1;
+
+        return requiredRows <= n && requiredCols <= m;
+    }
+};
+
+Time Complexity: O(|s|), because each movement command is processed once.
+
+Space Complexity: O(1), because only a fixed number of variables are used.
