@@ -1,0 +1,71 @@
+2026-10-24|Count Days Spent Together
+Alice and Bob are visiting Rome during separate date ranges. We are given their arrival and departure dates in the format MM-DD. Both arrival and departure dates are inclusive, meaning the first and last days count.
+Our task is to calculate how many days they are both in Rome at the same time.
+The simplest approach is to convert each date into its day number within the year, then find the overlap between their two date ranges.
+
+Question:
+
+Given four strings, arriveAlice, leaveAlice, arriveBob, and leaveBob, return the total number of days Alice and Bob spend together in Rome.
+
+All dates are in the same non-leap year, and the date ranges include both arrival and departure dates.
+
+Approach:
+
+1. Store the number of days in each month in an array.
+2. Convert each MM-DD date into its day number within the year by adding the days in all previous months to the day of the current month.
+3. Let Alice's interval be [startA, endA] and Bob's interval be [startB, endB].
+4. Calculate the overlapping interval:
+   - overlapStart = max(startA, startB)
+   - overlapEnd = min(endA, endB)
+5. If overlapStart is greater than overlapEnd, their visits do not overlap, so return 0.
+6. Otherwise, return overlapEnd - overlapStart + 1. The extra 1 accounts for inclusive dates.
+
+Solution:
+
+```
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+private:
+    int daysInMonth[12] = {
+        31, 28, 31, 30, 31, 30,
+        31, 31, 30, 31, 30, 31
+    };
+
+    int toDayNumber(string date) {
+        int month = stoi(date.substr(0, 2));
+        int day = stoi(date.substr(3, 2));
+
+        int total = day;
+
+        for (int i = 0; i < month - 1; i++) {
+            total += daysInMonth[i];
+        }
+
+        return total;
+    }
+
+public:
+    int countDaysTogether(string arriveAlice, string leaveAlice,
+                          string arriveBob, string leaveBob) {
+        int startA = toDayNumber(arriveAlice);
+        int endA = toDayNumber(leaveAlice);
+        int startB = toDayNumber(arriveBob);
+        int endB = toDayNumber(leaveBob);
+
+        int overlapStart = max(startA, startB);
+        int overlapEnd = min(endA, endB);
+
+        if (overlapStart > overlapEnd) {
+            return 0;
+        }
+
+        return overlapEnd - overlapStart + 1;
+    }
+};
+```
+
+Time Complexity: O(1), because each date contains a fixed number of characters and at most 11 months are checked during conversion.
+
+Space Complexity: O(1), because only a fixed-size array and a few variables are used.
