@@ -1,0 +1,57 @@
+2026-10-25|Sum of Beauty of All Substrings
+
+Question:
+
+Given a string s, return the sum of the beauty values of all its substrings.
+
+Approach:
+
+1. Start at each index i, treating it as the beginning of a substring.
+2. Create a frequency array of size 26 to count lowercase English letters.
+3. Extend the substring one character at a time, moving the ending index j from i to the end of the string.
+4. Update the frequency of s[j].
+5. Find the maximum and minimum non-zero character frequencies in the current substring.
+6. Calculate the beauty as maximum frequency minus minimum frequency.
+7. Add this beauty to the total sum.
+8. Return the total after considering all substrings.
+
+Solution:
+
+```
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int beautySum(string s) {
+        int n = s.size();
+        int totalBeauty = 0;
+
+        for (int i = 0; i < n; i++) {
+            int freq[26] = {0};
+
+            for (int j = i; j < n; j++) {
+                freq[s[j] - 'a']++;
+
+                int maxFreq = 0;
+                int minFreq = INT_MAX;
+
+                for (int k = 0; k < 26; k++) {
+                    if (freq[k] > 0) {
+                        maxFreq = max(maxFreq, freq[k]);
+                        minFreq = min(minFreq, freq[k]);
+                    }
+                }
+
+                totalBeauty += maxFreq - minFreq;
+            }
+        }
+
+        return totalBeauty;
+    }
+};
+```
+
+Time Complexity: O(n² × 26), which simplifies to O(n²) because the alphabet size is fixed.
+
+Space Complexity: O(1), because the frequency array always contains 26 entries.
