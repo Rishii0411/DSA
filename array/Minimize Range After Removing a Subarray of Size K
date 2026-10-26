@@ -1,0 +1,81 @@
+2026-10-26|Minimize Range After Removing a Subarray of Size K
+
+Question:
+Given an array arr of size n and an integer k, remove exactly one contiguous subarray of size k such that the difference between the maximum and minimum values in the remaining array is as small as possible. Return that minimum difference.
+
+Approach:
+
+1. If k equals n, removing the subarray leaves no elements, so the maximum and minimum of the remaining array are undefined. This case needs a special rule from the problem constraints.
+2. Sort the array in non-decreasing order.
+3. Consider every possible remaining window of size n - k in the sorted array.
+4. For each window, calculate the difference between its largest and smallest elements.
+5. Take the minimum difference across all windows.
+
+Note: This approach assumes the removed elements can be chosen arbitrarily. If the problem strictly requires removing a contiguous subarray from the original, unsorted array, sorting changes which elements are adjacent and is not generally valid. For that interpretation, use prefix/suffix minimum and maximum arrays instead.
+
+Solution:
+
+class Solution {
+public:
+    int minDiff(int k, vector<int>& arr) {
+        int n = arr.size();
+
+        // Removing no elements leaves the original array.
+        if (k == 0) {
+            auto bounds = minmax_element(arr.begin(), arr.end());
+            return *bounds.second - *bounds.first;
+        }
+
+        vector<int> prefixMin(n), prefixMax(n);
+        vector<int> suffixMin(n), suffixMax(n);
+
+        // Prefix minimum and maximum
+        prefixMin[0] = prefixMax[0] = arr[0];
+
+        for (int i = 1; i < n; i++) {
+            prefixMin[i] = min(prefixMin[i - 1], arr[i]);
+            prefixMax[i] = max(prefixMax[i - 1], arr[i]);
+        }
+
+        // Suffix minimum and maximum
+        suffixMin[n - 1] = suffixMax[n - 1] = arr[n - 1];
+
+        for (int i = n - 2; i >= 0; i--) {
+            suffixMin[i] = min(suffixMin[i + 1], arr[i]);
+            suffixMax[i] = max(suffixMax[i + 1], arr[i]);
+        }
+
+        int answer = INT_MAX;
+
+        // Remove a subarray starting at i, of length k
+        for (int i = 0; i + k <= n; i++) {
+            int left = i - 1;
+            int right = i + k;
+
+            int mn = INT_MAX;
+            int mx = INT_MIN;
+
+            if (left >= 0) {
+                mn = min(mn, prefixMin[left]);
+                mx = max(mx, prefixMax[left]);
+            }
+
+            if (right < n) {
+                mn = min(mn, suffixMin[right]);
+                mx = max(mx, suffixMax[right]);
+            }
+
+            // If nothing remains, define the difference as 0.
+            int diff = (mn == INT_MAX) ? 0 : mx - mn;
+
+            answer = min(answer, diff);
+        }
+
+        return answer;
+    }
+};
+
+
+Time Complexity: O(n log n), due to sorting.
+
+Space Complexity: O(1) auxiliary space, excluding sorting implementation details.
