@@ -1,0 +1,51 @@
+2026-10-27|Maximum Weight of a String After Toggles
+
+Question:
+Given a string s consisting only of 'A' and 'B', find the maximum possible weight by optimally toggling characters and forming non-overlapping alternating adjacent pairs.
+
+Approach:
+1. Every character contributes at least 1 if it is left unpaired.
+2. A pair of adjacent characters contributes 4 instead of the 2 points they would contribute separately, giving a gain of 2 before accounting for toggles.
+3. If two adjacent characters are already different, pairing them costs no toggles and gives a gain of 2.
+4. If two adjacent characters are equal, one toggle makes them different. The pair then contributes 4, but the toggle reduces the weight by 1, so the net gain over leaving both characters unpaired is 1.
+5. Since pairs cannot overlap, we can use dynamic programming:
+   - dp[i] is the maximum weight obtainable from the first i characters.
+   - Leave the last character unpaired, or pair the last two characters, toggling one if necessary.
+6. The transitions are:
+   - Leave the last character unpaired: dp[i] = dp[i - 1] + 1.
+   - Pair the last two characters: dp[i] = dp[i - 2] + 4 - (s[i - 1] == s[i - 2] ? 1 : 0).
+7. Take the maximum of these options and return dp[n].
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxWeight(string s) {
+        int n = s.size();
+
+        vector<int> dp(n + 1, 0);
+        dp[1] = 1;
+
+        for (int i = 2; i <= n; i++) {
+            // Leave the last character unpaired.
+            dp[i] = dp[i - 1] + 1;
+
+            // Pair the last two characters.
+            int pairWeight = 4;
+
+            if (s[i - 1] == s[i - 2]) {
+                pairWeight -= 1;
+            }
+
+            dp[i] = max(dp[i], dp[i - 2] + pairWeight);
+        }
+
+        return dp[n];
+    }
+};
+
+Time Complexity: O(n), because each position is processed once.
+
+Space Complexity: O(n), for the DP array.
