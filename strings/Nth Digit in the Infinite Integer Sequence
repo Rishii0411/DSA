@@ -1,0 +1,53 @@
+2026-10-28|Nth Digit in the Infinite Integer Sequence
+
+Question:
+Given an integer n, find the nth character in the infinite string formed by concatenating the decimal representations of all positive integers in order.
+
+Approach:
+1. Start with numbers having 1 digit. There are 9 such numbers, contributing 9 digits in total.
+2. Numbers with 2 digits contribute 9 × 10 = 90 digits.
+3. Numbers with 3 digits contribute 90 × 10 = 900 digits.
+4. Repeatedly subtract the total digits contributed by each digit-length group until n falls within the current group.
+5. Calculate the actual number containing the required digit:
+   - The first number in the group is \\(10^{digits-1}\\).
+   - The zero-based offset is \\((n-1)/digits\\).
+   - The target number is the first number plus that offset.
+6. Calculate the digit position within the number using \\((n-1)\\%digits\\).
+7. Convert the number to a string and return the character at that position.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findNthDigit(long long n) {
+        long long digits = 1;
+        long long first = 1;
+        long long count = 9;
+
+        while (n > digits * count) {
+            n -= digits * count;
+            digits++;
+            first *= 10;
+            count *= 10;
+        }
+
+        long long number = first + (n - 1) / digits;
+        int position = (n - 1) % digits;
+
+        string s = to_string(number);
+
+        return s[position] - '0';
+    }
+};
+
+Example:
+Input: `n = 15`
+The sequence begins with `12345678910111213...`.
+The 15th character is `2`, because the first 9 characters are `123456789`, and the next characters are `10`, `11`, `12`, and so on.
+Output: `2`
+
+Time Complexity: O(log n), because we process groups of increasing digit lengths.
+
+Space Complexity: O(log n) for the string representation of the target number.
