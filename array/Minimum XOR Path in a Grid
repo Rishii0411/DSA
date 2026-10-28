@@ -1,0 +1,58 @@
+2026-10-28|Minimum XOR Path in a Grid
+
+Question:
+Given an m × n integer grid, return the minimum possible XOR of all cell values along a path from (0, 0) to (m - 1, n - 1), moving only right or down.
+
+Approach:
+1. Define dp[i][j] as the set of all XOR values achievable by paths from (0, 0) to cell (i, j).
+2. Initialize dp[0][0] with grid[0][0], since the starting cell is included in the path.
+3. For every other cell, consider paths arriving from above and from the left.
+4. For each XOR value x from those predecessor cells, calculate x XOR grid[i][j] and add it to dp[i][j].
+5. After processing the entire grid, the answer is the smallest value in dp[m - 1][n - 1].
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minPathXor(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+
+        vector<vector<unordered_set<int>>> dp(
+            m, vector<unordered_set<int>>(n)
+        );
+
+        dp[0][0].insert(grid[0][0]);
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+
+                if (i > 0) {
+                    for (int x : dp[i - 1][j]) {
+                        dp[i][j].insert(x ^ grid[i][j]);
+                    }
+                }
+
+                if (j > 0) {
+                    for (int x : dp[i][j - 1]) {
+                        dp[i][j].insert(x ^ grid[i][j]);
+                    }
+                }
+            }
+        }
+
+        return *min_element(
+            dp[m - 1][n - 1].begin(),
+            dp[m - 1][n - 1].end()
+        );
+    }
+};
+
+Time Complexity: Depends on the number of distinct XOR values reachable at each cell. If at most `S` distinct XOR values are reachable per cell, the expected time complexity is O(m × n × S).
+
+Space Complexity: O(m × n × S), for storing the reachable XOR values at each cell.
