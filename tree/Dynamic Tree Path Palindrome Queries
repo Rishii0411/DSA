@@ -1,0 +1,215 @@
+2026-10-29|Dynamic Tree Path Palindrome Queries
+
+Question:
+Given a tree with n nodes, a character string s, and a list of queries, process the following operations:
+- `"update u c"`: Change the character at node u to c.
+- `"query u v"`: Determine whether the characters along the unique path from u to v can be rearranged into a palindrome.
+Return a boolean array containing the results of all query operations, in their original order.
+
+Approach:
+1. Build an adjacency list from edges to represent the tree.
+2. Use Heavy-Light Decomposition (HLD) to divide tree paths into a small number of contiguous ranges. Assign each node a position in an array.
+3. Represent each node's character using a 26-bit mask. For example, 'a' corresponds to bit 0, 'b' to bit 1, and so on.
+4. Build a segment tree over the HLD array. Each segment tree node stores the XOR of the character masks in its range.
+5. For an update query:
+   - Change the character at the specified node.
+   - Update its corresponding position in the segment tree.
+6. For a path query:
+   - Break the path into HLD ranges.
+   - XOR the masks of all those ranges to obtain the path's parity mask.
+   - If the mask has at most one set bit, return true; otherwise, return false.
+7. A mask has at most one set bit when `mask == 0` or `(mask & (mask - 1)) == 0`.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+    int n, timer;
+    vector<vector<int>> adj;
+    vector<int> parent, depth, subtreeSize;
+    vector<int> heavy, head, pos;
+    vector<int> seg;
+
+    int charMask(char c) {
+        return 1 << (c - 'a');
+    }
+
+    void dfsSize(int u, int p) {
+        parent[u] = p;
+        subtreeSize[u] = 1;
+        heavy[u] = -1;
+        int largest = 0;
+
+        for (int v : adj[u]) {
+            if (v == p) continue;
+
+            depth[v] = depth[u] + 1;
+            dfsSize(v, u);
+
+            subtreeSize[u] += subtreeSize[v];
+
+            if (subtreeSize[v] > largest) {
+                largest = subtreeSize[v];
+                heavy[u] = v;
+            }
+        }
+    }
+
+    void decompose(int u, int h) {
+        head[u] = h;
+        pos[u] = timer++;
+
+        if (heavy[u] != -1) {
+            decompose(heavy[u], h);
+        }
+
+        for (int v : adj[u]) {
+            if (v == parent[u] || v == heavy[u]) {
+                continue;
+            }
+
+            decompose(v, v);
+        }
+    }
+
+    void build(int node, int l, int r,
+               const vector<int>& values) {
+        if (l == r) {
+            seg[node] = values[l];
+            return;
+        }
+
+        int mid = (l + r) / 2;
+
+        build(node * 2, l, mid, values);
+        build(node * 2 + 1, mid + 1, r, values);
+
+        seg[node] = seg[node * 2] ^ seg[node * 2 + 1];
+    }
+
+    void update(int node, int l, int r, int idx, int value) {
+        if (l == r) {
+            seg[node] = value;
+            return;
+        }
+
+        int mid = (l + r) / 2;
+
+        if (idx <= mid) {
+            update(node * 2, l, mid, idx, value);
+        } else {
+            update(node * 2 + 1, mid + 1, r, idx, value);
+        }
+
+        seg[node] = seg[node * 2] ^ seg[node * 2 + 1];
+    }
+
+    int rangeQuery(int node, int l, int r, int ql, int qr) {
+        if (ql <= l && r <= qr) {
+            return seg[node];
+        }
+
+        if (r < ql || qr < l) {
+            return 0;
+        }
+
+        int mid = (l + r) / 2;
+
+        return rangeQuery(node * 2, l, mid, ql, qr) ^
+               rangeQuery(node * 2 + 1, mid + 1, r, ql, qr);
+    }
+
+    int queryPath(int u, int v) {
+        int mask = 0;
+
+        while (head[u] != head[v]) {
+            if (depth[head[u]] < depth[head[v]]) {
+                swap(u, v);
+            }
+
+            mask ^= rangeQuery(
+                1, 0, n - 1, pos[head[u]], pos[u]
+            );
+
+            u = parent[head[u]];
+        }
+
+        if (depth[u] > depth[v]) {
+            swap(u, v);
+        }
+
+        mask ^= rangeQuery(1, 0, n - 1, pos[u], pos[v]);
+
+        return mask;
+    }
+
+public:
+    vector<bool> palindromePath(
+        int n,
+        vector<vector<int>>& edges,
+        string s,
+        vector<string>& queries
+    ) {
+        this->n = n;
+        timer = 0;
+
+        adj.assign(n, {});
+        parent.assign(n, -1);
+        depth.assign(n, 0);
+        subtreeSize.assign(n, 0);
+        heavy.assign(n, -1);
+        head.assign(n, 0);
+        pos.assign(n, 0);
+        seg.assign(4 * n, 0);
+
+        for (auto& e : edges) {
+            adj[e[0]].push_back(e[1]);
+            adj[e[1]].push_back(e[0]);
+        }
+
+        dfsSize(0, -1);
+        decompose(0, 0);
+
+        vector<int> values(n);
+
+        for (int u = 0; u < n; u++) {
+            values[pos[u]] = charMask(s[u]);
+        }
+
+        build(1, 0, n - 1, values);
+
+        vector<bool> answer;
+
+        for (const string& query : queries) {
+            stringstream ss(query);
+            string type;
+            int u, v;
+            ss >> type >> u;
+
+            if (type == "update") {
+                char c;
+                ss >> c;
+
+                s[u] = c;
+
+                update(1, 0, n - 1, pos[u], charMask(c));
+            } else if (type == "query") {
+                ss >> v;
+
+                int mask = queryPath(u, v);
+
+                answer.push_back(
+                    mask == 0 || (mask & (mask - 1)) == 0
+                );
+            }
+        }
+
+        return answer;
+    }
+};
+
+Complexity Analysis:
+
+- Time Complexity: O(n log n + q log² n), where n is the number of nodes and q is the number of queries. Tree decomposition and segment tree construction take O(n log n) or less, and each path query takes O(log² n).
+- Space Complexity: O(n), for the adjacency list, decomposition arrays, and segment tree.
