@@ -1,0 +1,50 @@
+2026-10-29|Minimum Cost to Merge Files
+
+Question:
+Given an integer array files[], find the minimum total cost required to merge all files into a single file. Merging files of sizes x and y costs x + y, and produces a new file of size x + y.
+
+Approach:
+1. Insert all file sizes into a min-heap, which always provides the smallest file size.
+2. While more than one file remains:
+   - Remove the two smallest file sizes, x and y.
+   - Merge them to create a new file of size x + y.
+   - Add x + y to the total computation cost.
+   - Insert the merged file back into the min-heap.
+3. When only one file remains, return the accumulated cost.
+4. If there is only one file initially, no merge is needed, so the cost is 0.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minCost(vector<int>& files) {
+        priority_queue<int, vector<int>, greater<int>> minHeap;
+
+        for (int size : files) {
+            minHeap.push(size);
+        }
+
+        int totalCost = 0;
+
+        while (minHeap.size() > 1) {
+            int first = minHeap.top();
+            minHeap.pop();
+
+            int second = minHeap.top();
+            minHeap.pop();
+
+            int mergedSize = first + second;
+            totalCost += mergedSize;
+
+            minHeap.push(mergedSize);
+        }
+
+        return totalCost;
+    }
+};
+
+Time Complexity: O(n log n), because each merge performs heap operations, and there are n - 1 merges.
+
+Space Complexity: O(n), for storing the file sizes in the min-heap.
