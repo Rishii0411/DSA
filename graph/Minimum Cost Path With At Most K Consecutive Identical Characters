@@ -1,0 +1,131 @@
+2026-10-30|Minimum Cost Path With At Most K Consecutive Identical Characters
+
+Question:
+Given:
+- n nodes numbered from 0 to n - 1.
+- A directed weighted edge array edges, where each edge is `[u, v, w]`.
+- A string labels representing the character assigned to each node.
+- An integer k.
+
+Find the minimum total edge weight of a valid path from node 0 to node n - 1 such that the path's node labels contain at most k consecutive identical characters.
+
+Return -1 if no valid path exists.
+
+Approach:
+
+1. Build an adjacency list to represent the directed weighted graph.
+2. Create a 2D distance array:
+
+   `dist[node][count]`
+
+   It represents the minimum cost to reach a particular node with `count` consecutive occurrences of its character.
+3. Initialize the starting state:
+   - Current node = 0.
+   - Consecutive count = 1.
+   - Distance = 0.
+4. Use a min-priority queue to process states in increasing order of path cost.
+5. For every outgoing edge from the current node u to v:
+   - If `labels[u] == labels[v]`, increase the consecutive count by one.
+   - Otherwise, reset the consecutive count to one.
+   - If the new count exceeds k, skip this transition.
+   - Otherwise, calculate the new path cost and update the distance if it is smaller.
+6. When node n - 1 is reached, its minimum valid distance is the answer.
+7. If the destination cannot be reached through any valid state, return -1.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long minimumCost(
+        int n,
+        vector<vector<int>>& edges,
+        string labels,
+        int k
+    ) {
+        if (k <= 0) {
+            return -1;
+        }
+
+        vector<vector<pair<int, int>>> adj(n);
+
+        for (auto& edge : edges) {
+            int u = edge[0];
+            int v = edge[1];
+            int w = edge[2];
+
+            adj[u].push_back({v, w});
+        }
+
+        const long long INF = LLONG_MAX;
+
+        // dist[node][count] = minimum cost
+        // to reach node with count consecutive labels.
+        vector<vector<long long>> dist(
+            n, vector<long long>(k + 1, INF)
+        );
+
+        // {cost, node, consecutive count}
+        priority_queue<
+            tuple<long long, int, int>,
+            vector<tuple<long long, int, int>>,
+            greater<tuple<long long, int, int>>
+        > pq;
+
+        dist[0][1] = 0;
+        pq.push({0, 0, 1});
+
+        while (!pq.empty()) {
+            auto [cost, u, count] = pq.top();
+            pq.pop();
+
+            if (cost != dist[u][count]) {
+                continue;
+            }
+
+            if (u == n - 1) {
+                return cost;
+            }
+
+            for (auto [v, weight] : adj[u]) {
+                int newCount;
+
+                if (labels[u] == labels[v]) {
+                    newCount = count + 1;
+                } else {
+                    newCount = 1;
+                }
+
+                if (newCount > k) {
+                    continue;
+                }
+
+                long long newCost = cost + weight;
+
+                if (newCost < dist[v][newCount]) {
+                    dist[v][newCount] = newCost;
+
+                    pq.push({
+                        newCost,
+                        v,
+                        newCount
+                    });
+                }
+            }
+        }
+
+        return -1;
+    }
+};
+
+Complexity Analysis:
+
+- Time Complexity: O((n × k + E × k) log(n × k)), where E is the number of directed edges. Each node can have up to k different consecutive-count states, and Dijkstra processes these states using a priority queue.
+- Space Complexity: O(n × k + E), for the distance array, adjacency list, and priority queue.
+
+Important Notes:
+
+- This solution assumes all edge weights are non-negative, as required by Dijkstra's algorithm.
+- The starting node is also included in the consecutive-character count.
+- If n = 1 and k is at least 1, the answer is 0 because we are already at the destination.
