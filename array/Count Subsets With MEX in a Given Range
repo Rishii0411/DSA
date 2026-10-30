@@ -1,0 +1,104 @@
+2026-10-30|Count Subsets With MEX in a Given Range
+
+Since the number of possible subsets can be very large, we return the answer modulo \\(10^9+7\\).
+
+Question:
+Given an integer array arr[] and a range [l, r], count the number of subsets whose MEX lies between l and r, inclusive.
+
+Approach:
+
+1. Calculate the frequency of every value from 0 to n, where n is the array size.
+2. Precompute powers of 2 modulo \\(10^9+7\\), because every element that can be freely included or excluded contributes a factor of 2.
+3. Consider each possible MEX value x from l to min(r, n).
+4. For a subset to have MEX equal to x:
+   - Every value from 0 to x - 1 must appear at least once.
+   - No occurrence of x can be selected.
+   - Values greater than x and negative values can be selected or excluded freely.
+5. If the frequency of any value smaller than x is zero, the number of valid subsets is zero.
+6. Otherwise, calculate:
+
+   \\[ ways(x)= \left(\prod\_{i=0}^{x-1}(2^{freq[i]}-1)\right) \times 2^{n-\sum\_{i=0}^{x}freq[i]} \\]
+7. Add the number of subsets for each valid MEX value and take modulo \\(10^9+7\\).
+8. If l is greater than n, return 0 because the MEX of a subset cannot exceed the array size.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countSubsets(vector<int>& arr, int l, int r) {
+        const long long MOD = 1000000007;
+        int n = arr.size();
+
+        if (l > n) return 0;
+
+        r = min(r, n);
+
+        vector<int> freq(n + 1, 0);
+
+        for (int x : arr) {
+            if (x >= 0 && x <= n) {
+                freq[x]++;
+            }
+        }
+
+        // Precompute powers of 2.
+        vector<long long> power2(n + 1, 1);
+
+        for (int i = 1; i <= n; i++) {
+            power2[i] = (power2[i - 1] * 2) % MOD;
+        }
+
+        long long product = 1;
+        long long prefixCount = 0;
+        long long answer = 0;
+
+        for (int mex = 0; mex <= r; mex++) {
+
+            // Count subsets having exactly this MEX.
+            if (mex >= l) {
+                long long freeElements =
+                    n - prefixCount - freq[mex];
+
+                long long ways =
+                    (product * power2[freeElements]) % MOD;
+
+                answer = (answer + ways) % MOD;
+            }
+
+            // Prepare product for the next MEX value.
+            long long choices =
+                (power2[freq[mex]] - 1 + MOD) % MOD;
+
+            product = (product * choices) % MOD;
+
+            prefixCount += freq[mex];
+        }
+
+        return answer;
+    }
+};
+
+Example:
+
+Input: `arr = [0, 1, 2]`, `l = 1`, `r = 2`
+
+Possible subsets with MEX 1:
+
+\- `{0}`
+
+Possible subsets with MEX 2:
+
+\- `{0, 1}`
+
+Therefore:
+
+Output: `2`
+
+Complexity Analysis:
+
+- Time Complexity: O(n + min(r, n)), for frequency calculation, power precomputation, and MEX enumeration.
+- Space Complexity: O(n), for the frequency and power arrays.
+
+Important: Each array occurrence is treated as a distinct element when forming subsets, even if duplicate values exist.
