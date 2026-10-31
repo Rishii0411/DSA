@@ -1,0 +1,71 @@
+2026-10-31|Maximum Packages Delivered Within Given Time
+
+Question:
+Given an integer array arr[] and an integer totalTime, find the maximum sum of a contiguous subarray whose length does not exceed totalTime.
+
+Approach:
+
+1. If totalTime is greater than the array size, limit it to n.
+2. Use two pointers to maintain a sliding window.
+3. Start with an empty window and initialize its sum to zero.
+4. Expand the window by adding the next element.
+5. If the window size becomes greater than totalTime, remove the leftmost element and move the left pointer forward.
+6. After each expansion, update the maximum sum.
+7. Return the maximum sum.
+
+Solution:
+
+```
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long maxPackages(vector<int>& arr, int totalTime) {
+        int n = arr.size();
+
+        totalTime = min(totalTime, n);
+
+        long long windowSum = 0;
+        long long maxSum = 0;
+
+        int left = 0;
+
+        for (int right = 0; right < n; right++) {
+            windowSum += arr[right];
+
+            if (right - left + 1 > totalTime) {
+                windowSum -= arr[left];
+                left++;
+            }
+
+            maxSum = max(maxSum, windowSum);
+        }
+
+        return maxSum;
+    }
+};
+```
+
+Example:
+
+Input:\
+arr = [2, 5, 1, 7, 3, 4]\
+totalTime = 3
+
+Possible best consecutive locations:
+
+[7, 3, 4]
+
+Total packages = 7 + 3 + 4 = 14.
+
+Output: `14`
+
+Complexity Analysis:
+
+- Time Complexity: O(n), because each element enters and leaves the sliding window at most once.
+- Space Complexity: O(1), because only a few variables are used.
+
+Important Note:
+
+This solution assumes the number of packages is non-negative and the agent can visit at most `totalTime` locations. If negative values are allowed, the initialization and handling of the maximum sum should be adjusted.
