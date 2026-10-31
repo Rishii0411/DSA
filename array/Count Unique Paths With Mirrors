@@ -1,0 +1,130 @@
+2026-10-31|Count Unique Paths With Mirrors
+
+Question:
+
+Given an m × n binary grid, count the number of unique valid paths from (0, 0) to (m - 1, n - 1), moving only right or down, while following all mirror reflections.
+
+Return the answer modulo \\(10^9+7\\).
+
+Approach:
+
+1. Define a recursive function `dfs(r, c)` that returns the number of valid paths from the current cell to the destination.
+2. If the current position is the bottom-right cell, return 1 because we have successfully reached the destination.
+3. Use a DP matrix `dp` to store previously calculated results. This avoids repeatedly calculating paths from the same cell.
+4. From the current cell, try both possible directions:
+   - Move right.
+   - Move down.
+5. For each direction, simulate the movement:
+   - Move one cell in the selected direction.
+   - If the destination cell is empty (0), stop the simulation.
+   - If it contains a mirror (1), change direction according to the reflection rules.
+   - Continue until an empty cell is reached or the robot moves outside the grid.
+6. If the movement goes outside the grid, discard that path.
+7. Otherwise, recursively calculate the number of paths from the new position and add it to the answer.
+8. Apply modulo \\(10^9+7\\) during addition.
+9. Return the calculated result for the starting cell.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+private:
+    static const int MOD = 1000000007;
+
+    int m, n;
+    vector<vector<int>> dp;
+
+    // Simulate movement and all mirror reflections.
+    pair<int, int> moveRobot(int r, int c, int dir) {
+
+        // dir = 0 means right
+        // dir = 1 means down
+
+        if (dir == 0) {
+            c++;
+        } else {
+            r++;
+        }
+
+        while (r < m && c < n) {
+
+            // Stop when an empty cell is reached.
+            if (grid[r][c] == 0) {
+                return {r, c};
+            }
+
+            // Mirror reflection.
+            if (dir == 0) {
+                // Moving right, so turn down.
+                r++;
+                dir = 1;
+            } else {
+                // Moving down, so turn right.
+                c++;
+                dir = 0;
+            }
+        }
+
+        // Movement went outside the grid.
+        return {-1, -1};
+    }
+
+    vector<vector<int>> grid;
+
+    int dfs(int r, int c) {
+
+        // Destination reached.
+        if (r == m - 1 && c == n - 1) {
+            return 1;
+        }
+
+        // Already calculated.
+        if (dp[r][c] != -1) {
+            return dp[r][c];
+        }
+
+        long long ways = 0;
+
+        // Try moving right.
+        auto right = moveRobot(r, c, 0);
+
+        if (right.first != -1) {
+            ways += dfs(right.first, right.second);
+        }
+
+        // Try moving down.
+        auto down = moveRobot(r, c, 1);
+
+        if (down.first != -1) {
+            ways += dfs(down.first, down.second);
+        }
+
+        return dp[r][c] = ways % MOD;
+    }
+
+public:
+    int uniquePaths(vector<vector<int>>& inputGrid) {
+
+        grid = inputGrid;
+
+        m = grid.size();
+        n = grid[0].size();
+
+        dp.assign(m, vector<int>(n, -1));
+
+        return dfs(0, 0);
+    }
+};
+
+Complexity Analysis:
+
+- Time Complexity: O(m × n × (m + n)) in the worst case. Each cell is calculated once, and each of its two possible movements may simulate a sequence of mirror reflections.
+- Space Complexity: O(m × n), for the DP matrix and recursion stack in the worst case.
+
+Important Notes:
+
+- The robot can be reflected multiple times before reaching an empty cell.
+- A movement that goes outside the grid is discarded.
+- Different movement choices are counted as different paths, even if they eventually reach the same cell.
+- The starting cell is treated as the robot's initial position; reflection occurs when the robot attempts to enter a mirror cell.
