@@ -1,0 +1,62 @@
+2026-11-01|Minimum Moves to Make Array Elements Equal
+
+Question:
+Given an integer array nums, return the minimum number of moves required to make all elements equal.
+
+In one move, exactly n - 1 elements are incremented by 1.
+
+Approach:
+1. Find the minimum element in the array.
+2. Observe that every move effectively decreases one element by 1 while keeping the other elements unchanged.
+3. To make all elements equal with the minimum number of moves, reduce every element to the smallest element.
+4. The number of moves required for an element is:
+
+   `nums[i] - minimum`
+5. Add these differences for all elements.
+6. Return the total sum.
+
+Mathematical Formula:
+
+\\[ Answer = \sum\_{i=0}^{n-1}(nums[i]-minimum) \\]
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minMoves(vector<int>& nums) {
+        int minimum = *min_element(nums.begin(), nums.end());
+
+        int moves = 0;
+
+        for (int x : nums) {
+            moves += x - minimum;
+        }
+
+        return moves;
+    }
+};
+
+Example:
+
+Input:
+
+`nums = [1, 2, 3]`
+
+Minimum element = 1
+
+Required moves:
+
+- Element 1: 1 - 1 = 0
+- Element 2: 2 - 1 = 1
+- Element 3: 3 - 1 = 2
+
+Total moves = 0 + 1 + 2 = 3
+
+Output: `3`
+
+Complexity Analysis:
+
+- Time Complexity: O(n), because we traverse the array to find the minimum and calculate the total moves.
+- Space Complexity: O(1), because we use only a few variables.
