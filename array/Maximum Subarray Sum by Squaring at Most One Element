@@ -1,0 +1,88 @@
+2026-11-01|Maximum Subarray Sum by Squaring at Most One Element
+
+Question:
+Given an integer array arr[], find the maximum possible sum of a contiguous subarray after squaring at most one element.
+
+Approach:
+1. Maintain two DP variables:
+   - `withoutSquare`: Maximum subarray sum ending at the current position without using the squaring operation.
+   - `withSquare`: Maximum subarray sum ending at the current position after using the squaring operation exactly once.
+2. For every element `x`, calculate its square.
+3. Update `withoutSquare` using the normal Kadane's Algorithm:
+
+   `withoutSquare = max(x, withoutSquare + x)`
+4. Update `withSquare` using two possibilities:
+   - Square the current element and start a new subarray.
+   - Square the current element and extend the previous subarray that has not used squaring.
+   - Extend the previous subarray in which squaring has already been used.
+   Therefore:
+
+   `withSquare = max(x*x, withoutSquare_old + x*x, withSquare_old + x)`
+5. Store the previous DP values before updating them so that both states use the correct previous position.
+6. Maintain the maximum answer across both states because squaring is allowed at most once, not necessarily exactly once.
+7. Return the maximum sum.
+
+Solution:
+
+```
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long maxSubarraySum(vector<int>& arr) {
+        long long withoutSquare = arr[0];
+        long long withSquare = 1LL * arr[0] * arr[0];
+
+        long long answer = max(withoutSquare, withSquare);
+
+        for (int i = 1; i < arr.size(); i++) {
+            long long x = arr[i];
+            long long square = x * x;
+
+            long long oldWithout = withoutSquare;
+            long long oldWith = withSquare;
+
+            // Maximum subarray sum without squaring.
+            withoutSquare = max(x, oldWithout + x);
+
+            // Maximum subarray sum after squaring exactly one element.
+            withSquare = max({
+                square,
+                oldWithout + square,
+                oldWith + x
+            });
+
+            answer = max({
+                answer,
+                withoutSquare,
+                withSquare
+            });
+        }
+
+        return answer;
+    }
+};
+```
+
+Example:
+
+Input:
+
+`arr = [2, -3, 4]`
+
+Possible optimal operation:
+
+- Original array: `[2, -3, 4]`
+- Square -3: `(-3)² = 9`
+- Modified subarray: `[2, 9, 4]`
+- Sum = 2 + 9 + 4 = 15
+
+Output: `15`
+
+Complexity Analysis:
+
+- Time Complexity: O(n), because we traverse the array exactly once.
+- Space Complexity: O(1), because we maintain only a few DP variables.
+
+Important: We use `long long` because squaring an integer can produce a value larger than the range of a 32-bit integer.
