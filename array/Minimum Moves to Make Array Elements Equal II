@@ -1,0 +1,74 @@
+2026-11-02|Minimum Moves to Make Array Elements Equal II
+
+Question:
+
+Given an integer array nums of size n, return the minimum number of moves required to make all elements equal.
+
+In one move, you can increment or decrement any single element by 1.
+
+Approach:
+
+1. Sort the array in increasing order.
+2. Find the median element:
+   - If n is odd, choose the middle element.
+   - If n is even, either of the two middle elements can be chosen.
+3. Traverse the array and calculate the absolute difference between every element and the median.
+4. Add all these differences to get the total number of moves.
+5. Return the total.
+
+Mathematical Formula:
+
+\\[ MinimumMoves = \sum\_{i=0}^{n-1}|nums[i]-median| \\]
+
+Solution:
+
+```
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minMoves2(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+
+        int n = nums.size();
+        int median = nums[n / 2];
+
+        int moves = 0;
+
+        for (int x : nums) {
+            moves += abs(x - median);
+        }
+
+        return moves;
+    }
+};
+```
+
+Example:
+
+Input:
+
+`nums = [1, 10, 2, 9]`
+
+Sorted array:
+
+`[1, 2, 9, 10]`
+
+Median = 9 (the upper middle element).
+
+Required moves:
+
+- 1 → 9 = 8 moves.
+- 2 → 9 = 7 moves.
+- 9 → 9 = 0 moves.
+- 10 → 9 = 1 move.
+
+Total = 8 + 7 + 0 + 1 = 16.
+
+Output: `16`
+
+Complexity Analysis:
+
+- Time Complexity: O(n log n), because sorting takes O(n log n) and calculating the moves takes O(n).
+- Space Complexity: O(1) auxiliary space, excluding the sorting algorithm's internal space.
