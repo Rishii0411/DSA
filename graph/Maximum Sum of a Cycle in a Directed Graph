@@ -1,0 +1,101 @@
+2026-11-02|Maximum Sum of a Cycle in a Directed Graph
+
+Question:
+Given an integer array edge[] of size n, find the maximum sum of indices belonging to any cycle in the directed graph.
+Return -1 if no cycle exists.
+
+Approach:
+
+1. Create a visited array to track whether a node has already been processed.
+2. Start traversing from every unvisited node.
+3. For each traversal, maintain:
+   - A map or array storing the position of each node in the current traversal.
+   - A list containing the nodes visited during the current traversal.
+4. Follow the outgoing edge until:
+   - We reach -1, meaning there is no further node.
+   - We reach an already processed node.
+   - We reach a node already present in the current traversal.
+5. If the current node is already present in the current traversal, a cycle has been detected.
+6. Calculate the cycle sum by adding the indices of all nodes from the repeated node's position to the end of the current traversal.
+7. Update the maximum cycle sum.
+8. Mark all nodes in the traversal as processed.
+9. After checking every component, return the maximum cycle sum. If no cycle was found, return -1.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long maxCycleSum(vector<int>& edge) {
+        int n = edge.size();
+
+        vector<bool> visited(n, false);
+        vector<int> position(n, -1);
+
+        long long maxSum = -1;
+
+        for (int start = 0; start < n; start++) {
+
+            if (visited[start]) {
+                continue;
+            }
+
+            vector<int> path;
+            int current = start;
+
+            // Traverse the current component.
+            while (current != -1 && !visited[current]) {
+
+                visited[current] = true;
+                position[current] = path.size();
+
+                path.push_back(current);
+
+                current = edge[current];
+            }
+
+            // Check whether a cycle exists in this traversal.
+            if (current != -1 && position[current] != -1) {
+
+                long long cycleSum = 0;
+
+                // Add indices belonging to the cycle.
+                for (int i = position[current]; i < path.size(); i++) {
+                    cycleSum += path[i];
+                }
+
+                maxSum = max(maxSum, cycleSum);
+            }
+
+            // Reset positions for the current traversal.
+            for (int node : path) {
+                position[node] = -1;
+            }
+        }
+
+        return maxSum;
+    }
+};
+
+Example:
+
+Input:
+
+`edge = [1, 2, 0, 4, 5, 3]`
+
+Graph contains two cycles:
+
+- Cycle 1: 0 → 1 → 2 → 0
+  - Sum = 0 + 1 + 2 = 3
+- Cycle 2: 3 → 4 → 5 → 3
+  - Sum = 3 + 4 + 5 = 12
+
+Output:
+
+`12`
+
+Complexity Analysis:
+
+- Time Complexity: O(n), because every node is visited at most once, and each cycle is processed only once.
+- Space Complexity: O(n), for the visited array, position array, and traversal path.
