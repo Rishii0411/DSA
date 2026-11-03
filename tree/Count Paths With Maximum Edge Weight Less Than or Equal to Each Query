@@ -1,0 +1,265 @@
+2026-11-03)|Count Paths With Maximum Edge Weight Less Than or Equal to Each Query
+
+Question:
+Given a weighted tree with `n` nodes, numbered from `1` to `n` and `n - 1` edges, where each edge is represented as `[u, v, w]`, indicating an edge between nodes `u` and `v` with weight `w`.
+You are also given an array `queries[]`, where each `queries[i]` represents a maximum allowed edge weight.
+For each query `x`, find the number of distinct paths in the tree such that the maximum edge weight along the path is less than or equal to `x`.
+Return an array containing the number of valid paths for each query.
+
+A path from a node to itself is not considered.
+
+Approach:
+
+We can solve this problem efficiently using Offline Queries and Disjoint Set Union (DSU).
+
+1. Understand the important observation
+
+A path is valid for a query `x` only when every edge on that path has a weight less than or equal to `x`.
+
+Imagine that we temporarily remove all edges whose weights are greater than `x`.
+
+The remaining graph will contain several connected components.
+
+Any two distinct nodes belonging to the same connected component have a unique path between them, and every edge on that path has weight at most `x`.
+
+Therefore:
+
+The number of valid paths is the number of pairs of distinct nodes belonging to the same connected component.
+
+2. Sort the edges
+
+Sort all edges in increasing order of their weights.
+
+For example:
+
+`edges = [[1,2,2], [2,3,4], [3,4,6]]`
+
+After sorting, we can process edges from smallest weight to largest weight.
+
+3. Sort the queries
+
+We also sort the queries in increasing order of their values.
+
+However, we must remember their original indices because the final answers need to be returned in the same order as the input queries.
+
+For example:
+
+`queries = [5, 2, 6]`
+
+Sorted queries:
+
+`[2, 5, 6]`
+
+Their original indices are:
+
+`[1, 0, 2]`
+
+4. Use Disjoint Set Union
+
+Initially, every node belongs to its own connected component.
+
+So, initially, the number of valid paths is zero.
+
+For each sorted query `x`:
+
+1. Process all edges whose weights are less than or equal to `x`.
+2. For every edge, find the components containing its two endpoints.
+3. If both endpoints belong to different components, merge those components.
+4. Suppose the two components contain `sizeA` and `sizeB` nodes.
+
+When these components are merged, every node in the first component can form a new path with every node in the second component.
+
+Therefore, the number of newly valid paths is:
+
+`sizeA * sizeB`
+
+Add this value to the total answer.
+
+5. Store the answer
+
+After processing all edges with weights less than or equal to the current query, the total number of valid paths is the answer for that query.
+
+Store it at the query's original index.
+
+6. Why does this work?
+
+Every pair of distinct nodes in a tree has exactly one path.
+
+When the largest edge weight on that path is `w`, the path becomes valid exactly when we process the edge of weight `w` and connect the two components.
+
+Thus, every valid path is counted exactly once.
+
+Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class DSU {
+    vector<int> parent, sz;
+
+public:
+    DSU(int n) {
+        parent.resize(n + 1);
+        sz.assign(n + 1, 1);
+
+        for (int i = 1; i <= n; i++) {
+            parent[i] = i;
+        }
+    }
+
+    int find(int x) {
+        if (parent[x] == x) {
+            return x;
+        }
+
+        return parent[x] = find(parent[x]);
+    }
+
+    long long unite(int u, int v) {
+        u = find(u);
+        v = find(v);
+
+        if (u == v) {
+            return 0;
+        }
+
+        // Union by size
+        if (sz[u] < sz[v]) {
+            swap(u, v);
+        }
+
+        // New paths formed between the two components
+        long long newPaths = 1LL * sz[u] * sz[v];
+
+        parent[v] = u;
+        sz[u] += sz[v];
+
+        return newPaths;
+    }
+};
+
+class Solution {
+public:
+    vector<long long> countPaths(
+        int n,
+        vector<vector<int>>& edges,
+        vector<int>& queries
+    ) {
+        // Sort edges by weight
+        sort(edges.begin(), edges.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[2] < b[2];
+             });
+
+        // Store query value and original index
+        vector<pair<int, int>> sortedQueries;
+
+        for (int i = 0; i < queries.size(); i++) {
+            sortedQueries.push_back({queries[i], i});
+        }
+
+        // Sort queries by value
+        sort(sortedQueries.begin(), sortedQueries.end());
+
+        vector<long long> answer(queries.size(), 0);
+
+        DSU dsu(n);
+
+        long long totalPaths = 0;
+        int edgeIndex = 0;
+
+        // Process queries in increasing order
+        for (auto [limit, originalIndex] : sortedQueries) {
+
+            // Add every edge whose weight is <= query limit
+            while (edgeIndex < edges.size() &&
+                   edges[edgeIndex][2] <= limit) {
+
+                int u = edges[edgeIndex][0];
+                int v = edges[edgeIndex][1];
+
+                totalPaths += dsu.unite(u, v);
+
+                edgeIndex++;
+            }
+
+            // Store answer at the original query position
+            answer[originalIndex] = totalPaths;
+        }
+
+        return answer;
+    }
+};
+
+Example Dry Run
+
+Consider:
+
+`n = 4`
+
+`edges = [[1,2,2], [2,3,4], [3,4,6]]`
+
+`queries = [3, 5, 6]`
+
+Initially, every node is in a separate component.
+
+| Query | Edges processed | Component sizes | New paths | Total paths |
+| ----- | --------------- | --------------- | --------- | ----------- |
+| 3     | (1,2,2)         | 2, 1, 1         | 1         | 1           |
+| 5     | (2,3,4)         | 3, 1            | 2         | 3           |
+| 6     | (3,4,6)         | 4               | 3         | 6           |
+
+For query `3`:
+
+- Only edge `(1,2)` is allowed.
+- Valid path: `1 - 2`.
+- Answer = 1.
+
+For query `5`:
+
+- Edges `(1,2)` and `(2,3)` are allowed.
+- Valid paths are `1-2`, `2-3`, and `1-2-3`.
+- Answer = 3.
+
+For query `6`:
+
+- All edges are allowed.
+- There are six distinct pairs of nodes.
+- Answer = 6.
+
+Output:
+
+`[1, 3, 6]`
+
+Complexity Analysis
+Let:
+- `n` = number of nodes.
+- `q` = number of queries.
+
+Time Complexity:
+
+- Sorting edges: `O(n log n)`
+- Sorting queries: `O(q log q)`
+- Processing all edges using DSU: `O(n α(n))`
+- Processing queries: `O(q)`
+
+Overall:
+
+`O(n log n + q log q)`
+
+Here, `α(n)` is the inverse Ackermann function, which grows extremely slowly and is practically constant.
+
+Space Complexity:
+
+- DSU parent and size arrays: `O(n)`
+- Sorted queries: `O(q)`
+- Answer array: `O(q)`
+
+Overall auxiliary space complexity:
+
+`O(n + q)`
+
+Important: We use `long long` for the answer because the maximum number of distinct paths in a tree can be:
+
+\\[ \frac{n(n-1)}{2} \\]
+
+This value can exceed the range of a normal 32-bit integer.
