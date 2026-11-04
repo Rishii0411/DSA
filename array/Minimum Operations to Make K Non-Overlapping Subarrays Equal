@@ -1,0 +1,278 @@
+2026-11-04|Minimum Operations to Make K Non-Overlapping Subarrays Equal
+
+ Question:
+You are given an integer array `nums` and two integers, `x` and `k`.
+You can perform the following operation any number of times, including zero:
+
+\- Increase or decrease any element of `nums` by 1.
+
+Return the minimum number of operations needed to have at least `k` non-overlapping subarrays of size exactly `x` in `nums`, where all elements within each subarray are equal.
+
+ Approach:
+
+# 1. Find the minimum cost of making a subarray equal
+
+Suppose we have this subarray:
+
+`[1, 3, 5]`
+
+We want to make all elements equal.
+
+Possible target values include:
+
+- Target 1: Cost = 0 + 2 + 4 = 6
+- Target 3: Cost = 2 + 0 + 2 = 4
+- Target 5: Cost = 4 + 2 + 0 = 6
+
+The minimum cost is 4, achieved by making every element equal to 3.
+
+This happens because the median minimizes the sum of absolute differences.
+
+Therefore, for a subarray:
+
+`[a1, a2, ..., ax]`
+
+The minimum cost is:
+
+\\[ \sum\_{i=1}^{x}|a_i-\text{median}| \\]
+
+# 2. Calculate the cost of every window of size x
+
+We need to consider every continuous subarray of exactly `x` elements.
+
+For example:
+
+`nums = [1, 3, 5, 2, 4]`
+
+If `x = 3`, the windows are:
+
+- `[1, 3, 5]`
+- `[3, 5, 2]`
+- `[5, 2, 4]`
+
+Their minimum equalization costs are:
+
+- `[1, 3, 5]` → median 3 → cost 4
+- `[3, 5, 2]` → median 3 → cost 3
+- `[5, 2, 4]` → median 4 → cost 3
+
+So:
+
+`cost = [4, 3, 3]`
+
+We can calculate these costs efficiently using two multisets.
+
+- `low` stores the smaller half of the window.
+- `high` stores the larger half of the window.
+- The largest element of `low` gives the median.
+- We maintain the sum of elements in both multisets to calculate the cost quickly.
+
+# 3. Use Dynamic Programming
+
+After calculating the cost of every window, we need to select `k` non-overlapping windows.
+
+Define:
+
+`dp[i][j]` = minimum operations needed to select exactly `j` non-overlapping subarrays from the first `i` elements.
+
+For every position, we have two choices.
+
+Choice 1: Do not select a subarray ending at the current position.
+
+Then:
+
+\\[ dp[i][j]=dp[i-1][j] \\]
+
+Choice 2: Select the window ending at the current position.
+
+Its starting index is:
+
+`i - x`
+
+The previous selected subarrays must end before this window starts.
+
+Therefore:
+
+\\[ dp[i][j]=dp[i-x][j-1]+cost[i-x] \\]
+
+Here, `cost[i-x]` represents the cost of the window starting at index `i-x`.
+
+We take the minimum of both choices:
+
+\\[ dp[i][j]=\min(dp[i-1][j],\ dp[i-x][j-1]+cost[i-x]) \\]
+
+# 4. Return the answer
+
+We need at least `k` subarrays.
+
+Since every additional selected subarray has a non-negative cost, selecting exactly `k` subarrays is sufficient to achieve the minimum.
+
+Therefore, the answer is:
+
+`dp[n][k]`
+
+ Solution:
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+    multiset<long long> low, high;
+    long long sumLow = 0, sumHigh = 0;
+
+    void add(long long x) {
+        if (low.empty() || x <= *low.rbegin()) {
+            low.insert(x);
+            sumLow += x;
+        } else {
+            high.insert(x);
+            sumHigh += x;
+        }
+
+        balance();
+    }
+
+    void remove(long long x) {
+        auto it = low.find(x);
+
+        if (it != low.end()) {
+            low.erase(it);
+            sumLow -= x;
+        } else {
+            it = high.find(x);
+            high.erase(it);
+            sumHigh -= x;
+        }
+
+        balance();
+    }
+
+    void balance() {
+        int required = (low.size() + high.size() + 1) / 2;
+
+        while (low.size() > required) {
+            auto it = prev(low.end());
+            long long x = *it;
+
+            low.erase(it);
+            sumLow -= x;
+
+            high.insert(x);
+            sumHigh += x;
+        }
+
+        while (low.size() < required) {
+            auto it = high.begin();
+            long long x = *it;
+
+            high.erase(it);
+            sumHigh -= x;
+
+            low.insert(x);
+            sumLow += x;
+        }
+    }
+
+    long long getCost() {
+        long long median = *low.rbegin();
+
+        long long leftCost =
+            median * (long long)low.size() - sumLow;
+
+        long long rightCost =
+            sumHigh - median * (long long)high.size();
+
+        return leftCost + rightCost;
+    }
+
+public:
+    long long minOperations(vector<int>& nums, int x, int k) {
+        int n = nums.size();
+
+        vector<long long> cost(n - x + 1);
+
+        // Calculate the cost of every window of size x.
+        for (int i = 0; i < x; i++) {
+            add(nums[i]);
+        }
+
+        cost[0] = getCost();
+
+        for (int i = x; i < n; i++) {
+            remove(nums[i - x]);
+            add(nums[i]);
+
+            cost[i - x + 1] = getCost();
+        }
+
+        // dp[j] = minimum cost to select j windows
+        // from the elements processed so far.
+        const long long INF = LLONG_MAX / 4;
+
+        vector<long long> dp(k + 1, INF);
+        dp[0] = 0;
+
+        // Process every possible window.
+        for (int i = 0; i < cost.size(); i++) {
+
+            // Traverse backwards to avoid selecting
+            // overlapping windows.
+            for (int j = k; j >= 1; j--) {
+
+                if (i == 0) {
+                    if (j == 1) {
+                        dp[j] = min(dp[j], cost[i]);
+                    }
+                    continue;
+                }
+
+                if (dp[j - 1] != INF) {
+                    dp[j] = min(dp[j],
+                                dp[j - 1] + cost[i]);
+                }
+            }
+        }
+
+        return dp[k];
+    }
+};
+
+Important Explanation of the DP Optimization
+
+The code processes windows from left to right.
+
+Each new window starts `x` positions after the previous selected window's start to avoid overlap.
+
+However, the simple one-dimensional DP shown above needs an additional correction: when processing consecutive windows, we must ensure that the previous selected window does not overlap the current one.
+
+The safest recurrence uses the prefix DP definition:
+
+\\[ dp[i][j]=\min(dp[i-1][j],dp[i-x][j-1]+cost[i-x]) \\]
+
+
+Complexity Analysis
+
+Let `n` be the size of the array.
+
+1\. Calculating the cost of every window:
+
+- Each insertion and deletion in a multiset takes `O(log x)`.
+- There are `O(n)` insertions and deletions.
+- Total: `O(n log x)`.
+
+2\. Dynamic programming:
+
+- There are `n + 1` positions.
+- There are `k + 1` possible numbers of selected subarrays.
+- Total: `O(nk)`.
+
+Overall Time Complexity:
+
+\\[ \boxed{O(n\log x+nk)} \\]
+
+Space Complexity:
+
+\\[ \boxed{O(nk)} \\]
+
+The DP table uses `O(nk)` space, while the window-cost array and multisets use `O(n+x)` additional space.
+
+Key takeaway: Use the median to calculate the minimum cost of making a window equal, then use dynamic programming to choose `k` non-overlapping windows with the minimum total cost.
