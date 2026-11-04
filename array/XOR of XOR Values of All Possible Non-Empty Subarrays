@@ -1,0 +1,168 @@
+2026-11-04|XOR of XOR Values of All Possible Non-Empty Subarrays
+
+Question:
+Given an integer array `arr[]`, find the XOR of the XOR values of all possible non-empty subarrays of the array.
+
+Approach:
+
+ 1. Understand how an element contributes
+
+Consider an array:
+`arr = [1, 2, 3]`
+
+All possible non-empty subarrays are:
+
+| Subarray    | XOR |
+| ----------- | --- |
+| `[1]`       | 1   |
+| `[2]`       | 2   |
+| `[3]`       | 3   |
+| `[1, 2]`    | 3   |
+| `[2, 3]`    | 1   |
+| `[1, 2, 3]` | 0   |
+
+The final XOR is:
+
+`1 ^ 2 ^ 3 ^ 3 ^ 1 ^ 0 = 2`
+
+ 2. Count the contribution of each element
+
+Suppose an element is at index `i` in an array of size `n`.
+
+To form a subarray containing this element:
+
+- The starting index can be any index from `0` to `i`. Therefore, there are `i + 1` choices.
+- The ending index can be any index from `i` to `n - 1`. Therefore, there are `n - i` choices.
+
+So, the total number of subarrays containing `arr[i]` is:
+
+\\[ (i+1)(n-i) \\]
+
+ 3. Apply the XOR property
+
+Now consider two cases:
+
+Case 1: The element appears an even number of times.
+
+Its contribution becomes zero because:
+
+`a ^ a = 0`
+
+Case 2: The element appears an odd number of times.
+
+Its contribution remains unchanged.
+
+Therefore, we only need to include elements for which:
+
+\\[ (i+1)(n-i) \\]
+
+is odd.
+
+ 4. Simplify the condition
+
+A product is odd only when both its factors are odd.
+
+Therefore:
+
+- `i + 1` must be odd.
+- `n - i` must be odd.
+
+This happens only when `n` is odd and `i` is even.
+
+So, we get an important observation:
+
+- If the array size `n` is even, the final answer is always `0`.
+- If the array size `n` is odd, XOR all elements at even indices.
+
+ 5. Calculate the final answer
+
+For an odd-sized array, we simply XOR the elements at indices:
+
+`0, 2, 4, 6, ...`
+
+For an even-sized array, return `0`.
+
+## Solution:
+
+
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int subarrayXor(vector<int>& arr) {
+        int n = arr.size();
+
+        // If array size is even, answer is always 0.
+        if (n % 2 == 0) {
+            return 0;
+        }
+
+        int ans = 0;
+
+        // XOR elements at even indices.
+        for (int i = 0; i < n; i += 2) {
+            ans ^= arr[i];
+        }
+
+        return ans;
+    }
+};
+
+
+
+ Example Dry Run
+
+Input:
+
+`arr = [1, 2, 3, 4, 5]`
+
+Step 1: Find the array size.
+
+`n = 5`
+
+Since `n` is odd, we XOR elements at even indices.
+
+Step 2: Identify the elements.
+
+| Index | Element | Include? |
+| ----- | ------- | -------- |
+| 0     | 1       | Yes      |
+| 1     | 2       | No       |
+| 2     | 3       | Yes      |
+| 3     | 4       | No       |
+| 4     | 5       | Yes      |
+
+Step 3: Calculate XOR.
+
+`ans = 1 ^ 3 ^ 5`
+
+`ans = 7`
+
+Output:
+
+`7`
+
+ Complexity Analysis
+
+Time Complexity: O(n)
+
+- We traverse the array only once.
+- We process elements at even indices.
+- Each XOR operation takes constant time.
+
+Space Complexity: O(1)
+
+- We use only a few variables.
+- No additional data structure is required.
+
+ Important Observation
+
+The entire problem can be solved without generating any subarrays.
+
+The final formula is:
+
+\\[ \boxed{ \text{Answer} = \begin{cases} 0 & \text{if } n \text{ is even}\\\ arr[0]\oplus arr[2]\oplus arr[4]\oplus\cdots & \text{if } n \text{ is odd} \end{cases} } \\]
+
+This reduces a problem that might initially appear to require \\(O(n^2)\\) time to a simple \\(O(n)\\) solution.
