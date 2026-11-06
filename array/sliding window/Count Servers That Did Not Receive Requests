@@ -1,0 +1,301 @@
+2026-11-06|Count Servers That Did Not Receive Requests
+
+ Question:
+You are given an integer `n` denoting the total number of servers and a 2D 0-indexed integer array `logs`, where:
+
+`logs[i] = [server_id, time]`
+
+You are also given an integer `x` and a 0-indexed integer array `queries`.
+
+Return a 0-indexed integer array `arr` of length `queries.length`, where `arr[i]` represents the number of servers that did not receive any requests during the time interval:
+
+`[queries[i] - x, queries[i]]`
+
+Note that the time intervals are inclusive.
+
+ Approach:
+
+ 1. Understand the time interval
+
+For every query `q`, we need to consider only those logs whose timestamps satisfy:
+
+\\[ q-x \leq time \leq q \\]
+
+Any log outside this range should not be considered.
+
+ 2. Sort the logs
+
+Sort all logs according to their timestamps in increasing order.
+
+For example:
+
+`logs = [[1, 3], [2, 6], [1, 8], [3, 10]]`
+
+After sorting by time, the logs are already arranged in increasing order.
+
+ 3. Sort the queries
+
+We need to process queries in increasing order of their ending times.
+
+However, we must remember their original indices because the final answers must be returned in the same order as the input queries.
+
+For example:
+
+`queries = [10, 5, 8]`
+
+Sorted queries:
+
+`[5, 8, 10]`
+
+Original indices:
+
+`[1, 2, 0]`
+
+ 4. Use a sliding window
+
+Maintain two pointers:
+
+- `left`: Points to the first log inside the current time interval.
+- `right`: Points to the next log that can be added.
+
+For a query `q`, calculate:
+
+`startTime = q - x`
+
+Then perform two operations.
+
+Operation 1: Add logs inside the current interval
+
+Add every log whose timestamp is less than or equal to `q`.
+
+For every added log:
+
+- Increase the frequency of its server in the hash map.
+- If its frequency changes from 0 to 1, increase the number of active servers.
+
+Operation 2: Remove logs outside the current interval
+
+Remove logs whose timestamp is smaller than `q - x`.
+
+For every removed log:
+
+- Decrease the frequency of its server.
+- If its frequency becomes 0, decrease the number of active servers.
+
+Because queries are processed in increasing order, both pointers only move forward.
+
+ 5. Calculate the number of inactive servers
+
+After adjusting the sliding window:
+
+`activeServers` represents the number of servers that received at least one request during the current interval.
+
+Therefore:
+
+\\[ \text{Inactive Servers}=n-\text{activeServers} \\]
+
+Store this answer at the original index of the query.
+
+ Solution:
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> countServers(
+        int n,
+        vector<vector<int>>& logs,
+        int x,
+        vector<int>& queries
+    ) {
+        // Sort logs by timestamp.
+        sort(logs.begin(), logs.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[1] < b[1];
+             });
+
+        // Store query value and its original index.
+        vector<pair<int, int>> sortedQueries;
+
+        for (int i = 0; i < queries.size(); i++) {
+            sortedQueries.push_back({queries[i], i});
+        }
+
+        // Sort queries by ending time.
+        sort(sortedQueries.begin(), sortedQueries.end());
+
+        vector<int> ans(queries.size());
+
+        // Frequency of requests for each server in the window.
+        unordered_map<int, int> freq;
+
+        int left = 0;
+        int right = 0;
+        int activeServers = 0;
+
+        for (auto [q, index] : sortedQueries) {
+
+            int startTime = q - x;
+
+            // Add all logs with time <= q.
+            while (right < logs.size() &&
+                   logs[right][1] <= q) {
+
+                int server = logs[right][0];
+
+                if (freq[server] == 0) {
+                    activeServers++;
+                }
+
+                freq[server]++;
+                right++;
+            }
+
+            // Remove logs with time < q - x.
+            while (left < right &&
+                   logs[left][1] < startTime) {
+
+                int server = logs[left][0];
+
+                freq[server]--;
+
+                if (freq[server] == 0) {
+                    activeServers--;
+                    freq.erase(server);
+                }
+
+                left++;
+            }
+
+            // Store the number of inactive servers.
+            ans[index] = n - activeServers;
+        }
+
+        return ans;
+    }
+};
+
+```
+
+ Example Dry Run
+
+Input:
+
+`n = 3`
+
+`logs = [[1, 3], [2, 6], [1, 8], [3, 10]]`
+
+`x = 5`
+
+`queries = [10, 5, 8]`
+
+Sorted queries:
+
+`[(5, 1), (8, 2), (10, 0)]`
+
+Query 1: q = 5
+
+Time interval:
+
+`[5 - 5, 5] = [0, 5]`
+
+Logs inside the interval:
+
+`[[1, 3]]`
+
+Active servers:
+
+`{1}`
+
+Inactive servers:
+
+`3 - 1 = 2`
+
+Store:
+
+`ans[1] = 2`
+
+Query 2: q = 8
+
+Time interval:
+
+`[8 - 5, 8] = [3, 8]`
+
+Logs inside the interval:
+
+`[[1, 3], [2, 6], [1, 8]]`
+
+Active servers:
+
+`{1, 2}`
+
+Inactive servers:
+
+`3 - 2 = 1`
+
+Store:
+
+`ans[2] = 1`
+
+Query 3: q = 10
+
+Time interval:
+
+`[10 - 5, 10] = [5, 10]`
+
+Logs inside the interval:
+
+`[[2, 6], [1, 8], [3, 10]]`
+
+Active servers:
+
+`{1, 2, 3}`
+
+Inactive servers:
+
+`3 - 3 = 0`
+
+Store:
+
+`ans[0] = 0`
+
+Final output in the original query order:
+
+`[0, 2, 1]`
+
+ Complexity Analysis
+
+Let:
+
+- `L` = number of logs.
+- `Q` = number of queries.
+- `n` = number of servers.
+
+Time Complexity:
+
+- Sorting logs: `O(L log L)`
+- Sorting queries: `O(Q log Q)`
+- Processing logs using sliding window: `O(L)` average, because each log is added and removed at most once.
+- Processing queries: `O(Q)` average, excluding hash map operations.
+
+Overall:
+
+\\[ \boxed{O(L\log L+Q\log Q)} \\]
+
+Space Complexity:
+
+- Frequency hash map: `O(n)` in the worst case.
+- Sorted query array: `O(Q)`.
+- Answer array: `O(Q)`.
+
+Overall:
+
+\\[ \boxed{O(n+Q)} \\]
+
+ Important Observation
+
+We do not need to check every log separately for every query.
+
+By sorting the logs and queries, we can reuse the previous window and update only the logs entering or leaving it.
+
+This makes the solution efficient, especially when there are many queries.
