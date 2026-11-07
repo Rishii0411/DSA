@@ -1,0 +1,313 @@
+2026-11-07|Process Tasks Using Servers
+
+Question:
+You are given two 0-indexed integer arrays `servers` and `tasks` of lengths `n` and `m`, respectively.
+- `servers[i]` represents the weight of the `i-th` server.
+- `tasks[j]` represents the time needed to process the `j-th` task.
+
+Tasks arrive at second `j`, starting from second 0.
+
+Whenever a task is waiting and at least one server is free, assign the task to the free server with the smallest weight. If weights are equal, choose the server with the smallest index.
+
+A server assigned task `j` at second `t` becomes free at:
+
+`t + tasks[j]`
+
+Return an array `ans` of length `m`, where `ans[j]` is the index of the server assigned to task `j`.
+
+ Approach:
+
+ 1. Why do we need two priority queues?
+
+At any moment, servers can be in one of two states:
+
+- Free: Available to process a new task.
+- Busy: Currently processing a task.
+
+We need to manage these two groups separately.
+
+Therefore, we create two min heaps.
+
+Priority Queue 1: Available Servers
+
+This heap stores:
+
+`{serverWeight, serverIndex}`
+
+It chooses the server with:
+
+- Smallest weight.
+- Smallest index when weights are equal.
+
+Priority Queue 2: Busy Servers
+
+This heap stores:
+
+`{freeTime, serverWeight, serverIndex}`
+
+It chooses the server that becomes free earliest.
+
+If multiple servers become free at the same time, we move all of them into the available heap. The available heap then decides which server gets the next task.
+
+ 2. Initially, add all servers to the available heap
+
+At the beginning, every server is free.
+
+Insert every server into the available heap using:
+
+`{servers[i], i}`
+
+The busy heap is initially empty.
+
+ 3. Process tasks one by one
+
+For every task `j`, its arrival time is `j`.
+
+Set:
+
+`currentTime = max(currentTime, j)`
+
+This ensures that time never moves backwards.
+
+ 4. Move completed servers into the available heap
+
+Before assigning a task, check the busy heap.
+
+While the earliest free time is less than or equal to `currentTime`:
+
+1. Remove that server from the busy heap.
+2. Insert it into the available heap.
+
+We use `<=` because a server completing its task at the current second is already free and can immediately receive another task.
+
+ 5. If no server is available, move time forward
+
+If the available heap is empty, all servers are busy.
+
+Therefore:
+
+1. Find the earliest free time from the busy heap.
+2. Move `currentTime` to that time.
+3. Move all servers that have completed their tasks by that time into the available heap.
+
+This handles situations where multiple servers become free simultaneously.
+
+ 6. Assign the task
+
+Remove the server with the smallest weight and index from the available heap.
+
+Store its index in:
+
+`ans[j]`
+
+The server will become free again at:
+
+`currentTime + tasks[j]`
+
+Insert it into the busy heap:
+
+`{currentTime + tasks[j], serverWeight, serverIndex}`
+
+ 7. Repeat until all tasks are assigned
+
+Continue this process until every task has been assigned to a server.
+
+ Solution:
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> assignTasks(vector<int>& servers,
+                            vector<int>& tasks) {
+
+        int n = servers.size();
+        int m = tasks.size();
+
+        // Available servers:
+        // {weight, serverIndex}
+        priority_queue<
+            pair<int, int>,
+            vector<pair<int, int>>,
+            greater<pair<int, int>>
+        > available;
+
+        // Busy servers:
+        // {freeTime, weight, serverIndex}
+        priority_queue<
+            tuple<long long, int, int>,
+            vector<tuple<long long, int, int>>,
+            greater<tuple<long long, int, int>>
+        > busy;
+
+        // Initially, all servers are available.
+        for (int i = 0; i < n; i++) {
+            available.push({servers[i], i});
+        }
+
+        vector<int> ans(m);
+
+        long long currentTime = 0;
+
+        for (int j = 0; j < m; j++) {
+
+            // Task j arrives at second j.
+            currentTime = max(currentTime, (long long)j);
+
+            // Move all completed servers to available heap.
+            while (!busy.empty() &&
+                   get<0>(busy.top()) <= currentTime) {
+
+                auto [freeTime, weight, index] = busy.top();
+                busy.pop();
+
+                available.push({weight, index});
+            }
+
+            // If no server is available, wait.
+            if (available.empty()) {
+
+                // Move time to the earliest server completion.
+                currentTime = get<0>(busy.top());
+
+                // Move all servers that are now free.
+                while (!busy.empty() &&
+                       get<0>(busy.top()) <= currentTime) {
+
+                    auto [freeTime, weight, index] = busy.top();
+                    busy.pop();
+
+                    available.push({weight, index});
+                }
+            }
+
+            // Select the server with minimum weight,
+            // breaking ties using the smallest index.
+            auto [weight, index] = available.top();
+            available.pop();
+
+            ans[j] = index;
+
+            // Schedule when this server becomes free.
+            long long freeTime = currentTime + tasks[j];
+
+            busy.push({freeTime, weight, index});
+        }
+
+        return ans;
+    }
+};
+
+ Example Dry Run
+
+Input:
+
+`servers = [3, 3, 2]`
+
+`tasks = [1, 2, 3, 2, 1, 2]`
+
+Initially:
+
+Available servers:
+
+`(2, 2), (3, 0), (3, 1)`
+
+Busy servers: Empty.
+
+| Task | Arrival time | Assigned server | Server becomes free |
+| ---- | ------------ | --------------- | ------------------- |
+| 0    | 0            | 2               | 1                   |
+| 1    | 1            | 2               | 3                   |
+| 2    | 2            | 0               | 5                   |
+| 3    | 3            | 2               | 5                   |
+| 4    | 4            | 1               | 5                   |
+| 5    | 5            | 2               | 7                   |
+
+Let's understand the important assignments:
+
+Task 0:
+
+- Arrives at time 0.
+- All servers are free.
+- Server 2 has the smallest weight (2).
+- Assign task 0 to server 2.
+- Server 2 becomes free at time 1.
+
+Task 1:
+
+- Arrives at time 1.
+- Server 2 becomes free.
+- Assign task 1 to server 2 again.
+- It becomes free at time 3.
+
+Task 2:
+
+- Arrives at time 2.
+- Server 2 is busy.
+- Servers 0 and 1 are free, and both have weight 3.
+- Choose server 0 because its index is smaller.
+- Server 0 becomes free at time 5.
+
+Task 3:
+
+- Arrives at time 3.
+- Server 2 becomes free.
+- Assign task 3 to server 2.
+- It becomes free at time 5.
+
+Task 4:
+
+- Arrives at time 4.
+- Servers 0 and 2 are busy.
+- Server 1 is free.
+- Assign task 4 to server 1.
+- It becomes free at time 5.
+
+Task 5:
+
+- Arrives at time 5.
+- Servers 0, 1, and 2 become free.
+- All have completed their tasks.
+- Choose server 2 because it has the smallest weight.
+- Assign task 5 to server 2.
+
+Final output:
+
+`[2, 2, 0, 2, 1, 2]`
+
+ Complexity Analysis
+
+Let:
+
+- `n` = number of servers.
+- `m` = number of tasks.
+
+Time Complexity: O((n + m) log n)
+
+- Inserting all servers into the available heap takes `O(n log n)`.
+- Every server is inserted into and removed from the heaps a limited number of times per assigned task.
+- Every task requires heap operations that take `O(log n)`.
+- Each server completion is processed only once for its corresponding task.
+
+Therefore, the overall time complexity is:
+
+\\[ \boxed{O(n\log n+m\log n)} \\]
+
+Space Complexity: O(n + m)
+
+- Available heap stores at most `n` servers.
+- Busy heap stores at most `n` servers.
+- Answer array stores `m` server indices.
+
+Therefore:
+
+\\[ \boxed{O(n+m)} \\]
+
+ Important Observation
+
+We use two different priority queues because the selection rules are different:
+
+- Available heap: Select the server with the smallest weight, then smallest index.
+- Busy heap: Select the server with the earliest completion time.
+
+This separation makes the assignment process efficient and ensures that all task scheduling rules are followed correctly.
