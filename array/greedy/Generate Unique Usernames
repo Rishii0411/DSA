@@ -1,0 +1,241 @@
+2026-11-07|Generate Unique Usernames
+
+Question:
+Given an array of strings `arr[]`, generate a unique username for each entry in the order it appears.
+
+- Initially, consider all usernames present in the input array as reserved.
+- If a username has not already been assigned to any previous user, keep it unchanged.
+- Otherwise, append the smallest positive integer suffix that produces a username that has not been reserved or assigned to any previous user.
+
+Return the array of generated usernames.
+
+ Approach:
+
+ 1. Reserve all original usernames
+
+First, insert every original name into a hash set.
+
+This is important because a generated username must not take the name of a user who appears later in the input.
+
+For example:
+
+`arr = ["alex", "alex1", "alex"]`
+
+Initially, the reserved names are:
+
+`{"alex", "alex1"}`
+
+ 2. Maintain a set of used usernames
+
+We use an `unordered_set` called `used` to track usernames that are already assigned.
+
+Initially, all original usernames are reserved, but they are not necessarily assigned yet.
+
+Therefore, we need to distinguish between:
+
+- Names that are reserved because they occur in the original array.
+- Names that have already been assigned to previous users.
+
+ 3. Process usernames in their original order
+
+For every name:
+
+Case 1: The name has not been assigned before.
+
+Keep the name unchanged and mark it as assigned.
+
+Case 2: The name has already been assigned.
+
+We need to generate a new username by appending a positive integer.
+
+For example, if the original name is `alex`, try:
+
+- `alex1`
+- `alex2`
+- `alex3`
+
+Choose the first username that is neither reserved nor already assigned.
+
+ 4. Optimize suffix searching
+
+Maintain a hash map:
+
+`nextSuffix[name]`
+
+This stores the next suffix number that should be checked for a particular original name.
+
+After finding an available username, update the suffix counter so that we do not repeatedly check suffixes that have already been considered.
+
+ 5. Store the generated usernames
+
+Add every generated username to the result array in the same order as the input.
+
+ Solution:
+
+```
+
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<string> generateUsernames(vector<string>& arr) {
+
+        // Reserve all original usernames.
+        unordered_set<string> reserved;
+
+        for (const string& name : arr) {
+            reserved.insert(name);
+        }
+
+        // Track usernames already assigned.
+        unordered_set<string> assigned;
+
+        // Store the next suffix to try for each name.
+        unordered_map<string, int> nextSuffix;
+
+        vector<string> ans;
+
+        for (const string& name : arr) {
+
+            // If the name has not been assigned before,
+            // use it unchanged.
+            if (assigned.find(name) == assigned.end()) {
+
+                assigned.insert(name);
+                ans.push_back(name);
+            }
+            else {
+
+                int suffix = nextSuffix[name];
+
+                if (suffix == 0) {
+                    suffix = 1;
+                }
+
+                string candidate;
+
+                // Find the smallest available suffix.
+                while (true) {
+
+                    candidate = name + to_string(suffix);
+
+                    if (reserved.find(candidate) == reserved.end() &&
+                        assigned.find(candidate) == assigned.end()) {
+                        break;
+                    }
+
+                    suffix++;
+                }
+
+                // Mark the generated username as assigned.
+                assigned.insert(candidate);
+
+                ans.push_back(candidate);
+
+                // Continue searching from the next suffix.
+                nextSuffix[name] = suffix + 1;
+            }
+        }
+
+        return ans;
+    }
+};
+
+```
+
+ Example Dry Run
+
+Input:
+
+`arr = ["alex", "alex1", "alex", "alex"]`
+
+ Step 1: Reserve all original usernames
+
+Reserved usernames:
+
+`{"alex", "alex1"}`
+
+Initially, the assigned set is empty.
+
+ Step 2: Process each username
+
+First username: "alex"
+
+- It has not been assigned before.
+- Keep it unchanged.
+- Assigned: `{"alex"}`
+
+Result:
+
+`["alex"]`
+
+Second username: "alex1"
+
+- It has not been assigned before.
+- Keep it unchanged.
+- Assigned: `{"alex", "alex1"}`
+
+Result:
+
+`["alex", "alex1"]`
+
+Third username: "alex"
+
+- It has already been assigned.
+- Try `alex1`: reserved and already assigned.
+- Try `alex2`: available.
+- Assign `alex2`.
+
+Result:
+
+`["alex", "alex1", "alex2"]`
+
+Fourth username: "alex"
+
+- It has already been assigned.
+- Continue checking from the next suffix.
+- Try `alex3`: available.
+- Assign `alex3`.
+
+Final output:
+
+`["alex", "alex1", "alex2", "alex3"]`
+
+ Complexity Analysis
+
+Let:
+
+- `n` = number of usernames.
+- `L` = maximum length of a username.
+
+Time Complexity:
+
+- Reserving all original usernames takes approximately `O(n × L)`.
+- Processing usernames requires hash set and hash map operations, which take `O(1)` average time per lookup, excluding string construction and hashing costs.
+- Each suffix candidate that is rejected is already reserved or assigned. With the suffix counter optimization, rejected suffixes are not repeatedly checked for the same original name.
+
+Overall, the expected complexity is approximately:
+
+\\[ O(n \times L + C) \\]
+
+Here, `C` represents the total cost of constructing and checking the generated username candidates.
+
+Space Complexity:
+
+- Reserved usernames: `O(n × L)`
+- Assigned usernames: `O(n × L)`
+- Suffix map: `O(n)`
+- Result array: `O(n × L)`
+
+Overall:
+
+\\[ O(n \times L) \\]
+
+ Important Observation
+
+The most important condition in this problem is that all original usernames must be reserved before processing begins.
+
+If we do not reserve them initially, we might generate a username that belongs to a user appearing later in the array.
+
+The combination of a hash set and a suffix-tracking hash map helps us generate unique usernames efficiently while preserving the original order.
