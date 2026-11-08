@@ -1,0 +1,211 @@
+2026-11-08|Minimum Time to Scan All Documents Using Two Scanners
+
+ Question:
+Geek has `n` documents that need to be scanned using two scanners.
+
+Scanner 1 takes `s1` units of time per document, while scanner 2 takes `s2` units of time per document.
+
+Both scanners can operate simultaneously, and each scanner can scan only one document at a time.
+
+Find the minimum time required to scan all `n` documents.
+
+ Approach:
+
+ 1. Understand how many documents a scanner can scan
+
+Suppose we want to check whether all documents can be scanned within `T` units of time.
+
+Scanner 1 can scan:
+
+\\[ \left\lfloor \frac{T}{s1}\right\rfloor \\]
+
+documents.
+
+Scanner 2 can scan:
+
+\\[ \left\lfloor \frac{T}{s2}\right\rfloor \\]
+
+documents.
+
+Since both scanners work simultaneously, their total scanning capacity is:
+
+\\[ \text{Total Documents}= \left\lfloor\frac{T}{s1}\right\rfloor+ \left\lfloor\frac{T}{s2}\right\rfloor \\]
+
+ 2. Check whether a particular time is sufficient
+
+A given time `T` is sufficient if:
+
+\\[ \left\lfloor\frac{T}{s1}\right\rfloor+ \left\lfloor\frac{T}{s2}\right\rfloor\geq n \\]
+
+If this condition is true, all documents can be scanned within `T` units of time.
+
+Otherwise, we need more time.
+
+ 3. Apply Binary Search
+
+We know that:
+
+- Minimum possible time is `0`.
+- Maximum possible time is `n * min(s1, s2)` because the faster scanner alone can scan all documents within this time.
+
+Therefore, our search range is:
+
+`low = 0`
+
+`high = n * min(s1, s2)`
+
+Calculate the middle value:
+
+`mid = low + (high - low) / 2`
+
+Now check whether `mid` is sufficient.
+
+Case 1: Mid is sufficient.
+
+If all documents can be scanned within `mid`:
+
+- We store `mid` as a possible answer.
+- Try a smaller time.
+
+`high = mid - 1`
+
+Case 2: Mid is not sufficient.
+
+If the scanners cannot finish all documents within `mid`:
+
+\- We need more time.
+
+`low = mid + 1`
+
+Continue until `low` becomes greater than `high`.
+
+ 4. Return the minimum time
+
+The binary search finds the smallest time for which the total scanning capacity is at least `n`.
+
+That is our final answer.
+
+ Solution:
+
+```
+
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long minTime(int n, int s1, int s2) {
+
+        long long low = 0;
+        long long high = 1LL * n * min(s1, s2);
+
+        long long ans = high;
+
+        while (low <= high) {
+
+            long long mid = low + (high - low) / 2;
+
+            // Calculate how many documents
+            // both scanners can scan in mid time.
+            long long capacity =
+                mid / s1 + mid / s2;
+
+            if (capacity >= n) {
+
+                // This time is sufficient.
+                ans = mid;
+
+                // Try finding a smaller time.
+                high = mid - 1;
+
+            } else {
+
+                // More time is required.
+                low = mid + 1;
+            }
+        }
+
+        return ans;
+    }
+};
+
+```
+
+ Example Dry Run
+
+Input:
+
+`n = 5`
+
+`s1 = 2`
+
+`s2 = 3`
+
+We have:
+
+- Scanner 1 takes 2 units per document.
+- Scanner 2 takes 3 units per document.
+- We need to scan 5 documents.
+
+Step 1: Initialize the search range.
+
+Minimum time:
+
+`low = 0`
+
+Maximum time:
+
+`high = 5 * min(2, 3) = 10`
+
+Step 2: Perform binary search.
+
+| low | high | mid | Scanner 1 capacity | Scanner 2 capacity | Total | Decision      |
+| --- | ---- | --- | ------------------ | ------------------ | ----- | ------------- |
+| 0   | 10   | 5   | 2                  | 1                  | 3     | Increase time |
+| 6   | 10   | 8   | 4                  | 2                  | 6     | Decrease time |
+| 6   | 7    | 6   | 3                  | 2                  | 5     | Decrease time |
+
+At time `6`:
+
+- Scanner 1 can scan 3 documents.
+- Scanner 2 can scan 2 documents.
+- Total scanned documents = 5.
+
+Therefore, all documents can be scanned in 6 units of time.
+
+Can we finish earlier?
+
+At time `5`:
+
+- Scanner 1 can scan 2 documents.
+- Scanner 2 can scan 1 document.
+- Total = 3 documents.
+
+So, 5 units are not sufficient.
+
+Output:
+
+`6`
+
+ Complexity Analysis
+
+Time Complexity: O(log(n × min(s1, s2)))
+
+- The binary search operates over the range from `0` to `n × min(s1, s2)`.
+- Each iteration performs constant-time calculations.
+- Therefore, the overall time complexity is logarithmic.
+
+Space Complexity: O(1)
+
+- We use only a few variables.
+- No additional array or data structure is required.
+
+ Important Observation
+
+The most important part of this problem is the feasibility condition:
+
+\\[ \boxed{ \left\lfloor\frac{T}{s1}\right\rfloor+ \left\lfloor\frac{T}{s2}\right\rfloor\geq n } \\]
+
+If a particular time `T` is sufficient, every larger time will also be sufficient.
+
+This monotonic property makes the problem suitable for Binary Search on Answer.
