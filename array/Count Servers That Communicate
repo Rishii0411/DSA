@@ -1,0 +1,200 @@
+2026-11-08|Count Servers That Communicate
+
+ Question:
+
+You are given a map of a server center, represented as an `m * n` integer matrix `grid`, where:
+
+- `1` means that a server is present at that cell.
+- `0` means that no server is present.
+
+Two servers are said to communicate if they are on the same row or in the same column.
+
+Return the number of servers that communicate with any other server.
+
+ Approach:
+
+ 1. Understand the condition
+
+A server can communicate if:
+
+- There is at least one other server in the same row, or
+- There is at least one other server in the same column.
+
+For example:
+
+`grid = [[1, 0], [1, 1]]`
+
+Here:
+
+- The server at `(0,0)` communicates with the server at `(1,0)` because they share a column.
+- The server at `(1,0)` communicates with the server at `(0,0)` and `(1,1)`.
+- The server at `(1,1)` communicates with the server at `(1,0)` because they share a row.
+
+Therefore, all 3 servers can communicate.
+
+ 2. Count servers in every row
+
+Create an array `rowCount` of size `m`.
+
+For every cell containing `1`, increase the count of its corresponding row.
+
+For example:
+
+`rowCount[i]` = number of servers in row `i`.
+
+ 3. Count servers in every column
+
+Create another array `colCount` of size `n`.
+
+For every cell containing `1`, increase the count of its corresponding column.
+
+For example:
+
+`colCount[j]` = number of servers in column `j`.
+
+ 4. Check every server
+
+Traverse the entire matrix again.
+
+For every cell containing `1`, check:
+
+- If `rowCount[i] > 1`, it can communicate.
+- Otherwise, if `colCount[j] > 1`, it can communicate.
+
+If either condition is true, increase the answer.
+
+We use `OR` because a server only needs one other server in its row or column to communicate.
+
+ 5. Return the answer
+
+After checking every cell, return the total number of communicating servers.
+
+ Solution:
+
+```
+
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countServers(vector<vector<int>>& grid) {
+
+        int m = grid.size();
+        int n = grid[0].size();
+
+        vector<int> rowCount(m, 0);
+        vector<int> colCount(n, 0);
+
+        // Step 1: Count servers in every row and column.
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+
+                if (grid[i][j] == 1) {
+                    rowCount[i]++;
+                    colCount[j]++;
+                }
+            }
+        }
+
+        int ans = 0;
+
+        // Step 2: Count servers that can communicate.
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+
+                if (grid[i][j] == 1) {
+
+                    if (rowCount[i] > 1 ||
+                        colCount[j] > 1) {
+
+                        ans++;
+                    }
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+
+```
+
+ Example Dry Run
+
+Input:
+
+`grid = [[1, 0], [1, 1]]`
+
+ Step 1: Count servers in each row
+
+| Row   | Servers | Count |
+| ----- | ------- | ----- |
+| Row 0 | 1       | 1     |
+| Row 1 | 1, 1    | 2     |
+
+Therefore:
+
+`rowCount = [1, 2]`
+
+ Step 2: Count servers in each column
+
+| Column   | Servers | Count |
+| -------- | ------- | ----- |
+| Column 0 | 1, 1    | 2     |
+| Column 1 | 1       | 1     |
+
+Therefore:
+
+`colCount = [2, 1]`
+
+ Step 3: Check every server
+
+| Position | Row count | Column count | Can communicate? |
+| -------- | --------- | ------------ | ---------------- |
+| (0,0)    | 1         | 2            | Yes              |
+| (1,0)    | 2         | 2            | Yes              |
+| (1,1)    | 2         | 1            | Yes              |
+
+All three servers can communicate.
+
+Output:
+
+`3`
+
+ Complexity Analysis
+
+Let:
+
+- `m` = number of rows.
+- `n` = number of columns.
+
+Time Complexity: O(m × n)
+
+- First traversal counts servers in rows and columns: `O(m × n)`.
+- Second traversal checks every server: `O(m × n)`.
+
+Overall:
+
+\\[ \boxed{O(m\times n)} \\]
+
+Space Complexity: O(m + n)
+
+- `rowCount` requires `O(m)` space.
+- `colCount` requires `O(n)` space.
+
+Overall:
+
+\\[ \boxed{O(m+n)} \\]
+
+ Important Observation
+
+We do not need to compare every server with every other server.
+
+Instead, count the number of servers in each row and column once.
+
+A server communicates if:
+
+\\[ \boxed{rowCount[i]>1\ \ OR\ colCount[j]>1} \\]
+
+This gives an efficient solution with linear traversal of the matrix.
