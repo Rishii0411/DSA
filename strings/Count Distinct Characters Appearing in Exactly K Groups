@@ -1,0 +1,173 @@
+2026-11-09|Count Distinct Characters Appearing in Exactly K Groups
+
+ Question:
+Given a string `s` and an integer `k`, count the number of distinct characters that appear in exactly `k` groups in the string.
+
+A group is defined as one or more consecutive occurrences of the same character.
+
+For example, in the string `"aaabbcca"`, the groups are `"aaa"`, `"bb"`, `"cc"` and `"a"`.
+
+ Approach:
+
+ 1. Understand how groups are formed
+
+A new group starts whenever the current character is different from the previous character.
+
+For example:
+
+`s = "aaabbcca"`
+
+The groups are:
+
+- `aaa`
+- `bb`
+- `cc`
+- `a`
+
+ 2. Create a frequency array
+
+Since the string contains only lowercase English letters, we can create an array of size 26.
+
+Let:
+
+`freq[i]` = number of groups in which the corresponding character appears.
+
+For example:
+
+- `freq['a'] = 2`
+- `freq['b'] = 1`
+- `freq['c'] = 1`
+
+ 3. Traverse the string
+
+Start from the first character.
+
+Whenever the current character is different from the previous character, a new group has started.
+
+Increase the group frequency of that character:
+
+`freq[s[i] - 'a']++`
+
+We do not increase the frequency for every occurrence because consecutive equal characters belong to the same group.
+
+ 4. Count characters appearing in exactly k groups
+
+After processing the entire string, traverse the frequency array.
+
+For every character, check:
+
+`freq[i] == k`
+
+If the condition is true, increase the answer.
+
+ 5. Return the answer
+
+The final answer represents the number of distinct characters that appear in exactly `k` groups.
+
+ Solution:
+
+```
+
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int countCharacters(string s, int k) {
+
+        // Store the number of groups for each character.
+        vector<int> freq(26, 0);
+
+        int n = s.size();
+
+        // Traverse the string and identify new groups.
+        for (int i = 0; i < n; i++) {
+
+            // A new group starts at index 0
+            // or whenever the character changes.
+            if (i == 0 || s[i] != s[i - 1]) {
+                freq[s[i] - 'a']++;
+            }
+        }
+
+        int ans = 0;
+
+        // Count characters appearing in exactly k groups.
+        for (int i = 0; i < 26; i++) {
+            if (freq[i] == k) {
+                ans++;
+            }
+        }
+
+        return ans;
+    }
+};
+
+```
+
+ Example Dry Run
+
+Input:
+
+`s = "aaabbcca"`
+
+`k = 1`
+
+ Step 1: Identify groups
+
+The groups are:
+
+`aaa | bb | cc | a`
+
+ Step 2: Count groups for each character
+
+| Character | Groups | Frequency |
+| --------- | ------ | --------- |
+| a         | aaa, a | 2         |
+| b         | bb     | 1         |
+| c         | cc     | 1         |
+
+ Step 3: Check which characters appear in exactly one group
+
+- `a` → 2 groups → Not counted.
+- `b` → 1 group → Counted.
+- `c` → 1 group → Counted.
+
+ Step 4: Calculate the answer
+
+`ans = 2`
+
+Output:
+
+`2`
+
+ Complexity Analysis
+
+Time Complexity: O(n + 26)
+
+- Traversing the string takes `O(n)`.
+- Checking the frequency array takes `O(26)`.
+- Since 26 is constant, the overall time complexity is:
+
+\\[ \boxed{O(n)} \\]
+
+Space Complexity: O(1)
+
+- We use a frequency array of fixed size 26.
+- Its size does not depend on the length of the string.
+
+Therefore:
+
+\\[ \boxed{O(1)} \\]
+
+ Important Observation
+
+A new group starts only when the current character differs from the previous character.
+
+The main condition is:
+
+`i == 0 || s[i] != s[i - 1]`
+
+This allows us to count groups in a single traversal without creating separate substrings.
+
+Key takeaway: Count the starting position of every group, then count how many characters have exactly `k` groups.
