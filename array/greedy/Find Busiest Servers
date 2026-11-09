@@ -1,0 +1,320 @@
+2026-11-09|Find Busiest Servers
+
+ Question:
+You have `k` servers numbered from `0` to `k-1` that are being used to handle multiple requests simultaneously.
+
+The `i-th` request arrives at time `arrival[i]` and takes `load[i]` units of time to complete.
+
+If all servers are busy, the request is dropped. Otherwise, assign it to the first available server starting from index `i % k`, searching in circular order.
+
+Return the IDs of all busiest servers, meaning the servers that handled the maximum number of requests successfully.
+
+ Approach:
+
+ 1. Maintain the available servers
+
+Use an ordered set:
+
+`available = {0, 1, 2, ..., k-1}`
+
+This set contains only servers that are currently free.
+
+An ordered set is useful because it allows us to find the smallest available server index greater than or equal to a given index.
+
+We can use:
+
+`available.lower_bound(start)`
+
+ 2. Maintain busy servers using a min heap
+
+Use a min heap containing:
+
+`{finishTime, serverIndex}`
+
+The server with the earliest finishing time stays at the top.
+
+Before processing every request, check whether any busy server has completed its work.
+
+If:
+
+`finishTime <= arrival[i]`
+
+then that server is free again.
+
+Remove it from the heap and insert its index into the available set.
+
+We use `<=` because a server finishing exactly when a request arrives is available for that request.
+
+ 3. Find the server for the current request
+
+For request `i`, calculate:
+
+`start = i % k`
+
+Now search for the first available server whose index is greater than or equal to `start`.
+
+Use:
+
+`available.lower_bound(start)`
+
+There are two possibilities.
+
+Case 1: A suitable server is found.
+
+Assign the request to that server.
+
+Case 2: No suitable server is found.
+
+This means there is no available server from `start` to `k-1`.
+
+Because the search is circular, choose the smallest available server:
+
+`available.begin()`
+
+If the available set is empty, drop the request.
+
+ 4. Update the server's finishing time
+
+Once a server is selected:
+
+- Remove it from the available set.
+- Increase its request count.
+- Calculate its finishing time:
+
+`finishTime = arrival[i] + load[i]`
+
+\- Insert `{finishTime, serverIndex}` into the busy heap.
+
+ 5. Find the busiest servers
+
+After processing all requests:
+
+1. Find the maximum request count among all servers.
+2. Traverse the request-count array.
+3. Add every server whose count equals the maximum.
+
+Return those server indices.
+
+ Solution:
+
+```
+
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> busiestServers(int k,
+                              vector<int>& arrival,
+                              vector<int>& load) {
+
+        int n = arrival.size();
+
+        // Stores {finishTime, serverIndex}.
+        // The server finishing earliest comes first.
+        priority_queue<
+            pair<long long, int>,
+            vector<pair<long long, int>>,
+            greater<pair<long long, int>>
+        > busy;
+
+        // Stores all currently available servers.
+        set<int> available;
+
+        // Number of requests handled by each server.
+        vector<int> count(k, 0);
+
+        // Initially, all servers are available.
+        for (int i = 0; i < k; i++) {
+            available.insert(i);
+        }
+
+        // Process requests one by one.
+        for (int i = 0; i < n; i++) {
+
+            // Release all servers that have finished
+            // their tasks before or at the arrival time.
+            while (!busy.empty() &&
+                   busy.top().first <= arrival[i]) {
+
+                int server = busy.top().second;
+                busy.pop();
+
+                available.insert(server);
+            }
+
+            // If all servers are busy, drop the request.
+            if (available.empty()) {
+                continue;
+            }
+
+            // Preferred server for this request.
+            int start = i % k;
+
+            // Find the first available server >= start.
+            auto it = available.lower_bound(start);
+
+            // If no such server exists, wrap around.
+            if (it == available.end()) {
+                it = available.begin();
+            }
+
+            // Assign the request to the selected server.
+            int server = *it;
+
+            available.erase(it);
+
+            // Increase the number of successfully handled requests.
+            count[server]++;
+
+            // Calculate when the server becomes free.
+            long long finishTime =
+                (long long)arrival[i] + load[i];
+
+            // Mark the server as busy.
+            busy.push({finishTime, server});
+        }
+
+        // Find the maximum number of requests handled.
+        int maxRequests = *max_element(count.begin(), count.end());
+
+        vector<int> ans;
+
+        // Collect all servers having the maximum count.
+        for (int i = 0; i < k; i++) {
+            if (count[i] == maxRequests) {
+                ans.push_back(i);
+            }
+        }
+
+        return ans;
+    }
+};
+
+```
+
+ Example Dry Run
+
+Input:
+
+`k = 3`
+
+`arrival = [1, 2, 3, 4, 5, 6]`
+
+`load = [5, 2, 3, 3, 3, 2]`
+
+Initially, all servers are available:
+
+`available = {0, 1, 2}`
+
+Request assignments:
+
+| Request | Arrival | Preferred server | Assigned server | Finish time |
+| ------- | ------- | ---------------- | --------------- | ----------- |
+| 0       | 1       | 0                | 0               | 6           |
+| 1       | 2       | 1                | 1               | 4           |
+| 2       | 3       | 2                | 2               | 6           |
+| 3       | 4       | 0                | 1               | 7           |
+| 4       | 5       | 1                | Dropped         | -           |
+| 5       | 6       | 2                | 0               | 8           |
+
+Let's understand the important assignments.
+
+Request 0:
+
+- Arrives at time 1.
+- All servers are free.
+- Preferred server is `0`.
+- Assign it to server 0.
+- Server 0 becomes free at time 6.
+
+Request 1:
+
+- Arrives at time 2.
+- Server 0 is busy.
+- Server 1 is available.
+- Assign it to server 1.
+- Server 1 becomes free at time 4.
+
+Request 2:
+
+- Arrives at time 3.
+- Servers 0 and 1 are busy.
+- Server 2 is available.
+- Assign it to server 2.
+- Server 2 becomes free at time 6.
+
+Request 3:
+
+- Arrives at time 4.
+- Server 1 has completed its task and becomes available.
+- Preferred server is 0, but it is busy.
+- Server 1 is the next available server.
+- Assign it to server 1.
+- Server 1 becomes free at time 7.
+
+Request 4:
+
+- Arrives at time 5.
+- All three servers are busy.
+- Therefore, this request is dropped.
+
+Request 5:
+
+- Arrives at time 6.
+- Servers 0 and 2 have completed their tasks.
+- Preferred server is `5 % 3 = 2`.
+- Server 2 is available, so assign the request to server 2.
+
+Request counts:
+
+| Server   | Requests handled |
+| -------- | ---------------- |
+| Server 0 | 1                |
+| Server 1 | 2                |
+| Server 2 | 2                |
+
+Maximum requests handled = 2.
+
+Output:
+
+`[1, 2]`
+
+ Complexity Analysis
+
+Let:
+
+- `k` = number of servers.
+- `n` = number of requests.
+
+Time Complexity: O((n + k) log k)
+
+1. Inserting all servers into the ordered set takes `O(k log k)`.
+2. Every request is processed once.
+3. Each server is inserted into and removed from the ordered set at most once per completed task.
+4. Finding the next available server using `lower_bound()` takes `O(log k)`.
+5. Busy-server heap operations take `O(log k)`.
+
+Therefore:
+
+\\[ \boxed{O(k\log k+n\log k)} \\]
+
+Space Complexity: O(k)
+
+- Available server set: `O(k)`.
+- Busy server heap: `O(k)`.
+- Request count array: `O(k)`.
+
+Therefore:
+
+\\[ \boxed{O(k)} \\]
+
+ Important Observations
+
+1. The ordered set helps us find the next available server without checking every server one by one.
+2. The min heap helps us identify which server becomes free earliest.
+3. We must release servers whose finishing time is less than or equal to the current request's arrival time.
+4. If `lower_bound()` returns `end()`, we wrap around and select the smallest available server.
+5. Requests are dropped only when the available server set is empty.
+
+Key takeaway: Use an ordered set for available servers and a min heap for busy servers. Together, they efficiently simulate the server assignment rules in approximately `O(n log k)` time.
