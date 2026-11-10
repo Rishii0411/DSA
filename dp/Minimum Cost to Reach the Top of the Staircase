@@ -1,0 +1,242 @@
+2026-11-10|Minimum Cost to Reach the Top of the Staircase
+
+ Question:
+You are climbing a staircase with `n + 1` steps, numbered from `0` to `n`.
+
+You are also given a 1-indexed integer array `costs` of length `n`, where `costs[i]` is the cost of step `i`.
+
+From step `i`, you can jump only to step `i + 1`, `i + 2`, or `i + 3`.
+
+The cost of jumping from step `i` to step `j` is:
+
+`costs[j] + (j - i)²`
+
+You start from step `0` with `cost = 0`.
+
+Return the minimum total cost to reach step `n`.
+
+ Approach:
+
+ 1. Understand the possible jumps
+
+From any step `i`, we can jump at most three steps forward.
+
+For example, from step `2`, we can jump to:
+
+- Step `3` (distance 1).
+- Step `4` (distance 2).
+- Step `5` (distance 3).
+
+The jump cost depends on both the destination step and the distance travelled.
+
+ 2. Define the DP array
+
+Let:
+
+`dp[i]` = minimum cost required to reach step `i` from step `0`.
+
+Our final answer will be:
+
+`dp[n]`
+
+ 3. Initialize the base case
+
+We start from step `0` without paying anything.
+
+Therefore:
+
+\\[ dp[0]=0 \\]
+
+All other DP values are initially set to infinity because we have not calculated their minimum costs yet.
+
+ 4. Derive the recurrence relation
+
+To reach step `i`, we can come from three possible previous steps:
+
+- Step `i - 1`
+- Step `i - 2`
+- Step `i - 3`
+
+For each possible previous step `j`, the total cost is:
+
+\\[ dp[j]+costs[i]+(i-j)^2 \\]
+
+Therefore, we take the minimum of all valid possibilities:
+
+\\[ \boxed{ dp[i]=\min\_{\substack{1\leq d\leq3\\\i-d\geq0}} \left(dp[i-d]+costs[i]+d^2\right) } \\]
+
+ 5. Calculate DP values
+
+Traverse steps from `1` to `n`.
+
+For every step:
+
+1. Check whether we can reach it from the previous one-step jump.
+2. Check whether we can reach it from the previous two-step jump.
+3. Check whether we can reach it from the previous three-step jump.
+4. Select the minimum total cost.
+
+ 6. Return the answer
+
+After calculating all DP values, return:
+
+`dp[n]`
+
+This gives the minimum cost required to reach the final step.
+
+ Solution:
+
+```
+
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minCost(vector<int>& costs) {
+
+        int n = costs.size();
+
+        // dp[i] represents the minimum cost to reach step i.
+        vector<int> dp(n + 1, INT_MAX);
+
+        // Starting step has zero cost.
+        dp[0] = 0;
+
+        // Calculate minimum cost for every step.
+        for (int i = 1; i <= n; i++) {
+
+            // Try jumping from the previous 1, 2 or 3 steps.
+            for (int jump = 1; jump <= 3; jump++) {
+
+                int prev = i - jump;
+
+                if (prev >= 0) {
+
+                    int jumpCost =
+                        costs[i - 1] + jump * jump;
+
+                    dp[i] = min(
+                        dp[i],
+                        dp[prev] + jumpCost
+                    );
+                }
+            }
+        }
+
+        return dp[n];
+    }
+};
+
+```
+
+Important indexing detail: The problem gives `costs` as a 1-indexed array conceptually, but C++ vectors use 0-based indexing. Therefore, the cost of landing on step `i` is accessed using `costs[i - 1]`.
+
+ Example Dry Run
+
+Input:
+
+`costs = [1, 2, 3, 4]`
+
+Here:
+
+`n = 4`
+
+We need to reach step `4`.
+
+ Step 1: Initialize DP
+
+`dp[0] = 0`
+
+Initially:
+
+`dp = [0, INF, INF, INF, INF]`
+
+ Step 2: Calculate dp[1]
+
+We can jump from step 0 to step 1.
+
+Jump cost:
+
+\\[ 1+1^2=2 \\]
+
+Therefore:
+
+`dp[1] = 2`
+
+ Step 3: Calculate dp[2]
+
+We have two choices.
+
+- From step 1: `dp[1] + 2 + 1² = 2 + 2 + 1 = 5`
+- From step 0: `dp[0] + 2 + 2² = 0 + 2 + 4 = 6`
+
+Minimum:
+
+`dp[2] = 5`
+
+ Step 4: Calculate dp[3]
+
+We have three choices.
+
+- From step 2: `5 + 3 + 1 = 9`
+- From step 1: `2 + 3 + 4 = 9`
+- From step 0: `0 + 3 + 9 = 12`
+
+Minimum:
+
+`dp[3] = 9`
+
+ Step 5: Calculate dp[4]
+
+We have three choices.
+
+- From step 3: `9 + 4 + 1 = 14`
+- From step 2: `5 + 4 + 4 = 13`
+- From step 1: `2 + 4 + 9 = 15`
+
+Minimum:
+
+`dp[4] = 13`
+
+Final DP array:
+
+`dp = [0, 2, 5, 9, 13]`
+
+Output:
+
+`13`
+
+ Complexity Analysis
+
+Let `n` be the number of steps to reach.
+
+Time Complexity: O(n)
+
+- We traverse all steps from `1` to `n`.
+- For each step, we check at most three possible jumps.
+- Each transition takes constant time.
+
+Therefore:
+
+\\[ \boxed{O(n)} \\]
+
+Space Complexity: O(n)
+
+\- We use a DP array of size `n + 1`.
+
+Therefore:
+
+\\[ \boxed{O(n)} \\]
+
+ Important Observation
+
+The main idea is to calculate the minimum cost of reaching each step using the previous three steps.
+
+The recurrence relation is:
+
+\\[ \boxed{ dp[i]=\min \begin{cases} dp[i-1]+costs[i-1]+1\\\ dp[i-2]+costs[i-1]+4\\\ dp[i-3]+costs[i-1]+9 \end{cases} } \\]
+
+Only valid previous steps should be considered.
+
+This is a Dynamic Programming problem because the minimum cost of reaching the current step depends on the minimum costs of previously calculated steps.
