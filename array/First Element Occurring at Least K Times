@@ -1,0 +1,149 @@
+2026-11-10|First Element Occurring at Least K Times
+
+ Question:
+
+Given an array `arr[]` and an integer `k`, find the first element that occurs at least `k` times in the array.
+
+- If multiple elements satisfy the condition, return the element whose k-th occurrence appears earliest in the array.
+- If no element occurs at least `k` times, return `-1`.
+
+ Approach:
+
+ 1. Create a frequency hash map
+
+Use an `unordered_map` to store the frequency of every element.
+
+`freq[x]` represents how many times element `x` has appeared so far.
+
+Initially, every element has a frequency of zero.
+
+ 2. Traverse the array from left to right
+
+Visit every element one by one.
+
+For each element:
+
+- Increase its frequency by 1.
+- Check whether its frequency has become equal to `k`.
+
+ 3. Return the first qualifying element
+
+The moment an element's frequency becomes `k`, it is the first element whose k-th occurrence has appeared.
+
+Since we are traversing from left to right, no later element can have an earlier k-th occurrence.
+
+Therefore, we can immediately return that element.
+
+ 4. Handle the case when no element qualifies
+
+If we finish traversing the entire array without finding an element whose frequency reaches `k`, return `-1`.
+
+ Important Case
+
+Consider:
+
+`arr = [1, 2, 1, 2, 2, 1]`
+
+`k = 2`
+
+Traversal:
+
+| Index | Element | Frequency | Condition     |
+| ----- | ------- | --------- | ------------- |
+| 0     | 1       | 1         | Not qualified |
+| 1     | 2       | 1         | Not qualified |
+| 2     | 1       | 2         | Qualified     |
+
+We return `1`.
+
+Even though both `1` and `2` occur at least twice, the second occurrence of `1` appears earlier.
+
+ Solution:
+
+```
+
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int firstElement(vector<int>& arr, int k) {
+
+        unordered_map<int, int> freq;
+
+        // Traverse the array from left to right.
+        for (int x : arr) {
+
+            // Increase the frequency of the current element.
+            freq[x]++;
+
+            // Check whether this is its kth occurrence.
+            if (freq[x] == k) {
+                return x;
+            }
+        }
+
+        // No element occurs at least k times.
+        return -1;
+    }
+};
+
+```
+
+ Example Dry Run
+
+Input:
+
+`arr = [4, 5, 6, 4, 5, 6, 5]`
+
+`k = 2`
+
+Step 1: Initialize the frequency map.
+
+`freq = {}`
+
+Step 2: Traverse the array.
+
+| Index | Element | Frequency after update | Action   |
+| ----- | ------- | ---------------------- | -------- |
+| 0     | 4       | 1                      | Continue |
+| 1     | 5       | 1                      | Continue |
+| 2     | 6       | 1                      | Continue |
+| 3     | 4       | 2                      | Return 4 |
+
+The second occurrence of `4` appears at index 3.
+
+The second occurrence of `5` appears at index 4, and the second occurrence of `6` appears at index 5.
+
+Therefore, `4` is the correct answer.
+
+Output:
+
+`4`
+
+ Complexity Analysis
+
+Time Complexity: O(n) average
+
+- We traverse the array only once.
+- Each hash map insertion or frequency update takes `O(1)` average time.
+- Therefore, the expected time complexity is `O(n)`.
+
+Space Complexity: O(n)
+
+- In the worst case, every array element can be distinct.
+- The hash map may store all `n` elements.
+
+Therefore:
+
+\\[ \boxed{O(n)} \\]
+
+ Important Observation
+
+We do not need to count the frequency of every element first and then traverse the array again.
+
+As soon as an element reaches its k-th occurrence, we can return it.
+
+This works because the array is processed from left to right, so the first element to reach frequency `k` is exactly the one whose k-th occurrence appears earliest.
+
+Key takeaway: Use a hash map to count frequencies and immediately return the first element whose frequency becomes `k`.
