@@ -1,0 +1,190 @@
+2026-11-11|Contains Duplicate II - Check Duplicate Elements Within K Distance
+
+
+ Question:
+
+Given an array of integers `arr[]` and an integer `k`, check whether there exist two distinct indices `i` and `j` such that:
+
+\\[ arr[i]=arr[j] \\]
+
+and
+
+\\[ |i-j|\leq k \\]
+
+Return `true` if such a pair exists; otherwise, return `false`.
+
+ Approach:
+
+ 1. Understand the condition
+
+We need to find duplicate elements whose indices are not too far apart.
+
+For example:
+
+`arr = [1, 2, 3, 1, 2, 3]`
+
+`k = 2`
+
+The duplicate `1` occurs at indices `0` and `3`.
+
+Their difference is:
+
+`|0 - 3| = 3`
+
+Since `3 > 2`, this pair is not valid.
+
+The other duplicate pairs also have a distance greater than 2.
+
+Therefore, the answer is `false`.
+
+ 2. Use a Hash Set
+
+Create an unordered set to store the elements inside the current sliding window.
+
+The set helps us check whether an element has already appeared in the previous `k` positions.
+
+ 3. Traverse the array
+
+For every index `i`:
+
+Step 1: Check whether the current element already exists in the set.
+
+If:
+
+`st.find(arr[i]) != st.end()`
+
+It means the same element appeared within the previous `k` positions.
+
+Therefore, return `true`.
+
+Step 2: Insert the current element.
+
+If the element is not present, insert it into the set.
+
+ 4. Maintain the sliding window
+
+Before moving to the next index, remove the element that is now more than `k` positions behind.
+
+When processing index `i`, the set should contain elements from the previous `k` indices at most.
+
+Therefore, after checking the current element, if the window size exceeds `k`, remove:
+
+`arr[i - k]`
+
+This ensures that the set never contains elements that are too far away to form a valid pair with a future element.
+
+ 5. Return the result
+
+- If we find a duplicate inside the current window, return `true`.
+- If the entire array is processed without finding one, return `false`.
+
+ Solution:
+
+```
+
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool checkDuplicate(vector<int>& arr, int k) {
+
+        unordered_set<int> st;
+
+        int n = arr.size();
+
+        for (int i = 0; i < n; i++) {
+
+            // Check whether the current element
+            // already exists in the previous k positions.
+            if (st.find(arr[i]) != st.end()) {
+                return true;
+            }
+
+            // Insert the current element.
+            st.insert(arr[i]);
+
+            // Maintain a window of at most k elements.
+            if (i >= k) {
+                st.erase(arr[i - k]);
+            }
+        }
+
+        return false;
+    }
+};
+
+```
+
+ Example Dry Run
+
+Input:
+
+`arr = [1, 2, 3, 1]`
+
+`k = 3`
+
+Initially:
+
+`st = {}`
+
+Iteration 1: i = 0
+
+- Current element = 1.
+- Set does not contain 1.
+- Insert 1.
+
+`st = {1}`
+
+Iteration 2: i = 1
+
+- Current element = 2.
+- Set does not contain 2.
+- Insert 2.
+
+`st = {1, 2}`
+
+Iteration 3: i = 2
+
+- Current element = 3.
+- Set does not contain 3.
+- Insert 3.
+
+`st = {1, 2, 3}`
+
+Iteration 4: i = 3
+
+- Current element = 1.
+- Set already contains 1.
+- Therefore, a duplicate exists within distance `k = 3`.
+
+Return:
+
+`true`
+
+ Complexity Analysis
+
+Time Complexity: O(n) average
+
+- We traverse the array once.
+- Hash set insertion, deletion, and searching take `O(1)` average time.
+- Therefore, the overall expected time complexity is `O(n)`.
+
+Space Complexity: O(min(n, k))
+
+- The hash set stores at most `k` previous elements.
+- Therefore, the auxiliary space complexity is `O(min(n, k))`.
+
+ Important Observation
+
+The main idea is to maintain a sliding window containing only the previous `k` elements.
+
+If the current element already exists in this window, we have found two equal elements whose index difference is at most `k`.
+
+Key condition:
+
+\\[ \boxed{arr[i]\in st\Rightarrow return\ true} \\]
+
+Otherwise, insert the element and remove the element that moves outside the allowed window.
+
+This gives an efficient solution without comparing every pair of indices.
