@@ -1,0 +1,213 @@
+2026-11-11|Minimum Cost to Satisfy Two Requirements
+
+ Question:
+
+You are given five integers `cost1`, `cost2`, `costBoth`, `need1`, and `need2`.
+
+There are three types of items available:
+
+- An item of type 1 costs `cost1` and contributes 1 unit to the type 1 requirement only.
+- An item of type 2 costs `cost2` and contributes 1 unit to the type 2 requirement only.
+- An item of type 3 costs `costBoth` and contributes 1 unit to both type 1 and type 2 requirements.
+
+You must collect enough items so that the total contribution toward type 1 is at least `need1` and the total contribution toward type 2 is at least `need2`.
+
+Return the minimum possible total cost.
+
+ Approach:
+
+ 1. Understand the three purchasing options
+
+We have three choices:
+
+- Buy only type 1 items.
+- Buy only type 2 items.
+- Buy type 3 items that satisfy both requirements simultaneously.
+
+The best decision depends on the relative costs.
+
+ 2. Compare the cost of a combined item
+
+Suppose:
+
+`cost1 = 5`
+
+`cost2 = 4`
+
+`costBoth = 6`
+
+Buying one type 1 item and one type 2 item costs:
+
+`5 + 4 = 9`
+
+But buying one type 3 item costs only `6`.
+
+Therefore, type 3 is cheaper and should be preferred.
+
+ 3. Use the minimum requirement
+
+The number of type 3 items that can be used to satisfy both requirements is:
+
+\\[ common=\min(need1,need2) \\]
+
+If we buy `common` type 3 items, both requirements are reduced by that amount.
+
+The remaining requirements become:
+
+\\[ remaining1=need1-common \\]
+
+\\[ remaining2=need2-common \\]
+
+ 4. Compare two strategies
+
+There are two main strategies.
+
+Strategy 1: Buy type 3 items for the common requirement.
+
+After satisfying the common part, buy separate items for the remaining requirements.
+
+Total cost:
+
+\\[ common\times costBoth+ remaining1\times cost1+ remaining2\times cost2 \\]
+
+Strategy 2: Buy only type 3 items.
+
+We can buy enough type 3 items to satisfy the larger requirement.
+
+Number of items required:
+
+\\[ \max(need1,need2) \\]
+
+Total cost:
+
+\\[ \max(need1,need2)\times costBoth \\]
+
+This strategy might be cheaper because the extra contribution to the smaller requirement is allowed.
+
+ 5. Take the minimum
+
+Calculate both costs and return the smaller one.
+
+\\[ \boxed{ answer=\min(strategy1,strategy2) } \\]
+
+ Solution:
+
+```
+
+include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    long long minimumCost(int cost1, int cost2,
+                          int costBoth,
+                          int need1, int need2) {
+
+        long long common = min(need1, need2);
+
+        // Strategy 1:
+        // Use combined items for the common requirement
+        // and separate items for the remaining requirements.
+        long long costA =
+            common * costBoth +
+            (need1 - common) * 1LL * cost1 +
+            (need2 - common) * 1LL * cost2;
+
+        // Strategy 2:
+        // Use only combined items to satisfy both requirements.
+        long long costB =
+            max(need1, need2) * 1LL * costBoth;
+
+        return min(costA, costB);
+    }
+};
+
+```
+
+ Example Dry Run
+
+Input:
+
+`cost1 = 5`
+
+`cost2 = 4`
+
+`costBoth = 6`
+
+`need1 = 3`
+
+`need2 = 2`
+
+ Step 1: Calculate the common requirement
+
+\\[ common=\min(3,2)=2 \\]
+
+ Step 2: Calculate Strategy 1
+
+Buy 2 type 3 items:
+
+`2 × 6 = 12`
+
+Remaining type 1 requirement:
+
+`3 - 2 = 1`
+
+Remaining type 2 requirement:
+
+`2 - 2 = 0`
+
+Buy one type 1 item:
+
+`1 × 5 = 5`
+
+Total:
+
+`costA = 12 + 5 = 17`
+
+ Step 3: Calculate Strategy 2
+
+Buy only type 3 items.
+
+Required items:
+
+`max(3, 2) = 3`
+
+Total:
+
+`costB = 3 × 6 = 18`
+
+ Step 4: Choose the minimum
+
+`answer = min(17, 18)`
+
+Output:
+
+`17`
+
+ Complexity Analysis
+
+Time Complexity: O(1)
+
+- We calculate the minimum and maximum requirements.
+- We calculate two possible costs.
+- We return the smaller cost.
+
+All operations take constant time.
+
+Space Complexity: O(1)
+
+- We use only a few variables.
+- No additional data structure is required.
+
+ Important Observation
+
+The main idea is to compare the cost of satisfying both requirements using combined items against satisfying the remaining requirements using separate items.
+
+One additional improvement is to compare `costBoth` with `cost1 + cost2`:
+
+- If `costBoth` is cheaper, combined items are beneficial.
+- Otherwise, buying separate items is cheaper or equally good.
+
+The final answer is obtained by comparing the two purchasing strategies.
+
+\\[ \boxed{ \min\left( \begin{aligned} &\min(need1,need2)\times costBoth\\\ &+(need1-\min(need1,need2))\times cost1\\\ &+(need2-\min(need1,need2))\times cost2,\\\ &\max(need1,need2)\times costBoth \end{aligned} \right) } \\]
