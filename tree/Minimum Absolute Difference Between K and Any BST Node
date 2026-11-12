@@ -1,0 +1,99 @@
+2026-11-12|Minimum Absolute Difference Between K and Any BST Node
+
+Question:
+
+Given the root of a Binary Search Tree (BST) and an integer `k`, find the minimum absolute difference between `k` and the value of any node in the BST.
+
+Example:
+
+BST values: 10, 5, 15, 2, 8, 12, 20
+
+k = 9
+
+Absolute differences:
+
+- |9 - 10| = 1
+- |9 - 5| = 4
+- |9 - 15| = 6
+- |9 - 2| = 7
+- |9 - 8| = 1
+- |9 - 12| = 3
+- |9 - 20| = 11
+
+The minimum absolute difference is `1`.
+
+Approach:
+
+1. Initialize a variable `ans` with `INT_MAX`. It will store the minimum difference found so far.
+2. Start traversing the BST from the root.
+3. At every node:
+   - Calculate the absolute difference between the current node's value and `k`.
+   - Update `ans` if the current difference is smaller.
+4. Use the BST property to decide which subtree to visit:
+   - If `k` is smaller than the current node's value, move to the left child because smaller values are present there.
+   - If `k` is greater than the current node's value, move to the right child because larger values are present there.
+   - If `k` is equal to the current node's value, the minimum difference is `0`, so return immediately.
+5. Continue until you reach a NULL node.
+6. Return `ans`.
+
+Solution:
+
+```
+class Solution {
+public:
+    int minDiffInBST(TreeNode* root, int k) {
+        int ans = INT_MAX;
+
+        while (root != NULL) {
+            ans = min(ans, abs(root->val - k));
+
+            if (ans == 0) {
+                return 0;
+            }
+
+            if (k < root->val) {
+                root = root->left;
+            } 
+            else {
+                root = root->right;
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+Dry Run:
+
+Consider the BST:
+
+```
+        10
+       /  \
+      5    15
+     / \   / \
+    2   8 12  20
+```
+
+Let `k = 9`.
+
+| Current Node | Difference | Updated Answer | Next Move |
+| ------------ | ---------- | -------------- | --------- |
+| 10           | 1          | 1              | Left      |
+| 5            | 4          | 1              | Right     |
+| 8            | 1          | 1              | Right     |
+| NULL         | -          | 1              | Stop      |
+
+Final Answer: `1`
+
+Time Complexity:
+
+- Average case: O(log N), when the BST is balanced.
+- Worst case: O(N), when the BST is skewed.
+
+Space Complexity:
+
+\- O(1), because we use an iterative traversal and do not use any extra data structure.
+
+Important: We do not need to visit every node. The BST property allows us to move only towards the subtree where a closer value could exist.
