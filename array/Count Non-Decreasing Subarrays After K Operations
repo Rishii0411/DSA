@@ -1,0 +1,225 @@
+2026-11-13|Count Non-Decreasing Subarrays After K Operations
+
+Question:
+
+You are given an array of integers `nums` of size `n` and an integer `k`.
+
+For each subarray, you can perform at most `k` operations. In each operation, you can increment any element of that subarray by `1`.
+
+Return the total number of subarrays that can be made non-decreasing using at most `k` operations.
+
+Approach:
+
+We can solve this problem efficiently using a sliding window and a monotonic deque.
+
+The main idea is to process the array from right to left and maintain the minimum number of operations required to make the current window non-decreasing.
+
+1. Understand how to make a subarray non-decreasing.
+
+   To make an array non-decreasing using only increments, every element must be at least as large as the previous adjusted element.
+
+   For example:
+
+   `nums = [3, 1, 2]`
+
+   We need to convert it into:
+
+   `[3, 3, 3]`
+
+   The number of operations required is:
+   - Increase `1` to `3`: 2 operations.
+   - Increase `2` to `3`: 1 operation.
+   Total operations = 3.
+2. Process the array from right to left.
+
+   We maintain a window `[left, right]`.
+
+   Initially, `right` is the last index of the array.
+
+   As we move `left` backwards, we add one new element to the beginning of the window.
+3. Maintain a deque of blocks.
+
+   Each block contains two values:
+   - `value`: the adjusted value of a group of elements.
+   - `count`: the number of elements in that group.
+   The blocks are maintained in non-decreasing order from front to back.
+
+   For example, suppose the adjusted values are:
+
+   `[2, 2, 3, 5, 5]`
+
+   The deque can represent them as:
+
+   `(2, 2), (3, 1), (5, 2)`
+4. Insert a new element into the window.
+
+   Suppose the new element is `x`.
+   - If the front block has a value smaller than `x`, those elements must be increased to `x`.
+   - Calculate the additional operations:
+
+     `(x - frontValue) * frontCount`
+   - Add this cost to the total operations.
+   - Merge that block into the new block.
+   - Continue until the front block has a value greater than or equal to `x`.
+   - Finally, insert the new block at the front.
+   This maintains the correct adjusted values for a non-decreasing array.
+5. Maintain the sliding window.
+
+   If the total operations become greater than `k`, the current window is invalid.
+
+   To make it valid:
+   - Remove the rightmost element from the window.
+   - Subtract the operations required for that element from the total cost.
+   - Decrease the count of the last deque block.
+   - Remove the block if its count becomes zero.
+   - Move `right` one position to the left.
+   Repeat until the total cost becomes at most `k`.
+6. Count valid subarrays.
+
+   After adjusting the window, all subarrays starting at `left` and ending between `left` and `right` are valid.
+
+   Therefore, the number of valid subarrays starting at `left` is:
+
+   `right - left + 1`
+7. Add this number to the answer and continue moving `left` backwards.
+8. Finally, return the total answer.
+
+Solution:
+
+```
+class Solution {
+public:
+    long long countNonDecreasingSubarrays(vector<int>& nums, long long k) {
+        int n = nums.size();
+
+        deque<pair<int, int>> dq;
+
+        long long operations = 0;
+        long long ans = 0;
+
+        int right = n - 1;
+
+        for (int left = n - 1; left >= 0; left--) {
+
+            int x = nums[left];
+            int cnt = 1;
+
+            // Insert the new element into the deque
+            while (!dq.empty() && dq.front().first < x) {
+
+                operations += 1LL * (x - dq.front().first)
+                              * dq.front().second;
+
+                cnt += dq.front().second;
+
+                dq.pop_front();
+            }
+
+            dq.push_front({x, cnt});
+
+            // Shrink the window if operations exceed k
+            while (operations > k) {
+
+                operations -= dq.back().first - nums[right];
+
+                dq.back().second--;
+
+                if (dq.back().second == 0) {
+                    dq.pop_back();
+                }
+
+                right--;
+            }
+
+            // Count valid subarrays starting at left
+            ans += right - left + 1;
+        }
+
+        return ans;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`nums = [3, 1, 2]`
+
+`k = 1`
+
+Initially:
+
+- `right = 2`
+- `operations = 0`
+- `ans = 0`
+
+| left | New Element | Adjusted Window | Operations | Valid Subarrays |
+| ---- | ----------- | --------------- | ---------- | --------------- |
+| 2    | 2           | [2]             | 0          | 1               |
+| 1    | 1           | [1, 2]          | 0          | 2               |
+| 0    | 3           | [3]             | 0          | 1               |
+
+Let's understand the last iteration carefully.
+
+When `left = 0`, we insert `3`.
+
+The existing adjusted values are `[1, 2]`.
+
+Both values must be increased to `3`.
+
+Operations required:
+
+- Increase `1` to `3`: 2 operations.
+- Increase `2` to `3`: 1 operation.
+
+Total operations = 3.
+
+But `k = 1`, so the window is invalid.
+
+We remove elements from the right:
+
+- Remove `2`: subtract 1 operation. Remaining cost = 2.
+- Remove `1`: subtract 2 operations. Remaining cost = 0.
+
+Now the valid window is `[3]`.
+
+Therefore, only one subarray starting at index `0` is valid.
+
+Final calculation:
+
+- Subarrays starting at index 2 = 1
+- Subarrays starting at index 1 = 2
+- Subarrays starting at index 0 = 1
+
+Final Answer:
+
+`1 + 2 + 1 = 4`
+
+The four valid subarrays are:
+
+- `[3]`
+- `[1]`
+- `[2]`
+- `[1, 2]`
+
+Time Complexity: O(N)
+
+- We traverse the array once from right to left.
+- Every element is inserted into the deque exactly once.
+- Every element is removed from the deque at most once.
+- Therefore, the total deque operations are O(N).
+
+Space Complexity: O(N)
+
+- In the worst case, the deque can contain up to N blocks.
+- Therefore, auxiliary space complexity is O(N).
+
+Important Points:
+
+1. We process the array from right to left because adding an element to the beginning can increase the required values of existing elements.
+2. The deque stores groups of elements having the same adjusted value.
+3. Whenever a smaller adjusted value is found at the front, it is increased to match the newly inserted element.
+4. The sliding window ensures that the number of required operations never exceeds `k`.
+5. We add `right - left + 1` because every subarray starting at `left` and ending before or at `right` is valid.
+6. We use `long long` for the operation cost and answer because the number of subarrays can be as large as \\(N(N+1)/2\\).
