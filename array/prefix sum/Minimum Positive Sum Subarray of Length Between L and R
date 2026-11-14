@@ -1,0 +1,212 @@
+2026-11-14|Minimum Positive Sum Subarray of Length Between L and R
+
+Question:
+You are given an integer array `nums` and two integers `l` and `r`.
+
+Find the minimum sum of a non-empty contiguous subarray whose length is between `l` and `r` (inclusive) and whose sum is greater than zero.
+
+Return the minimum positive sum. If no such subarray exists, return `-1`.
+
+Approach:
+We can solve this problem efficiently using Prefix Sum + Sliding Window + Multiset.
+
+1. Understand Prefix Sum.
+
+   Create a prefix sum array where:
+
+   `prefix[i] = nums[0] + nums[1] + ... + nums[i-1]`
+
+   We use an extra position at the beginning:
+
+   `prefix[0] = 0`
+
+   The sum of a subarray from index `j` to index `i-1` is:
+
+   `prefix[i] - prefix[j]`
+
+   Therefore, instead of calculating every subarray sum separately, we can calculate it in constant time.
+2. Convert the problem into a mathematical condition.
+
+   Suppose we are considering a subarray ending at index `i-1`.
+
+   Its starting prefix index must satisfy:
+
+   `i - r <= j <= i - l`
+
+   This is because the subarray length must be between `l` and `r`.
+
+   We need to find:
+
+   `prefix[i] - prefix[j]`
+
+   This sum must be positive.
+
+   Therefore:
+
+   `prefix[j] < prefix[i]`
+3. Find the minimum positive sum.
+
+   We want to minimize:
+
+   `prefix[i] - prefix[j]`
+
+   Since `prefix[i]` is fixed, we need to find the largest prefix[j] that is strictly smaller than prefix[i].
+
+   This gives us the smallest positive difference.
+4. Use a multiset to maintain valid prefix sums.
+
+   A multiset stores elements in sorted order and allows duplicate values.
+
+   For every index `i`, maintain only the prefix sums whose indices are in the valid range:
+
+   `[i-r, i-l]`
+
+   These are exactly the possible starting positions for a valid subarray ending at `i-1`.
+5. Insert and remove prefix sums using a sliding window.
+
+   For each `i`:
+   - Insert `prefix[i-l]` into the multiset because this starting position now becomes valid.
+   - Remove `prefix[i-r-1]` if it exists because its corresponding subarray would be too long.
+   - This keeps only the valid starting prefix sums.
+6. Find the largest prefix sum smaller than the current prefix sum.
+
+   Use:
+
+   `lower_bound(prefix[i])`
+
+   This gives the first element that is greater than or equal to `prefix[i]`.
+
+   Move one position backward to get the largest element strictly smaller than `prefix[i]`.
+
+   If such an element exists:
+   - Calculate `prefix[i] - previousElement`.
+   - Update the answer if this positive sum is smaller.
+7. Repeat for every possible ending position.
+8. If no positive sum is found, return `-1`. Otherwise, return the minimum positive sum.
+
+Solution:
+
+```
+class Solution {
+public:
+    int minimumSumSubarray(vector<int>& nums, int l, int r) {
+
+        int n = nums.size();
+
+        vector<long long> prefix(n + 1, 0);
+
+        // Build prefix sum array
+        for (int i = 0; i < n; i++) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+
+        multiset<long long> st;
+
+        long long ans = LLONG_MAX;
+
+        // Process every possible ending position
+        for (int i = l; i <= n; i++) {
+
+            // Add the new valid starting prefix
+            st.insert(prefix[i - l]);
+
+            // Remove prefix that makes the length greater than r
+            if (i - r - 1 >= 0) {
+                auto it = st.find(prefix[i - r - 1]);
+
+                if (it != st.end()) {
+                    st.erase(it);
+                }
+            }
+
+            // Find the largest prefix sum smaller than prefix[i]
+            auto it = st.lower_bound(prefix[i]);
+
+            if (it != st.begin()) {
+                --it;
+
+                long long sum = prefix[i] - *it;
+
+                ans = min(ans, sum);
+            }
+        }
+
+        if (ans == LLONG_MAX) {
+            return -1;
+        }
+
+        return (int)ans;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`nums = [3, -2, 1, 4]`
+
+`l = 2, r = 3`
+
+Prefix sum array:
+
+`prefix = [0, 3, 1, 2, 6]`
+
+We process each possible ending position.
+
+| i | Current Prefix | Valid Starting Prefix Values | Largest Value Smaller Than Current | Positive Sum | Answer |
+| - | -------------- | ---------------------------- | ---------------------------------- | ------------ | ------ |
+| 2 | 1              | [0]                          | 0                                  | 1            | 1      |
+| 3 | 2              | [0, 3]                       | 0                                  | 2            | 1      |
+| 4 | 6              | [3, 1]                       | 3                                  | 3            | 1      |
+
+Let's understand each iteration:
+
+1. When `i = 2`:
+   - Valid starting prefix index = 0.
+   - Subarray = `[3, -2]`.
+   - Sum = `1`.
+   - Answer = `1`.
+2. When `i = 3`:
+   - Valid starting prefix indices = 0 and 1.
+   - Corresponding prefix values = `[0, 3]`.
+   - The largest value smaller than `2` is `0`.
+   - Sum = `2 - 0 = 2`.
+   - Answer remains `1`.
+3. When `i = 4`:
+   - Valid starting prefix indices = 1 and 2.
+   - Corresponding prefix values = `[3, 1]`.
+   - The largest value smaller than `6` is `3`.
+   - Sum = `6 - 3 = 3`.
+   - Answer remains `1`.
+
+Final Answer:
+
+`1`
+
+Time Complexity: O(N log N)
+
+- Building the prefix sum array takes O(N).
+- Each iteration performs multiset insertion, deletion, and searching.
+- Each multiset operation takes O(log N).
+- We process the array once.
+
+Therefore, total time complexity is O(N log N).
+
+Space Complexity: O(N)
+
+- Prefix sum array requires O(N) space.
+- Multiset can store at most O(N) elements.
+
+Therefore, total auxiliary space complexity is O(N).
+
+Important Points:
+
+1. Prefix sums help calculate any subarray sum in O(1) time.
+2. The valid starting prefix indices for an ending position `i` are from `i-r` to `i-l`.
+3. We need the largest prefix sum strictly smaller than the current prefix sum because we want the smallest positive subarray sum.
+4. `lower_bound()` is important here because it finds the first element greater than or equal to the current prefix sum. Moving one position backward gives the required strictly smaller value.
+5. We use a multiset instead of a set because multiple prefix sums can have the same value. We must remove only one occurrence when a prefix index leaves the sliding window.
+6. We use `long long` for prefix sums and calculations to avoid integer overflow.
+
+Key Concept: The main trick is to convert the minimum positive subarray sum problem into finding the largest valid prefix sum that is strictly smaller than the current prefix sum.
