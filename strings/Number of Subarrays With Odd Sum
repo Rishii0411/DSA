@@ -1,0 +1,150 @@
+2026-11-15|Number of Subarrays With Odd Sum
+
+Question:
+Given an array of integers `arr`, return the number of subarrays with an odd sum.
+Since the answer can be very large, return it modulo \\(10^9 + 7\\).
+
+Approach:
+1. Understand the prefix sum concept.
+
+   A prefix sum represents the sum of all elements from the beginning of the array up to a particular index.
+
+   The sum of a subarray from index `j` to index `i` can be calculated as:
+
+   `prefix[i] - prefix[j - 1]`
+2. Understand the parity property.
+
+   Every integer is either even or odd.
+
+   When we subtract two prefix sums:
+   - Even - Even = Even
+   - Odd - Odd = Even
+   - Even - Odd = Odd
+   - Odd - Even = Odd
+   Therefore, a subarray has an odd sum only when its two prefix sums have different parities.
+3. Maintain two counters.
+   - `even` = number of even prefix sums encountered.
+   - `odd` = number of odd prefix sums encountered.
+   Initially:
+   - `even = 1`, because the empty prefix has sum `0`, which is even.
+   - `odd = 0`.
+4. Traverse the array.
+
+   Maintain a variable `sum` representing the running prefix sum.
+
+   For every element:
+   - Add the current element to `sum`.
+   - If `sum` is odd, all previously encountered even prefix sums form odd-sum subarrays ending at the current position. Add `even` to the answer.
+   - If `sum` is even, all previously encountered odd prefix sums form odd-sum subarrays ending at the current position. Add `odd` to the answer.
+5. Update the parity counters.
+   - If the current prefix sum is odd, increment `odd`.
+   - Otherwise, increment `even`.
+6. Continue until all elements are processed.
+7. Return the answer modulo \\(10^9 + 7\\).
+
+Solution:
+
+```
+class Solution {
+public:
+    int numOfSubarrays(vector<int>& arr) {
+
+        const int MOD = 1e9 + 7;
+
+        long long even = 1;
+        long long odd = 0;
+
+        long long sum = 0;
+        long long ans = 0;
+
+        for (int x : arr) {
+
+            sum += x;
+
+            if (sum % 2 != 0) {
+                ans = (ans + even) % MOD;
+                odd++;
+            }
+            else {
+                ans = (ans + odd) % MOD;
+                even++;
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`arr = [1, 3, 5]`
+
+Initially:
+
+- `sum = 0`
+- `even = 1`
+- `odd = 0`
+- `ans = 0`
+
+| Element | Prefix Sum | Parity | Subarrays Added | even | odd | ans |
+| ------- | ---------- | ------ | --------------- | ---- | --- | --- |
+| 1       | 1          | Odd    | 1               | 1    | 1   | 1   |
+| 3       | 4          | Even   | 1               | 2    | 1   | 2   |
+| 5       | 9          | Odd    | 2               | 2    | 2   | 4   |
+
+Explanation:
+
+1. After processing `1`:
+   - Prefix sum = 1 (odd).
+   - There is one previous even prefix sum.
+   - So, we add 1 to the answer.
+2. After processing `3`:
+   - Prefix sum = 4 (even).
+   - There is one previous odd prefix sum.
+   - So, we add 1 to the answer.
+3. After processing `5`:
+   - Prefix sum = 9 (odd).
+   - There are two previous even prefix sums.
+   - So, we add 2 to the answer.
+
+All subarrays are:
+
+- `[1]` → Sum = 1 (Odd)
+- `[1, 3]` → Sum = 4 (Even)
+- `[1, 3, 5]` → Sum = 9 (Odd)
+- `[3]` → Sum = 3 (Odd)
+- `[3, 5]` → Sum = 8 (Even)
+- `[5]` → Sum = 5 (Odd)
+
+Odd-sum subarrays are:
+
+- `[1]`
+- `[1, 3, 5]`
+- `[3]`
+- `[5]`
+
+Final Answer: `4`
+
+Time Complexity: O(N)
+
+- We traverse the array exactly once.
+- Each element requires constant-time calculations and updates.
+- Therefore, the time complexity is O(N).
+
+Space Complexity: O(1)
+
+- We use only four variables: `sum`, `even`, `odd`, and `ans`.
+- No extra array or data structure is required.
+
+Important Points:
+
+1. A subarray has an odd sum when its starting and ending prefix sums have different parities.
+2. We initialize `even = 1` because the empty prefix has sum zero, which is even.
+3. If the current prefix sum is odd, add the count of previous even prefix sums.
+4. If the current prefix sum is even, add the count of previous odd prefix sums.
+5. We use modulo \\(10^9 + 7\\) to keep the answer within the required limit.
+
+Key Concept: Instead of checking every subarray, we count pairs of prefix sums having different parity. This reduces the solution from O(N²) to O(N).
