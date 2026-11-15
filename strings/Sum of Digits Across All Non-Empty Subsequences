@@ -1,0 +1,176 @@
+2026-11-15|Sum of Digits Across All Non-Empty Subsequences
+
+Question:
+
+Given a string `s` consisting of digits, find the sum of all digits across all non-empty subsequences of `s`.
+
+Return the answer modulo \\(10^9 + 7\\).
+
+Approach:
+
+We can solve this problem using combinatorics.
+
+The main observation is that instead of generating every possible subsequence, we can calculate how many times each digit appears across all subsequences.
+
+1. Understand how many subsequences are possible.
+
+   Suppose the string has `n` characters.
+
+   Each character has two choices:
+   - Include the character in the subsequence.
+   - Exclude the character from the subsequence.
+   Therefore, the total number of subsequences, including the empty subsequence, is:
+
+   \\[\
+   2^n\
+   \\]
+2. Find how many subsequences contain a particular digit.
+
+   Consider a digit at index `i`.
+
+   We have already decided to include this digit.
+
+   For every other character, we can independently choose whether to include or exclude it.
+
+   There are `n - 1` remaining characters.
+
+   Therefore, the number of subsequences containing this particular digit is:
+
+   \\[\
+   2^{n-1}\
+   \\]
+3. Calculate the contribution of each digit.
+
+   Suppose the digit at index `i` has value `d`.
+
+   Since it appears in exactly \\(2^{n-1}\\) subsequences, its total contribution is:
+
+   \\[\
+   d \times 2^{n-1}\
+   \\]
+4. Add the contribution of every digit.
+
+   If the digits are `s[0], s[1], ..., s[n-1]`, the answer becomes:
+
+   \\[\
+   (s[0] + s[1] + \cdots + s[n-1]) \times 2^{n-1}\
+   \\]
+5. Apply modulo.
+
+   Since the answer can be very large, calculate the power using modular exponentiation and perform multiplication modulo \\(10^9+7\\).
+6. Return the final answer.
+
+Solution:
+
+```
+class Solution {
+public:
+    long long mod = 1e9 + 7;
+
+    long long power(long long base, long long exp) {
+        long long result = 1;
+
+        while (exp > 0) {
+            if (exp % 2 == 1) {
+                result = (result * base) % mod;
+            }
+
+            base = (base * base) % mod;
+            exp /= 2;
+        }
+
+        return result;
+    }
+
+    int sumSubseq(string s) {
+        int n = s.size();
+
+        if (n == 0) {
+            return 0;
+        }
+
+        long long sum = 0;
+
+        // Calculate the sum of all digits
+        for (char ch : s) {
+            sum = (sum + (ch - '0')) % mod;
+        }
+
+        // Every digit appears in 2^(n-1) subsequences
+        long long ways = power(2, n - 1);
+
+        long long ans = (sum * ways) % mod;
+
+        return ans;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`s = "123"`
+
+Here, `n = 3`.
+
+All non-empty subsequences are:
+
+1. `"1"` → Sum = 1
+2. `"2"` → Sum = 2
+3. `"3"` → Sum = 3
+4. `"12"` → Sum = 1 + 2 = 3
+5. `"13"` → Sum = 1 + 3 = 4
+6. `"23"` → Sum = 2 + 3 = 5
+7. `"123"` → Sum = 1 + 2 + 3 = 6
+
+Total sum:
+
+\\[ 1+2+3+3+4+5+6=24 \\]
+
+Now calculate using our approach.
+
+Step 1: Calculate the sum of all digits.
+
+\\[ 1+2+3=6 \\]
+
+Step 2: Calculate the number of subsequences containing each digit.
+
+Each digit appears in:
+
+\\[ 2^{n-1}=2^{3-1}=4 \\]
+
+subsequences.
+
+Step 3: Calculate the total contribution.
+
+- Digit `1`: \\(1 \times 4 = 4\\)
+- Digit `2`: \\(2 \times 4 = 8\\)
+- Digit `3`: \\(3 \times 4 = 12\\)
+
+Step 4: Add all contributions.
+
+\\[ 4+8+12=24 \\]
+
+Final Answer: `24`
+
+Time Complexity: O(N + log N)
+
+- Calculating the sum of all digits takes O(N).
+- Calculating \\(2^{n-1}\\) using binary exponentiation takes O(log N).
+- Therefore, total time complexity is O(N + log N).
+
+Space Complexity: O(1)
+
+- We use only a few variables.
+- No additional array or data structure is required.
+
+Important Points:
+
+1. A string of length `n` has \\(2^n\\) subsequences, including the empty subsequence.
+2. Every individual character appears in exactly \\(2^{n-1}\\) subsequences.
+3. We do not need to generate all subsequences. We calculate the contribution of each digit directly.
+4. The empty subsequence does not affect the answer because it contains no digits.
+5. Binary exponentiation calculates \\(2^{n-1}\\) efficiently.
+
+Key Concept: Instead of generating exponentially many subsequences, calculate how many times each digit contributes to the final answer. This reduces the problem to O(N + log N) time.
