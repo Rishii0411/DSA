@@ -1,0 +1,109 @@
+2026-11-16|K-th Missing Positive Number
+
+Question:
+Find the 5th smallest positive integer that is not present in:
+
+`arr = [17, 14, 1, 10, 6, 16]`
+
+Approach:
+1. First, sort the array in increasing order.
+
+   Original array:
+
+   `[17, 14, 1, 10, 6, 16]`
+
+   Sorted array:
+
+   `[1, 6, 10, 14, 16, 17]`
+2. Now find the missing positive integers.
+
+   The natural number sequence is:
+
+   `1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, ...`
+
+   After removing the elements present in the array, we get:
+
+   `2, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, ...`
+3. Count the missing numbers:
+   - 1st missing = 2
+   - 2nd missing = 3
+   - 3rd missing = 4
+   - 4th missing = 5
+   - 5th missing = 7
+4. Therefore, the answer is `7`.
+
+Solution:
+
+```
+class Solution {
+public:
+    int findKthSmall(vector<int>& arr, int k) {
+
+        sort(arr.begin(), arr.end());
+
+        int n = arr.size();
+
+        int low = 0;
+        int high = n;
+
+        while (low < high) {
+
+            int mid = low + (high - low) / 2;
+
+            int missing = arr[mid] - (mid + 1);
+
+            if (missing < k) {
+                low = mid + 1;
+            }
+            else {
+                high = mid;
+            }
+        }
+
+        return low + k;
+    }
+};
+```
+
+Dry Run:
+
+Sorted array:
+
+`[1, 6, 10, 14, 16, 17]`
+
+`k = 5`
+
+| Index | arr[index] | Missing Numbers Before It |
+| ----- | ---------- | ------------------------- |
+| 0     | 1          | 0                         |
+| 1     | 6          | 4                         |
+| 2     | 10         | 7                         |
+| 3     | 14         | 10                        |
+| 4     | 16         | 11                        |
+| 5     | 17         | 11                        |
+
+Binary search finds `low = 2`.
+
+Therefore:
+
+`Answer = low + k`
+
+`Answer = 2 + 5 = 7`
+
+Final Answer: `7`
+
+Time Complexity:
+
+- Sorting: O(N log N)
+- Binary Search: O(log N)
+- Total: O(N log N)
+
+Space Complexity:
+
+\- O(1) auxiliary space if sorting is performed in-place (ignoring the sorting implementation's internal stack usage).
+
+Important Point:
+
+If the problem guarantees that the array is already sorted, you do not need `sort()`.
+
+But if the input can be unsorted, sort it before applying this binary search formula.
