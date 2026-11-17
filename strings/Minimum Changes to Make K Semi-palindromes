@@ -1,0 +1,347 @@
+2026-11-17|Minimum Changes to Make K Semi-palindromes
+
+Question:
+Given a string `s` and an integer `k`, partition `s` into exactly `k` substrings such that every substring becomes a semi-palindrome.
+
+Return the minimum number of character changes required.
+
+Important condition:
+
+\- Every substring must have a length of at least 2 because a string of length 1 does not have a valid proper divisor.
+
+Approach:
+We will divide the solution into two parts.
+
+Part 1: Precompute the minimum cost for every substring
+
+1\. Create a 2D array:
+
+`cost[i][j]`
+
+It represents the minimum number of character changes required to convert the substring `s[i...j]` into a semi-palindrome.
+
+2\. Consider every possible substring.
+
+&#x20;  Let its length be:
+
+`len = j - i + 1`
+
+3\. Find all proper divisors of its length.
+
+A divisor `d` is valid if:
+
+- `len % d == 0`
+- `d < len`
+
+&#x20;  For example, if the substring length is 6, possible divisors are:
+
+`d = 1, 2, 3`
+
+4\. For each valid divisor `d`, divide the substring into groups.
+
+Each group contains characters whose positions differ by `d`.
+
+&#x20;  For example:
+
+`s = "abcabc"`
+
+With `d = 3`:
+
+- Group 1 = `"aa"`
+- Group 2 = `"bb"`
+- Group 3 = `"cc"`
+
+5\. Calculate the changes required to make every group a palindrome.
+
+&#x20;  To convert a group into a palindrome, compare characters from both ends.
+
+- If both characters are equal, no change is required.
+- If they are different, one character must be changed.
+
+&#x20;  Therefore, every mismatched pair contributes exactly 1 operation.
+
+6\. Add the changes required by all groups.
+
+&#x20;  Repeat this process for every valid divisor.
+
+&#x20;  The minimum cost among all divisors becomes:
+
+`cost[i][j]`
+
+Part 2: Dynamic Programming to divide the string into exactly k substrings
+
+Now that we know the conversion cost of every substring, we can use DP to find the minimum total cost.
+
+1\. Define the DP state:
+
+`dp[p][i]`
+
+It represents the minimum number of changes required to divide the first `i` characters of the string into exactly `p` semi-palindromic substrings.
+
+2\. Initialize the DP array.
+
+&#x20;  Initially, all states are set to infinity.
+
+&#x20;  The base condition is:
+
+`dp[0][0] = 0`
+
+&#x20;  This means that zero characters can be divided into zero substrings with zero operations.
+
+3\. Try every possible number of substrings.
+
+For each `p` from 1 to `k`, consider every possible ending position `i`.
+
+4\. Try every possible starting position `j` for the last substring.
+
+&#x20;  The last substring will be:
+
+`s[j...i-1]`
+
+&#x20;  Its conversion cost is:
+
+`cost[j][i-1]`
+
+5\. Apply the DP transition:
+
+\\[ dp[p][i] = \min\_{j} \left(dp[p-1][j] + cost[j][i-1]\right) \\]
+
+&#x20;  Here:
+
+- `dp[p-1][j]` represents the minimum cost of dividing the previous `j` characters into `p-1` substrings.
+- `cost[j][i-1]` represents the cost of converting the last substring into a semi-palindrome.
+
+6\. Make sure every substring has at least 2 characters.
+
+&#x20;  Therefore, the starting position must satisfy:
+
+`j <= i - 2`
+
+7\. After processing all states, return:
+
+`dp[k][n]`
+
+This gives the minimum changes required to divide the complete string into exactly `k` semi-palindromic substrings.
+
+Solution:
+
+```
+
+class Solution {
+public:
+    int minimumChanges(string s, int k) {
+
+        int n = s.size();
+
+        const int INF = 1e9;
+
+        // Part 1: Precompute the cost of every substring
+        vector<vector<int>> cost(n, vector<int>(n, INF));
+
+        for (int i = 0; i < n; i++) {
+
+            for (int j = i + 1; j < n; j++) {
+
+                int len = j - i + 1;
+
+                // Try every proper divisor
+                for (int d = 1; d < len; d++) {
+
+                    if (len % d != 0) {
+                        continue;
+                    }
+
+                    int changes = 0;
+
+                    // Check each group formed using divisor d
+                    for (int r = 0; r < d; r++) {
+
+                        int groupSize = len / d;
+
+                        // Compare symmetric characters
+                        for (int x = 0; x < groupSize / 2; x++) {
+
+                            int left = i + r + x * d;
+
+                            int right = i + r +
+                                        (groupSize - 1 - x) * d;
+
+                            if (s[left] != s[right]) {
+                                changes++;
+                            }
+                        }
+                    }
+
+                    cost[i][j] = min(cost[i][j], changes);
+                }
+            }
+        }
+
+        // Part 2: Dynamic Programming
+        vector<vector<int>> dp(
+            k + 1,
+            vector<int>(n + 1, INF)
+        );
+
+        // Base condition
+        dp[0][0] = 0;
+
+        for (int p = 1; p <= k; p++) {
+
+            // At least 2 characters are needed per substring
+            for (int i = 2 * p; i <= n; i++) {
+
+                // Starting position of the last substring
+                for (int j = 2 * (p - 1); j <= i - 2; j++) {
+
+                    if (dp[p - 1][j] == INF) {
+                        continue;
+                    }
+
+                    dp[p][i] = min(
+                        dp[p][i],
+                        dp[p - 1][j] + cost[j][i - 1]
+                    );
+                }
+            }
+        }
+
+        return dp[k][n];
+    }
+};
+
+```
+
+Dry Run:
+
+Consider:
+
+`s = "abcabc"`
+
+`k = 1`
+
+Here:
+
+- String length = 6
+- We need exactly one substring.
+- Therefore, the entire string must become a semi-palindrome.
+
+Step 1: Find the possible divisors.
+
+Length = 6
+
+Valid divisors:
+
+`1, 2, 3`
+
+Step 2: Calculate the cost for each divisor.
+
+For `d = 1`:
+
+Group:
+
+`"abcabc"`
+
+Compare symmetric characters:
+
+- `a` and `c` → Different
+- `b` and `b` → Same
+- `c` and `a` → Different
+
+Changes required = 2.
+
+For `d = 2`:
+
+Groups:
+
+- `"acb"`
+- `"bac"`
+
+For `"acb"`:
+
+\- `a` and `b` → Different
+
+For `"bac"`:
+
+\- `b` and `c` → Different
+
+Changes required = 2.
+
+For `d = 3`:
+
+Groups:
+
+- `"aa"`
+- `"bb"`
+- `"cc"`
+
+All groups are already palindromes.
+
+Changes required = 0.
+
+Step 3: Find the minimum cost.
+
+| Divisor | Groups     | Changes Required |
+| ------- | ---------- | ---------------- |
+| 1       | abcabc     | 2                |
+| 2       | acb, bac   | 2                |
+| 3       | aa, bb, cc | 0                |
+
+Therefore:
+
+`cost[0][5] = 0`
+
+Step 4: Perform DP.
+
+Since `k = 1`, we need only one substring.
+
+The DP transition becomes:
+
+`dp[1][6] = dp[0][0] + cost[0][5]`
+
+`dp[1][6] = 0 + 0`
+
+Final Answer: `0`
+
+Time Complexity:
+
+Let `N` be the length of the string.
+
+1\. Precomputation:
+
+- We consider O(N²) substrings.
+- For each substring, we check its possible divisors.
+- For each divisor, we compare approximately half of the substring's characters.
+- The overall upper-bound complexity is O(N³ log N).
+
+2\. Dynamic Programming:
+
+- There are `k × N` DP states.
+- Each state considers up to N possible starting positions.
+- Therefore, DP takes O(k × N²).
+
+Overall Time Complexity:
+
+O(N³ log N + k × N²)
+
+Space Complexity: O(N²)
+
+- The cost matrix requires O(N²) space.
+- The DP table requires O(k × N) space.
+- Since `k <= N`, the total space complexity is O(N²).
+
+Important Points:
+
+1\. A semi-palindrome must have a valid divisor `d` smaller than its substring length.
+
+2\. Every group formed using divisor `d` must independently be a palindrome.
+
+3\. If two symmetric characters are different, only one character needs to be changed. Therefore, each mismatched pair contributes one operation.
+
+4\. We precompute the cost of every substring so that DP can access each conversion cost in O(1).
+
+5\. Every partition must contain exactly `k` substrings.
+
+6\. Every substring must have a minimum length of 2. Therefore, if `2 * k > n`, the problem has no valid partition. The provided DP naturally returns `INF` in that case; LeetCode's constraints guarantee a valid partition.
+
+Key Concept: This problem combines two levels of Dynamic Programming. First, calculate the minimum cost of converting every substring into a semi-palindrome. Then use partition DP to find the minimum total cost of dividing the complete string into exactly `k` valid substrings.
