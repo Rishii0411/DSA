@@ -1,0 +1,127 @@
+2026-11-17|Check Whether String Follows the Pattern xⁿyⁿ
+
+Question:
+Given a string `s` made up of characters `'x'` and `'y'`, verify whether it can be formed by concatenating substrings that follow the pattern `xⁿyⁿ`, where `n` is a positive integer.
+
+Approach:
+We can solve this problem using simple string traversal and counting.
+
+1. Initialize an index `i = 0` to traverse the string.
+2. Start processing a new substring.
+   - First, count consecutive `'x'` characters.
+   - If there are no `'x'` characters, the string is invalid because every valid substring must start with at least one `'x'`.
+3. After counting the `'x'` characters, count consecutive `'y'` characters.
+4. Compare both counts.
+   - If the number of `'x'` characters is equal to the number of `'y'` characters, the current substring is valid.
+   - Otherwise, return `false`.
+5. Repeat the same process until the entire string is traversed.
+6. If every substring follows the required pattern, return `true`.
+
+Solution:
+class Solution {
+public:
+    bool isValid(string s) {
+        int n = s.size();
+        int i = 0;
+
+        if (n == 0) {
+            return false;
+        }
+
+        while (i < n) {
+
+            int countX = 0;
+            int countY = 0;
+
+            // Count consecutive x characters
+            while (i < n && s[i] == 'x') {
+                countX++;
+                i++;
+            }
+
+            // At least one x must be present
+            if (countX == 0) {
+                return false;
+            }
+
+            // Count consecutive y characters
+            while (i < n && s[i] == 'y') {
+                countY++;
+                i++;
+            }
+
+            // Both counts must be equal
+            if (countX != countY) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`s = "xyxxyy"`
+
+Initially, `i = 0`.
+
+First substring:
+
+- Count `'x'` → 1
+- Count `'y'` → 1
+- Both counts are equal.
+- First substring = `"xy"`.
+
+Second substring:
+
+- Count `'x'` → 2
+- Count `'y'` → 2
+- Both counts are equal.
+- Second substring = `"xxyy"`.
+
+The entire string has been processed successfully.
+
+Final Answer: `true`
+
+Consider another example:
+
+`s = "xxyyxy"`
+
+First substring:
+
+- Count `'x'` → 2
+- Count `'y'` → 2
+- Valid substring = `"xxyy"`.
+
+Second substring:
+
+- Count `'x'` → 1
+- Count `'y'` → 1
+- Valid substring = `"xy"`.
+
+Final Answer: `true`
+
+Time Complexity: O(N)
+
+- Every character is visited exactly once.
+- Each character is processed either while counting `'x'` or while counting `'y'`.
+- Therefore, time complexity is O(N).
+
+Space Complexity: O(1)
+
+- We use only a few variables: `i`, `countX`, and `countY`.
+- No additional data structure is required.
+
+Important Points:
+
+1. Every valid substring must start with at least one `'x'`.
+2. All `'x'` characters must appear before the `'y'` characters in that substring.
+3. Each substring must contain an equal number of `'x'` and `'y'` characters.
+4. Multiple valid substrings can be concatenated together.
+5. An empty string is considered invalid in the provided implementation because the pattern requires at least one substring.
+
+Key Concept: Divide the string into consecutive groups of `'x'` characters followed by `'y'` characters. If every group has equal counts of both characters, the string follows the required pattern.
