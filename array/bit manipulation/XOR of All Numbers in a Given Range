@@ -1,0 +1,118 @@
+2026-11-18|XOR of All Numbers in a Given Range
+
+Question:
+Given two integers `l` and `r`, find the bitwise XOR of all integers in the range `[l, r]`, including both endpoints.
+
+Approach:
+1. Understand the XOR prefix pattern.
+
+   Define:
+
+   `xorTill(n) = 0 ^ 1 ^ 2 ^ ... ^ n`
+
+   The result follows a repeating pattern based on `n % 4`:
+   - If `n % 4 == 0`, result = `n`
+   - If `n % 4 == 1`, result = `1`
+   - If `n % 4 == 2`, result = `n + 1`
+   - If `n % 4 == 3`, result = `0`
+2. Why does this pattern repeat?
+
+   XOR of four consecutive values follows a predictable pattern. Every group of four numbers produces a result that allows the prefix XOR to repeat its four-case behavior.
+3. Calculate the XOR of the required range.
+
+   We want:
+
+   `l ^ (l + 1) ^ ... ^ r`
+
+   First calculate:
+
+   `xorTill(r) = 0 ^ 1 ^ ... ^ r`
+
+   Then remove the XOR contribution of all numbers before `l`:
+
+   `xorTill(l - 1) = 0 ^ 1 ^ ... ^ (l - 1)`
+
+   Since XOR of the same value twice becomes zero, the required answer is:
+
+   `xorTill(r) ^ xorTill(l - 1)`
+4. Return the result.
+
+Solution:
+
+```
+class Solution {
+public:
+    int xorTill(int n) {
+
+        if (n % 4 == 0) {
+            return n;
+        }
+        else if (n % 4 == 1) {
+            return 1;
+        }
+        else if (n % 4 == 2) {
+            return n + 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    int findXOR(int l, int r) {
+        return xorTill(r) ^ xorTill(l - 1);
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`l = 2, r = 5`
+
+We need:
+
+`2 ^ 3 ^ 4 ^ 5`
+
+Step 1: Calculate `xorTill(5)`.
+
+Since `5 % 4 = 1`:
+
+`xorTill(5) = 1`
+
+Step 2: Calculate `xorTill(1)`.
+
+Since `1 % 4 = 1`:
+
+`xorTill(1) = 1`
+
+Step 3: Calculate the range XOR.
+
+`Answer = xorTill(5) ^ xorTill(1)`
+
+`Answer = 1 ^ 1`
+
+`Answer = 0`
+
+Final Answer: `0`
+
+Correction to the example above: The direct calculation is `2 ^ 3 ^ 4 ^ 5 = 0`, not `2`.
+
+Time Complexity: O(1)
+
+- We calculate two prefix XOR values.
+- Each calculation uses a constant number of conditions.
+- No loop is required.
+
+Space Complexity: O(1)
+
+- We use only a few integer variables.
+- No additional data structure is required.
+
+Important Points:
+
+1. XOR of a number with itself is zero: `a ^ a = 0`.
+2. XOR of a number with zero is the number itself: `a ^ 0 = a`.
+3. The prefix XOR pattern repeats every four numbers.
+4. To find the XOR from `l` to `r`, use `xorTill(r) ^ xorTill(l - 1)`.
+5. The solution works in constant time, regardless of how large the range is.
