@@ -1,0 +1,105 @@
+2026-11-18|Minimum Changes to Make Binary String Beautiful
+
+Question:
+Given a 0-indexed binary string `s` of even length, find the minimum number of character changes required to make it beautiful.
+
+Approach:
+The main observation is that every valid substring has an even length.
+
+Therefore, its characters can be divided into consecutive pairs:
+
+`(s[0], s[1]), (s[2], s[3]), (s[4], s[5]), ...`
+
+For the string to be beautiful, both characters in every pair must be equal.
+
+Why is checking pairs sufficient?
+
+- If every pair contains equal characters, we can make each pair a separate substring of length 2.
+- Every such substring has an even length and contains only one type of character.
+- Therefore, the complete string is beautiful.
+
+We can solve this problem greedily.
+
+1. Initialize a variable `changes = 0`.
+2. Traverse the string using jumps of 2.
+3. Compare the characters at positions `i` and `i + 1`.
+4. If both characters are equal:
+   - No change is required.
+5. If both characters are different:
+   - Change either character to match the other.
+   - Increase `changes` by 1.
+6. Continue until all pairs have been checked.
+7. Return `changes`.
+
+Solution:
+
+```
+class Solution {
+public:
+    int minChanges(string s) {
+        int changes = 0;
+
+        for (int i = 0; i < s.length(); i += 2) {
+
+            if (s[i] != s[i + 1]) {
+                changes++;
+            }
+        }
+
+        return changes;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`s = "100101"`
+
+Divide the string into pairs:
+
+`(1, 0) | (0, 1) | (0, 1)`
+
+| Pair | Characters | Condition | Changes |
+| ---- | ---------- | --------- | ------- |
+| 1    | (1, 0)     | Different | 1       |
+| 2    | (0, 1)     | Different | 1       |
+| 3    | (0, 1)     | Different | 1       |
+
+Total changes:
+
+`1 + 1 + 1 = 3`
+
+One possible beautiful string is:
+
+`"110000"`
+
+We can partition it as:
+
+`"11" | "00" | "00"`
+
+Every substring has an even length and contains identical characters.
+
+Final Answer: `3`
+
+Time Complexity: O(N)
+
+- We traverse half of the string because we process two characters in each iteration.
+- Every pair is checked exactly once.
+- Therefore, the time complexity is O(N).
+
+Space Complexity: O(1)
+
+- We use only one variable, `changes`.
+- No additional data structure is required.
+
+Important Points:
+
+1. The string length is guaranteed to be even.
+2. Every valid partition must have even-length substrings.
+3. Checking consecutive pairs is sufficient because each pair can independently become a valid substring of length 2.
+4. If both characters in a pair are different, exactly one change is necessary.
+5. If both characters are already equal, no change is needed.
+
+Key Concept: Instead of trying every possible partition, divide the string into fixed consecutive pairs. Making every pair equal is both necessary and sufficient to make the complete string beautiful.
