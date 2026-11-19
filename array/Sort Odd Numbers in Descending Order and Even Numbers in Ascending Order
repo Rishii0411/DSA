@@ -1,0 +1,101 @@
+2026-11-19|Sort Odd Numbers in Descending Order and Even Numbers in Ascending Order
+
+Question:
+Given an array `arr[]` of non-negative integers, rearrange it so that the first part contains odd numbers in descending order and the remaining part contains even numbers in ascending order.
+
+Approach:
+We can solve this problem using the built-in `sort()` function with a custom comparator.
+
+1. Understand the parity of numbers.
+
+   A number is odd if `number % 2 != 0`.
+
+   A number is even if `number % 2 == 0`.
+2. Define the sorting rules.
+
+   We need three conditions:
+   - If one number is odd and the other is even, the odd number should come first.
+   - If both numbers are odd, the larger number should come first.
+   - If both numbers are even, the smaller number should come first.
+3. Create a custom comparator.
+
+   The comparator decides which element should appear before another element.
+   - If their parities are different, return `true` when the first number is odd.
+   - If both are odd, return `a > b`.
+   - If both are even, return `a < b`.
+4. Apply sorting.
+
+   Pass the array and comparator to `sort()`.
+5. Return the sorted array.
+
+Solution:
+
+```
+class Solution {
+public:
+    void sortIt(vector<int>& arr) {
+        sort(arr.begin(), arr.end(), [](int a, int b) {
+
+            // Odd numbers should come before even numbers.
+            if (a % 2 != b % 2) {
+                return a % 2 != 0;
+            }
+
+            // Sort odd numbers in descending order.
+            if (a % 2 != 0) {
+                return a > b;
+            }
+
+            // Sort even numbers in ascending order.
+            return a < b;
+        });
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`arr = [4, 7, 2, 9, 6, 3, 8, 5]`
+
+First, separate the numbers based on parity:
+
+- Odd numbers: `[7, 9, 3, 5]`
+- Even numbers: `[4, 2, 6, 8]`
+
+Now sort them according to the required order:
+
+- Odd numbers in descending order: `[9, 7, 5, 3]`
+- Even numbers in ascending order: `[2, 4, 6, 8]`
+
+Combine both parts:
+
+`[9, 7, 5, 3, 2, 4, 6, 8]`
+
+Final Answer:
+
+`[9, 7, 5, 3, 2, 4, 6, 8]`
+
+Time Complexity: O(N log N)
+
+- The `sort()` function takes O(N log N) time for an array of N elements.
+- The custom comparator performs constant-time operations.
+- Therefore, the overall time complexity is O(N log N).
+
+Space Complexity: O(log N) auxiliary space
+
+- The sorting algorithm may use O(log N) stack space internally.
+- The comparator itself uses O(1) extra space.
+
+Important Points:
+
+1. Odd numbers must always appear before even numbers.
+2. Odd numbers are sorted in descending order.
+3. Even numbers are sorted in ascending order.
+4. The custom comparator handles all three conditions in one sorting operation.
+5. This approach does not require separate odd and even arrays.
+
+Key Concept:
+
+A custom comparator allows us to define our own sorting order. Here, we first prioritize odd numbers, then apply descending order to odd numbers and ascending order to even numbers.
