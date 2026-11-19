@@ -1,0 +1,164 @@
+2026-11-19|Minimum Score After Changing Two Elements
+
+Question:
+Given an integer array `nums`, change exactly two elements (or at most two, depending on the problem statement's convention) and return the minimum possible sum of the minimum and maximum absolute differences between any two elements.
+
+Approach:
+We can solve this problem using sorting and greedy observation.
+
+1. Sort the array.
+
+   After sorting, the elements are arranged in increasing order.
+
+   For example:
+
+   `nums = [1, 5, 6, 14, 15]`
+
+   After sorting:
+
+   `nums = [1, 5, 6, 14, 15]`
+2. Understand the high score.
+
+   The maximum absolute difference is always:
+
+   `nums[n - 1] - nums[0]`
+
+   This is because the largest difference in a sorted array is between its largest and smallest elements.
+3. Understand the low score.
+
+   The minimum absolute difference is the smallest difference between two consecutive elements in the sorted array.
+
+   Therefore, the low score is:
+
+   `min(nums[i] - nums[i - 1])`
+4. Consider the three possible cases.
+
+   Since we can change two elements, we can remove the effect of two elements from the sorted array.
+
+   The best result can be obtained by considering these three possibilities:
+   - Change the two smallest elements.
+   - Change the smallest and largest elements.
+   - Change the two largest elements.
+   After sorting, these cases correspond to the following remaining ranges:
+
+   Case 1: Keep elements from index `2` to `n-1`.
+
+   Case 2: Keep elements from index `1` to `n-2`.
+
+   Case 3: Keep elements from index `0` to `n-3`.
+5. Calculate the range for each case.
+
+   For each case, calculate:
+
+   `nums[right] - nums[left]`
+
+   The minimum of these three values is the answer.
+6. Handle small arrays.
+
+   If the array contains four or fewer elements, we can change two elements so that all remaining elements become equal. The minimum score is therefore `0`.
+
+Solution:
+
+```
+class Solution {
+public:
+    int minDifference(vector<int>& nums) {
+        int n = nums.size();
+
+        if (n <= 4) {
+            return 0;
+        }
+
+        sort(nums.begin(), nums.end());
+
+        int ans = INT_MAX;
+
+        ans = min(ans, nums[n - 1] - nums[2]);
+
+        ans = min(ans, nums[n - 2] - nums[1]);
+
+        ans = min(ans, nums[n - 3] - nums[0]);
+
+        return ans;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`nums = [1, 5, 6, 14, 15, 20]`
+
+The array is already sorted.
+
+Number of elements:
+
+`n = 6`
+
+Now consider all three cases.
+
+Case 1: Change the two smallest elements.
+
+Remaining elements:
+
+`[6, 14, 15, 20]`
+
+Range:
+
+`20 - 6 = 14`
+
+Case 2: Change the smallest and largest elements.
+
+Remaining elements:
+
+`[5, 6, 14, 15]`
+
+Range:
+
+`15 - 5 = 10`
+
+Case 3: Change the two largest elements.
+
+Remaining elements:
+
+`[1, 5, 6, 14]`
+
+Range:
+
+`14 - 1 = 13`
+
+Compare the three results:
+
+- Case 1: 14
+- Case 2: 10
+- Case 3: 13
+
+Minimum score:
+
+`min(14, 10, 13) = 10`
+
+Final Answer: `10`
+
+Time Complexity: O(N log N)
+
+- Sorting the array takes O(N log N).
+- Checking the three possible cases takes O(1).
+- Therefore, total time complexity is O(N log N).
+
+Space Complexity: O(log N)
+
+- The sorting operation may require O(log N) auxiliary stack space.
+- Apart from sorting, we use only a constant amount of extra space.
+
+Important Points:
+
+1. Sorting makes it easy to identify the smallest and largest elements.
+2. The high score is the difference between the largest and smallest remaining elements.
+3. We only need to consider three possible ways of keeping the remaining elements.
+4. If `n <= 4`, the answer is `0`.
+5. The solution modifies the input array by sorting it.
+
+Key Concept:
+
+When two elements can be changed, think about which elements should be ignored to minimize the range of the remaining elements. After sorting, only three possible ranges need to be checked.
