@@ -1,0 +1,140 @@
+2026-11-20|Minimum Flips to Make a Binary String Alternating
+
+Question:
+
+Given a binary string `s`, find the minimum number of bit flips required to make it alternating, where no two adjacent characters are the same.
+
+Approach:
+
+1. Understand the two possible patterns.
+
+   An alternating string must start with either `0` or `1`.
+
+   If it starts with `0`, the pattern will be:
+
+   `010101...`
+
+   If it starts with `1`, the pattern will be:
+
+   `101010...`
+2. Initialize two counters.
+   - `flip1` counts the changes required to convert the string into `010101...`.
+   - `flip2` counts the changes required to convert the string into `101010...`.
+3. Traverse the string.
+
+   For every index `i`:
+   - In the first pattern, the expected character is `0` at even indices and `1` at odd indices.
+   - In the second pattern, the expected character is `1` at even indices and `0` at odd indices.
+4. Count the mismatches.
+
+   If the current character does not match the expected character, increment the corresponding flip counter.
+5. Find the minimum.
+
+   Return:
+
+   `min(flip1, flip2)`
+
+   This gives the minimum flips because every alternating string must follow one of these two patterns.
+
+Solution:
+
+```
+class Solution {
+public:
+    int minFlips(string s) {
+        int flip1 = 0;
+        int flip2 = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+
+            // Expected pattern: 010101...
+            if (s[i] != (i % 2 == 0 ? '0' : '1')) {
+                flip1++;
+            }
+
+            // Expected pattern: 101010...
+            if (s[i] != (i % 2 == 0 ? '1' : '0')) {
+                flip2++;
+            }
+        }
+
+        return min(flip1, flip2);
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`s = "001011"`
+
+Initially:
+
+`flip1 = 0`, `flip2 = 0`
+
+We compare the string with both possible alternating patterns.
+
+| Index | Actual | Pattern 1 (010101) | Pattern 2 (101010) |
+| ----- | ------ | ------------------ | ------------------ |
+| 0     | 0      | 0                  | 1                  |
+| 1     | 0      | 1                  | 0                  |
+| 2     | 1      | 0                  | 1                  |
+| 3     | 0      | 1                  | 0                  |
+| 4     | 1      | 0                  | 1                  |
+| 5     | 1      | 1                  | 0                  |
+
+For Pattern 1 (`010101`):
+
+- Index 0: Match.
+- Index 1: Mismatch.
+- Index 2: Mismatch.
+- Index 3: Mismatch.
+- Index 4: Mismatch.
+- Index 5: Match.
+
+Total flips required: `4`
+
+For Pattern 2 (`101010`):
+
+- Index 0: Mismatch.
+- Index 1: Match.
+- Index 2: Match.
+- Index 3: Match.
+- Index 4: Match.
+- Index 5: Mismatch.
+
+Total flips required: `2`
+
+Therefore:
+
+`min(4, 2) = 2`
+
+One possible result is:
+
+`101010`
+
+Final Answer: `2`
+
+Time Complexity: O(N)
+
+- We traverse the string once.
+- At each index, we perform two constant-time comparisons.
+- Therefore, the total time complexity is O(N), where N is the length of the string.
+
+Space Complexity: O(1)
+
+- We use only two counters.
+- No additional array or string is required.
+
+Important Points:
+
+1. An alternating binary string has only two possible patterns: `010101...` and `101010...`.
+2. We must check both patterns because either one might require fewer flips.
+3. Each mismatch requires exactly one bit flip.
+4. We do not need to modify the original string.
+5. The solution works for both even-length and odd-length strings.
+
+Key Concept:
+
+Instead of trying different combinations of bit flips, compare the given string with the only two possible alternating patterns. Count the mismatches in both and choose the smaller count.
