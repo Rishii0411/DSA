@@ -1,0 +1,128 @@
+2026-11-20|Maximum Number of Consecutive Elements After Increments
+
+Question:
+Given a 0-indexed array `nums` of positive integers, where each element can be increased by at most 1, return the maximum number of elements that can be selected so that their final values form a consecutive sequence.
+
+Approach:
+We can solve this problem using a greedy approach.
+
+1. Sort the array.
+
+   Sorting makes it easier to process smaller values before larger values.
+2. Try to build a consecutive sequence.
+
+   We want to select elements whose final values look like:
+
+   `x, x+1, x+2, x+3, ...`
+3. Use a greedy strategy.
+
+   For every element, we have two choices:
+   - Keep its original value.
+   - Increase it by 1.
+   Since we process the array in sorted order, we can choose the smallest possible final value that is greater than the previously selected value.
+4. Avoid duplicate final values.
+
+   If the current element cannot produce a value greater than the previous selected value, skip it.
+5. Count selected elements.
+
+   Each time we successfully choose a value, increase the count.
+6. Return the count.
+
+   The greedy choice works because selecting the smallest possible valid value leaves more room for later elements.
+
+Solution:
+
+```
+class Solution {
+public:
+    int maxSelectedElements(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+
+        int last = -1;
+        int count = 0;
+
+        for (int x : nums) {
+            if (x > last) {
+                last = x;
+                count++;
+            }
+            else if (x + 1 > last) {
+                last = x + 1;
+                count++;
+            }
+        }
+
+        return count;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`nums = [2, 1, 5, 1, 5]`
+
+Step 1: Sort the array.
+
+`nums = [1, 1, 2, 5, 5]`
+
+Initially:
+
+`last = -1`
+
+`count = 0`
+
+| Current element | Selected final value | Explanation     | Count |
+| --------------- | -------------------- | --------------- | ----- |
+| 1               | 1                    | Keep 1          | 1     |
+| 1               | 2                    | Increase 1 to 2 | 2     |
+| 2               | 3                    | Increase 2 to 3 | 3     |
+| 5               | 5                    | Keep 5          | 4     |
+| 5               | 6                    | Increase 5 to 6 | 5     |
+
+The selected final values are:
+
+`[1, 2, 3, 5, 6]`
+
+This example shows the greedy choices, but the selected values must form one consecutive sequence. The above sequence has a gap, so the algorithm needs to track consecutive sequence lengths rather than simply count all increasing values.
+
+The correct greedy solution uses dynamic programming after sorting.
+
+Corrected Solution:
+
+```
+class Solution {
+public:
+    int maxSelectedElements(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+
+        unordered_map<int, int> dp;
+        int ans = 0;
+
+        for (int x : nums) {
+            dp[x + 1] = max(dp[x + 1], dp[x] + 1);
+            dp[x] = max(dp[x], dp[x - 1] + 1);
+
+            ans = max({ans, dp[x], dp[x + 1]});
+        }
+
+        return ans;
+    }
+};
+```
+
+Time Complexity: O(N log N)
+
+- Sorting takes O(N log N).
+- The DP processing takes O(N) expected time using the hash map.
+- Therefore, the overall expected time complexity is O(N log N).
+
+Space Complexity: O(N)
+
+- The hash map stores the lengths of consecutive sequences ending at different values.
+- In the worst case, it stores O(N) entries.
+
+Key Concept:
+
+Sorting helps process elements in increasing order. Dynamic programming tracks the longest consecutive sequence that can be formed by keeping or incrementing each element by one.
