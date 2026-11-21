@@ -1,0 +1,140 @@
+2026-11-21|Smallest Subarray With Sum Greater Than X
+
+Question:
+Given an integer `x` and an array of integers `arr[]`, find the length of the smallest subarray whose sum is strictly greater than `x`.
+
+Approach:
+We can solve this problem using the Sliding Window technique.
+
+Important assumption: The standard sliding-window approach works when all array elements are non-negative. If negative numbers are allowed, we need a different approach using prefix sums and a monotonic deque.
+
+1. Initialize two pointers:
+   - `left = 0` represents the starting position of the window.
+   - `right` traverses the array and represents the ending position.
+2. Initialize:
+   - `sum = 0` to store the current window sum.
+   - `minLength = INT_MAX` to store the smallest valid subarray length.
+3. Expand the window.
+
+   Add `arr[right]` to the current sum as we move the right pointer forward.
+4. Check whether the current sum is greater than `x`.
+
+   If `sum > x`, we have found a valid subarray.
+5. Try to minimize its length.
+
+   Calculate:
+
+   `right - left + 1`
+
+   Update `minLength` if this length is smaller.
+6. Shrink the window.
+
+   Remove `arr[left]` from the sum and move `left` forward.
+
+   Continue shrinking while the sum remains greater than `x`.
+
+   This helps us find the smallest valid window ending at the current right position.
+7. Repeat until the right pointer reaches the end of the array.
+8. Return `minLength`.
+
+   If `minLength` is still `INT_MAX`, no valid subarray exists, so return `0`.
+
+Solution:
+
+```
+class Solution {
+public:
+    int smallestSubWithSum(int x, vector<int>& arr) {
+        int n = arr.size();
+
+        int left = 0;
+        int sum = 0;
+        int minLength = INT_MAX;
+
+        for (int right = 0; right < n; right++) {
+            sum += arr[right];
+
+            while (sum > x) {
+                minLength = min(minLength, right - left + 1);
+
+                sum -= arr[left];
+                left++;
+            }
+        }
+
+        return minLength == INT_MAX ? 0 : minLength;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`arr = [1, 4, 45, 6, 0, 19]`
+
+`x = 51`
+
+Initially:
+
+`left = 0`
+
+`sum = 0`
+
+`minLength = INT_MAX`
+
+| Right | Added element | Current window | Sum | Action            |
+| ----- | ------------- | -------------- | --- | ----------------- |
+| 0     | 1             | [1]            | 1   | Expand            |
+| 1     | 4             | [1, 4]         | 5   | Expand            |
+| 2     | 45            | [1, 4, 45]     | 50  | Expand            |
+| 3     | 6             | [1, 4, 45, 6]  | 56  | Valid, length = 4 |
+
+Now shrink the window:
+
+- Remove 1. The remaining window is `[4, 45, 6]`.
+- Its sum is 55, which is still greater than 51.
+- Update minimum length to 3.
+- Remove 4. The remaining window is `[45, 6]`.
+- Its sum is 51, which is not strictly greater than 51, so stop shrinking.
+
+Continue expanding:
+
+- Add 0. Sum becomes 51.
+- Add 19. Sum becomes 70.
+- The window `[45, 6, 0, 19]` is valid, with length 4.
+- Shrink it to `[6, 0, 19]`, whose sum is 25. Stop shrinking.
+
+The smallest valid subarray found is:
+
+`[4, 45, 6]`
+
+Its length is 3.
+
+Final Answer: `3`
+
+Time Complexity: O(N)
+
+- The right pointer traverses the array once.
+- The left pointer also moves forward at most N times.
+- Although there is a `while` loop inside the `for` loop, each element is added and removed at most once.
+- Therefore, the total time complexity is O(N).
+
+Space Complexity: O(1)
+
+- We use only a few variables.
+- No additional array or data structure is required.
+
+Important Points:
+
+1. A subarray must contain consecutive elements.
+2. The sum must be strictly greater than `x`, not equal to `x`.
+3. We shrink the window whenever its sum becomes greater than `x`.
+4. This approach is valid when all array elements are non-negative.
+5. If no valid subarray exists, return `0`.
+
+Key Concept:
+
+Sliding Window helps find the smallest valid continuous subarray efficiently. We expand the window to make its sum greater than `x`, then shrink it as much as possible while keeping the sum greater than `x`.
+
+Note: If the problem allows negative array elements, tell me or share the constraints. The sliding-window solution above would not be correct for arrays containing negative values.
