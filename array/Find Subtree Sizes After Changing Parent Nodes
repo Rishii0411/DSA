@@ -1,0 +1,260 @@
+2026-11-21|Find Subtree Sizes After Changing Parent Nodes
+
+
+Question:
+Given:
+- An array `parent`, where `parent[i]` represents the parent of node `i`.
+- A string `s`, where `s[i]` represents the character assigned to node `i`.
+
+Return an array `answer`, where `answer[i]` is the number of nodes in the final subtree rooted at node `i`, including node `i` itself.
+
+Approach:
+
+We can solve this problem using two DFS traversals.
+
+The important part is that we must determine every node's new parent using the original tree. We should not modify the tree while searching for matching ancestors.
+
+Step 1: Build the original tree.
+
+The `parent` array represents the tree.
+
+Create an adjacency list called `children`.
+
+For every node `i` from `1` to `n-1`, add `i` to the children of `parent[i]`.
+
+For example:
+
+`parent = [-1, 0, 0, 1, 1]`
+
+The tree looks like:
+
+```
+        0
+       / \
+      1   2
+     / \
+    3   4
+```
+
+Step 2: Find the closest matching ancestor using DFS.
+
+We need to find the nearest ancestor having the same character as the current node.
+
+To do this efficiently, maintain an array:
+
+`last[26]`
+
+It stores the most recently visited ancestor for each lowercase English character along the current DFS path.
+
+For example, if the current path is:
+
+`0 -> 1 -> 3`
+
+And the characters are:
+
+`a -> b -> a`
+
+Then:
+
+`last['a'] = 0`
+
+`last['b'] = 1`
+
+For node `3`, the closest ancestor with character `a` is node `0`.
+
+Step 3: Apply backtracking.
+
+During DFS:
+
+1. Save the previous value of `last[s[node]]`.
+2. Check whether a matching ancestor exists.
+3. If it exists, assign it as the new parent.
+4. Otherwise, retain the original parent.
+5. Update `last[s[node]]` with the current node.
+6. Visit the children.
+7. Restore the previous value of `last[s[node]]` when returning.
+
+Why do we restore the value?
+
+Because DFS explores different branches.
+
+An ancestor from one branch must not be considered an ancestor of a node in another branch.
+
+Backtracking ensures that `last` always represents only the current root-to-node path.
+
+Step 4: Build the final tree.
+
+After finding the new parent of every node, construct another adjacency list using the new parent array.
+
+This ensures that all parent changes are applied simultaneously.
+
+Step 5: Calculate subtree sizes.
+
+Perform another DFS on the final tree.
+
+For every node:
+
+1. Start its subtree size at `1`, because the node itself is included.
+2. Visit all its children.
+3. Add the subtree sizes of its children.
+4. Store the final result in `answer[node]`.
+
+The formula is:
+
+\\[ answer[node] = 1 + \sum answer[child] \\]
+
+Solution:
+
+```
+class Solution {
+public:
+    vector<int> answer;
+    vector<int> newParent;
+    vector<vector<int>> children;
+
+    void findParents(int node, string& s, vector<int>& last) {
+        int ch = s[node] - 'a';
+
+        // Store the previous ancestor with this character.
+        int previous = last[ch];
+
+        // Find the closest matching ancestor.
+        if (previous != -1) {
+            newParent[node] = previous;
+        }
+
+        // Current node becomes the latest node with this character.
+        last[ch] = node;
+
+        // Explore children in the original tree.
+        for (int child : children[node]) {
+            findParents(child, s, last);
+        }
+
+        // Backtrack to restore the previous ancestor.
+        last[ch] = previous;
+    }
+
+    int calculateSize(int node, vector<vector<int>>& finalTree) {
+        int size = 1;
+
+        for (int child : finalTree[node]) {
+            size += calculateSize(child, finalTree);
+        }
+
+        answer[node] = size;
+        return size;
+    }
+
+    vector<int> findSubtreeSizes(vector<int>& parent, string s) {
+        int n = parent.size();
+
+        children.assign(n, {});
+        newParent = parent;
+        answer.assign(n, 0);
+
+        // Build the original tree.
+        for (int i = 1; i < n; i++) {
+            children[parent[i]].push_back(i);
+        }
+
+        // Find the new parent of every node.
+        vector<int> last(26, -1);
+        findParents(0, s, last);
+
+        // Build the final tree.
+        vector<vector<int>> finalTree(n);
+
+        for (int i = 1; i < n; i++) {
+            finalTree[newParent[i]].push_back(i);
+        }
+
+        // Calculate subtree sizes in the final tree.
+        calculateSize(0, finalTree);
+
+        return answer;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`parent = [-1, 0, 0, 1, 1]`
+
+`s = "ababa"`
+
+Original tree:
+
+```
+        0(a)
+       /    \
+     1(b)   2(a)
+     / \
+   3(a) 4(b)
+```
+
+Step 1: Find the new parent of each node.
+
+- Node `0`: It is the root, so its parent remains `-1`.
+- Node `1`: Its character is `b`. No ancestor has character `b`, so its parent remains `0`.
+- Node `2`: Its character is `a`. Its closest matching ancestor is node `0`, so its parent remains `0`.
+- Node `3`: Its character is `a`. Its ancestors are node `1` (`b`) and node `0` (`a`). The closest matching ancestor is node `0`, so its new parent becomes `0`.
+- Node `4`: Its character is `b`. Its closest matching ancestor is node `1`, so its parent remains `1`.
+
+New parent array:
+
+`newParent = [-1, 0, 0, 0, 1]`
+
+Step 2: Construct the final tree.
+
+```
+          0(a)
+        /  |  \
+      1(b) 2(a) 3(a)
+      |
+     4(b)
+```
+
+Step 3: Calculate subtree sizes using DFS.
+
+- Node `4` has no children, so its subtree size is `1`.
+- Node `1` contains itself and node `4`, so its subtree size is `2`.
+- Node `2` has no children, so its subtree size is `1`.
+- Node `3` has no children, so its subtree size is `1`.
+- Node `0` contains all five nodes, so its subtree size is `5`.
+
+Final Answer:
+
+`[5, 2, 1, 1, 1]`
+
+Time Complexity: O(N)
+
+- Building the original tree takes O(N).
+- The first DFS visits every node once and performs constant-time character lookups.
+- Building the final tree takes O(N).
+- The second DFS calculates every subtree size once.
+- Therefore, the total time complexity is O(N).
+
+Space Complexity: O(N)
+
+- The original adjacency list requires O(N) space.
+- The final adjacency list requires O(N) space.
+- The `last` array has only 26 entries, requiring O(1) space.
+- The parent and answer arrays require O(N) space.
+- DFS recursion can require O(N) stack space in the worst case.
+
+Important Points:
+
+1. All parent changes must be calculated using the original tree.
+2. Do not modify the original tree while searching for matching ancestors.
+3. The `last` array helps find the closest matching ancestor in constant time.
+4. Backtracking is necessary because nodes in different branches do not share the same ancestors.
+5. Build the final tree only after determining the new parent of every node.
+6. Calculate subtree sizes using a separate DFS on the final tree.
+7. The code assumes that `s` contains lowercase English letters, as is standard for this problem.
+
+Key Concept:
+
+The main trick is combining DFS with backtracking. The `last` array remembers the closest ancestor for each character on the current DFS path. Once all new parents are determined, a second DFS calculates the subtree sizes of the final tree.
