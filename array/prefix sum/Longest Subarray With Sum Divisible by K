@@ -1,0 +1,183 @@
+2026-11-22|Longest Subarray With Sum Divisible by K
+
+Question:
+Given an integer array `arr[]` and a positive integer `k`, return the length of the longest subarray whose sum is divisible by `k`.
+
+Approach:
+We can solve this problem efficiently using the Prefix Sum and Hash Map technique.
+
+1. Understand the prefix sum.
+
+   A prefix sum stores the sum of all elements from index `0` to the current index.
+
+   For example:
+
+   `arr = [2, 7, 6, 1]`
+
+   Prefix sums:
+
+   `[2, 9, 15, 16]`
+2. Use the remainder property.
+
+   Suppose two prefix sums have the same remainder when divided by `k`.
+
+   Let:
+
+   `prefixSum[i] % k = prefixSum[j] % k`
+
+   This means:
+
+   `(prefixSum[j] - prefixSum[i]) % k = 0`
+
+   The difference between these prefix sums is the sum of the subarray between them.
+
+   Therefore, that subarray's sum is divisible by `k`.
+3. Use a hash map.
+
+   Create a hash map called `firstIndex`.
+
+   It stores:
+   - Key: A remainder.
+   - Value: The first index where that remainder appeared.
+   We store only the first occurrence because an earlier occurrence gives us a longer subarray.
+4. Handle remainder zero.
+
+   Initially, store:
+
+   `firstIndex[0] = -1`
+
+   This represents a prefix sum of zero before the array starts.
+
+   It allows us to correctly identify subarrays beginning at index `0`.
+5. Traverse the array.
+
+   Maintain a running prefix sum.
+
+   At every index:
+   - Add the current element to the prefix sum.
+   - Calculate its remainder with `k`.
+   - If the remainder is negative, add `k` to make it non-negative.
+6. Check whether the remainder already exists.
+
+   If it exists in the hash map:
+   - A subarray with sum divisible by `k` has been found.
+   - Calculate its length:
+   `i - firstIndex[remainder]`
+   - Update the maximum length.
+7. If the remainder does not exist:
+
+   Store its first occurrence in the hash map.
+8. Return the maximum length.
+
+Solution:
+
+```
+class Solution {
+public:
+    int longestSubarrayDivK(vector<int>& arr, int k) {
+        unordered_map<int, int> firstIndex;
+
+        // Prefix sum 0 exists before the array starts.
+        firstIndex[0] = -1;
+
+        long long prefixSum = 0;
+        int maxLength = 0;
+
+        for (int i = 0; i < arr.size(); i++) {
+            prefixSum += arr[i];
+
+            // Normalize the remainder, including for negative sums.
+            int rem = prefixSum % k;
+
+            if (rem < 0) {
+                rem += k;
+            }
+
+            if (firstIndex.find(rem) != firstIndex.end()) {
+                int length = i - firstIndex[rem];
+                maxLength = max(maxLength, length);
+            }
+            else {
+                firstIndex[rem] = i;
+            }
+        }
+
+        return maxLength;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`arr = [2, 7, 6, 1, 4, 5]`
+
+`k = 3`
+
+Initially:
+
+- `prefixSum = 0`
+- `maxLength = 0`
+- `firstIndex = {0 : -1}`
+
+Now process the array:
+
+| Index | Element | Prefix Sum | Remainder | First Occurrence | Subarray Length |
+| ----- | ------- | ---------- | --------- | ---------------- | --------------- |
+| 0     | 2       | 2          | 2         | Not found        | Store 0         |
+| 1     | 7       | 9          | 0         | -1               | 2               |
+| 2     | 6       | 15         | 0         | -1               | 3               |
+| 3     | 1       | 16         | 1         | Not found        | Store 3         |
+| 4     | 4       | 20         | 2         | 0                | 4               |
+| 5     | 5       | 25         | 1         | 3                | 2               |
+
+Let's understand the important steps.
+
+At index 2:
+
+- Prefix sum = 15.
+- Remainder = 0.
+- Remainder 0 was first found at index -1.
+- Subarray length = `2 - (-1) = 3`.
+- The subarray is `[2, 7, 6]`.
+- Its sum is 15, which is divisible by 3.
+
+At index 4:
+
+- Prefix sum = 20.
+- Remainder = 2.
+- Remainder 2 was first found at index 0.
+- Subarray length = `4 - 0 = 4`.
+- The subarray is `[7, 6, 1, 4]`.
+- Its sum is 18, which is divisible by 3.
+
+The maximum length found is 4.
+
+Final Answer: `4`
+
+Time Complexity: O(N) expected
+
+- We traverse the array exactly once.
+- Each hash map lookup and insertion takes O(1) expected time.
+- Therefore, the expected time complexity is O(N).
+
+Space Complexity: O(min(N, K))
+
+- The hash map stores the first occurrence of each distinct remainder.
+- There can be at most N+1 different remainders, and there are only K possible normalized remainders.
+- Therefore, auxiliary space is O(min(N, K)).
+
+Important Points:
+
+1. Use prefix sums to avoid checking every possible subarray.
+2. If two prefix sums have the same remainder modulo `k`, their difference is divisible by `k`.
+3. Store the first occurrence of every remainder, not the latest occurrence.
+4. Initialize `firstIndex[0] = -1` to handle subarrays starting at index 0.
+5. Normalize negative remainders using `if (rem < 0) rem += k`.
+6. Use `long long` for the prefix sum to avoid integer overflow.
+7. The algorithm works with positive, zero, and negative array elements.
+
+Key Concept:
+
+The main trick is that we do not need to calculate the sum of every possible subarray. We only need to remember the first index where each remainder appears. When the same remainder appears again, the elements between those two positions form a subarray whose sum is divisible by `k`.
