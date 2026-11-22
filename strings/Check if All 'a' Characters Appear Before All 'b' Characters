@@ -1,0 +1,111 @@
+2026-11-22|Check if All 'a' Characters Appear Before All 'b' Characters
+
+Question:
+Given a string `s` consisting only of `'a'` and `'b'`, return `true` if every `'a'` appears before every `'b'`. Otherwise, return `false`.
+
+Approach:
+We can solve this problem using a simple linear traversal.
+
+The main observation is that the string must follow this pattern:
+
+`aaaa...bbbb`
+
+There should never be an `'a'` after the first occurrence of `'b'`.
+
+1. Initialize a boolean variable:
+
+   `foundB = false`
+
+   It tells us whether we have encountered a `'b'`.
+2. Traverse the string from left to right.
+3. If the current character is `'b'`:
+   - Set `foundB = true`.
+   - This means the `'b'` section has started.
+4. If the current character is `'a'`:
+   - Check whether `foundB` is already true.
+   - If it is true, an `'a'` has appeared after a `'b'`.
+   - Therefore, return `false`.
+5. If the complete string is traversed without finding an invalid position, return `true`.
+
+Solution:
+
+```
+class Solution {
+public:
+    bool checkString(string s) {
+        bool foundB = false;
+
+        for (char ch : s) {
+            if (ch == 'b') {
+                foundB = true;
+            }
+            else if (foundB) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`s = "aaabbba"`
+
+Initially:
+
+`foundB = false`
+
+| Index | Character | foundB | Action                  |
+| ----- | --------- | ------ | ----------------------- |
+| 0     | a         | false  | Valid                   |
+| 1     | a         | false  | Valid                   |
+| 2     | a         | false  | Valid                   |
+| 3     | b         | true   | Mark that b has started |
+| 4     | b         | true   | Valid                   |
+| 5     | b         | true   | Valid                   |
+| 6     | a         | true   | Invalid, return false   |
+
+At index 6, we find an `'a'` after encountering a `'b'`.
+
+Therefore, the condition is violated.
+
+Final Answer: `false`
+
+Another Example:
+
+`s = "aaabbb"`
+
+- Initially, `foundB = false`.
+- The first three characters are `'a'`, so everything is valid.
+- At the first `'b'`, set `foundB = true`.
+- All remaining characters are `'b'`.
+- No invalid character is found.
+
+Final Answer: `true`
+
+Time Complexity: O(N)
+
+- We traverse the string at most once.
+- Each character is checked in constant time.
+- Therefore, the time complexity is O(N), where N is the length of the string.
+
+Space Complexity: O(1)
+
+- We use only one boolean variable, `foundB`.
+- No additional data structure is required.
+
+Important Points:
+
+1. The first occurrence of `'b'` marks the beginning of the `'b'` section.
+2. After that, no `'a'` is allowed.
+3. Strings containing only `'a'` or only `'b'` are valid.
+4. We can immediately return `false` when an invalid `'a'` is found.
+5. The solution uses constant extra space.
+
+Key Concept:
+
+The simplest way to solve this problem is to remember whether we have encountered `'b'`. If an `'a'` appears after that, the string is invalid.
