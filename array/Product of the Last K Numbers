@@ -1,0 +1,177 @@
+2026-11-23|Product of the Last K Numbers
+
+Question:
+Design and implement the `ProductOfNumbers` class with the following operations:
+- `ProductOfNumbers()`: Initializes an empty stream.
+- `add(int num)`: Appends `num` to the stream.
+- `getProduct(int k)`: Returns the product of the last `k` numbers.
+It is guaranteed that the product of any contiguous sequence of numbers fits within a 32-bit integer.
+
+Approach:
+We will use a prefix product array to avoid recalculating products repeatedly.
+
+1. Understand the prefix product concept.
+
+   Suppose the stream contains:
+
+   `[2, 3, 4, 5]`
+
+   We maintain cumulative products:
+
+   `prefix = [1, 2, 6, 24, 120]`
+
+   Here:
+   - `prefix[0] = 1` represents the initial product.
+   - `prefix[1] = 2`
+   - `prefix[2] = 2 * 3 = 6`
+   - `prefix[3] = 2 * 3 * 4 = 24`
+   - `prefix[4] = 2 * 3 * 4 * 5 = 120`
+2. Calculate the product of the last `k` numbers.
+
+   If we want the product of the last 2 numbers:
+
+   `4 * 5 = 20`
+
+   Using prefix products:
+
+   `product = prefix[n] / prefix[n-k]`
+
+   Therefore:
+
+   `product = 120 / 6 = 20`
+
+   This makes each `getProduct(k)` operation O(1).
+3. Handle zero carefully.
+
+   Consider the stream:
+
+   `[2, 3, 0, 4, 5]`
+
+   If we continue multiplying after zero, every prefix product becomes zero. We would also be unable to divide by a prefix product containing zero.
+
+   So, whenever we receive zero:
+   - Clear the prefix product array.
+   - Insert `1` again as the initial prefix product.
+   - Start calculating products from the numbers after that zero.
+4. Check whether the requested range contains a zero.
+
+   We only store prefix products since the most recent zero.
+
+   Let `prefix.size() - 1` represent the number of elements added after the most recent zero.
+
+   If `k` is greater than this count, the last `k` numbers must include a zero.
+
+   Therefore, return `0`.
+5. Otherwise, calculate the product using division:
+
+   `prefix.back() / prefix[prefix.size() - 1 - k]`
+
+Solution:
+
+```
+class ProductOfNumbers {
+private:
+    vector<int> prefix;
+
+public:
+    ProductOfNumbers() {
+        prefix.push_back(1);
+    }
+
+    void add(int num) {
+        if (num == 0) {
+            prefix.clear();
+            prefix.push_back(1);
+        } 
+        else {
+            prefix.push_back(prefix.back() * num);
+        }
+    }
+
+    int getProduct(int k) {
+        int n = prefix.size();
+
+        if (k >= n) {
+            return 0;
+        }
+
+        return prefix[n - 1] / prefix[n - 1 - k];
+    }
+};
+```
+
+Dry Run:
+
+Consider the following operations:
+
+```
+add(2)
+add(3)
+add(4)
+getProduct(2)
+add(0)
+add(5)
+add(6)
+getProduct(2)
+getProduct(3)
+```
+
+Step-by-step execution:
+
+| Operation       | Prefix Array    | Result        |
+| --------------- | --------------- | ------------- |
+| `add(2)`        | `[1, 2]`        | -             |
+| `add(3)`        | `[1, 2, 6]`     | -             |
+| `add(4)`        | `[1, 2, 6, 24]` | -             |
+| `getProduct(2)` | `[1, 2, 6, 24]` | `24 / 2 = 12` |
+| `add(0)`        | `[1]`           | -             |
+| `add(5)`        | `[1, 5]`        | -             |
+| `add(6)`        | `[1, 5, 30]`    | -             |
+| `getProduct(2)` | `[1, 5, 30]`    | `30 / 1 = 30` |
+| `getProduct(3)` | `[1, 5, 30]`    | `0`           |
+
+Explanation:
+
+- `getProduct(2)` before zero returns `3 * 4 = 12`.
+- When zero is added, the prefix array resets to `[1]`.
+- After adding 5 and 6, the prefix array becomes `[1, 5, 30]`.
+- `getProduct(2)` returns `5 * 6 = 30`.
+- `getProduct(3)` includes the zero, so the answer is `0`.
+
+Complexity Analysis:
+
+1. `ProductOfNumbers()`
+   - Time Complexity: O(1)
+   - Space Complexity: O(1)
+2. `add(num)`
+   - Time Complexity: O(1)
+   - Space Complexity: O(1) additional space per nonzero element.
+   Adding zero clears the existing prefix array, which takes time proportional to its current size in the usual vector implementation. Across a sequence of operations, each stored element is cleared at most once, so the amortized cost of `add()` is O(1).
+3. `getProduct(k)`
+   - Time Complexity: O(1)
+   - Space Complexity: O(1)
+
+Overall:
+
+- `add(num)`: O(1) amortized time.
+- `getProduct(k)`: O(1) time.
+- Space Complexity: O(N), where N is the number of consecutive nonzero numbers since the most recent zero.
+
+Important Points:
+
+1. We use prefix products to avoid multiplying the last `k` numbers repeatedly.
+2. The initial prefix product is always `1`.
+3. When zero is added, we reset the prefix array.
+4. If `k` is greater than or equal to the current prefix array size, the requested range contains zero.
+5. Otherwise, division of two prefix products gives the required product.
+6. The solution handles multiple zeros correctly.
+
+Key Concept:
+
+The most important idea is:
+
+`Product of last k elements = Total prefix product / Prefix product before those k elements`
+
+Zero is handled separately by resetting the prefix array because division by zero is not possible.
+
+This approach gives O(1) product queries and O(1) amortized insertion time.
