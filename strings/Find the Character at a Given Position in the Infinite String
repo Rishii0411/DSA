@@ -1,0 +1,235 @@
+2026-11-23|Find the Character at a Given Position in the Infinite String
+
+Question:
+Given a string `s` and an integer `pos`, construct an infinite string using the following operation:
+In step `i`:
+`s = s + ('$' repeated i times) + reverse(s)`
+Return the character at the `pos`-th position using 1-based indexing.
+
+Approach:
+We will use a mathematical pattern and reverse index mapping instead of constructing the entire string.
+
+1. Understand how the string grows.
+
+   Let `L` be the length of the string before an operation.
+
+   In step `i`, we append:
+   - The original string of length `L`.
+   - `i` dollar characters.
+   - The reversed original string of length `L`.
+   Therefore, the new length becomes:
+
+   `newLength = 2 * L + i`
+2. Store the length after every step.
+
+   We do not need to store the actual strings. We only store their lengths until the length becomes at least `pos`.
+
+   Let `length[i]` represent the string length after step `i`.
+
+   Initially:
+
+   `length[0] = s.length()`
+
+   For every step:
+
+   `length[i] = 2 * length[i - 1] + i`
+3. Find the position in the previous string.
+
+   Suppose we are examining step `i`.
+
+   The newly formed string has three parts:
+   - First part: Original string, positions `1` to `L`.
+   - Second part: Dollar characters, positions `L + 1` to `L + i`.
+   - Third part: Reversed original string, positions `L + i + 1` to `2 * L + i`.
+   Now consider the required position `pos`.
+
+   There are three possible cases.
+
+   Case 1: Position belongs to the original string
+
+   If:
+
+   `pos <= L`
+
+   The required character is already in the previous string.
+
+   So, we simply move to the previous step without changing `pos`.
+
+   Case 2: Position belongs to the dollar characters
+
+   If:
+
+   `L < pos <= L + i`
+
+   The required character is `$`.
+
+   We can immediately return `$`.
+
+   Case 3: Position belongs to the reversed string
+
+   If:
+
+   `pos > L + i`
+
+   The position belongs to the reversed copy of the previous string.
+
+   Since the reversed part is at the end of the new string, its corresponding position in the original string is:
+
+   `newLength - pos + 1`
+
+   So, update:
+
+   `pos = newLength - pos + 1`
+
+   Then move to the previous step.
+4. Repeat the process until the position belongs to the initial string.
+
+   Once all operations have been reversed, the required position will be within the original string `s`.
+
+   Return:
+
+   `s[pos - 1]`
+
+   We subtract 1 because C++ strings use 0-based indexing.
+
+Solution:
+
+```
+class Solution {
+public:
+    char findCharacter(string s, long long pos) {
+        int n = s.length();
+
+        vector<__int128> length;
+        length.push_back(n);
+
+        int step = 0;
+
+        // Store lengths until the string reaches the required position.
+        while (length.back() < pos) {
+            step++;
+
+            __int128 newLength =
+                2 * length.back() + step;
+
+            length.push_back(newLength);
+        }
+
+        // Move backward through the construction steps.
+        __int128 p = pos;
+
+        for (int i = step; i >= 1; i--) {
+            __int128 previousLength = length[i - 1];
+            __int128 currentLength = length[i];
+
+            // Case 1: Position belongs to the previous string.
+            if (p <= previousLength) {
+                continue;
+            }
+
+            // Case 2: Position belongs to the added '$' characters.
+            if (p <= previousLength + i) {
+                return '$';
+            }
+
+            // Case 3: Position belongs to the reversed string.
+            p = currentLength - p + 1;
+        }
+
+        return s[(int)p - 1];
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`s = "ab"`
+
+`pos = 4`
+
+Initially:
+
+`length[0] = 2`
+
+After step 1:
+
+`length[1] = 2 * 2 + 1 = 5`
+
+The string after step 1 would be:
+
+`ab$ba`
+
+The required position is 4.
+
+Now check the three parts:
+
+| Part            | Positions | Characters |
+| --------------- | --------- | ---------- |
+| Original string | 1 to 2    | `ab`       |
+| Added `$`       | 3 to 3    | `$`        |
+| Reversed string | 4 to 5    | `ba`       |
+
+Position 4 belongs to the reversed string.
+
+Therefore, map it back:
+
+`pos = 5 - 4 + 1`
+
+`pos = 2`
+
+Now we are back in the original string `"ab"`.
+
+The character at position 2 is:
+
+`b`
+
+Final Answer: `b`
+
+Another Example:
+
+`s = "ab"`
+
+`pos = 3`
+
+After step 1, the string is:
+
+`ab$ba`
+
+Position 3 belongs to the newly added dollar character.
+
+Therefore:
+
+Final Answer: `$`
+
+Complexity Analysis:
+
+Let `P` be the given position.
+
+1. Time Complexity: O(log P)
+   - The string length approximately doubles after every operation.
+   - Therefore, we need only O(log P) steps to reach the required length.
+   - We also traverse those steps backward once.
+2. Space Complexity: O(log P)
+   - We store the length after each construction step.
+   - The number of stored lengths is O(log P).
+
+Important Points:
+
+1. We never construct the actual infinite string.
+2. The length after step `i` follows the formula `2 * previousLength + i`.
+3. If the position belongs to the added section, the answer is immediately `$`.
+4. If the position belongs to the reversed section, map it back using `newLength - pos + 1`.
+5. If the position belongs to the original section, keep the position unchanged.
+6. We use `__int128` for intermediate lengths to avoid overflow while calculating the growing string lengths.
+
+Key Concept:
+
+The main trick is to solve the problem backward.
+
+Instead of asking, "What character is at this position in the huge string?", ask:
+
+"Which part of the previous string does this position correspond to?"
+
+By repeatedly mapping the position backward, we eventually reach the original string or discover that the answer is `$`.
