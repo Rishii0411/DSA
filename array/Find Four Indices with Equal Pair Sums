@@ -1,0 +1,186 @@
+Find Four Indices with Equal Pair Sums
+
+Question:
+Given an array `arr[]` of positive integers, find four distinct indices `a`, `b`, `c`, and `d` such that:
+
+`arr[a] + arr[b] = arr[c] + arr[d]`
+
+Return the lexicographically smallest valid quadruplet. If no such quadruplet exists, return `{-1, -1, -1, -1}`.
+
+Approach:
+
+We can solve this problem using a hash map that stores pairs of indices having the same sum.
+
+The key idea is that whenever we find two different pairs with the same sum, we have a potential answer. We only need to ensure that all four indices are distinct.
+
+1. Generate all possible pairs.
+
+   Consider every pair of indices `(i, j)` where `i < j`.
+
+   Calculate their sum:
+
+   `sum = arr[i] + arr[j]`
+2. Store pairs in a hash map.
+
+   Use a hash map:
+
+   `sum -> list of index pairs`
+
+   For example, if:
+
+   `arr = [3, 4, 5, 6]`
+
+   Then:
+   - Pair `(0, 3)` has sum `3 + 6 = 9`.
+   - Pair `(1, 2)` has sum `4 + 5 = 9`.
+   Both pairs have the same sum, so they form a valid quadruplet:
+
+   `(0, 3, 1, 2)`
+3. Check whether the indices are distinct.
+
+   For two pairs `(i, j)` and `(x, y)`, all four indices must be different.
+
+   In other words:
+   - `i != x`
+   - `i != y`
+   - `j != x`
+   - `j != y`
+4. Find the lexicographically smallest answer.
+
+   Since multiple valid quadruplets may exist, we cannot simply return the first answer found.
+
+   For each valid pair combination:
+   - Arrange the two pairs so that the smaller first pair comes first.
+   - Create the quadruplet `{a, b, c, d}`.
+   - Compare it with the current best answer.
+   - Keep the lexicographically smaller one.
+5. Return the answer.
+
+   If no valid combination is found, return:
+
+   `{-1, -1, -1, -1}`
+
+Solution:
+
+The following implementation stores every pair for each sum and checks all combinations. This guarantees that the lexicographically smallest answer is found.
+
+```
+class Solution {
+public:
+    vector<int> equal(vector<int>& arr) {
+        int n = arr.size();
+
+        unordered_map<long long, vector<pair<int, int>>> mp;
+
+        vector<int> ans = {-1, -1, -1, -1};
+
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+
+                long long sum = (long long)arr[i] + arr[j];
+
+                for (auto p : mp[sum]) {
+                    int x = p.first;
+                    int y = p.second;
+
+                    // All four indices must be distinct.
+                    if (i == x || i == y || j == x || j == y) {
+                        continue;
+                    }
+
+                    vector<int> candidate = {x, y, i, j};
+
+                    // Keep the lexicographically smallest answer.
+                    if (ans[0] == -1 || candidate < ans) {
+                        ans = candidate;
+                    }
+                }
+
+                // Store the current pair.
+                mp[sum].push_back({i, j});
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`arr = [3, 4, 5, 6]`
+
+We generate all possible pairs.
+
+| Pair of indices | Pair sum |
+| --------------- | -------- |
+| `(0, 1)`        | 7        |
+| `(0, 2)`        | 8        |
+| `(0, 3)`        | 9        |
+| `(1, 2)`        | 9        |
+| `(1, 3)`        | 10       |
+| `(2, 3)`        | 11       |
+
+Now observe the pairs having sum `9`:
+
+- First pair: `(0, 3)`
+- Second pair: `(1, 2)`
+
+Check whether all four indices are distinct:
+
+- `0 != 1`
+- `0 != 2`
+- `3 != 1`
+- `3 != 2`
+
+All conditions are satisfied.
+
+Therefore, we get:
+
+`arr[0] + arr[3] = arr[1] + arr[2]`
+
+`3 + 6 = 4 + 5`
+
+`9 = 9`
+
+The valid quadruplet is:
+
+`{0, 3, 1, 2}`
+
+Final Answer:
+
+`{0, 3, 1, 2}`
+
+Complexity Analysis:
+
+Let `N` be the size of the array.
+
+1. Time Complexity:
+   - Generating all pairs takes O(N²).
+   - For every pair, we check previously stored pairs having the same sum.
+   - In the worst case, many pairs can have the same sum, so checking all combinations can take O(N⁴) time.
+   Therefore, the worst-case time complexity of this implementation is O(N⁴).
+2. Space Complexity:
+   - There are O(N²) possible pairs.
+   - We store these pairs in the hash map.
+   Therefore, the space complexity is O(N²).
+
+Important Points:
+
+1. We use a hash map to group pairs having the same sum.
+2. Every pair is generated with `i < j`, so each pair is stored in a consistent order.
+3. Matching sums alone are not sufficient; all four indices must be distinct.
+4. We compare complete quadruplets to guarantee the lexicographically smallest answer.
+5. We use `long long` for the sum to avoid overflow during addition.
+
+Key Concept:
+
+The central idea is that if two different pairs have the same sum, they form a valid answer, provided their four indices are distinct.
+
+For example:
+
+`arr[a] + arr[b] = arr[c] + arr[d]`
+
+A hash map helps us find pairs with matching sums efficiently. However, because we must check every possible valid combination to guarantee the lexicographically smallest answer, the implementation above has O(N⁴) worst-case time complexity.
