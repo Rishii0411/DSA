@@ -1,0 +1,140 @@
+2026-11-24|Longest Product Equivalent Subarray
+
+Question:
+Given an array of positive integers `nums`, return the length of the longest product equivalent subarray.
+
+An array `arr` is product equivalent if:
+
+`prod(arr) == lcm(arr) * gcd(arr)`
+
+Approach:
+
+We can solve this problem using a sliding-window-like approach with GCD, LCM, and product calculations.
+
+The important observation is that the product of a subarray grows very quickly. We can examine every possible starting index and extend the subarray to the right.
+
+1. Fix the starting index.
+
+   Start from index `i`. Initially, the subarray contains only `nums[i]`.
+2. Maintain three values.
+
+   For the current subarray, maintain:
+   - `product`: Product of all elements.
+   - `g`: GCD of all elements.
+   - `l`: LCM of all elements.
+3. Extend the subarray.
+
+   Move the ending index `j` from `i` to the end of the array.
+
+   When a new number `x = nums[j]` is included, update:
+
+   `product = product * x`
+
+   `g = gcd(g, x)`
+
+   `l = lcm(l, x)`
+
+   To calculate LCM safely, use:
+
+   `l = (l / gcd(l, x)) * x`
+4. Check the product-equivalent condition.
+
+   If:
+
+   `product == g * l`
+
+   then the current subarray is product equivalent.
+
+   Update the maximum length:
+
+   `answer = max(answer, j - i + 1)`
+5. Repeat for every starting index.
+
+   This ensures that every possible contiguous subarray is considered.
+6. Return the maximum length.
+
+Solution:
+
+class Solution {
+public:
+    int maxLength(vector<int>& nums) {
+        int n = nums.size();
+        int ans = 0;
+
+        if (n >= 2) ans = 2;
+        if (n == 1 && nums[0] == 1) ans = 1;
+
+        for (int i = 0; i + 2 < n; ++i) {
+            bool pairwiseCoprime = gcd(nums[i], nums[i + 1]) == 1;
+
+            for (int j = i + 2; j < n && pairwiseCoprime; ++j) {
+                for (int k = i; k < j; ++k) {
+                    if (gcd(nums[k], nums[j]) != 1) {
+                        pairwiseCoprime = false;
+                        break;
+                    }
+                }
+
+                if (pairwiseCoprime) {
+                    ans = max(ans, j - i + 1);
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+Dry Run:
+
+Consider:
+
+`nums = [2, 3, 4]`
+
+Start with index `i = 0`.
+
+| Subarray    | Product | GCD | LCM | GCD × LCM | Valid? |
+| ----------- | ------- | --- | --- | --------- | ------ |
+| `[2]`       | 2       | 2   | 2   | 4         | No     |
+| `[2, 3]`    | 6       | 1   | 6   | 6         | Yes    |
+| `[2, 3, 4]` | 24      | 1   | 12  | 12        | No     |
+
+The subarray `[2, 3]` is valid, so the answer becomes 2.
+
+Now start with index `i = 1`.
+
+| Subarray | Product | GCD | LCM | GCD × LCM | Valid? |
+| -------- | ------- | --- | --- | --------- | ------ |
+| `[3]`    | 3       | 3   | 3   | 9         | No     |
+| `[3, 4]` | 12      | 1   | 12  | 12        | Yes    |
+
+The subarray `[3, 4]` is also valid and has length 2.
+
+Finally, the longest valid subarray length is:
+
+Final Answer: `2`
+
+Complexity Analysis:
+
+1. Time Complexity: O(N² × log M)
+   - We use two nested loops to examine every possible subarray.
+   - There are O(N²) possible subarrays.
+   - GCD calculations take O(log M), where M is the maximum element.
+   - Therefore, the overall time complexity is O(N² × log M).
+2. Space Complexity: O(1)
+   - We use only a few variables to maintain the product, GCD, LCM, and answer.
+   - No additional data structure is required.
+
+Important Points:
+
+1. A subarray must be contiguous.
+2. The array contains only positive integers.
+3. GCD can be updated incrementally using `gcd(g, x)`.
+4. LCM can be updated using `(l / gcd(l, x)) * x`.
+5. We check the required equality for every possible subarray.
+6. The implementation above uses `long long`, but this does not guarantee safety for arbitrarily large products. It is valid only if the problem's constraints ensure that the intermediate product and LCM fit in `long long`.
+
+Key Concept:
+
+Instead of recalculating the product, GCD, and LCM from scratch for every subarray, we extend each subarray one element at a time and update all three values.
+
+This gives us a straightforward O(N² × log M) solution.
