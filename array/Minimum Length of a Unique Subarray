@@ -1,0 +1,334 @@
+Minimum Length of a Unique Subarray
+
+Question:
+Given an integer array `nums`, find the minimum length of a subarray that is not identical to any other subarray in `nums`.
+Two subarrays are considered identical if they have the same length and the same elements in corresponding positions.
+Return the minimum possible length of such a subarray.
+
+Approach:
+We can solve this problem efficiently using a suffix array and the Longest Common Prefix (LCP) technique.
+
+1. Understand the meaning of a suffix.
+
+   A suffix is a continuous portion of the array that starts at a particular index and continues until the end.
+
+   For example:
+
+   `nums = [1, 2, 1, 2]`
+
+   All possible suffixes are:
+   - Index 0: `[1, 2, 1, 2]`
+   - Index 1: `[2, 1, 2]`
+   - Index 2: `[1, 2]`
+   - Index 3: `[2]`
+   Every subarray starting at a particular index is a prefix of the suffix starting at that index.
+2. Construct the suffix array.
+
+   A suffix array stores the starting indices of all suffixes in lexicographically sorted order.
+
+   After sorting:
+
+| Starting index | Suffix         |
+| -------------- | -------------- |
+| 2              | `[1, 2]`       |
+| 0              | `[1, 2, 1, 2]` |
+| 3              | `[2]`          |
+| 1              | `[2, 1, 2]`    |
+
+Therefore:
+
+`suffixArray = [2, 0, 3, 1]`
+
+3. Calculate the Longest Common Prefix (LCP).
+
+   LCP represents the number of consecutive matching elements from the beginning of two suffixes.
+
+   For example:
+
+   First suffix: `[1, 2, 1, 2]`
+
+   Second suffix: `[1, 2]`
+
+   Both suffixes start with `[1, 2]`.
+
+   Therefore:
+
+   `LCP = 2`
+
+   This means that subarrays of length 1 and 2 starting at the first suffix are not unique.
+
+   However, the subarray of length 3, `[1, 2, 1]`, is unique because no other suffix shares that prefix.
+4. Compare neighboring suffixes.
+
+   In a lexicographically sorted suffix array, the maximum common prefix of a suffix with any other suffix can be found by comparing it with its immediate left and right neighbors.
+
+   Therefore, we calculate:
+
+   `maxLCP = max(leftLCP, rightLCP)`
+
+   The shortest unique subarray starting at that index has length:
+
+   `uniqueLength = maxLCP + 1`
+5. Check whether the unique length is possible.
+
+   Suppose the suffix starts at index `i`.
+
+   The maximum available length is:
+
+   `n - i`
+
+   If:
+
+   `uniqueLength <= n - i`
+
+   then a unique subarray of that length exists.
+
+   Otherwise, that suffix cannot provide a unique subarray.
+6. Find the minimum answer.
+
+   Repeat the process for every suffix and maintain the minimum valid unique length.
+
+   Initially, set:
+
+   `ans = n`
+
+   The complete array is always unique because there is only one subarray of length `n`.
+
+Solution:
+
+```
+class Solution {
+public:
+    int minimumLength(vector<int>& nums) {
+        int n = nums.size();
+
+        unordered_map<int, int> freq;
+
+        for (int x : nums) {
+            freq[x]++;
+        }
+
+        for (int x : nums) {
+            if (freq[x] == 1) {
+                return 1;
+            }
+        }
+
+        vector<int> sa(n), rank(n), temp(n);
+
+        vector<int> values = nums;
+
+        sort(values.begin(), values.end());
+
+        values.erase(
+            unique(values.begin(), values.end()),
+            values.end()
+        );
+
+        for (int i = 0; i < n; i++) {
+            sa[i] = i;
+
+            rank[i] = lower_bound(
+                values.begin(), values.end(), nums[i]
+            ) - values.begin();
+        }
+
+        for (int k = 1; k < n; k *= 2) {
+            auto cmp = [&](int a, int b) {
+                if (rank[a] != rank[b]) {
+                    return rank[a] < rank[b];
+                }
+
+                int ra = (a + k < n) ? rank[a + k] : -1;
+                int rb = (b + k < n) ? rank[b + k] : -1;
+
+                return ra < rb;
+            };
+
+            sort(sa.begin(), sa.end(), cmp);
+
+            temp[sa[0]] = 0;
+
+            for (int i = 1; i < n; i++) {
+                temp[sa[i]] = temp[sa[i - 1]]
+                            + cmp(sa[i - 1], sa[i]);
+            }
+
+            rank = temp;
+
+            if (rank[sa[n - 1]] == n - 1) {
+                break;
+            }
+        }
+
+        vector<int> lcp(n, 0);
+
+        for (int i = 0; i < n; i++) {
+            rank[sa[i]] = i;
+        }
+
+        int h = 0;
+
+        for (int i = 0; i < n; i++) {
+            int r = rank[i];
+
+            if (r == 0) {
+                h = 0;
+                continue;
+            }
+
+            int j = sa[r - 1];
+
+            while (i + h < n && j + h < n &&
+                   nums[i + h] == nums[j + h]) {
+                h++;
+            }
+
+            lcp[r] = h;
+
+            if (h > 0) {
+                h--;
+            }
+        }
+
+        int ans = n;
+
+        for (int i = 0; i < n; i++) {
+            int leftLCP = lcp[i];
+
+            int rightLCP = (i + 1 < n)
+                         ? lcp[i + 1] : 0;
+
+            int len = max(leftLCP, rightLCP) + 1;
+
+            if (len <= n - sa[i]) {
+                ans = min(ans, len);
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+Dry Run:
+
+Consider:
+
+`nums = [1, 2, 1, 2]`
+
+Step 1: Calculate the frequency of every element.
+
+| Element | Frequency |
+| ------- | --------- |
+| 1       | 2         |
+| 2       | 2         |
+
+No element appears exactly once, so the answer cannot be 1.
+
+Step 2: Construct the sorted suffix array.
+
+`sa = [2, 0, 3, 1]`
+
+Step 3: Calculate the LCP array.
+
+`lcp = [0, 2, 0, 1]`
+
+Step 4: Calculate the minimum unique length for each suffix.
+
+Sorted suffixes and their shortest unique prefixes
+
+Index 2
+
+1
+
+2
+
+Not possible
+
+Index 0
+
+1
+
+2
+
+1
+
+2
+
+Length 3
+
+Index 3
+
+2
+
+Not possible
+
+Index 1
+
+2
+
+1
+
+2
+
+Length 2
+
+Shortest unique subarray: [2, 1]
+
+Length = 2
+
+Detailed calculations:
+
+| Starting index | Left LCP | Right LCP | Required length | Valid? |
+| -------------- | -------- | --------- | --------------- | ------ |
+| 2              | 0        | 2         | 3               | No     |
+| 0              | 2        | 0         | 3               | Yes    |
+| 3              | 0        | 1         | 2               | No     |
+| 1              | 1        | 0         | 2               | Yes    |
+
+The minimum valid length is 2.
+
+Final Answer: `2`
+
+Complexity Analysis:
+
+1\. Time Complexity: O(N log² N)
+
+- Frequency calculation takes O(N) expected time.
+- Coordinate compression takes O(N log N) time.
+- Suffix array construction requires O(log N) rounds.
+- Each round performs sorting in O(N log N) time.
+- LCP construction using Kasai's algorithm takes O(N) time.
+- Finding the minimum answer takes O(N) time.
+
+&#x20;  Therefore, the overall time complexity is O(N log² N).
+
+2\. Space Complexity: O(N)
+
+- Frequency hash map requires O(N) space.
+- Suffix array requires O(N) space.
+- Rank and temporary arrays require O(N) space.
+- LCP array requires O(N) space.
+
+&#x20;  Therefore, the overall space complexity is O(N).
+
+Important Points:
+
+1. If any element appears exactly once, the answer is immediately 1.
+2. Overlapping subarrays are also considered when checking identical subarrays.
+3. Every subarray is a prefix of some suffix.
+4. The maximum matching prefix determines how many elements are required to make a subarray unique.
+5. The complete array is always unique for a nonempty input.
+6. This approach avoids hash collisions because suffix comparisons are based on exact element rankings.
+7. Since the constraints and original function signature were not provided, this solution assumes a nonempty array and uses `minimumLength` as the function name.
+
+Key Concept:
+
+If a suffix shares at most `k` consecutive starting elements with every other suffix, then its first `k + 1` elements form a unique subarray, provided that many elements are available.
+
+The main formula is:
+
+`Shortest unique length = max(leftLCP, rightLCP) + 1`
+
+By applying this formula to every suffix, we can find the shortest unique subarray without explicitly generating and comparing all possible subarrays.
