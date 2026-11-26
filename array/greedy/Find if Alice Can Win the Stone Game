@@ -1,0 +1,181 @@
+2026-11-26|Find if Alice Can Win the Stone Game
+
+Question:
+Alice and Bob are playing a game where they take turns removing stones from a pile, with Alice going first.
+- Alice starts by removing exactly 10 stones on her first turn.
+- For each subsequent turn, each player removes exactly 1 fewer stone than the previous opponent.
+- The player who cannot make a move loses the game.
+
+Given a positive integer `n`, return `true` if Alice wins the game and `false` otherwise.
+Approach:
+
+We can solve this problem using simple game simulation because neither player has a choice regarding the number of stones they must remove.
+
+1. Initialize the required number of stones.
+
+   Alice must remove exactly 10 stones on her first turn.
+
+   `stones = 10`
+2. Maintain a boolean variable to track the current player.
+
+   `aliceTurn = true`
+   - If `aliceTurn` is true, it is Alice's turn.
+   - If `aliceTurn` is false, it is Bob's turn.
+3. Check whether the current player can make a valid move.
+
+   A player can make a valid move only when the remaining number of stones is greater than or equal to the required number of stones, and the required number is positive.
+4. Remove the required number of stones.
+
+   If the current player can make a move, subtract the required stones from the pile.
+
+   `n = n - stones`
+5. Decrease the required number of stones by 1.
+
+   Since the next player must remove one fewer stone:
+
+   `stones--`
+6. Switch the current player.
+
+   We can use the logical NOT operator to switch between Alice and Bob.
+
+   `aliceTurn = !aliceTurn`
+7. Continue until a player cannot make a valid move.
+
+   When the loop terminates, `aliceTurn` represents the player who cannot make the next move.
+   - If it is Alice's turn, Alice loses.
+   - If it is Bob's turn, Bob loses and Alice wins.
+   Therefore, return:
+
+   `!aliceTurn`
+
+Solution:
+
+```
+class Solution {
+public:
+    bool canAliceWin(int n) {
+        int stones = 10;
+        bool aliceTurn = true;
+
+        while (stones > 0 && n >= stones) {
+            n -= stones;
+            stones--;
+            aliceTurn = !aliceTurn;
+        }
+
+        return !aliceTurn;
+    }
+};
+```
+
+Dry Run:
+
+Example 1:
+
+`n = 30`
+
+Initially:
+
+- `stones = 10`
+- `aliceTurn = true`
+
+| Turn | Player | Required stones | Remaining stones | Status     |
+| ---- | ------ | --------------- | ---------------- | ---------- |
+| 1    | Alice  | 10              | 20               | Successful |
+| 2    | Bob    | 9               | 11               | Successful |
+| 3    | Alice  | 8               | 3                | Successful |
+| 4    | Bob    | 7               | 3                | Failed     |
+
+Bob needs 7 stones, but only 3 stones remain in the pile.
+
+Therefore, Bob cannot make a valid move and loses the game.
+
+Alice wins.
+
+Final Answer: `true`
+
+Example 2:
+
+`n = 20`
+
+| Turn | Player | Required stones | Remaining stones | Status     |
+| ---- | ------ | --------------- | ---------------- | ---------- |
+| 1    | Alice  | 10              | 10               | Successful |
+| 2    | Bob    | 9               | 1                | Successful |
+| 3    | Alice  | 8               | 1                | Failed     |
+
+Alice needs 8 stones, but only 1 stone remains.
+
+Therefore, Alice loses the game.
+
+Final Answer: `false`
+
+Example 3:
+
+`n = 5`
+
+Alice needs exactly 10 stones on her first turn, but the pile contains only 5 stones.
+
+Alice cannot make even her first move.
+
+Final Answer: `false`
+
+Complexity Analysis:
+
+1. Time Complexity: O(1)
+
+   The number of stones required for each turn follows this sequence:
+
+   `10, 9, 8, 7, 6, 5, 4, 3, 2, 1`
+
+   There can be at most 10 successful turns, regardless of the value of `n`.
+
+   Therefore, the time complexity is O(1).
+2. Space Complexity: O(1)
+
+   We use only two additional variables:
+   - `stones` to store the required number of stones.
+   - `aliceTurn` to track the current player.
+   No additional data structure is required.
+
+Mathematical Observation:
+
+We can also determine the winner using the total number of stones removed after each successful turn.
+
+| Successful turns | Total stones removed | Winner if next move fails |
+| ---------------- | -------------------- | ------------------------- |
+| 0                | 0                    | Bob                       |
+| 1                | 10                   | Alice                     |
+| 2                | 19                   | Bob                       |
+| 3                | 27                   | Alice                     |
+| 4                | 34                   | Bob                       |
+| 5                | 40                   | Alice                     |
+| 6                | 45                   | Bob                       |
+| 7                | 49                   | Alice                     |
+| 8                | 52                   | Bob                       |
+| 9                | 54                   | Alice                     |
+| 10               | 55                   | Bob                       |
+
+If the total number of successful turns is odd, Alice wins.
+
+If the total number of successful turns is even, Bob wins.
+
+Important Points:
+
+1. Alice always plays first.
+2. Each player must remove exactly the required number of stones.
+3. Players cannot choose how many stones they want to remove.
+4. The required number of stones decreases by 1 after every successful turn.
+5. The boolean variable helps us switch between Alice and Bob.
+6. Dynamic programming or minimax algorithms are not required because there are no alternative moves to consider.
+7. Since the question does not specify what happens when the required number reaches zero, the solution assumes that removing zero stones is not a valid move.
+
+Key Concept:
+
+The main idea is to simulate the game and identify which player fails to make the next move.
+
+If Alice cannot make a move, return `false`.
+
+If Bob cannot make a move, return `true`.
+
+Since the game has at most 10 successful turns, we can determine the winner in constant time using O(1) extra space.
