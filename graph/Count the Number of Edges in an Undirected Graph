@@ -1,0 +1,154 @@
+2026-11-27|Count the Number of Edges in an Undirected Graph
+
+Question:
+
+Given an undirected graph with `V` vertices numbered from `0` to `V - 1`, represented by an adjacency list `adj[][]`, where `adj[i]` contains the vertices adjacent to vertex `i`.
+
+Return the total number of edges present in the graph.
+
+Approach:
+
+We can solve this problem using the Handshaking Lemma of graph theory.
+
+1. Understand the degree of a vertex.
+
+   The degree of a vertex represents the number of edges connected to that vertex.
+
+   In an adjacency list, the degree of vertex `i` is given by:
+
+   `degree = adj[i].size()`
+2. Understand the Handshaking Lemma.
+
+   According to the Handshaking Lemma, the sum of the degrees of all vertices in an undirected graph is equal to twice the total number of edges.
+
+   \\[\
+   \sum\_{i=0}^{V-1}\deg(i)=2E\
+   \\]
+
+   Where:
+   - V represents the total number of vertices.
+   - E represents the total number of edges.
+   - deg(i) represents the degree of vertex i.
+
+   Rearranging the formula:
+
+   \\[\
+   E=\frac{\sum\_{i=0}^{V-1}\deg(i)}{2}\
+   \\]
+3. Initialize a variable.
+
+   Create a variable `total` and initialize it to 0.
+
+   This variable stores the sum of the degrees of all vertices.
+4. Traverse the adjacency list.
+
+   For every vertex, calculate the size of its adjacency list and add it to `total`.
+
+   `total += adj[i].size()`
+
+   We do not need to traverse every individual neighboring vertex because the `size()` function returns the number of neighbors in constant time.
+5. Divide the total by 2.
+
+   Since every undirected edge is counted twice, divide `total` by 2.
+6. Return the result.
+
+   `return total / 2`
+
+Solution:
+
+```
+class Solution {
+public:
+    int countEdges(vector<vector<int>>& adj) {
+        long long total = 0;
+
+        for (int i = 0; i < adj.size(); i++) {
+            total += adj[i].size();
+        }
+
+        return total / 2;
+    }
+};
+```
+
+Dry Run:
+
+Consider the following adjacency list:
+
+`adj = [[1, 2], [0, 2, 3], [0, 1, 3], [1, 2]]`
+
+Initially:
+
+`total = 0`
+
+| Vertex | Adjacent vertices | Degree | Total |
+| ------ | ----------------- | ------ | ----- |
+| 0      | [1, 2]            | 2      | 2     |
+| 1      | [0, 2, 3]         | 3      | 5     |
+| 2      | [0, 1, 3]         | 3      | 8     |
+| 3      | [1, 2]            | 2      | 10    |
+
+After completing the traversal:
+
+`total = 10`
+
+Each edge has been counted twice.
+
+Therefore:
+
+`totalEdges = 10 / 2`
+
+Final Answer: `5`
+
+Why Do We Divide by 2?
+
+Consider the individual adjacency list entries:
+
+| Actual edge | First occurrence | Second occurrence |
+| ----------- | ---------------- | ----------------- |
+| (0, 1)      | adj[0]           | adj[1]            |
+| (0, 2)      | adj[0]           | adj[2]            |
+| (1, 2)      | adj[1]           | adj[2]            |
+| (1, 3)      | adj[1]           | adj[3]            |
+| (2, 3)      | adj[2]           | adj[3]            |
+
+Every edge contributes exactly 2 to the total degree count.
+
+Dividing by 2 eliminates this duplicate counting.
+
+Complexity Analysis:
+
+1. Time Complexity: O(V)
+   - We traverse all V vertices exactly once.
+   - The `adj[i].size()` operation takes O(1) time.
+   - We do not traverse individual neighboring vertices.
+
+   Therefore, the overall time complexity is O(V), not O(V + E).
+2. Space Complexity: O(1)
+   - We only use a variable to store the total degree count.
+   - No additional array, hash map, or visited array is required.
+   - The existing adjacency list is not included in auxiliary space.
+
+Important Points:
+
+1. Every edge in an undirected graph contributes 2 to the total degree count.
+2. The size of each adjacency list represents the degree of that vertex.
+3. Isolated vertices have a degree of 0.
+4. The solution also works for disconnected graphs.
+5. If the graph contains no edges, the answer is 0.
+6. BFS and DFS are not required because we only need to count edges, not explore connectivity.
+7. For a directed graph, we would not divide the total adjacency list size by 2.
+8. The solution assumes the standard undirected adjacency list representation, where every edge is stored twice, including self-loops if allowed.
+9. The function name `countEdges` is assumed because the original function signature was not provided.
+
+Key Concept:
+
+The most important concept used in this problem is the Handshaking Lemma.
+
+`Sum of degrees of all vertices = 2 × Number of edges`
+
+Therefore:
+
+`Number of edges = Sum of adjacency list sizes / 2`
+
+Using this mathematical observation, we can count all the edges in O(V) time and O(1) auxiliary space without performing any graph traversal algorithm such as BFS or DFS.
